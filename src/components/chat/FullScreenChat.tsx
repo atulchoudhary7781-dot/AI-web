@@ -52,7 +52,7 @@ export default function FullScreenChat({
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
       {/* Welcome Header - Only show when no messages or first load */}
       {messages.length <= 1 && (
-        <div className="flex-1 flex items-center justify-center px-4 overflow-y-auto">
+        <div className="flex-1 flex items-center justify-center px-4 overflow-y-auto custom-scrollbar sidebar-scroll">
           <div className="text-center max-w-2xl py-8">
             {/* Logo */}
             <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
@@ -93,7 +93,7 @@ export default function FullScreenChat({
       )}
 
       {/* Messages Area - ONLY this scrolls */}
-      <div className={`flex-1 overflow-y-auto min-h-0 ${messages.length <= 1 ? 'hidden' : ''}`}>
+      <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar sidebar-scroll ${messages.length <= 1 ? 'hidden' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => (

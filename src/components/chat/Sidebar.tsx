@@ -209,32 +209,15 @@ export default function Sidebar({
             )}
           </nav>
 
-          {/* Footer / Settings - Fixed, No Scroll */}
-          <div className="flex-shrink-0 p-3 border-t border-gray-800/50 space-y-1 bg-gray-900/30">
-            <button
-              onClick={() => { onToggleTheme(); onClose(); }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800/50 hover:text-white transition-all duration-200"
-            >
-              {isDarkMode ? (
-                <Sun className="w-4 h-4 text-yellow-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-blue-400" />
-              )}
-              <span className="text-sm">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
-              <div className={`ml-auto w-8 h-5 rounded-full transition-colors duration-200 ${isDarkMode ? 'bg-violet-500/30' : 'bg-gray-700'} relative`}>
-                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-200 ${isDarkMode ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+          {/* Footer / User Profile - Fixed, No Scroll */}
+          <div className="flex-shrink-0 p-3 border-t border-gray-800/50 bg-gray-900/30">
+            <div className="flex items-center gap-3 px-3 py-2">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
+                <User className="w-4 h-4 text-white" />
               </div>
-            </button>
-
-            <div className="pt-2 border-t border-gray-800/50">
-              <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium truncate">NEXUS User</p>
-                  <p className="text-xs text-gray-500">Free Plan • v1.0</p>
-                </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-white font-medium truncate">NEXUS User</p>
+                <p className="text-xs text-gray-500">Free Plan • v1.0</p>
               </div>
             </div>
           </div>
