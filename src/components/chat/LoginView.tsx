@@ -33,7 +33,6 @@ export default function LoginView({
     e.preventDefault()
     setError('')
     
-    // Validation
     if (!isLoginMode && !name.trim()) {
       setError('Name is required')
       return
@@ -49,10 +48,8 @@ export default function LoginView({
 
     setIsLoading(true)
     
-    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // Save to localStorage for persistence
     const userData = isLoginMode 
       ? { name: email.split('@')[0], email }
       : { name, email }
@@ -61,7 +58,6 @@ export default function LoginView({
     onLogin(userData)
     setIsLoading(false)
     
-    // Reset form
     setName('')
     setEmail('')
     setPassword('')
@@ -78,7 +74,7 @@ export default function LoginView({
 
   const handleLogout = () => {
     localStorage.removeItem('nexus_user')
-    localStorage.removeItem('nexus_sessions') // Clear chat history on logout
+    localStorage.removeItem('nexus_sessions')
     onLogout()
   }
 
@@ -86,56 +82,51 @@ export default function LoginView({
     return (
       <div className="h-full flex items-center justify-center px-4">
         <div className="max-w-md w-full">
-          {/* Success Card */}
           <div className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-2xl p-8 backdrop-blur-xl text-center">
-            {/* Success Icon */}
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center">
               <CheckCircle className="w-10 h-10 text-green-400" />
             </div>
             
             <h2 className="text-2xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
-                Welcome Back!
-              </h2>
-              <p className="text-gray-400 mb-6">
-                You're logged in as <span className="text-cyan-400 font-medium">{user.name}</span>
-              </p>
+              Welcome Back!
+            </h2>
+            <p className="text-gray-400 mb-6">
+              You are logged in as <span className="text-cyan-400 font-medium">{user.name}</span>
+            </p>
 
-              {/* User Info Card */}
-              <div className="bg-black/30 rounded-xl p-4 mb-6 text-left border border-gray-800">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">{user.name}</p>
-                    <p className="text-gray-500 text-sm">{user.email}</p>
-                  </div>
+            <div className="bg-black/30 rounded-xl p-4 mb-6 text-left border border-gray-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                  <User className="w-6 h-6 text-white" />
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-400 bg-cyan-500/5 rounded-lg p-2">
-                  <Shield className="w-4 h-4 text-green-400" />
-                  <span>Chat history will be saved</span>
+                <div>
+                  <p className="text-white font-semibold">{user.name}</p>
+                  <p className="text-gray-500 text-sm">{user.email}</p>
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => window.location.reload()}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
-                >
-                  <Rocket className="w-4 h-4 mr-2" />
-                  Start Chatting Now
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleLogout}
-                  className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout & Clear History
-                </Button>
+              <div className="flex items-center gap-2 text-sm text-gray-400 bg-cyan-500/5 rounded-lg p-2">
+                <Shield className="w-4 h-4 text-green-400" />
+                <span>Chat history will be saved</span>
               </div>
+            </div>
+
+            <div className="space-y-3">
+              <Button 
+                onClick={() => window.location.reload()}
+                className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
+              >
+                <Rocket className="w-4 h-4 mr-2" />
+                Start Chatting Now
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout and Clear History
+              </Button>
             </div>
           </div>
         </div>
@@ -147,7 +138,6 @@ export default function LoginView({
     <div className="h-full overflow-y-auto custom-scrollbar">
       <div className="min-h-full flex items-center justify-center px-4 py-8">
         <div className="max-w-md w-full">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-lg shadow-cyan-500/25 mb-4">
               <Sparkles className="w-8 h-8 text-white" />
@@ -162,7 +152,6 @@ export default function LoginView({
             </p>
           </div>
 
-          {/* Toggle Buttons */}
           <div className="flex bg-gray-900/50 rounded-xl p-1 mb-6 border border-gray-800">
             <button
               onClick={() => { setIsLoginMode(true); setError(''); }}
@@ -188,9 +177,7 @@ export default function LoginView({
             </button>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name Field - Only for Sign Up */}
             {!isLoginMode && (
               <div className="space-y-2">
                 <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
@@ -210,7 +197,6 @@ export default function LoginView({
               </div>
             )}
 
-            {/* Email Field */}
             <div className="space-y-2">
               <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
                 <Mail className="w-4 h-4 text-cyan-400" />
@@ -228,7 +214,6 @@ export default function LoginView({
               </div>
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2">
               <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
                 <Lock className="w-4 h-4 text-cyan-400" />
@@ -239,7 +224,7 @@ export default function LoginView({
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password (min 4 chars)"
+                  placeholder="Min 4 characters"
                   className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 pr-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -253,7 +238,6 @@ export default function LoginView({
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm flex items-center gap-2">
                 <Shield className="w-4 h-4 flex-shrink-0" />
@@ -261,7 +245,6 @@ export default function LoginView({
               </div>
             )}
 
-            {/* Submit Button */}
             <Button
               type="submit"
               disabled={isLoading}
@@ -291,7 +274,6 @@ export default function LoginView({
             </Button>
           </form>
 
-          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-800"></div>
@@ -301,17 +283,15 @@ export default function LoginView({
             </div>
           </div>
 
-          {/* Guest Login */}
           <Button
             variant="outline"
             onClick={handleGuestLogin}
             className="w-full border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white hover:border-gray-600"
           >
             <Zap className="w-5 h-5 mr-2" />
-            Continue as Guest (No History Saved)
+            Continue as Guest
           </Button>
 
-          {/* Info Box */}
           <div className="mt-6 bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <Brain className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
