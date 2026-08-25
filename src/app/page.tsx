@@ -773,8 +773,12 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Cpu className="w-8 h-8 text-cyan-400 animate-pulse" />
-                <div className="absolute inset-0 w-8 h-8 bg-cyan-400/30 rounded-full animate-pulse-ring" />
+                <img 
+                  src="/logo.jpg" 
+                  alt="NEXUS AI Logo" 
+                  className="w-9 h-9 object-contain animate-pulse rounded-lg" 
+                />
+                <div className="absolute inset-0 w-9 h-9 bg-cyan-400/20 rounded-lg animate-pulse-ring" />
               </div>
               <span className="text-xl font-bold font-[family-name:var(--font-orbitron)] glow-text">NEXUS AI</span>
               <Badge variant="secondary" className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">
@@ -1068,7 +1072,11 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <Cpu className="w-8 h-8 text-cyan-400" />
+                <img 
+                  src="/logo.jpg" 
+                  alt="NEXUS AI Logo" 
+                  className="w-8 h-8 object-contain rounded-lg"
+                />
                 <span className="text-xl font-bold font-[family-name:var(--font-orbitron)]">NEXUS AI</span>
               </div>
               <p className="text-gray-400 text-sm max-w-md">
