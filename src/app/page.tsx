@@ -862,8 +862,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                 }, 100);
               }}
             >
-              <Command className="w-5 h-5 mr-2" />
-              View Documentation
+              <Layers className="w-5 h-5 mr-2" />
+              Explore Features
             </Button>
           </div>
 
@@ -955,7 +955,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                  GPT-4 Turbo
+                  Llama 3.1
                 </Badge>
               </div>
             </div>
@@ -1097,53 +1097,47 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                     setActiveSection('features');
                     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                >Documentation</button></li>
+                >Features</button></li>
                 <li><button 
                   className="hover:text-cyan-400 transition-colors cursor-pointer"
                   onClick={() => {
-                    alert('📚 API Reference\n\nNEXUS AI API Documentation:\n\nEndpoint: /api/chat\nMethod: POST\nHeaders: Content-Type: application/json\nBody: { "message": "your question" }\n\nResponse: { "response": "AI answer" }');
+                    setActiveSection('chat');
+                    document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                >API Reference</button></li>
+                >Try AI Chat</button></li>
                 <li><button 
                   className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    alert('💰 Pricing Plans\n\n✨ FREE - $0/month\n  • 100 messages/day\n  • Basic features\n  • Community support\n\n⚡ PRO - $9/month\n  • Unlimited messages\n  • Advanced AI models\n  • Priority support\n  • Custom integrations\n\n🚀 ENTERPRISE - Custom\n  • Everything in Pro\n  • Dedicated infrastructure\n  • SLA guarantee\n  • 24/7 support');
-                  }}
-                >Pricing</button></li>
+                  onClick={() => window.open('https://github.com/atulchoudhary7781-dot/AI-web', '_blank')}
+                >GitHub</button></li>
                 <li><button 
                   className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => window.open('https://status.vercel.com', '_blank')}
-                >Status</button></li>
+                  onClick={() => window.open('https://openrouter.ai/models', '_blank')}
+                >AI Models</button></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Company</h4>
+              <h4 className="font-semibold text-white mb-4">Resources</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><button 
                   className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    alert('🚀 About NEXUS AI\n\nNEXUS AI is a next-generation artificial intelligence platform built with cutting-edge technology.\n\n• Advanced Neural Networks\n• Real-time AI Processing\n• Cyberpunk Design\n• Enterprise Security\n\nVersion: 4.0\nBuilt with: Next.js 16, React 19, TypeScript');
-                  }}
-                >About</button></li>
+                  onClick={() => window.open('https://openrouter.ai/docs', '_blank')}
+                >OpenRouter Docs</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => window.open('https://nextjs.org/docs', '_blank')}
+                >Next.js Docs</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => window.open('https://vercel.com/docs', '_blank')}
+                >Vercel Docs</button></li>
                 <li><button 
                   className="hover:text-cyan-400 transition-colors cursor-pointer"
                   onClick={() => {
-                    alert('📝 Blog - Coming Soon!\n\nStay tuned for:\n• AI/ML Tutorials\n• Tech Insights\n• Product Updates\n• Case Studies\n\nSubscribe to our newsletter for updates!');
+                    setActiveSection('stats');
+                    document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                >Blog</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    alert('💼 Careers at NEXUS AI\n\nWe\'re always looking for talented people!\n\nOpen Positions:\n• Frontend Developer (React/Next.js)\n• AI/ML Engineer\n• UI/UX Designer\n• DevOps Engineer\n\nSend your resume to: careers@nexusai.com');
-                  }}
-                >Careers</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    alert('📧 Contact Us\n\nEmail: hello@nexusai.com\nTwitter: @nexus_ai\nGitHub: github.com/nexus-ai\nDiscord: discord.gg/nexusai\n\nWe typically respond within 24 hours! 🎉');
-                  }}
-                >Contact</button></li>
+                >Statistics</button></li>
               </ul>
             </div>
           </div>
