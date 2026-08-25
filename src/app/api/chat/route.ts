@@ -8,8 +8,11 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 const responseCache = new Map<string, string>()
 
 export async function POST(request: NextRequest) {
+  let message = ''
+  
   try {
-    const { message } = await request.json()
+    const body = await request.json()
+    message = body.message || ''
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -60,7 +63,7 @@ Always respond in a way that showcases advanced intelligence while being accessi
         'X-Title': 'NEXUS AI'
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || 'openai/gpt-3.5-turbo',
+        model: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.1-8b-instruct',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
