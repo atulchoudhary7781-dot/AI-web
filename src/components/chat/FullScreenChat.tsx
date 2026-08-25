@@ -50,10 +50,13 @@ export default function FullScreenChat({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      {/* Top Spacer - Pushes content down */}
+      <div className="pt-8 sm:pt-12 md:pt-16" />
+      
       {/* Welcome Header - Only show when no messages or first load */}
       {messages.length <= 1 && (
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center max-w-2xl">
+        <div className="flex-1 flex items-start justify-center px-4 pt-8">
+          <div className="text-center max-w-2xl w-full">
             {/* Logo */}
             <div className="mb-8 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
               <Sparkles className="w-10 h-10 text-white" />
@@ -93,7 +96,7 @@ export default function FullScreenChat({
       )}
 
       {/* Messages Area */}
-      <div className={`flex-1 overflow-y-auto ${messages.length > 1 ? '' : 'hidden'}`}>
+      <div className={`flex-1 overflow-y-auto ${messages.length > 1 ? 'pt-8' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => (
@@ -194,8 +197,8 @@ export default function FullScreenChat({
       </div>
 
       {/* Input Area - Enhanced Design */}
-      <div className="border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto p-4">
+      <div className="border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl pb-6">
+        <div className="max-w-4xl mx-auto p-4 pt-3">
           {/* Input Container */}
           <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
             {/* Gradient border effect on focus */}

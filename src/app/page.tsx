@@ -927,7 +927,9 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         )}
 
         {/* Content Area */}
-        {renderCurrentView()}
+        <div className="pt-16 sm:pt-20">
+          {renderCurrentView()}
+        </div>
       </main>
     </div>
   )
