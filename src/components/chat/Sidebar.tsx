@@ -107,9 +107,9 @@ export default function Sidebar({
 
           {/* Navigation - SCROLLABLE AREA */}
           <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 custom-scrollbar sidebar-scroll">
-            {/* Main Views - With Scroll */}
-            <div className="mb-6 max-h-52 overflow-y-auto custom-scrollbar rounded-lg">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold sticky top-0 bg-gray-900/90 backdrop-blur-sm py-1">Main Menu</p>
+            {/* Main Views - No Scroll */}
+            <div className="mb-6">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Main Menu</p>
               
               <SidebarButton
                 icon={<MessageSquare className="w-4 h-4" />}
@@ -147,9 +147,9 @@ export default function Sidebar({
               />
             </div>
 
-            {/* External Links - With Scroll */}
-            <div className="mb-6 max-h-44 overflow-y-auto custom-scrollbar rounded-lg">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold sticky top-0 bg-gray-900/90 backdrop-blur-sm py-1">Resources</p>
+            {/* External Links - No Scroll */}
+            <div className="mb-6">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Resources</p>
               
               <ExternalLinkButton
                 icon={<Github className="w-4 h-4" />}
