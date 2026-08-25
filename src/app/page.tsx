@@ -862,22 +862,28 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       {/* Background Animation - Only on home view */}
       {currentView === 'home' && <NeuralNetworkBackground />}
 
-      {/* Mobile Menu Button */}
+      {/* Menu Toggle Button - Always visible */}
       <button
-        onClick={() => setSidebarOpen(true)}
-        className={`fixed top-4 left-4 z-30 lg:hidden p-3 backdrop-blur-xl border rounded-xl transition-colors ${
-          currentView === 'home' 
-            ? 'bg-gray-900/80 border-gray-700' 
-            : 'bg-gray-900/80 border-gray-700'
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`fixed top-4 left-4 z-30 p-3 backdrop-blur-xl border rounded-xl transition-all duration-300 hover:scale-105 ${
+          sidebarOpen 
+            ? 'bg-red-500/20 border-red-500/50 rotate-90' 
+            : 'bg-gray-900/80 border-gray-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10'
         }`}
+        title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
       >
-        <Menu className="w-5 h-5 text-gray-300" />
+        {sidebarOpen ? (
+          <X className="w-5 h-5 text-red-400" />
+        ) : (
+          <Menu className="w-5 h-5 text-cyan-400" />
+        )}
       </button>
 
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
         onNewChat={handleNewChat}
         sessions={sessions}
         activeSessionId={activeSessionId}

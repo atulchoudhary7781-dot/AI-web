@@ -1,9 +1,10 @@
 'use client'
 
+import { useEffect } from 'react'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Github, Cpu, BookOpen, FileText, Plus, Trash2, Moon, Sun,
-  ChevronLeft, X, User, History, Sparkles
+  ChevronLeft, X, User, History, Sparkles, PanelLeftClose
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -17,6 +18,7 @@ interface ChatSession {
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  onToggle: () => void
   onNewChat: () => void
   sessions: ChatSession[]
   activeSessionId: string | null
@@ -31,6 +33,7 @@ interface SidebarProps {
 export default function Sidebar({
   isOpen,
   onClose,
+  onToggle,
   onNewChat,
   sessions,
   activeSessionId,
@@ -41,42 +44,65 @@ export default function Sidebar({
   isDarkMode,
   onToggleTheme
 }: SidebarProps) {
+  // ESC key handler to close sidebar
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [isOpen, onClose])
+
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay - Works on all screen sizes when sidebar is open */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
           onClick={onClose}
         />
       )}
       
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-72 bg-gray-950/95 backdrop-blur-xl border-r border-cyan-500/20 z-50 transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
-        <div className="flex flex-col h-full">
+      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 ease-out shadow-2xl shadow-cyan-500/10 ${
+        isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 lg:-translate-x-0 lg:opacity-100 lg:w-0 lg:border-r-0 lg:shadow-none'
+      }`}
+      style={{ 
+        width: (!isOpen && typeof window !== 'undefined' && window.innerWidth >= 1024) ? '0px' : undefined
+      }}
+      >
+        {/* Hidden content when collapsed on desktop */}
+        <div className={`h-full flex flex-col transition-opacity duration-200 ${(!isOpen && typeof window !== 'undefined' && window.innerWidth >= 1024) ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
           {/* Header */}
-          <div className="p-4 border-b border-gray-800">
+          <div className="p-4 border-b border-gray-800/50 bg-gray-900/50">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-cyan-400" />
-                <span className="text-lg font-bold font-[family-name:var(--font-orbitron)] bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                  NEXUS AI
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <span className="text-lg font-bold font-[family-name:var(--font-orbitron)] bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                    NEXUS AI
+                  </span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest">Powered by Llama</p>
+                </div>
               </div>
               <button 
                 onClick={onClose}
-                className="lg:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-red-500/20 rounded-xl transition-all duration-200 group"
+                title="Close sidebar (ESC)"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
               </button>
             </div>
             
             {/* New Chat Button */}
             <Button 
-              onClick={onNewChat}
-              className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white glow-cyan"
+              onClick={() => { onNewChat(); onClose(); }}
+              className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-11 font-medium"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Chat
@@ -84,10 +110,10 @@ export default function Sidebar({
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
             {/* Main Views */}
             <div className="mb-6">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-2">Menu</p>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Main Menu</p>
               
               <SidebarButton
                 icon={<MessageSquare className="w-4 h-4" />}
@@ -116,15 +142,22 @@ export default function Sidebar({
                 active={currentView === 'stats'}
                 onClick={() => { onViewChange('stats'); onClose(); }}
               />
+
+              <SidebarButton
+                icon={<Settings className="w-4 h-4" />}
+                label="Settings"
+                active={currentView === 'settings'}
+                onClick={() => { onViewChange('settings'); onClose(); }}
+              />
             </div>
 
             {/* External Links */}
             <div className="mb-6">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-2">Resources</p>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Resources</p>
               
               <ExternalLinkButton
                 icon={<Github className="w-4 h-4" />}
-                label="GitHub"
+                label="GitHub Repository"
                 href="https://github.com/atulchoudhary7781-dot/AI-web"
               />
 
@@ -150,23 +183,26 @@ export default function Sidebar({
             {/* Chat History */}
             {sessions.length > 0 && (
               <div className="mb-6">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-2">Recent Chats</p>
-                <div className="space-y-1">
-                  {sessions.slice(0, 10).map((session) => (
+                <div className="flex items-center justify-between px-3 mb-2">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Recent Chats</p>
+                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full">{sessions.length}</span>
+                </div>
+                <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
+                  {sessions.slice(0, 8).map((session) => (
                     <div
                       key={session.id}
-                      className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                      className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
                         activeSessionId === session.id
-                          ? 'bg-cyan-500/10 text-cyan-400'
-                          : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
+                          : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent'
                       }`}
                       onClick={() => { onSelectSession(session.id); onClose(); }}
                     >
-                      <History className="w-4 h-4 flex-shrink-0" />
+                      <History className="w-4 h-4 flex-shrink-0 opacity-60" />
                       <span className="text-sm truncate flex-1">{session.title}</span>
                       <button
                         onClick={(e) => { e.stopPropagation(); onDeleteSession(session.id); }}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-lg transition-all duration-200"
                       >
                         <Trash2 className="w-3 h-3 text-red-400" />
                       </button>
@@ -178,30 +214,30 @@ export default function Sidebar({
           </nav>
 
           {/* Footer / Settings */}
-          <div className="p-4 border-t border-gray-800 space-y-2">
-            <SidebarButton
-              icon={<Settings className="w-4 h-4" />}
-              label="Settings"
-              active={currentView === 'settings'}
-              onClick={() => { onViewChange('settings'); onClose(); }}
-            />
-
+          <div className="p-3 border-t border-gray-800/50 space-y-1 bg-gray-900/30">
             <button
-              onClick={onToggleTheme}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all"
+              onClick={() => { onToggleTheme(); onClose(); }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800/50 hover:text-white transition-all duration-200"
             >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-yellow-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-blue-400" />
+              )}
               <span className="text-sm">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+              <div className={`ml-auto w-8 h-5 rounded-full transition-colors duration-200 ${isDarkMode ? 'bg-violet-500/30' : 'bg-gray-700'} relative`}>
+                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-200 ${isDarkMode ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+              </div>
             </button>
 
-            <div className="pt-2 border-t border-gray-800">
-              <div className="flex items-center gap-2 px-3 py-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 flex items-center justify-center">
+            <div className="pt-2 border-t border-gray-800/50">
+              <div className="flex items-center gap-3 px-3 py-2">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
                   <User className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">NEXUS User</p>
-                  <p className="text-xs text-gray-500">Free Plan</p>
+                  <p className="text-sm text-white font-medium truncate">NEXUS User</p>
+                  <p className="text-xs text-gray-500">Free Plan • v1.0</p>
                 </div>
               </div>
             </div>
@@ -227,14 +263,19 @@ function SidebarButton({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
         active 
-          ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30' 
-          : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/5' 
+          : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent hover:border-gray-700/50'
       }`}
     >
-      {icon}
-      <span className="text-sm">{label}</span>
+      <div className={`${active ? 'text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'} transition-colors`}>
+        {icon}
+      </div>
+      <span className="text-sm font-medium">{label}</span>
+      {active && (
+        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+      )}
     </button>
   )
 }
@@ -253,10 +294,15 @@ function ExternalLinkButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-all"
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800/50 hover:text-white transition-all duration-200 group border border-transparent hover:border-gray-700/50"
     >
-      {icon}
-      <span className="text-sm">{label}</span>
+      <div className="text-gray-500 group-hover:text-gray-300 transition-colors">
+        {icon}
+      </div>
+      <span className="text-sm font-medium flex-1">{label}</span>
+      <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+      </svg>
     </a>
   )
 }

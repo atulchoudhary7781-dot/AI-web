@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, RefreshCw, Copy, Check, Sparkles, User } from 'lucide-react'
+import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -49,58 +49,141 @@ export default function FullScreenChat({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      {/* Welcome Header - Only show when no messages or first load */}
+      {messages.length <= 1 && (
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-2xl">
+            {/* Logo */}
+            <div className="mb-8 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+            
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-orbitron)]">
+              Welcome to{' '}
+              <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                NEXUS AI
+              </span>
+            </h2>
+            
+            <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+              Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
+            </p>
+
+            {/* Quick action buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+              {[
+                { icon: '💡', text: 'Explain a concept', prompt: 'Explain quantum computing in simple terms' },
+                { icon: '💻', text: 'Write code', prompt: 'Write a Python function to sort a list' },
+                { icon: '📝', text: 'Help me write', prompt: 'Help me write a professional email' },
+                { icon: '🎯', text: 'Brainstorm ideas', prompt: 'Give me creative business ideas for 2024' }
+              ].map((action, i) => (
+                <button
+                  key={i}
+                  onClick={() => setInputValue(action.prompt)}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-cyan-500/30 hover:bg-gray-800 transition-all duration-200 group"
+                >
+                  <span className="text-xl">{action.icon}</span>
+                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{action.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={`flex-1 overflow-y-auto ${messages.length > 1 ? '' : 'hidden'}`}>
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-          {messages.map((message) => (
+          {/* Skip welcome message when showing chat */}
+          {messages.slice(1).map((message) => (
             <div
               key={message.id}
-              className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''}`}
+              className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''} animate-fadeIn`}
             >
               {message.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4 text-white" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20">
+                  <Sparkles className="w-5 h-5 text-white" />
                 </div>
               )}
               
-              <div className={`max-w-[85%] md:max-w-[75%] ${message.role === 'user' ? 'order-1' : ''}`}>
-                <div className={`rounded-2xl px-5 py-3 ${
+              <div className={`relative group ${message.role === 'user' ? 'order-1 max-w-[85%] md:max-w-[75%]' : 'max-w-[85%] md:max-width-[80%]'}`}>
+                {/* Message Bubble */}
+                <div className={`rounded-2xl px-5 py-3.5 relative overflow-hidden ${
                   message.role === 'user'
-                    ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white'
-                    : 'bg-gray-800/50 border border-gray-700'
+                    ? 'bg-gradient-to-br from-cyan-500 to-violet-600 text-white shadow-xl shadow-cyan-500/25'
+                    : 'bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-lg'
                 }`}>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {/* Gradient overlay for user messages */}
+                  {message.role === 'user' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
+                  
+                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
                     {renderMessageContent(message.content, onCopy, copiedCode)}
                   </div>
                 </div>
-                <p className={`text-xs text-gray-500 mt-1 ${message.role === 'user' ? 'text-right' : ''}`}>
-                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+
+                {/* Message Actions */}
+                <div className={`flex items-center gap-2 mt-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                  message.role === 'user' ? 'justify-end' : ''
+                }`}>
+                  <p className="text-xs text-gray-500">
+                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                  
+                  {message.role === 'assistant' && (
+                    <>
+                      <button 
+                        onClick={() => onCopy(message.content)}
+                        className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+                        title="Copy response"
+                      >
+                        {copiedCode ? (
+                          <Check className="w-3.5 h-3.5 text-green-400" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5 text-gray-400 hover:text-white" />
+                        )}
+                      </button>
+                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Good response">
+                        <ThumbsUp className="w-3.5 h-3.5 text-gray-400 hover:text-green-400" />
+                      </button>
+                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Bad response">
+                        <ThumbsDown className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
+                      </button>
+                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Regenerate">
+                        <RotateCcw className="w-3.5 h-3.5 text-gray-400 hover:text-cyan-400" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
               {message.role === 'user' && (
-                <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0 order-2">
-                  <User className="w-4 h-4 text-gray-300" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center flex-shrink-0 order-2 shadow-lg">
+                  <User className="w-5 h-5 text-gray-200" />
                 </div>
               )}
             </div>
           ))}
 
-          {/* Loading Indicator */}
+          {/* Loading Indicator - Enhanced */}
           {isLoading && (
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+            <div className="flex gap-4 animate-fadeIn">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <Bot className="w-5 h-5 text-white animate-bounce" />
               </div>
-              <div className="bg-gray-800/50 border border-gray-700 rounded-2xl px-5 py-4">
+              <div className="bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg">
                 <div className="flex items-center gap-3">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-cyan-400 to-cyan-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-violet-400 to-violet-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-pink-400 to-pink-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-sm text-gray-400">NEXUS is thinking...</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-300 font-medium">NEXUS is thinking</span>
+                    <span className="text-xs text-gray-500">Generating response...</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -110,36 +193,90 @@ export default function FullScreenChat({
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex gap-3 items-end">
-            <Textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask NEXUS AI anything..."
-              className="flex-1 min-h-[52px] max-h-[200px] resize-none bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:ring-cyan-500/20 rounded-xl"
-              disabled={isLoading}
-            />
-            <Button
-              onClick={onSubmit}
-              disabled={!inputValue.trim() || isLoading}
-              className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-6 h-[52px] rounded-xl glow-cyan"
-            >
-              {isLoading ? (
-                <RefreshCw className="w-5 h-5 animate-spin" />
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
-            </Button>
+      {/* Input Area - Enhanced Design */}
+      <div className="border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto p-4">
+          {/* Input Container */}
+          <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
+            {/* Gradient border effect on focus */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-violet-500/0 to-pink-500/0 focus-within:from-cyan-500/10 focus-within:via-violet-500/10 focus-within:to-pink-500/10 opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            
+            <div className="relative flex gap-3 items-end p-2">
+              <Textarea
+                ref={textareaRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask NEXUS AI anything..."
+                className="flex-1 min-h-[52px] max-h-[200px] resize-none bg-transparent border-none text-white placeholder:text-gray-500 focus:ring-0 focus:outline-none text-base px-2"
+                disabled={isLoading}
+                rows={1}
+              />
+              <Button
+                onClick={onSubmit}
+                disabled={!inputValue.trim() || isLoading}
+                className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-5 h-11 rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            Press Enter to send • Shift+Enter for new line • Powered by Llama 3.1 via OpenRouter
-          </p>
+
+          {/* Helper Text */}
+          <div className="flex items-center justify-between mt-3 px-2">
+            <p className="text-xs text-gray-500">
+              Press <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Enter</kbd> to send • <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Shift+Enter</kbd> for new line
+            </p>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Sparkles className="w-3 h-3 text-cyan-400" />
+              <span>Llama 3.1</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Custom Styles */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 3s ease-in-out infinite;
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(100, 116, 139, 0.3);
+          border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(100, 116, 139, 0.5);
+        }
+      `}</style>
     </div>
   )
 }
@@ -159,7 +296,7 @@ function renderMessageContent(
   const flushParagraph = () => {
     if (currentParagraph.trim()) {
       elements.push(
-        <p key={`p-${elements.length}`} className="text-gray-200 my-2 whitespace-pre-wrap">
+        <p key={`p-${elements.length}`} className="text-gray-200 my-2 whitespace-pre-wrap leading-relaxed">
           {formatInlineMarkdown(currentParagraph.trim())}
         </p>
       )
@@ -172,18 +309,29 @@ function renderMessageContent(
     if (line.trim().startsWith('```')) {
       if (inCodeBlock) {
         elements.push(
-          <div key={`code-${elements.length}`} className="my-4 relative group">
-            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div key={`code-${elements.length}`} className="my-4 relative group/code">
+            {/* Code header */}
+            <div className="flex items-center justify-between bg-gray-900 rounded-t-lg px-4 py-2 border-b border-gray-700">
+              <span className="text-xs text-gray-400 font-mono">code</span>
               <button
                 onClick={() => onCopy(codeContent)}
-                className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-xs text-gray-300 flex items-center gap-1"
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-800 hover:bg-gray-700 rounded-md text-xs text-gray-300 transition-colors opacity-0 group-hover/code:opacity-100"
               >
-                {copiedCode ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copiedCode ? 'Copied!' : 'Copy'}
+                {copiedCode ? (
+                  <>
+                    <Check className="w-3 h-3 text-green-400" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    Copy
+                  </>
+                )}
               </button>
             </div>
-            <pre className="bg-gray-900 rounded-lg p-4 overflow-x-auto text-sm">
-              <code className="text-green-400 font-mono">{codeContent}</code>
+            <pre className="bg-gray-900/80 rounded-b-lg p-4 overflow-x-auto text-sm border border-gray-800 border-t-0">
+              <code className="text-emerald-400 font-mono leading-relaxed">{codeContent}</code>
             </pre>
           </div>
         )
@@ -204,12 +352,12 @@ function renderMessageContent(
     // Headers
     if (line.startsWith('# ')) {
       flushParagraph()
-      elements.push(<h1 key={lineIndex} className="text-2xl font-bold text-white mt-6 mb-3">{line.slice(2)}</h1>)
+      elements.push(<h1 key={lineIndex} className="text-2xl font-bold text-white mt-6 mb-3 text-gradient">{line.slice(2)}</h1>)
       return
     }
     if (line.startsWith('## ')) {
       flushParagraph()
-      elements.push(<h2 key={lineIndex} className="text-xl font-semibold text-white mt-5 mb-2">{line.slice(3)}</h2>)
+      elements.push(<h2 key={lineIndex} className="text-xl font-semibold text-white mt-5 mb-2.5">{line.slice(3)}</h2>)
       return
     }
     if (line.startsWith('### ')) {
@@ -222,7 +370,7 @@ function renderMessageContent(
     if (line.match(/^\s*[-*]\s+/)) {
       flushParagraph()
       elements.push(
-        <li key={lineIndex} className="ml-4 text-gray-200 list-disc">
+        <li key={lineIndex} className="ml-4 text-gray-200 list-disc mb-1 marker:text-cyan-500">
           {formatInlineMarkdown(line.replace(/^\s*[-*]\s+/, ''))}
         </li>
       )
@@ -231,7 +379,7 @@ function renderMessageContent(
     if (line.match(/^\d+\.\s+/)) {
       flushParagraph()
       elements.push(
-        <li key={lineIndex} className="ml-4 text-gray-200 list-decimal">
+        <li key={lineIndex} className="ml-4 text-gray-200 list-decimal mb-1 marker:text-violet-400">
           {formatInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}
         </li>
       )
@@ -241,7 +389,7 @@ function renderMessageContent(
     // Horizontal rule
     if (line.trim() === '---') {
       flushParagraph()
-      elements.push(<hr key={lineIndex} className="my-4 border-gray-700" />)
+      elements.push(<hr key={lineIndex} className="my-4 border-gray-700/50" />)
       return
     }
 
@@ -273,7 +421,7 @@ function formatInlineMarkdown(text: string): React.ReactNode {
     if (match[1]) {
       parts.push(<strong key={match.index} className="font-semibold text-white">{match[1]}</strong>)
     } else if (match[2]) {
-      parts.push(<code key={match.index} className="px-1.5 py-0.5 bg-gray-800 rounded text-cyan-300 text-sm font-mono">{match[2]}</code>)
+      parts.push(<code key={match.index} className="px-2 py-0.5 bg-gray-800/80 rounded-md text-cyan-300 text-sm font-mono border border-gray-700/50">{match[2]}</code>)
     } else if (match[3]) {
       parts.push(<em key={match.index} className="italic text-gray-300">{match[3]}</em>)
     }
