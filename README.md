@@ -410,16 +410,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[Next.js](https://nextjs.org/)** - React framework
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 
----
 
-## 📞 Support & Contact
-
-- 🌐 **Live Demo:** [ai-web-rho-fawn.vercel.app](https://ai-web-rho-fawn.vercel.app/)
-- 📧 **Email:** support@nexusai.com
-- 💬 **Discord:** [Join our community](#)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/yourusername/nexus-ai/issues)
-
----
 
 ## 🗺️ Roadmap
 
