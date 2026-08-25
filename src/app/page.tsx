@@ -926,8 +926,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           </header>
         )}
 
-        {/* Content Area */}
-        <div className="pt-16 sm:pt-20">
+        {/* Content Area - Full height, no scroll */}
+        <div className="h-[calc(100vh-57px)] overflow-hidden">
           {renderCurrentView()}
         </div>
       </main>

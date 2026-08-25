@@ -49,45 +49,42 @@ export default function FullScreenChat({
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      {/* Top Spacer - Pushes content down */}
-      <div className="pt-8 sm:pt-12 md:pt-16" />
-      
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
       {/* Welcome Header - Only show when no messages or first load */}
       {messages.length <= 1 && (
-        <div className="flex-1 flex items-start justify-center px-4 pt-8">
-          <div className="text-center max-w-2xl w-full">
+        <div className="flex-1 flex items-center justify-center px-4 overflow-y-auto">
+          <div className="text-center max-w-2xl py-8">
             {/* Logo */}
-            <div className="mb-8 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
-              <Sparkles className="w-10 h-10 text-white" />
+            <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
+              <Sparkles className="w-8 h-8 text-white" />
             </div>
             
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-orbitron)]">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-[family-name:var(--font-orbitron)]">
               Welcome to{' '}
               <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
                 NEXUS AI
               </span>
             </h2>
             
-            <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+            <p className="text-gray-400 text-base mb-6 max-w-xl mx-auto leading-relaxed">
               Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
             </p>
 
             {/* Quick action buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-lg mx-auto">
               {[
-                { icon: '💡', text: 'Explain a concept', prompt: 'Explain quantum computing in simple terms' },
-                { icon: '💻', text: 'Write code', prompt: 'Write a Python function to sort a list' },
-                { icon: '📝', text: 'Help me write', prompt: 'Help me write a professional email' },
-                { icon: '🎯', text: 'Brainstorm ideas', prompt: 'Give me creative business ideas for 2024' }
+                { icon: '💡', text: 'Explain', prompt: 'Explain quantum computing' },
+                { icon: '💻', text: 'Code', prompt: 'Write Python code' },
+                { icon: '📝', text: 'Write', prompt: 'Help me write an email' },
+                { icon: '🎯', text: 'Ideas', prompt: 'Creative business ideas' }
               ].map((action, i) => (
                 <button
                   key={i}
                   onClick={() => setInputValue(action.prompt)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-cyan-500/30 hover:bg-gray-800 transition-all duration-200 group"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-cyan-500/30 hover:bg-gray-800 transition-all duration-200 group"
                 >
-                  <span className="text-xl">{action.icon}</span>
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{action.text}</span>
+                  <span className="text-lg">{action.icon}</span>
+                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">{action.text}</span>
                 </button>
               ))}
             </div>
@@ -95,9 +92,9 @@ export default function FullScreenChat({
         </div>
       )}
 
-      {/* Messages Area */}
-      <div className={`flex-1 overflow-y-auto ${messages.length > 1 ? 'pt-8' : ''}`}>
-        <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* Messages Area - ONLY this scrolls */}
+      <div className={`flex-1 overflow-y-auto min-h-0 ${messages.length <= 1 ? 'hidden' : ''}`}>
+        <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => (
             <div
@@ -196,9 +193,9 @@ export default function FullScreenChat({
         </div>
       </div>
 
-      {/* Input Area - Enhanced Design */}
-      <div className="border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl pb-6">
-        <div className="max-w-4xl mx-auto p-4 pt-3">
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto p-3">
           {/* Input Container */}
           <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
             {/* Gradient border effect on focus */}
