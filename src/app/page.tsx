@@ -895,34 +895,20 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         onToggleTheme={toggleTheme}
       />
 
-      {/* Main Content */}
-      <main className={`lg:ml-72 min-h-screen ${isDarkMode ? '' : 'bg-white'}`}>
+      {/* Main Content - FULL SCREEN */}
+      <main className="min-h-screen w-full">
         {/* Top Bar - Only show when not on home */}
         {currentView !== 'home' && (
           <header className="sticky top-0 z-20 border-b border-gray-800 bg-gray-900/80 backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  <Menu className="w-5 h-5 text-gray-400" />
-                </button>
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="hidden lg:flex p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5 text-gray-400" />
-                </button>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-cyan-400" />
-                  <span className="font-semibold text-white hidden sm:block">
-                    {currentView === 'chat' ? 'AI Chat' : 
-                     currentView === 'settings' ? 'Settings' :
-                     currentView === 'features' ? 'Features' :
-                     currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
-                  </span>
-                </div>
+            <div className="flex items-center justify-between px-4 py-3 pl-16">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-white hidden sm:block">
+                  {currentView === 'chat' ? 'AI Chat' : 
+                   currentView === 'settings' ? 'Settings' :
+                   currentView === 'features' ? 'Features' :
+                   currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">

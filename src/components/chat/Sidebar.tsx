@@ -58,24 +58,20 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Overlay - Works on all screen sizes when sidebar is open */}
+      {/* Overlay - Works on ALL screen sizes when sidebar is open */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
           onClick={onClose}
         />
       )}
       
-      {/* Sidebar */}
+      {/* Sidebar - Always overlay, never pushes content */}
       <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 ease-out shadow-2xl shadow-cyan-500/10 ${
-        isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 lg:-translate-x-0 lg:opacity-100 lg:w-0 lg:border-r-0 lg:shadow-none'
-      }`}
-      style={{ 
-        width: (!isOpen && typeof window !== 'undefined' && window.innerWidth >= 1024) ? '0px' : undefined
-      }}
-      >
-        {/* Hidden content when collapsed on desktop */}
-        <div className={`h-full flex flex-col transition-opacity duration-200 ${(!isOpen && typeof window !== 'undefined' && window.innerWidth >= 1024) ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+        isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+      }`}>
+        {/* Content */}
+        <div className={`h-full flex flex-col ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200`}>
           {/* Header */}
           <div className="p-4 border-b border-gray-800/50 bg-gray-900/50">
             <div className="flex items-center justify-between mb-4">
