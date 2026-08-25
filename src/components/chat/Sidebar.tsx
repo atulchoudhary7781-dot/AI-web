@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Github, Cpu, BookOpen, FileText, Plus, Trash2, Moon, Sun,
-  ChevronLeft, X, User, History, Sparkles, PanelLeftClose
+  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -28,6 +28,15 @@ interface SidebarProps {
   currentView: string
   isDarkMode: boolean
   onToggleTheme: () => void
+  isLoggedIn?: boolean
+  user?: User | null
+  onLoginClick?: () => void
+  onLogoutClick?: () => void
+}
+
+interface User {
+  name: string
+  email: string
 }
 
 export default function Sidebar({
@@ -42,7 +51,11 @@ export default function Sidebar({
   onViewChange,
   currentView,
   isDarkMode,
-  onToggleTheme
+  onToggleTheme,
+  isLoggedIn = false,
+  user = null,
+  onLoginClick,
+  onLogoutClick
 }: SidebarProps) {
   // ESC key handler to close sidebar
   useEffect(() => {
@@ -176,10 +189,10 @@ export default function Sidebar({
               />
             </div>
 
-            {/* Chat History - With Scroll */}
+            {/* Chat History - No Individual Scroll (uses main nav scroll) */}
             {sessions.length > 0 && (
-              <div className="mb-6 max-h-52 overflow-y-auto custom-scrollbar rounded-lg">
-                <div className="flex items-center justify-between px-3 mb-2 sticky top-0 bg-gray-900/90 backdrop-blur-sm py-1 z-10">
+              <div className="mb-6">
+                <div className="flex items-center justify-between px-3 mb-2">
                   <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Recent Chats</p>
                   <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full">{sessions.length}</span>
                 </div>
@@ -211,15 +224,39 @@ export default function Sidebar({
 
           {/* Footer / User Profile - Fixed, No Scroll */}
           <div className="flex-shrink-0 p-3 border-t border-gray-800/50 bg-gray-900/30">
-            <div className="flex items-center gap-3 px-3 py-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
-                <User className="w-4 h-4 text-white" />
+            {isLoggedIn && user ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white font-medium truncate">{user.name}</p>
+                    <p className="text-xs text-green-400">✓ Logged In</p>
+                  </div>
+                </div>
+                {onLogoutClick && (
+                  <button
+                    onClick={() => { onLogoutClick(); onClose(); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 text-sm"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">NEXUS User</p>
-                <p className="text-xs text-gray-500">Free Plan • v1.0</p>
-              </div>
-            </div>
+            ) : (
+              <button
+                onClick={() => { onLoginClick?.(); onClose(); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl hover:from-cyan-500/20 hover:to-violet-500/20 transition-all duration-200 group"
+              >
+                <LogIn className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
+                <div className="text-left">
+                  <p className="text-sm font-medium text-white">Login / Sign Up</p>
+                  <p className="text-xs text-gray-500">Save your chat history</p>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       </aside>

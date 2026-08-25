@@ -5,7 +5,7 @@ import {
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
   Cpu, Globe, Rocket, Star, Layers, Command, Shield,
   TrendingUp, Users, Eye, Heart, ArrowRight, Send,
-  Menu, X, ChevronLeft, Plus
+  Menu, X, ChevronLeft, Plus, LogIn, LogOut
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import Sidebar from '@/components/chat/Sidebar'
 import FullScreenChat from '@/components/chat/FullScreenChat'
 import SettingsView from '@/components/chat/SettingsView'
+import LoginView from '@/components/chat/LoginView'
 
 // Types
 interface ChatMessage {
@@ -43,6 +44,11 @@ interface ChatSession {
   title: string
   date: Date
   messages: ChatMessage[]
+}
+
+interface User {
+  name: string
+  email: string
 }
 
 // Neural Network Background Component
@@ -289,12 +295,63 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
 export default function NexusAI() {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
-  const [currentView, setCurrentView] = useState<string>('chat')
+  const [currentView, setCurrentView] = useState<string>('login') // Start with login page
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [copiedCode, setCopiedCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
+  
+  // Auth State
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('nexus_user')
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser)
+        setIsLoggedIn(true)
+        setUser(parsedUser)
+        setCurrentView('chat') // Go to chat if already logged in
+        
+        // Load sessions only if logged in
+        const savedSessions = localStorage.getItem('nexus_sessions')
+        if (savedSessions) {
+          setSessions(JSON.parse(savedSessions))
+        }
+      } catch (e) {
+        console.error('Error parsing saved user:', e)
+        setCurrentView('login') // Show login on error
+      }
+    } else {
+      setCurrentView('login') // Show login page for new users
+    }
+  }, [])
+
+  // Save sessions to localStorage when they change (only if logged in)
+  useEffect(() => {
+    if (isLoggedIn && sessions.length > 0) {
+      localStorage.setItem('nexus_sessions', JSON.stringify(sessions))
+    }
+  }, [sessions, isLoggedIn])
+
+  // Login Handler
+  const handleLogin = (userData: User) => {
+    setIsLoggedIn(true)
+    setUser(userData)
+    setCurrentView('chat') // Redirect to chat after login
+  }
+
+  // Logout Handler
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setUser(null)
+    setSessions([])
+    setActiveSessionId(null)
+    setCurrentView('login') // Show login page after logout
+  }
 
   // Get current session messages
   const getCurrentMessages = (): ChatMessage[] => {
@@ -625,6 +682,16 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       case 'settings':
         return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
 
+      case 'login':
+        return (
+          <LoginView 
+            onLogin={handleLogin}
+            onLogout={handleLogout}
+            isLoggedIn={isLoggedIn}
+            user={user}
+          />
+        )
+
       case 'home':
         return (
           <>
@@ -893,6 +960,10 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         currentView={currentView}
         isDarkMode={isDarkMode}
         onToggleTheme={toggleTheme}
+        isLoggedIn={isLoggedIn}
+        user={user}
+        onLoginClick={() => setCurrentView('login')}
+        onLogoutClick={handleLogout}
       />
 
       {/* Main Content - FULL SCREEN */}
@@ -912,15 +983,37 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
               </div>
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleNewChat}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">New Chat</span>
-                </Button>
+                {isLoggedIn ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleNewChat}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">New Chat</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <LogOut className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">Logout</span>
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => setCurrentView('login')}
+                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
+                  >
+                    <LogIn className="w-4 h-4 mr-1" />
+                    Login
+                  </Button>
+                )}
               </div>
             </div>
           </header>
