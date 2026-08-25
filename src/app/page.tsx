@@ -5,12 +5,16 @@ import {
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
   Cpu, Globe, Rocket, Star, Layers, Command, Shield,
   TrendingUp, Users, Eye, Heart, ArrowRight, Send,
-  Copy, Check, RefreshCw, Maximize2, Minimize2
+  Menu, X, ChevronLeft, Plus
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+
+// Import chat components
+import Sidebar from '@/components/chat/Sidebar'
+import FullScreenChat from '@/components/chat/FullScreenChat'
+import SettingsView from '@/components/chat/SettingsView'
 
 // Types
 interface ChatMessage {
@@ -32,6 +36,13 @@ interface Stat {
   value: number
   suffix: string
   icon: React.ReactNode
+}
+
+interface ChatSession {
+  id: string
+  title: string
+  date: Date
+  messages: ChatMessage[]
 }
 
 // Neural Network Background Component
@@ -275,20 +286,33 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
 }
 
 // Main App Component
-export default function Home() {
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+export default function NexusAI() {
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const [currentView, setCurrentView] = useState<string>('chat')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(true)
+  const [copiedCode, setCopiedCode] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+
+  // Get current session messages
+  const getCurrentMessages = (): ChatMessage[] => {
+    if (activeSessionId) {
+      const session = sessions.find(s => s.id === activeSessionId)
+      return session?.messages || getDefaultMessages()
+    }
+    return getDefaultMessages()
+  }
+
+  const getDefaultMessages = (): ChatMessage[] => [
     {
       id: '1',
       role: 'assistant',
-      content: '👋 Welcome to **NEXUS AI** — The Future of Intelligence!\n\nI\'m your advanced AI assistant. Ask me anything about:\n• 🤖 Artificial Intelligence & Machine Learning\n• 💻 Programming & Code\n• 🔬 Science & Technology\n• 🚀 Innovation & Future Trends\n\n*How can I help you today?*',
+      content: '👋 Welcome to **NEXUS AI** — The Future of Intelligence!\n\nI\'m your advanced AI assistant powered by Llama 3.1. Ask me anything about:\n• 🤖 Artificial Intelligence & Machine Learning\n• 💻 Programming & Code\n• 🔬 Science & Technology\n• 🚀 Innovation & Future Trends\n\n*How can I help you today?*',
       timestamp: new Date()
     }
-  ])
-  const [inputValue, setInputValue] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [activeSection, setActiveSection] = useState('home')
-  const chatEndRef = useRef<HTMLDivElement>(null)
-  const [copiedCode, setCopiedCode] = useState(false)
+  ]
 
   // Features data
   const features: Feature[] = [
@@ -338,10 +362,42 @@ export default function Home() {
     { label: 'Response Time', value: 50, suffix: 'ms', icon: <Zap className="w-5 h-5" /> }
   ]
 
-  // Auto-scroll chat to bottom
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [chatMessages])
+  // Create new chat session
+  const handleNewChat = useCallback(() => {
+    const newSession: ChatSession = {
+      id: Date.now().toString(),
+      title: 'New Chat',
+      date: new Date(),
+      messages: getDefaultMessages()
+    }
+    setSessions(prev => [newSession, ...prev])
+    setActiveSessionId(newSession.id)
+    setCurrentView('chat')
+    setInputValue('')
+  }, [])
+
+  // Select session
+  const handleSelectSession = useCallback((id: string) => {
+    setActiveSessionId(id)
+    setCurrentView('chat')
+  }, [])
+
+  // Delete session
+  const handleDeleteSession = useCallback((id: string) => {
+    setSessions(prev => prev.filter(s => s.id !== id))
+    if (activeSessionId === id) {
+      setActiveSessionId(null)
+    }
+  }, [activeSessionId])
+
+  // Update session title based on first message
+  const updateSessionTitle = useCallback((sessionId: string, firstMessage: string) => {
+    setSessions(prev => prev.map(s => 
+      s.id === sessionId 
+        ? { ...s, title: firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : '') }
+        : s
+    ))
+  }, [])
 
   // Handle chat submission
   const handleSubmit = useCallback(async () => {
@@ -354,7 +410,32 @@ export default function Home() {
       timestamp: new Date()
     }
 
-    setChatMessages(prev => [...prev, userMessage])
+    // If no active session, create one
+    let sessionId = activeSessionId
+    if (!sessionId) {
+      const newSession: ChatSession = {
+        id: Date.now().toString(),
+        title: inputValue.slice(0, 30),
+        date: new Date(),
+        messages: [...getDefaultMessages(), userMessage]
+      }
+      setSessions(prev => [newSession, ...prev])
+      sessionId = newSession.id
+      setActiveSessionId(sessionId)
+    } else {
+      // Update existing session
+      setSessions(prev => prev.map(s => 
+        s.id === sessionId 
+          ? { ...s, messages: [...s.messages, userMessage] }
+          : s
+      ))
+      // Update title if it's "New Chat"
+      const session = sessions.find(s => s.id === sessionId)
+      if (session?.title === 'New Chat') {
+        updateSessionTitle(sessionId, inputValue)
+      }
+    }
+
     setInputValue('')
     setIsLoading(true)
 
@@ -376,7 +457,11 @@ export default function Home() {
         timestamp: new Date()
       }
 
-      setChatMessages(prev => [...prev, assistantMessage])
+      setSessions(prev => prev.map(s => 
+        s.id === sessionId 
+          ? { ...s, messages: [...s.messages, assistantMessage] }
+          : s
+      ))
     } catch (error) {
       console.error('Chat error:', error)
       
@@ -499,22 +584,15 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
         timestamp: new Date()
       }
 
-      setChatMessages(prev => [...prev, fallbackMessage])
+      setSessions(prev => prev.map(s => 
+        s.id === sessionId 
+          ? { ...s, messages: [...s.messages, fallbackMessage] }
+          : s
+      ))
     } finally {
       setIsLoading(false)
     }
-  }, [inputValue, isLoading])
-
-  // Handle key press - FIXED: Enter now sends message instead of scrolling
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // If user presses Enter WITHOUT Shift, send the message
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault() // Prevent new line / scroll
-      e.stopPropagation() // Stop event bubbling
-      handleSubmit()
-    }
-    // If Shift+Enter, allow new line (default behavior)
-  }
+  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle])
 
   // Copy code handler
   const copyToClipboard = (text: string) => {
@@ -523,642 +601,342 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
     setTimeout(() => setCopiedCode(false), 2000)
   }
 
-  // Render markdown-like content
-  const renderMessageContent = (content: string) => {
-    // Simple line-by-line parsing approach
-    const lines = content.split('\n')
-    const elements: React.ReactNode[] = []
-    let currentParagraph = ''
-    let inCodeBlock = false
-    let codeContent = ''
-    let codeLanguage = ''
-
-    const flushParagraph = () => {
-      if (currentParagraph.trim()) {
-        elements.push(
-          <p key={`p-${elements.length}`} className="text-gray-300 my-2 whitespace-pre-wrap">
-            {formatInlineMarkdown(currentParagraph.trim())}
-          </p>
-        )
-        currentParagraph = ''
-      }
-    }
-
-    lines.forEach((line, lineIndex) => {
-      // Check for code block start/end
-      if (line.startsWith('```')) {
-        if (!inCodeBlock) {
-          flushParagraph()
-          inCodeBlock = true
-          codeLanguage = line.slice(3).trim()
-          codeContent = ''
-        } else {
-          // End of code block
-          elements.push(
-            <div key={`code-${elements.length}`} className="my-3 relative group">
-              <div className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg border-b border-gray-700">
-                <span className="text-xs text-gray-400 font-mono">{codeLanguage || 'code'}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copyToClipboard(codeContent)}
-                  className="h-6 px-2 text-xs text-gray-400 hover:text-white"
-                >
-                  {copiedCode ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
-                  {copiedCode ? 'Copied!' : 'Copy'}
-                </Button>
-              </div>
-              <pre className="bg-gray-900 p-4 rounded-b-lg overflow-x-auto">
-                <code className="text-sm font-mono text-green-400 whitespace-pre">{codeContent}</code>
-              </pre>
-            </div>
-          )
-          inCodeBlock = false
-          codeContent = ''
-          codeLanguage = ''
-        }
-        return
-      }
-
-      // If inside code block, accumulate code
-      if (inCodeBlock) {
-        codeContent += (codeContent ? '\n' : '') + line
-        return
-      }
-
-      // Handle headings
-      if (line.startsWith('## ')) {
-        flushParagraph()
-        elements.push(
-          <h3 key={`h3-${lineIndex}`} className="text-lg font-bold text-white mt-4 mb-2">
-            {formatInlineMarkdown(line.slice(3))}
-          </h3>
-        )
-        return
-      }
-
-      if (line.startsWith('### ')) {
-        flushParagraph()
-        elements.push(
-          <h4 key={`h4-${lineIndex}`} className="text-base font-semibold text-cyan-300 mt-3 mb-1">
-            {formatInlineMarkdown(line.slice(4))}
-          </h4>
-        )
-        return
-      }
-
-      // Handle list items
-      if (line.startsWith('- ') || line.startsWith('* ')) {
-        flushParagraph()
-        elements.push(
-          <li key={`li-${lineIndex}`} className="ml-4 text-gray-300 list-disc">
-            {formatInlineMarkdown(line.slice(2))}
-          </li>
-        )
-        return
-      }
-
-      // Handle table rows
-      if (line.startsWith('|')) {
-        flushParagraph()
-        elements.push(
-          <div key={`table-${lineIndex}`} className="text-gray-300 font-mono text-sm py-1">
-            {line}
-          </div>
-        )
-        return
-      }
-
-      // Regular paragraph content
-      if (line.trim()) {
-        currentParagraph += (currentParagraph ? '\n' : '') + line
-      } else {
-        flushParagraph()
-      }
-    })
-
-    // Flush any remaining paragraph
-    flushParagraph()
-
-    return elements.length > 0 ? elements : <p className="text-gray-300">{content}</p>
+  // Toggle theme
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
   }
 
-  // Format inline markdown (bold, italic)
-  const formatInlineMarkdown = (text: string): React.ReactNode => {
-    const parts = text.split(/(\*\*[^*]+\*\*)/g)
-    
-    return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={index} className="text-cyan-400 font-semibold">{part.slice(2, -2)}</strong>
-      }
-      return part
-    })
+  // Render current view
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'chat':
+        return (
+          <FullScreenChat
+            messages={getCurrentMessages()}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            isLoading={isLoading}
+            onSubmit={handleSubmit}
+            copiedCode={copiedCode}
+            onCopy={copyToClipboard}
+          />
+        )
+      
+      case 'settings':
+        return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+
+      case 'home':
+        return (
+          <>
+            {/* Hero Section */}
+            <section className="relative min-h-screen flex items-center justify-center px-4">
+              <div className="max-w-5xl mx-auto text-center">
+                <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-6">
+                  <Rocket className="w-3 h-3 mr-1" />
+                  Next Generation AI Platform
+                </Badge>
+                
+                <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 font-[family-name:var(--font-orbitron)]">
+                  <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400" />
+                  <br />
+                  <span className="text-3xl sm:text-4xl md:text-5xl text-white mt-4 block">AI</span>
+                </h1>
+                
+                <p className="text-xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  Experience the future of artificial intelligence. NEXUS AI combines cutting-edge neural networks 
+                  with intuitive design to deliver superhuman capabilities at your fingertips.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                  <Button 
+                    size="lg"
+                    onClick={() => setCurrentView('chat')}
+                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 py-6 text-lg glow-cyan"
+                  >
+                    <MessageSquare className="w-5 h-5 mr-2" />
+                    Try AI Chat Now
+                  </Button>
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setCurrentView('features')}
+                    className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg"
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Explore Features
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-green-400" />
+                    Enterprise Ready
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    Lightning Fast
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-red-400" />
+                    Free to Use
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Features Section */}
+            <section id="features" className="relative py-24 px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+                    <Layers className="w-3 h-3 mr-1" />
+                    Capabilities
+                  </Badge>
+                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+                      Powerful Features
+                    </span>
+                  </h2>
+                  <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+                    Built with cutting-edge technology to deliver unparalleled performance and intelligence.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {features.map((feature, index) => (
+                    <FeatureCard key={index} feature={feature} index={index} />
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Stats Section */}
+            <section id="stats" className="relative py-24 px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    By The Numbers
+                  </Badge>
+                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+                      Impact at Scale
+                    </span>
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  {stats.map((stat, index) => (
+                    <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+                      <CardContent className="p-6 text-center">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+                          {stat.icon}
+                        </div>
+                        <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+                          <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                        </div>
+                        <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="relative py-24 px-4">
+              <div className="max-w-4xl mx-auto text-center">
+                <Card className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 backdrop-blur-xl">
+                  <CardContent className="p-12">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-orbitron)]">
+                      Ready to Experience the Future?
+                    </h2>
+                    <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+                      Join millions of users already leveraging NEXUS AI to transform their workflow and unlock new possibilities.
+                    </p>
+                    <Button 
+                      size="lg"
+                      onClick={() => setCurrentView('chat')}
+                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 glow-cyan"
+                    >
+                      <Rocket className="w-5 h-5 mr-2" />
+                      Start Chatting Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+          </>
+        )
+
+      case 'features':
+        return (
+          <div className="min-h-screen px-4 py-12">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+                  <Layers className="w-3 h-3 mr-1" />
+                  Capabilities
+                </Badge>
+                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+                    Powerful Features
+                  </span>
+                </h2>
+                <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+                  Built with cutting-edge technology to deliver unparalleled performance and intelligence.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {features.map((feature, index) => (
+                  <FeatureCard key={index} feature={feature} index={index} />
+                ))}
+              </div>
+
+              <div className="mt-12 text-center">
+                <Button 
+                  onClick={() => setCurrentView('chat')}
+                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white glow-cyan"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Try AI Chat
+                </Button>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'stats':
+        return (
+          <div className="min-h-screen px-4 py-12">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  By The Numbers
+                </Badge>
+                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+                    Impact at Scale
+                  </span>
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, index) => (
+                  <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+                    <CardContent className="p-6 text-center">
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+                        {stat.icon}
+                      </div>
+                      <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+
+      default:
+        return (
+          <FullScreenChat
+            messages={getCurrentMessages()}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            isLoading={isLoading}
+            onSubmit={handleSubmit}
+            copiedCode={copiedCode}
+            onCopy={copyToClipboard}
+          />
+        )
+    }
   }
 
   return (
-    <div className="min-h-screen bg-[#00000a] text-white overflow-x-hidden relative">
-      {/* Custom CSS for animations */}
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap');
-        
-        :root {
-          --cyan: #00f5ff;
-          --pink: #ff00aa;
-          --gold: #ffd700;
-          --violet: #7c3aed;
-        }
-        
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .font-syne { font-family: 'Syne', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Scanline effect */
-        .scanlines::after {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.15),
-            rgba(0, 0, 0, 0.15) 1px,
-            transparent 1px,
-            transparent 2px
-          );
-          pointer-events: none;
-          z-index: 9999;
-          opacity: 0.3;
-        }
-        
-        /* Glow effects */
-        .glow-cyan {
-          box-shadow: 0 0 20px rgba(0, 245, 255, 0.5),
-                      0 0 40px rgba(0, 245, 255, 0.3),
-                      0 0 60px rgba(0, 245, 255, 0.1);
-        }
-        
-        .glow-text {
-          text-shadow: 0 0 10px rgba(0, 245, 255, 0.8),
-                       0 0 20px rgba(0, 245, 255, 0.5),
-                       0 0 30px rgba(0, 245, 255, 0.3);
-        }
-        
-        /* Glitch effect */
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
-        }
-        
-        .clip-text-glitch-1 {
-          animation: glitch 0.3s infinite;
-          clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-        }
-        
-        .clip-text-glitch-2 {
-          animation: glitch 0.3s infinite reverse;
-          clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-        }
-        
-        /* Marquee animation */
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        
-        /* Pulse ring animation */
-        @keyframes pulse-ring {
-          0% { transform: scale(0.8); opacity: 1; }
-          100% { transform: scale(2); opacity: 0; }
-        }
-        
-        .animate-pulse-ring {
-          animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
-        
-        /* Float animation */
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--pink); }
-      `}</style>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300`}>
+      {/* Background Animation - Only on home view */}
+      {currentView === 'home' && <NeuralNetworkBackground />}
 
-      {/* Neural Network Background */}
-      <NeuralNetworkBackground />
-      
-      {/* Scanline Overlay */}
-      <div className="scanlines fixed inset-0 pointer-events-none z-50" />
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className={`fixed top-4 left-4 z-30 lg:hidden p-3 backdrop-blur-xl border rounded-xl transition-colors ${
+          currentView === 'home' 
+            ? 'bg-gray-900/80 border-gray-700' 
+            : 'bg-gray-900/80 border-gray-700'
+        }`}
+      >
+        <Menu className="w-5 h-5 text-gray-300" />
+      </button>
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-40 bg-black/60 backdrop-blur-xl border-b border-cyan-500/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <span className="text-xl font-bold font-[family-name:var(--font-orbitron)] glow-text">NEXUS AI</span>
-              <Badge variant="secondary" className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">
-                v4.0
-              </Badge>
-            </div>
-            
-            <div className="hidden md:flex items-center gap-8">
-              {['Home', 'Features', 'Chat', 'Stats'].map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setActiveSection(item.toLowerCase())}
-                  className={`text-sm font-medium transition-colors hover:text-cyan-400 ${
-                    activeSection === item.toLowerCase() ? 'text-cyan-400' : 'text-gray-400'
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onNewChat={handleNewChat}
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onSelectSession={handleSelectSession}
+        onDeleteSession={handleDeleteSession}
+        onViewChange={setCurrentView}
+        currentView={currentView}
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleTheme}
+      />
 
-            <Button 
-              className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white border-0 glow-cyan"
-              onClick={() => {
-                setActiveSection('chat');
-                setTimeout(() => {
-                  document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-            >
-              <Rocket className="w-4 h-4 mr-2" />
-              Launch App
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center pt-16">
-        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
-          {/* Floating elements */}
-          <div className="absolute top-20 left-10 w-20 h-20 bg-violet-500/20 rounded-full blur-xl animate-float" />
-          <div className="absolute bottom-20 right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-40 right-20 w-16 h-16 bg-pink-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '4s' }} />
-
-
-
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-8">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm text-cyan-300">Next-Generation AI Platform</span>
-          </div>
-
-          {/* Main Title */}
-          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black mb-6 font-[family-name:var(--font-orbitron)] leading-tight">
-            <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 glow-text" />
-            <br />
-            <span className="text-white">AI</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-xl sm:text-2xl text-gray-400 mb-4 font-light max-w-3xl mx-auto">
-            The Future Thinks.
-            <span className="text-cyan-400 font-semibold"> Now.</span>
-          </p>
-          <p className="text-base text-gray-500 mb-12 max-w-2xl mx-auto">
-            Experience intelligence redefined. Neural networks meet intuitive design in the most advanced AI platform ever created.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Button 
-              size="lg"
-              onClick={() => setActiveSection('chat')}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-8 py-6 text-lg glow-cyan h-auto"
-            >
-              <Zap className="w-5 h-5 mr-2" />
-              Try NEXUS AI Free
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg h-auto"
-              onClick={() => {
-                setActiveSection('features');
-                setTimeout(() => {
-                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-            >
-              <Layers className="w-5 h-5 mr-2" />
-              Explore Features
-            </Button>
-          </div>
-
-          {/* Tech Stack Marquee */}
-          <div className="relative overflow-hidden py-4 border-y border-cyan-500/20 bg-black/30 backdrop-blur-sm">
-            <div className="flex animate-marquee">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex items-center gap-8 px-4 shrink-0">
-                  {['PyTorch', 'TensorFlow', 'GPT-4', 'Transformers', 'Neural Networks', 'NLP', 'Computer Vision', 'Reinforcement Learning', 'Diffusion Models', 'Multi-modal AI'].map((tech) => (
-                    <span key={tech} className="text-sm text-gray-500 whitespace-nowrap flex items-center gap-2">
-                      <Star className="w-3 h-3 text-cyan-500" />
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-cyan-500/50 flex justify-center pt-2">
-            <div className="w-1 h-3 bg-cyan-400 rounded-full animate-pulse" />
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="relative py-24 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
-              <Layers className="w-3 h-3 mr-1" />
-              Core Capabilities
-            </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)] mb-4">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">
-                Powered by Innovation
-              </span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-              Six pillars of next-generation artificial intelligence, working in harmony to deliver unprecedented capabilities.
-            </p>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <FeatureCard key={index} feature={feature} index={index} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* AI Chat Section */}
-      <section id="chat" className="relative py-24 px-4">
-        <div className="max-w-5xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-4">
-              <MessageSquare className="w-3 h-3 mr-1" />
-              Interactive AI
-            </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)] mb-4">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-400">
-                Experience NEXUS AI
-              </span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Interact with our advanced AI. Ask questions, generate code, explore ideas — no limits.
-            </p>
-          </div>
-
-          {/* Chat Interface */}
-          <Card className="bg-black/60 backdrop-blur-xl border border-cyan-500/30 overflow-hidden">
-            {/* Chat Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 to-violet-500/10">
+      {/* Main Content */}
+      <main className={`lg:ml-72 min-h-screen ${isDarkMode ? '' : 'bg-white'}`}>
+        {/* Top Bar - Only show when not on home */}
+        {currentView !== 'home' && (
+          <header className="sticky top-0 z-20 border-b border-gray-800 bg-gray-900/80 backdrop-blur-xl">
+            <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Brain className="w-6 h-6 text-cyan-400" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-black animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">NEXUS AI Assistant</h3>
-                  <p className="text-xs text-gray-400">Online • Ready to assist</p>
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <Menu className="w-5 h-5 text-gray-400" />
+                </button>
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="hidden lg:flex p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-400" />
+                </button>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-cyan-400" />
+                  <span className="font-semibold text-white hidden sm:block">
+                    {currentView === 'chat' ? 'AI Chat' : 
+                     currentView === 'settings' ? 'Settings' :
+                     currentView === 'features' ? 'Features' :
+                     currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
+                  </span>
                 </div>
               </div>
+
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                  Llama 3.1
-                </Badge>
-              </div>
-            </div>
-
-            {/* Messages Area */}
-            <div className="h-[450px] overflow-y-auto p-6 space-y-4">
-              {chatMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-5 py-3 ${
-                      message.role === 'user'
-                        ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white'
-                        : 'bg-gray-900/80 border border-gray-800 text-gray-200'
-                    }`}
-                  >
-                    {message.role === 'assistant' ? (
-                      <div className="space-y-1">
-                        {renderMessageContent(message.content)}
-                      </div>
-                    ) : (
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                    )}
-                    <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-cyan-200' : 'text-gray-500'}`}>
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              {/* Loading indicator */}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-900/80 border border-gray-800 rounded-2xl px-5 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                      <span className="text-sm text-gray-400">NEXUS is thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Input Area */}
-            <div className="px-6 py-4 border-t border-cyan-500/20 bg-black/40">
-              <div className="flex gap-3">
-                <Textarea
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ask NEXUS AI anything..."
-                  className="flex-1 min-h-[50px] max-h-[120px] resize-none bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:ring-cyan-500/20"
-                  disabled={isLoading}
-                />
                 <Button
-                  onClick={handleSubmit}
-                  disabled={!inputValue.trim() || isLoading}
-                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-6 self-end glow-cyan"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNewChat}
+                  className="text-gray-400 hover:text-white"
                 >
-                  {isLoading ? (
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">New Chat</span>
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Press Enter to send • Shift+Enter for new line
-              </p>
             </div>
-          </Card>
-        </div>
-      </section>
+          </header>
+        )}
 
-      {/* Stats Section */}
-      <section id="stats" className="relative py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              By The Numbers
-            </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
-                Impact at Scale
-              </span>
-            </h2>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
-                    {stat.icon}
-                  </div>
-                  <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
-                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="relative mt-auto border-t border-cyan-500/20 bg-black/60 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-xl font-bold font-[family-name:var(--font-orbitron)]">NEXUS AI</span>
-              </div>
-              <p className="text-gray-400 text-sm max-w-md">
-                Pioneering the future of artificial intelligence. Building systems that understand, reason, and create at superhuman levels.
-              </p>
-            </div>
-
-            {/* Links */}
-            <div>
-              <h4 className="font-semibold text-white mb-4">Platform</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    setActiveSection('features');
-                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >Features</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    setActiveSection('chat');
-                    document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >Try AI Chat</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => window.open('https://github.com/atulchoudhary7781-dot/AI-web', '_blank')}
-                >GitHub</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => window.open('https://openrouter.ai/models', '_blank')}
-                >AI Models</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => window.open('https://openrouter.ai/docs', '_blank')}
-                >OpenRouter Docs</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => window.open('https://nextjs.org/docs', '_blank')}
-                >Next.js Docs</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => window.open('https://vercel.com/docs', '_blank')}
-                >Vercel Docs</button></li>
-                <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
-                  onClick={() => {
-                    setActiveSection('stats');
-                    document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >Statistics</button></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-500">
-              © 2024 NEXUS AI. Built for the future.
-            </p>
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 text-xs">
-                <Shield className="w-3 h-3 mr-1" />
-                SOC 2 Compliant
-              </Badge>
-              <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/20 text-xs">
-                <Heart className="w-3 h-3 mr-1" />
-                Made with Intelligence
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </footer>
+        {/* Content Area */}
+        {renderCurrentView()}
+      </main>
     </div>
   )
 }
