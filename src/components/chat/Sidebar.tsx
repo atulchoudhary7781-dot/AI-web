@@ -67,13 +67,13 @@ export default function Sidebar({
       )}
       
       {/* Sidebar - Always overlay, never pushes content */}
-      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 ease-out shadow-2xl shadow-cyan-500/10 ${
+      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 ease-out shadow-2xl shadow-cyan-500/10 flex flex-col ${
         isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
       }`}>
         {/* Content */}
         <div className={`h-full flex flex-col ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200`}>
-          {/* Header */}
-          <div className="p-4 border-b border-gray-800/50 bg-gray-900/50">
+          {/* Header - Fixed, No Scroll */}
+          <div className="flex-shrink-0 p-4 border-b border-gray-800/50 bg-gray-900/50">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
@@ -105,8 +105,8 @@ export default function Sidebar({
             </Button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
+          {/* Navigation - SCROLLABLE AREA */}
+          <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 custom-scrollbar sidebar-scroll">
             {/* Main Views */}
             <div className="mb-6">
               <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Main Menu</p>
@@ -209,8 +209,8 @@ export default function Sidebar({
             )}
           </nav>
 
-          {/* Footer / Settings */}
-          <div className="p-3 border-t border-gray-800/50 space-y-1 bg-gray-900/30">
+          {/* Footer / Settings - Fixed, No Scroll */}
+          <div className="flex-shrink-0 p-3 border-t border-gray-800/50 space-y-1 bg-gray-900/30">
             <button
               onClick={() => { onToggleTheme(); onClose(); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800/50 hover:text-white transition-all duration-200"
