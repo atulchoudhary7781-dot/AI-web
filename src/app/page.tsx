@@ -657,24 +657,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
   return (
     <div className="min-h-screen bg-[#00000a] text-white overflow-x-hidden relative">
-      {/* Floating N Logo - Upper Side */}
-      <div className="fixed top-4 left-4 z-50 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <div className="relative">
-          <img 
-            src="/logo.jpg" 
-            alt="NEXUS AI Logo" 
-            className="w-14 h-14 object-contain rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-cyan-500/30"
-          />
-          <div className="absolute inset-0 w-14 h-14 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-xl animate-pulse-ring opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          {/* Glow effect */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/30 to-violet-500/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-        </div>
-        {/* Tooltip */}
-        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 border border-cyan-500/50 rounded-lg text-xs text-cyan-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none font-[family-name:var(--font-mono)]">
-          Back to Top â†‘
-        </div>
-      </div>
-
       {/* Custom CSS for animations */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap');
@@ -841,6 +823,33 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           <div className="absolute top-20 left-10 w-20 h-20 bg-violet-500/20 rounded-full blur-xl animate-float" />
           <div className="absolute bottom-20 right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
           <div className="absolute top-40 right-20 w-16 h-16 bg-pink-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '4s' }} />
+
+          {/* N LOGO - CENTER HERO */}
+          <div className="relative inline-block mb-8 group cursor-pointer" onClick={() => {
+            setActiveSection('chat');
+            setTimeout(() => {
+              document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+          }}>
+            {/* Main Logo Image */}
+            <div className="relative">
+              <img 
+                src="/logo.jpg" 
+                alt="NEXUS AI Logo" 
+                className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 object-contain rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-2xl shadow-cyan-500/50"
+              />
+              {/* Animated Ring 1 */}
+              <div className="absolute inset-0 w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 bg-gradient-to-br from-cyan-500/30 to-violet-500/30 rounded-2xl animate-pulse-ring" />
+              {/* Animated Ring 2 (delayed) */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 rounded-full blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" style={{ animationDelay: '1s' }} />
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
+            {/* Click Hint */}
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 bg-gray-900/80 border border-cyan-500/50 rounded-full text-xs text-cyan-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 font-[family-name:var(--font-mono)]">
+              Try NEXUS AI â†’
+            </div>
+          </div>
 
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-8">
