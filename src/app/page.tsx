@@ -771,7 +771,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
       case 'features':
         return (
-          <div className="min-h-screen px-4 py-12">
+          <div className="h-full overflow-y-auto overflow-x-hidden px-4 py-12 custom-scrollbar">
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
