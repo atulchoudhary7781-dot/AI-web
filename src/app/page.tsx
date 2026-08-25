@@ -772,14 +772,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <img 
-                  src="/logo.jpg" 
-                  alt="NEXUS AI Logo" 
-                  className="w-9 h-9 object-contain animate-pulse rounded-lg" 
-                />
-                <div className="absolute inset-0 w-9 h-9 bg-cyan-400/20 rounded-lg animate-pulse-ring" />
-              </div>
               <span className="text-xl font-bold font-[family-name:var(--font-orbitron)] glow-text">NEXUS AI</span>
               <Badge variant="secondary" className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">
                 v4.0
@@ -824,32 +816,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           <div className="absolute bottom-20 right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
           <div className="absolute top-40 right-20 w-16 h-16 bg-pink-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '4s' }} />
 
-          {/* N LOGO - CENTER HERO */}
-          <div className="relative inline-block mb-8 group cursor-pointer" onClick={() => {
-            setActiveSection('chat');
-            setTimeout(() => {
-              document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-          }}>
-            {/* Main Logo Image */}
-            <div className="relative">
-              <img 
-                src="/logo.jpg" 
-                alt="NEXUS AI Logo" 
-                className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 object-contain rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-2xl shadow-cyan-500/50"
-              />
-              {/* Animated Ring 1 */}
-              <div className="absolute inset-0 w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 bg-gradient-to-br from-cyan-500/30 to-violet-500/30 rounded-2xl animate-pulse-ring" />
-              {/* Animated Ring 2 (delayed) */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 rounded-full blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" style={{ animationDelay: '1s' }} />
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
-            {/* Click Hint */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 bg-gray-900/80 border border-cyan-500/50 rounded-full text-xs text-cyan-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 font-[family-name:var(--font-mono)]">
-              Try NEXUS AI â†’
-            </div>
-          </div>
+
 
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-8">
@@ -1113,11 +1080,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <img 
-                  src="/logo.jpg" 
-                  alt="NEXUS AI Logo" 
-                  className="w-8 h-8 object-contain rounded-lg"
-                />
                 <span className="text-xl font-bold font-[family-name:var(--font-orbitron)]">NEXUS AI</span>
               </div>
               <p className="text-gray-400 text-sm max-w-md">
