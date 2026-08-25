@@ -505,12 +505,15 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
     }
   }, [inputValue, isLoading])
 
-  // Handle key press
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  // Handle key press - FIXED: Enter now sends message instead of scrolling
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // If user presses Enter WITHOUT Shift, send the message
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
+      e.preventDefault() // Prevent new line / scroll
+      e.stopPropagation() // Stop event bubbling
       handleSubmit()
     }
+    // If Shift+Enter, allow new line (default behavior)
   }
 
   // Copy code handler
@@ -998,7 +1001,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                 <Textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   placeholder="Ask NEXUS AI anything..."
                   className="flex-1 min-h-[50px] max-h-[120px] resize-none bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:ring-cyan-500/20"
                   disabled={isLoading}
