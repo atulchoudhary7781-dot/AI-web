@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Github, Cpu, BookOpen, FileText, Plus, Trash2, Moon, Sun,
-  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut, UserPlus
+  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -289,10 +289,10 @@ export default function Sidebar({
                   onClick={() => { onSignupClick?.(); onClose(); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/30 rounded-xl hover:from-violet-500/20 hover:to-pink-500/20 transition-all duration-200 group"
                 >
-                  <UserPlus className="w-5 h-5 text-violet-400 group-hover:text-violet-300" />
+                  <LogIn className="w-5 h-5 text-violet-400 group-hover:text-violet-300" />
                   <div className="text-left">
                     <p className="text-sm font-medium text-white">Create Account</p>
-                    <p className="text-xs text-gray-500">Save history • Free</p>
+                    <p className="text-xs text-gray-500">Save history - Free</p>
                   </div>
                 </button>
               </div>
