@@ -308,6 +308,9 @@ export default function NexusAI() {
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
   
+  // AbortController for stopping responses
+  const abortControllerRef = useRef<AbortController | null>(null)
+  
   // Auth State
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
@@ -470,6 +473,15 @@ export default function NexusAI() {
     ))
   }, [])
 
+  // Handle stop generating response
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+    setIsLoading(false)
+  }, [])
+
   // Handle chat submission
   const handleSubmit = useCallback(async () => {
     if (!inputValue.trim() || isLoading) return
@@ -516,11 +528,16 @@ export default function NexusAI() {
     setInputValue('')
     setIsLoading(true)
 
+    // Create new AbortController for this request
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: inputValue })
+        body: JSON.stringify({ message: inputValue }),
+        signal: controller.signal
       })
 
       if (!response.ok) throw new Error('Failed to get response')
@@ -706,6 +723,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             setInputValue={setInputValue}
             isLoading={isLoading}
             onSubmit={handleSubmit}
+            onStop={handleStop}
             copiedCode={copiedCode}
             onCopy={copyToClipboard}
           />
@@ -949,6 +967,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             setInputValue={setInputValue}
             isLoading={isLoading}
             onSubmit={handleSubmit}
+            onStop={handleStop}
             copiedCode={copiedCode}
             onCopy={copyToClipboard}
           />

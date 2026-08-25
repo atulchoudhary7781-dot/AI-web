@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-react'
+import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -18,6 +18,7 @@ interface FullScreenChatProps {
   setInputValue: (value: string) => void
   isLoading: boolean
   onSubmit: () => void
+  onStop?: () => void
   copiedCode: boolean
   onCopy: (text: string) => void
 }
@@ -28,6 +29,7 @@ export default function FullScreenChat({
   setInputValue,
   isLoading,
   onSubmit,
+  onStop,
   copiedCode,
   onCopy
 }: FullScreenChatProps) {
@@ -212,10 +214,24 @@ export default function FullScreenChat({
                 disabled={isLoading}
                 rows={1}
               />
+              
+              {/* Stop Button - Shows when loading */}
+              {isLoading && onStop && (
+                <Button
+                  onClick={onStop}
+                  className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white px-4 h-11 rounded-xl shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300 animate-pulse"
+                  title="Stop generating"
+                >
+                  <Square className="w-4 h-4 fill-current" />
+                  <span className="ml-1.5 text-sm font-medium hidden sm:inline">Stop</span>
+                </Button>
+              )}
+              
+              {/* Send Button */}
               <Button
                 onClick={onSubmit}
                 disabled={!inputValue.trim() || isLoading}
-                className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-5 h-11 rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`bg-gradient-to-r ${isLoading ? 'from-gray-600 to-gray-700' : 'from-cyan-500 to-violet-600'} ${isLoading ? '' : 'hover:from-cyan-400 hover:to-violet-500'} text-white px-5 h-11 rounded-xl shadow-lg ${isLoading ? '' : 'shadow-cyan-500/25 hover:shadow-cyan-500/40'} transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {isLoading ? (
                   <RefreshCw className="w-5 h-5 animate-spin" />
