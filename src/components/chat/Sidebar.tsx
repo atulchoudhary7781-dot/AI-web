@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Github, Cpu, BookOpen, FileText, Plus, Trash2, Moon, Sun,
-  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut
+  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut, UserPlus
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -31,7 +31,10 @@ interface SidebarProps {
   isLoggedIn?: boolean
   user?: User | null
   onLoginClick?: () => void
+  onSignupClick?: () => void
   onLogoutClick?: () => void
+  chatCount?: number
+  maxChats?: number
 }
 
 interface User {
@@ -55,7 +58,10 @@ export default function Sidebar({
   isLoggedIn = false,
   user = null,
   onLoginClick,
-  onLogoutClick
+  onSignupClick,
+  onLogoutClick,
+  chatCount = 0,
+  maxChats = 6
 }: SidebarProps) {
   // ESC key handler to close sidebar
   useEffect(() => {
@@ -232,7 +238,7 @@ export default function Sidebar({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-white font-medium truncate">{user.name}</p>
-                    <p className="text-xs text-green-400">✓ Logged In</p>
+                    <p className="text-xs text-green-400">✓ Unlimited Chats</p>
                   </div>
                 </div>
                 {onLogoutClick && (
@@ -246,16 +252,50 @@ export default function Sidebar({
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => { onLoginClick?.(); onClose(); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl hover:from-cyan-500/20 hover:to-violet-500/20 transition-all duration-200 group"
-              >
-                <LogIn className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
-                <div className="text-left">
-                  <p className="text-sm font-medium text-white">Login / Sign Up</p>
-                  <p className="text-xs text-gray-500">Save your chat history</p>
+              <div className="space-y-2">
+                {/* Chat Count Indicator */}
+                <div className="px-3 py-2 bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-gray-400">Free Chats</span>
+                    <span className={`font-medium ${chatCount >= maxChats ? 'text-red-400' : 'text-cyan-400'}`}>
+                      {chatCount}/{maxChats}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        chatCount >= maxChats 
+                          ? 'bg-red-500' 
+                          : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                      }`}
+                      style={{ width: `${Math.min((chatCount / maxChats) * 100, 100)}%` }}
+                    />
+                  </div>
                 </div>
-              </button>
+
+                {/* Separate Login & Signup Buttons */}
+                <button
+                  onClick={() => { onLoginClick?.(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl hover:from-cyan-500/20 hover:to-violet-500/20 transition-all duration-200 group"
+                >
+                  <LogIn className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-white">Login</p>
+                    <p className="text-xs text-gray-500">Already have account</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { onSignupClick?.(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/30 rounded-xl hover:from-violet-500/20 hover:to-pink-500/20 transition-all duration-200 group"
+                >
+                  <UserPlus className="w-5 h-5 text-violet-400 group-hover:text-violet-300" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-white">Create Account</p>
+                    <p className="text-xs text-gray-500">Save history • Free</p>
+                  </div>
+                </button>
+              </div>
             )}
           </div>
         </div>

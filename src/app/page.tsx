@@ -16,6 +16,7 @@ import Sidebar from '@/components/chat/Sidebar'
 import FullScreenChat from '@/components/chat/FullScreenChat'
 import SettingsView from '@/components/chat/SettingsView'
 import LoginView from '@/components/chat/LoginView'
+import AuthModal from '@/components/chat/AuthModal'
 
 // Types
 interface ChatMessage {
@@ -295,7 +296,12 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
 export default function NexusAI() {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
-  const [currentView, setCurrentView] = useState<string>('login') // Start with login page
+  const [currentView, setCurrentView] = useState<string>('chat') // Start with chat (free mode)
+  
+  // Chat Limit State
+  const [chatCount, setChatCount] = useState(0)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const MAX_FREE_CHATS = 6 // Max chats without login
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [copiedCode, setCopiedCode] = useState(false)
@@ -314,7 +320,6 @@ export default function NexusAI() {
         const parsedUser = JSON.parse(savedUser)
         setIsLoggedIn(true)
         setUser(parsedUser)
-        setCurrentView('chat') // Go to chat if already logged in
         
         // Load sessions only if logged in
         const savedSessions = localStorage.getItem('nexus_sessions')
@@ -323,10 +328,13 @@ export default function NexusAI() {
         }
       } catch (e) {
         console.error('Error parsing saved user:', e)
-        setCurrentView('login') // Show login on error
       }
-    } else {
-      setCurrentView('login') // Show login page for new users
+    }
+    
+    // Load chat count for guests
+    const savedChatCount = localStorage.getItem('nexus_chat_count')
+    if (savedChatCount) {
+      setChatCount(parseInt(savedChatCount, 10))
     }
   }, [])
 
@@ -342,6 +350,9 @@ export default function NexusAI() {
     setIsLoggedIn(true)
     setUser(userData)
     setCurrentView('chat') // Redirect to chat after login
+    setShowAuthModal(false) // Close modal if open
+    setChatCount(0) // Reset chat count for logged in users
+    localStorage.removeItem('nexus_chat_count')
   }
 
   // Logout Handler
@@ -350,7 +361,10 @@ export default function NexusAI() {
     setUser(null)
     setSessions([])
     setActiveSessionId(null)
-    setCurrentView('login') // Show login page after logout
+    setChatCount(0) // Reset chat count on logout
+    localStorage.removeItem('nexus_user')
+    localStorage.removeItem('nexus_sessions')
+    localStorage.removeItem('nexus_chat_count')
   }
 
   // Get current session messages
@@ -459,6 +473,12 @@ export default function NexusAI() {
   // Handle chat submission
   const handleSubmit = useCallback(async () => {
     if (!inputValue.trim() || isLoading) return
+
+    // Check if guest has reached chat limit
+    if (!isLoggedIn && chatCount >= MAX_FREE_CHATS) {
+      setShowAuthModal(true)
+      return
+    }
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -648,8 +668,20 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       ))
     } finally {
       setIsLoading(false)
+      
+      // Increment chat count for guests
+      if (!isLoggedIn) {
+        const newCount = chatCount + 1
+        setChatCount(newCount)
+        localStorage.setItem('nexus_chat_count', newCount.toString())
+        
+        // Show modal if limit reached after this message
+        if (newCount >= MAX_FREE_CHATS) {
+          setTimeout(() => setShowAuthModal(true), 500)
+        }
+      }
     }
-  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle])
+  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle, isLoggedIn, chatCount, MAX_FREE_CHATS])
 
   // Copy code handler
   const copyToClipboard = (text: string) => {
@@ -963,7 +995,10 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         isLoggedIn={isLoggedIn}
         user={user}
         onLoginClick={() => setCurrentView('login')}
+        onSignupClick={() => setCurrentView('login')}
         onLogoutClick={handleLogout}
+        chatCount={chatCount}
+        maxChats={MAX_FREE_CHATS}
       />
 
       {/* Main Content - FULL SCREEN */}
@@ -1005,14 +1040,33 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    size="sm"
-                    onClick={() => setCurrentView('login')}
-                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
-                  >
-                    <LogIn className="w-4 h-4 mr-1" />
-                    Login
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {/* Chat Count Badge for Guests */}
+                    <div className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                      chatCount >= MAX_FREE_CHATS 
+                        ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                    }`}>
+                      {chatCount}/{MAX_FREE_CHATS} chats
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setCurrentView('login')}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <LogIn className="w-4 h-4 mr-1" />
+                      Login
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setCurrentView('login')}
+                      className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-400 hover:to-pink-400 text-white shadow-lg shadow-violet-500/25"
+                    >
+                      <UserPlus className="w-4 h-4 mr-1" />
+                      Sign Up
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -1024,6 +1078,16 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           {renderCurrentView()}
         </div>
       </main>
+
+      {/* Auth Modal - Shows when free chat limit reached */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLogin={handleLogin}
+        onSignup={handleLogin}
+        chatCount={chatCount}
+        maxChats={MAX_FREE_CHATS}
+      />
     </div>
   )
 }

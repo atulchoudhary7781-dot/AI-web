@@ -1,0 +1,286 @@
+'use client'
+
+import { useState } from 'react'
+import { 
+  Sparkles, User, Mail, Lock, Eye, EyeOff, 
+  ArrowRight, LogIn, UserPlus, X, Rocket,
+  CheckCircle, Zap
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+
+interface AuthModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onLogin: (user: { name: string; email: string }) => void
+  onSignup: (user: { name: string; email: string }) => void
+  chatCount?: number
+  maxChats?: number
+}
+
+export default function AuthModal({ 
+  isOpen, 
+  onClose, 
+  onLogin, 
+  onSignup,
+  chatCount = 0,
+  maxChats = 6
+}: AuthModalProps) {
+  const [isLoginMode, setIsLoginMode] = useState(true)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  if (!isOpen) return null
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    
+    // Validation
+    if (!isLoginMode && !name.trim()) {
+      setError('Name is required')
+      return
+    }
+    if (!email.trim()) {
+      setError('Email is required')
+      return
+    }
+    if (!password || password.length < 4) {
+      setError('Password must be at least 4 characters')
+      return
+    }
+
+    setIsLoading(true)
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Save to localStorage for persistence
+    const userData = isLoginMode 
+      ? { name: email.split('@')[0], email }
+      : { name, email }
+    
+    localStorage.setItem('nexus_user', JSON.stringify(userData))
+    
+    if (isLoginMode) {
+      onLogin(userData)
+    } else {
+      onSignup(userData)
+    }
+    
+    setIsLoading(false)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md bg-gradient-to-b from-gray-900 to-gray-950 border border-cyan-500/30 rounded-2xl shadow-2xl shadow-cyan-500/20 overflow-hidden animate-in zoom-in-95 duration-200">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all z-10"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header with Limit Info */}
+        <div className="bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border-b border-gray-800 p-6 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+            <Sparkles className="w-8 h-8 text-white" />
+          </div>
+          
+          <h2 className="text-2xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
+            Free Chat Limit Reached!
+          </h2>
+          
+          {/* Progress Indicator */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="flex gap-1">
+              {[...Array(maxChats)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    i < Math.min(chatCount, maxChats) 
+                      ? 'bg-gradient-to-r from-cyan-400 to-violet-400' 
+                      : 'bg-gray-700'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-gray-400">
+              {chatCount}/{maxChats} chats used
+            </span>
+          </div>
+          
+          <p className="text-sm text-gray-400 mt-3">
+            Create a free account for unlimited chats & save your history!
+          </p>
+        </div>
+
+        {/* Toggle Buttons */}
+        <div className="flex bg-gray-900/50 m-4 rounded-xl p-1 border border-gray-800">
+          <button
+            onClick={() => { setIsLoginMode(true); setError(''); }}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              isLoginMode 
+                ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <LogIn className="w-4 h-4 inline mr-2" />
+            Login
+          </button>
+          <button
+            onClick={() => { setIsLoginMode(false); setError(''); }}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                !isLoginMode 
+                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+          >
+            <UserPlus className="w-4 h-4 inline mr-2" />
+            Create Account
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-4 pb-4 space-y-4">
+          {/* Name Field - Only for Sign Up */}
+          {!isLoginMode && (
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
+                <User className="w-4 h-4 text-cyan-400" />
+                Full Name
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+                />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              </div>
+            </div>
+          )}
+
+          {/* Email Field */}
+          <div className="space-y-2">
+            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
+              <Mail className="w-4 h-4 text-cyan-400" />
+              Email Address
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+              />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            </div>
+          </div>
+
+          {/* Password Field */}
+          <div className="space-y-2">
+            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
+              <Lock className="w-4 h-4 text-cyan-400" />
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Min 4 characters"
+                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 pr-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+              />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm flex items-center gap-2">
+              <X className="w-4 h-4 flex-shrink-0" />
+              {error}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-12 font-medium text-base"
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Processing...
+              </div>
+            ) : (
+              <>
+                {isLoginMode ? (
+                  <>
+                    <LogIn className="w-5 h-5 mr-2" />
+                    Login to Continue
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-5 h-5 mr-2" />
+                    Create Free Account
+                  </>
+                )}
+                <ArrowRight className="w-5 h-5 ml-auto" />
+              </>
+            )}
+          </Button>
+        </form>
+
+        {/* Benefits Footer */}
+        <div className="px-4 pb-6">
+          <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4">
+            <p className="text-xs font-semibold text-cyan-400 mb-2">✨ Account Benefits:</p>
+            <ul className="space-y-1.5 text-xs text-gray-400">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                Unlimited AI conversations
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                Chat history saved forever
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                Access from any device
+              </li>
+              <li className="flex items-center gap-2">
+                <Zap className="w-3 h-3 text-yellow-400 flex-shrink-0" />
+                100% FREE forever!
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
