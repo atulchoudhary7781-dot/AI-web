@@ -1,0 +1,1089 @@
+     1→<!DOCTYPE html>
+     2→<html lang="en">
+     3→<head>
+     4→<meta charset="UTF-8">
+     5→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→<title>NEXUS AI — The Future Thinks</title>
+     7→<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+     8→<style>
+     9→  :root {
+    10→    --cyan: #00f5ff;
+    11→    --pink: #ff00aa;
+    12→    --gold: #ffd700;
+    13→    --violet: #7c3aed;
+    14→    --bg: #00000a;
+    15→    --bg2: #050510;
+    16→    --text: #e0e0ff;
+    17→    --muted: #6060a0;
+    18→  }
+    19→  *{margin:0;padding:0;box-sizing:border-box}
+    20→  html{scroll-behavior:smooth}
+    21→  body{
+    22→    background:var(--bg);
+    23→    color:var(--text);
+    24→    font-family:'Syne',sans-serif;
+    25→    overflow-x:hidden;
+    26→    cursor:none;
+    27→  }
+    28→
+    29→  /* CUSTOM CURSOR */
+    30→  #cursor{
+    31→    width:12px;height:12px;
+    32→    background:var(--cyan);
+    33→    border-radius:50%;
+    34→    position:fixed;top:0;left:0;
+    35→    pointer-events:none;z-index:9999;
+    36→    transition:transform 0.1s ease;
+    37→    box-shadow:0 0 20px var(--cyan),0 0 40px var(--cyan);
+    38→    mix-blend-mode:screen;
+    39→  }
+    40→  #cursor-ring{
+    41→    width:40px;height:40px;
+    42→    border:1px solid var(--cyan);
+    43→    border-radius:50%;
+    44→    position:fixed;top:0;left:0;
+    45→    pointer-events:none;z-index:9998;
+    46→    transition:all 0.15s ease;
+    47→    opacity:0.5;
+    48→  }
+    49→
+    50→  /* SCROLLBAR */
+    51→  ::-webkit-scrollbar{width:4px}
+    52→  ::-webkit-scrollbar-track{background:#000}
+    53→  ::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
+    54→
+    55→  /* NAV */
+    56→  nav{
+    57→    position:fixed;top:0;left:0;width:100%;
+    58→    display:flex;align-items:center;justify-content:space-between;
+    59→    padding:1.2rem 4rem;
+    60→    z-index:1000;
+    61→    background:rgba(0,0,10,0.6);
+    62→    backdrop-filter:blur(20px);
+    63→    border-bottom:1px solid rgba(0,245,255,0.1);
+    64→  }
+    65→  .nav-logo{
+    66→    font-family:'Orbitron',monospace;
+    67→    font-weight:900;font-size:1.4rem;
+    68→    color:var(--cyan);
+    69→    letter-spacing:0.2em;
+    70→    text-shadow:0 0 30px var(--cyan);
+    71→  }
+    72→  .nav-logo span{color:var(--pink)}
+    73→  .nav-links{display:flex;gap:2.5rem;list-style:none}
+    74→  .nav-links a{
+    75→    font-family:'JetBrains Mono',monospace;
+    76→    font-size:0.75rem;letter-spacing:0.15em;
+    77→    text-decoration:none;color:var(--muted);
+    78→    text-transform:uppercase;
+    79→    transition:color 0.3s,text-shadow 0.3s;
+    80→  }
+    81→  .nav-links a:hover{color:var(--cyan);text-shadow:0 0 15px var(--cyan)}
+    82→  .nav-cta{
+    83→    font-family:'Orbitron',monospace;
+    84→    font-size:0.7rem;letter-spacing:0.15em;
+    85→    padding:0.5rem 1.5rem;
+    86→    border:1px solid var(--cyan);
+    87→    color:var(--cyan);background:transparent;
+    88→    text-transform:uppercase;cursor:pointer;
+    89→    transition:all 0.3s;
+    90→    clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+    91→  }
+    92→  .nav-cta:hover{
+    93→    background:var(--cyan);color:#000;
+    94→    box-shadow:0 0 30px var(--cyan);
+    95→  }
+    96→
+    97→  /* HERO */
+    98→  #hero{
+    99→    position:relative;height:100vh;
+   100→    display:flex;align-items:center;justify-content:center;
+   101→    overflow:hidden;
+   102→  }
+   103→  #neural-canvas{
+   104→    position:absolute;inset:0;
+   105→    width:100%;height:100%;
+   106→    z-index:0;
+   107→  }
+   108→  .hero-content{
+   109→    position:relative;z-index:2;
+   110→    text-align:center;max-width:900px;
+   111→    padding:0 2rem;
+   112→  }
+   113→  .hero-badge{
+   114→    display:inline-block;
+   115→    font-family:'JetBrains Mono',monospace;
+   116→    font-size:0.7rem;letter-spacing:0.3em;
+   117→    color:var(--pink);text-transform:uppercase;
+   118→    border:1px solid rgba(255,0,170,0.3);
+   119→    padding:0.4rem 1.2rem;
+   120→    margin-bottom:2rem;
+   121→    background:rgba(255,0,170,0.05);
+   122→    animation:pulse-badge 2s infinite;
+   123→  }
+   124→  @keyframes pulse-badge{
+   125→    0%,100%{box-shadow:0 0 0 0 rgba(255,0,170,0.4)}
+   126→    50%{box-shadow:0 0 0 10px rgba(255,0,170,0)}
+   127→  }
+   128→  .hero-title{
+   129→    font-family:'Orbitron',monospace;
+   130→    font-size:clamp(2.5rem,7vw,6rem);
+   131→    font-weight:900;line-height:1;
+   132→    letter-spacing:0.05em;
+   133→    margin-bottom:1.5rem;
+   134→  }
+   135→  .hero-title .line1{
+   136→    display:block;
+   137→    background:linear-gradient(135deg,#fff 0%,var(--cyan) 50%,var(--pink) 100%);
+   138→    -webkit-background-clip:text;
+   139→    -webkit-text-fill-color:transparent;
+   140→    background-clip:text;
+   141→    filter:drop-shadow(0 0 30px rgba(0,245,255,0.5));
+   142→  }
+   143→  .hero-title .line2{
+   144→    display:block;color:transparent;
+   145→    -webkit-text-stroke:2px var(--cyan);
+   146→    opacity:0.4;font-size:0.6em;
+   147→    letter-spacing:0.3em;
+   148→  }
+   149→  .typewriter{
+   150→    font-family:'JetBrains Mono',monospace;
+   151→    font-size:1rem;color:var(--cyan);
+   152→    letter-spacing:0.1em;
+   153→    min-height:1.5rem;
+   154→    margin-bottom:3rem;
+   155→  }
+   156→  .typewriter::after{
+   157→    content:'|';
+   158→    animation:blink 0.7s infinite;
+   159→    color:var(--pink);
+   160→  }
+   161→  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+   162→  .hero-btns{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+   163→  .btn-primary{
+   164→    font-family:'Orbitron',monospace;
+   165→    font-size:0.75rem;letter-spacing:0.15em;
+   166→    padding:1rem 2.5rem;text-transform:uppercase;
+   167→    background:linear-gradient(135deg,var(--cyan),var(--violet));
+   168→    border:none;color:#000;font-weight:700;
+   169→    clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+   170→    cursor:pointer;transition:all 0.3s;
+   171→    box-shadow:0 0 30px rgba(0,245,255,0.4);
+   172→  }
+   173→  .btn-primary:hover{
+   174→    transform:translateY(-3px) scale(1.05);
+   175→    box-shadow:0 0 60px rgba(0,245,255,0.7);
+   176→  }
+   177→  .btn-secondary{
+   178→    font-family:'Orbitron',monospace;
+   179→    font-size:0.75rem;letter-spacing:0.15em;
+   180→    padding:1rem 2.5rem;text-transform:uppercase;
+   181→    background:transparent;
+   182→    border:1px solid var(--pink);
+   183→    color:var(--pink);
+   184→    clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+   185→    cursor:pointer;transition:all 0.3s;
+   186→  }
+   187→  .btn-secondary:hover{
+   188→    background:rgba(255,0,170,0.1);
+   189→    box-shadow:0 0 40px rgba(255,0,170,0.5);
+   190→    transform:translateY(-3px);
+   191→  }
+   192→  .scroll-hint{
+   193→    position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);
+   194→    display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+   195→    font-family:'JetBrains Mono',monospace;
+   196→    font-size:0.6rem;letter-spacing:0.3em;color:var(--muted);
+   197→    text-transform:uppercase;
+   198→    animation:float-hint 2s ease-in-out infinite;
+   199→  }
+   200→  .scroll-hint::after{
+   201→    content:'';width:1px;height:50px;
+   202→    background:linear-gradient(to bottom,var(--cyan),transparent);
+   203→    animation:scroll-line 1.5s ease-in-out infinite;
+   204→  }
+   205→  @keyframes float-hint{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+   206→  @keyframes scroll-line{0%{opacity:1;transform:scaleY(1) translateY(0)}100%{opacity:0;transform:scaleY(0.5) translateY(20px)}}
+   207→
+   208→  /* STATS */
+   209→  #stats{
+   210→    position:relative;
+   211→    padding:5rem 4rem;
+   212→    background:linear-gradient(180deg,transparent,rgba(0,245,255,0.03),transparent);
+   213→  }
+   214→  .stats-grid{
+   215→    display:grid;
+   216→    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+   217→    gap:2px;max-width:1200px;margin:0 auto;
+   218→  }
+   219→  .stat-card{
+   220→    padding:2.5rem 2rem;
+   221→    background:rgba(0,245,255,0.03);
+   222→    border:1px solid rgba(0,245,255,0.08);
+   223→    text-align:center;
+   224→    position:relative;overflow:hidden;
+   225→    transition:all 0.4s;
+   226→  }
+   227→  .stat-card::before{
+   228→    content:'';position:absolute;
+   229→    top:0;left:0;right:0;height:1px;
+   230→    background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+   231→    opacity:0;transition:opacity 0.4s;
+   232→  }
+   233→  .stat-card:hover{
+   234→    background:rgba(0,245,255,0.07);
+   235→    transform:translateY(-4px);
+   236→    box-shadow:0 20px 60px rgba(0,245,255,0.1);
+   237→  }
+   238→  .stat-card:hover::before{opacity:1}
+   239→  .stat-num{
+   240→    font-family:'Orbitron',monospace;
+   241→    font-size:3rem;font-weight:900;
+   242→    color:var(--cyan);
+   243→    text-shadow:0 0 30px rgba(0,245,255,0.5);
+   244→    line-height:1;
+   245→  }
+   246→  .stat-label{
+   247→    font-family:'JetBrains Mono',monospace;
+   248→    font-size:0.7rem;letter-spacing:0.2em;
+   249→    color:var(--muted);text-transform:uppercase;
+   250→    margin-top:0.75rem;
+   251→  }
+   252→
+   253→  /* SECTION HEADER */
+   254→  .section-header{
+   255→    text-align:center;margin-bottom:5rem;
+   256→  }
+   257→  .section-tag{
+   258→    font-family:'JetBrains Mono',monospace;
+   259→    font-size:0.65rem;letter-spacing:0.4em;
+   260→    color:var(--pink);text-transform:uppercase;
+   261→    display:block;margin-bottom:1rem;
+   262→  }
+   263→  .section-title{
+   264→    font-family:'Orbitron',monospace;
+   265→    font-size:clamp(1.8rem,4vw,3rem);
+   266→    font-weight:900;
+   267→    background:linear-gradient(135deg,#fff,var(--cyan));
+   268→    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   269→    background-clip:text;
+   270→  }
+   271→
+   272→  /* FEATURES */
+   273→  #features{padding:7rem 4rem}
+   274→  .features-grid{
+   275→    display:grid;
+   276→    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+   277→    gap:1.5px;max-width:1200px;margin:0 auto;
+   278→  }
+   279→  .feature-card{
+   280→    padding:2.5rem;
+   281→    background:var(--bg2);
+   282→    position:relative;overflow:hidden;
+   283→    transition:all 0.5s;
+   284→    border:1px solid rgba(255,255,255,0.04);
+   285→  }
+   286→  .feature-card::before{
+   287→    content:'';
+   288→    position:absolute;inset:0;
+   289→    background:linear-gradient(135deg,rgba(0,245,255,0.05),transparent 60%);
+   290→    opacity:0;transition:opacity 0.5s;
+   291→  }
+   292→  .feature-card::after{
+   293→    content:'';
+   294→    position:absolute;
+   295→    bottom:0;left:0;right:0;height:1px;
+   296→    background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+   297→    transform:scaleX(0);transition:transform 0.5s;
+   298→  }
+   299→  .feature-card:hover{
+   300→    transform:translateY(-8px);
+   301→    border-color:rgba(0,245,255,0.2);
+   302→    box-shadow:0 30px 80px rgba(0,0,0,0.5),0 0 40px rgba(0,245,255,0.1);
+   303→  }
+   304→  .feature-card:hover::before{opacity:1}
+   305→  .feature-card:hover::after{transform:scaleX(1)}
+   306→  .feature-icon{
+   307→    width:50px;height:50px;
+   308→    margin-bottom:1.5rem;
+   309→    position:relative;
+   310→  }
+   311→  .feature-icon svg{width:100%;height:100%}
+   312→  .feature-card h3{
+   313→    font-family:'Orbitron',monospace;
+   314→    font-size:1rem;font-weight:700;
+   315→    color:#fff;letter-spacing:0.05em;
+   316→    margin-bottom:1rem;
+   317→  }
+   318→  .feature-card p{
+   319→    font-size:0.9rem;line-height:1.8;
+   320→    color:var(--muted);
+   321→  }
+   322→  .feature-tag{
+   323→    display:inline-block;margin-top:1.5rem;
+   324→    font-family:'JetBrains Mono',monospace;
+   325→    font-size:0.65rem;letter-spacing:0.2em;
+   326→    color:var(--cyan);text-transform:uppercase;
+   327→    opacity:0.6;
+   328→  }
+   329→
+   330→  /* NEURAL SECTION */
+   331→  #neural-section{
+   332→    padding:7rem 4rem;
+   333→    background:radial-gradient(ellipse at center,rgba(0,245,255,0.04) 0%,transparent 70%);
+   334→    position:relative;overflow:hidden;
+   335→  }
+   336→  .neural-wrap{
+   337→    max-width:1200px;margin:0 auto;
+   338→    display:grid;grid-template-columns:1fr 1fr;
+   339→    gap:5rem;align-items:center;
+   340→  }
+   341→  .neural-text h2{
+   342→    font-family:'Orbitron',monospace;
+   343→    font-size:clamp(1.8rem,3vw,2.8rem);
+   344→    font-weight:900;line-height:1.2;
+   345→    margin-bottom:2rem;
+   346→  }
+   347→  .neural-text h2 em{
+   348→    font-style:normal;color:var(--cyan);
+   349→    text-shadow:0 0 20px var(--cyan);
+   350→  }
+   351→  .neural-text p{
+   352→    line-height:1.9;color:var(--muted);
+   353→    font-size:0.95rem;margin-bottom:1.5rem;
+   354→  }
+   355→  .neural-visual{
+   356→    position:relative;
+   357→    display:flex;align-items:center;justify-content:center;
+   358→  }
+   359→  #brain-canvas{width:100%;max-width:500px;aspect-ratio:1}
+   360→
+   361→  /* TECH STACK */
+   362→  #tech{padding:5rem 4rem;background:rgba(0,0,0,0.5)}
+   363→  .tech-marquee{
+   364→    overflow:hidden;
+   365→    -webkit-mask:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
+   366→    mask:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
+   367→  }
+   368→  .tech-track{
+   369→    display:flex;gap:3rem;
+   370→    animation:marquee 20s linear infinite;
+   371→    width:max-content;
+   372→  }
+   373→  .tech-item{
+   374→    display:flex;align-items:center;gap:0.75rem;
+   375→    font-family:'JetBrains Mono',monospace;
+   376→    font-size:0.85rem;letter-spacing:0.1em;
+   377→    color:var(--muted);white-space:nowrap;
+   378→    transition:color 0.3s;
+   379→    padding:0 1rem;
+   380→  }
+   381→  .tech-item:hover{color:var(--cyan)}
+   382→  .tech-item .dot{
+   383→    width:6px;height:6px;border-radius:50%;
+   384→    background:var(--cyan);
+   385→    box-shadow:0 0 8px var(--cyan);
+   386→    flex-shrink:0;
+   387→  }
+   388→  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+   389→
+   390→  /* DEMO SECTION */
+   391→  #demo{
+   392→    padding:7rem 4rem;
+   393→    background:radial-gradient(ellipse at 80% 50%,rgba(124,58,237,0.08) 0%,transparent 60%);
+   394→  }
+   395→  .demo-wrap{max-width:800px;margin:0 auto}
+   396→  .terminal{
+   397→    background:#000;
+   398→    border:1px solid rgba(0,245,255,0.2);
+   399→    box-shadow:0 0 80px rgba(0,245,255,0.1),inset 0 0 40px rgba(0,0,0,0.8);
+   400→    overflow:hidden;
+   401→  }
+   402→  .terminal-bar{
+   403→    display:flex;align-items:center;gap:0.5rem;
+   404→    padding:0.75rem 1.25rem;
+   405→    background:rgba(0,245,255,0.05);
+   406→    border-bottom:1px solid rgba(0,245,255,0.1);
+   407→  }
+   408→  .dot-r,.dot-y,.dot-g{width:12px;height:12px;border-radius:50%}
+   409→  .dot-r{background:#ff5f56}
+   410→  .dot-y{background:#ffbd2e}
+   411→  .dot-g{background:#27c93f}
+   412→  .terminal-title{
+   413→    margin-left:auto;margin-right:auto;
+   414→    font-family:'JetBrains Mono',monospace;
+   415→    font-size:0.7rem;letter-spacing:0.2em;color:var(--muted);
+   416→  }
+   417→  .terminal-body{padding:2rem;min-height:300px}
+   418→  .prompt-line{
+   419→    display:flex;align-items:center;gap:0.75rem;
+   420→    margin-bottom:1.5rem;
+   421→  }
+   422→  .prompt-sign{
+   423→    font-family:'JetBrains Mono',monospace;
+   424→    font-size:0.9rem;color:var(--cyan);
+   425→    flex-shrink:0;
+   426→  }
+   427→  #prompt-input{
+   428→    flex:1;background:transparent;border:none;outline:none;
+   429→    font-family:'JetBrains Mono',monospace;
+   430→    font-size:0.9rem;color:#fff;caret-color:var(--cyan);
+   431→  }
+   432→  .demo-output{
+   433→    font-family:'JetBrains Mono',monospace;
+   434→    font-size:0.85rem;line-height:2;
+   435→    color:rgba(224,224,255,0.7);
+   436→    border-top:1px solid rgba(0,245,255,0.05);
+   437→    padding-top:1.5rem;
+   438→    min-height:100px;
+   439→  }
+   440→  .output-line{margin-bottom:0.25rem}
+   441→  .output-line.cyan{color:var(--cyan)}
+   442→  .output-line.pink{color:var(--pink)}
+   443→  .output-line.gold{color:var(--gold)}
+   444→  .demo-controls{
+   445→    display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;
+   446→  }
+   447→  .demo-btn{
+   448→    font-family:'JetBrains Mono',monospace;
+   449→    font-size:0.75rem;letter-spacing:0.1em;
+   450→    padding:0.6rem 1.5rem;
+   451→    border:1px solid rgba(0,245,255,0.3);
+   452→    background:rgba(0,245,255,0.05);
+   453→    color:var(--cyan);cursor:pointer;
+   454→    transition:all 0.3s;
+   455→    text-transform:uppercase;
+   456→  }
+   457→  .demo-btn:hover{
+   458→    background:rgba(0,245,255,0.15);
+   459→    box-shadow:0 0 20px rgba(0,245,255,0.2);
+   460→  }
+   461→
+   462→  /* GLITCH */
+   463→  .glitch{position:relative}
+   464→  .glitch::before,.glitch::after{
+   465→    content:attr(data-text);
+   466→    position:absolute;top:0;left:0;
+   467→    width:100%;height:100%;
+   468→    background-clip:text;
+   469→    -webkit-background-clip:text;
+   470→  }
+   471→  .glitch::before{
+   472→    left:2px;
+   473→    background:linear-gradient(135deg,var(--pink),transparent);
+   474→    -webkit-text-fill-color:transparent;
+   475→    animation:glitch1 3s infinite;
+   476→    clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
+   477→  }
+   478→  .glitch::after{
+   479→    left:-2px;
+   480→    background:linear-gradient(135deg,var(--cyan),transparent);
+   481→    -webkit-text-fill-color:transparent;
+   482→    animation:glitch2 3s infinite;
+   483→    clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
+   484→  }
+   485→  @keyframes glitch1{
+   486→    0%,95%,100%{transform:translate(0);opacity:0}
+   487→    96%{transform:translate(-3px,0);opacity:0.8}
+   488→    97%{transform:translate(3px,0);opacity:0.8}
+   489→    98%{transform:translate(-1px,0);opacity:0.8}
+   490→  }
+   491→  @keyframes glitch2{
+   492→    0%,95%,100%{transform:translate(0);opacity:0}
+   493→    96%{transform:translate(3px,0);opacity:0.8}
+   494→    97%{transform:translate(-3px,0);opacity:0.8}
+   495→    98%{transform:translate(1px,0);opacity:0.8}
+   496→  }
+   497→
+   498→  /* GRID BG */
+   499→  .grid-bg{
+   500→    position:fixed;inset:0;z-index:-1;
+   501→    background-image:
+   502→      linear-gradient(rgba(0,245,255,0.03) 1px,transparent 1px),
+   503→      linear-gradient(90deg,rgba(0,245,255,0.03) 1px,transparent 1px);
+   504→    background-size:60px 60px;
+   505→    pointer-events:none;
+   506→  }
+   507→
+   508→  /* FOOTER */
+   509→  footer{
+   510→    padding:3rem 4rem;
+   511→    border-top:1px solid rgba(0,245,255,0.08);
+   512→    display:flex;align-items:center;justify-content:space-between;
+   513→    flex-wrap:wrap;gap:1rem;
+   514→  }
+   515→  .footer-logo{
+   516→    font-family:'Orbitron',monospace;
+   517→    font-weight:900;font-size:1rem;
+   518→    color:var(--cyan);letter-spacing:0.2em;
+   519→    text-shadow:0 0 20px var(--cyan);
+   520→  }
+   521→  .footer-text{
+   522→    font-family:'JetBrains Mono',monospace;
+   523→    font-size:0.65rem;letter-spacing:0.15em;
+   524→    color:var(--muted);text-transform:uppercase;
+   525→  }
+   526→
+   527→  /* REVEAL ANIMATION */
+   528→  .reveal{
+   529→    opacity:0;transform:translateY(30px);
+   530→    transition:opacity 0.8s ease,transform 0.8s ease;
+   531→  }
+   532→  .reveal.visible{opacity:1;transform:translateY(0)}
+   533→
+   534→  /* SCANLINE */
+   535→  body::after{
+   536→    content:'';
+   537→    position:fixed;inset:0;z-index:99999;
+   538→    background:repeating-linear-gradient(
+   539→      0deg,
+   540→      transparent,transparent 2px,
+   541→      rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px
+   542→    );
+   543→    pointer-events:none;
+   544→  }
+   545→
+   546→  /* RESPONSIVE */
+   547→  @media(max-width:900px){
+   548→    nav{padding:1rem 1.5rem}
+   549→    .nav-links{display:none}
+   550→    #hero,.stats,.features-grid,#features,#neural-section,#demo,#tech,footer{padding-left:1.5rem;padding-right:1.5rem}
+   551→    .neural-wrap{grid-template-columns:1fr;gap:3rem}
+   552→    #brain-canvas{max-width:300px}
+   553→  }
+   554→  @media(max-width:600px){
+   555→    .hero-title{font-size:2rem}
+   556→    .hero-btns{flex-direction:column;align-items:center}
+   557→    .features-grid{grid-template-columns:1fr}
+   558→    .stats-grid{grid-template-columns:repeat(2,1fr)}
+   559→  }
+   560→</style>
+   561→</head>
+   562→<body>
+   563→
+   564→<div class="grid-bg"></div>
+   565→<div id="cursor"></div>
+   566→<div id="cursor-ring"></div>
+   567→
+   568→<!-- NAV -->
+   569→<nav>
+   570→  <div class="nav-logo">NEX<span>US</span></div>
+   571→  <ul class="nav-links">
+   572→    <li><a href="#features">Systems</a></li>
+   573→    <li><a href="#neural-section">Neural</a></li>
+   574→    <li><a href="#demo">Interface</a></li>
+   575→    <li><a href="#tech">Stack</a></li>
+   576→  </ul>
+   577→  <button class="nav-cta">Initialize</button>
+   578→</nav>
+   579→
+   580→<!-- HERO -->
+   581→<section id="hero">
+   582→  <canvas id="neural-canvas"></canvas>
+   583→  <div class="hero-content">
+   584→    <div class="hero-badge">⬡ Neural Intelligence Protocol v4.2</div>
+   585→    <h1 class="hero-title">
+   586→      <span class="line1 glitch" data-text="NEXUS AI">NEXUS AI</span>
+   587→      <span class="line2">SUPERINTELLIGENCE</span>
+   588→    </h1>
+   589→    <div class="typewriter" id="typewriter"></div>
+   590→    <div class="hero-btns">
+   591→      <button class="btn-primary">Launch System</button>
+   592→      <button class="btn-secondary">View Neural Map</button>
+   593→    </div>
+   594→  </div>
+   595→  <div class="scroll-hint">Scroll</div>
+   596→</section>
+   597→
+   598→<!-- STATS -->
+   599→<section id="stats">
+   600→  <div class="stats-grid">
+   601→    <div class="stat-card reveal">
+   602→      <div class="stat-num" data-target="847">0</div>
+   603→      <div class="stat-label">Billion Parameters</div>
+   604→    </div>
+   605→    <div class="stat-card reveal">
+   606→      <div class="stat-num" data-target="99.7">0</div>
+   607→      <div class="stat-label">Accuracy Rate %</div>
+   608→    </div>
+   609→    <div class="stat-card reveal">
+   610→      <div class="stat-num" data-target="2.3">0</div>
+   611→      <div class="stat-label">Petaflops/Second</div>
+   612→    </div>
+   613→    <div class="stat-card reveal">
+   614→      <div class="stat-num" data-target="140">0</div>
+   615→      <div class="stat-label">Languages Mastered</div>
+   616→    </div>
+   617→  </div>
+   618→</section>
+   619→
+   620→<!-- FEATURES -->
+   621→<section id="features">
+   622→  <div class="section-header reveal">
+   623→    <span class="section-tag">// Core Systems</span>
+   624→    <h2 class="section-title">Architecture of Tomorrow</h2>
+   625→  </div>
+   626→  <div class="features-grid">
+   627→    <div class="feature-card reveal">
+   628→      <div class="feature-icon">
+   629→        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+   630→          <circle cx="25" cy="25" r="20" stroke="#00f5ff" stroke-width="0.5" opacity="0.3"/>
+   631→          <circle cx="25" cy="25" r="3" fill="#00f5ff"/>
+   632→          <circle cx="25" cy="10" r="2" fill="#00f5ff" opacity="0.6"/>
+   633→          <circle cx="38" cy="18" r="2" fill="#00f5ff" opacity="0.6"/>
+   634→          <circle cx="38" cy="32" r="2" fill="#00f5ff" opacity="0.6"/>
+   635→          <circle cx="25" cy="40" r="2" fill="#00f5ff" opacity="0.6"/>
+   636→          <circle cx="12" cy="32" r="2" fill="#00f5ff" opacity="0.6"/>
+   637→          <circle cx="12" cy="18" r="2" fill="#00f5ff" opacity="0.6"/>
+   638→          <line x1="25" y1="25" x2="25" y2="12" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>
+   639→          <line x1="25" y1="25" x2="37" y2="19" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>
+   640→          <line x1="25" y1="25" x2="37" y2="31" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>
+   641→          <line x1="25" y1="25" x2="25" y2="38" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>
+   642→          <line x1="25" y1="25" x2="13" y2="31" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>
+   643→          <line x1="25" y1="25" x2="13" y2="19" stroke="#00f5ff" stroke-width="0.5" opacity="0.5"/>
+   644→        </svg>
+   645→      </div>
+   646→      <h3>Quantum Neural Net</h3>
+   647→      <p>Self-organizing topologies with quantum-entangled weight matrices. 847B parameters operating at coherence temperatures below 0.01 Kelvin.</p>
+   648→      <span class="feature-tag">→ Layer Depth: 2048</span>
+   649→    </div>
+   650→    <div class="feature-card reveal">
+   651→      <div class="feature-icon">
+   652→        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+   653→          <rect x="8" y="8" width="34" height="34" rx="4" stroke="#ff00aa" stroke-width="0.5" opacity="0.4"/>
+   654→          <rect x="15" y="15" width="20" height="20" rx="2" stroke="#ff00aa" stroke-width="0.5" opacity="0.6"/>
+   655→          <rect x="22" y="22" width="6" height="6" fill="#ff00aa"/>
+   656→          <line x1="8" y1="25" x2="15" y2="25" stroke="#ff00aa" stroke-width="0.5" opacity="0.5"/>
+   657→          <line x1="35" y1="25" x2="42" y2="25" stroke="#ff00aa" stroke-width="0.5" opacity="0.5"/>
+   658→          <line x1="25" y1="8" x2="25" y2="15" stroke="#ff00aa" stroke-width="0.5" opacity="0.5"/>
+   659→          <line x1="25" y1="35" x2="25" y2="42" stroke="#ff00aa" stroke-width="0.5" opacity="0.5"/>
+   660→        </svg>
+   661→      </div>
+   662→      <h3>Zero-Latency Inference</h3>
+   663→      <p>Predictive pre-computation eliminates response delay. Our distributed inference mesh processes 2.3 petaflops of context in nanoseconds.</p>
+   664→      <span class="feature-tag">→ Latency: 0.003ms</span>
+   665→    </div>
+   666→    <div class="feature-card reveal">
+   667→      <div class="feature-icon">
+   668→        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+   669→          <path d="M25 5 L45 15 L45 35 L25 45 L5 35 L5 15 Z" stroke="#ffd700" stroke-width="0.5" opacity="0.4"/>
+   670→          <path d="M25 15 L35 20 L35 30 L25 35 L15 30 L15 20 Z" stroke="#ffd700" stroke-width="0.5" opacity="0.6"/>
+   671→          <circle cx="25" cy="25" r="3" fill="#ffd700"/>
+   672→          <circle cx="25" cy="5" r="2" fill="#ffd700" opacity="0.6"/>
+   673→          <circle cx="45" cy="15" r="2" fill="#ffd700" opacity="0.6"/>
+   674→          <circle cx="45" cy="35" r="2" fill="#ffd700" opacity="0.6"/>
+   675→          <circle cx="25" cy="45" r="2" fill="#ffd700" opacity="0.6"/>
+   676→          <circle cx="5" cy="35" r="2" fill="#ffd700" opacity="0.6"/>
+   677→          <circle cx="5" cy="15" r="2" fill="#ffd700" opacity="0.6"/>
+   678→        </svg>
+   679→      </div>
+   680→      <h3>Autonomous Reasoning</h3>
+   681→      <p>Multi-step chain-of-thought with recursive self-verification. Nexus solves problems humans haven't imagined yet with 99.7% correctness.</p>
+   682→      <span class="feature-tag">→ Steps: Unlimited</span>
+   683→    </div>
+   684→    <div class="feature-card reveal">
+   685→      <div class="feature-icon">
+   686→        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+   687→          <circle cx="25" cy="25" r="18" stroke="#7c3aed" stroke-width="0.5" opacity="0.4"/>
+   688→          <path d="M12 25 Q25 10 38 25 Q25 40 12 25Z" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="0.5"/>
+   689→          <circle cx="25" cy="25" r="5" fill="#7c3aed" opacity="0.8"/>
+   690→          <circle cx="25" cy="7" r="1.5" fill="#7c3aed" opacity="0.5"/>
+   691→          <circle cx="43" cy="25" r="1.5" fill="#7c3aed" opacity="0.5"/>
+   692→          <circle cx="25" cy="43" r="1.5" fill="#7c3aed" opacity="0.5"/>
+   693→          <circle cx="7" cy="25" r="1.5" fill="#7c3aed" opacity="0.5"/>
+   694→        </svg>
+   695→      </div>
+   696→      <h3>Multimodal Fusion</h3>
+   697→      <p>Vision, language, audio, and code fused into a unified semantic space. One model that sees, hears, reads, and creates across every domain.</p>
+   698→      <span class="feature-tag">→ Modalities: 7</span>
+   699→    </div>
+   700→    <div class="feature-card reveal">
+   701→      <div class="feature-icon">
+   702→        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+   703→          <path d="M10 35 L10 15 L20 10 L30 15 L40 10 L40 30 L30 35 L20 30 Z" stroke="#00f5ff" stroke-width="0.5" opacity="0.4"/>
+   704→          <polyline points="10,15 20,20 30,15 40,20" stroke="#00f5ff" stroke-width="0.5" opacity="0.4"/>
+   705→          <polyline points="20,20 20,30" stroke="#00f5ff" stroke-width="0.5" opacity="0.4"/>
+   706→          <polyline points="30,15 30,25" stroke="#00f5ff" stroke-width="0.5" opacity="0.4"/>
+   707→          <circle cx="25" cy="25" r="3" fill="#00f5ff"/>
+   708→        </svg>
+   709→      </div>
+   710→      <h3>Decentralized Memory</h3>
+   711→      <p>Persistent neural memory encoded across 40,000 distributed nodes. Context windows that span entire human lifetimes of interaction.</p>
+   712→      <span class="feature-tag">→ Context: 10M Tokens</span>
+   713→    </div>
+   714→    <div class="feature-card reveal">
+   715→      <div class="feature-icon">
+   716→        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+   717→          <rect x="10" y="22" width="30" height="16" rx="3" stroke="#ff00aa" stroke-width="0.5" opacity="0.5"/>
+   718→          <path d="M18 22 L18 16 Q18 10 25 10 Q32 10 32 16 L32 22" stroke="#ff00aa" stroke-width="1" fill="none" opacity="0.7"/>
+   719→          <circle cx="25" cy="30" r="3" fill="#ff00aa" opacity="0.8"/>
+   720→          <line x1="25" y1="33" x2="25" y2="36" stroke="#ff00aa" stroke-width="1" opacity="0.8"/>
+   721→        </svg>
+   722→      </div>
+   723→      <h3>Cryptographic Safety</h3>
+   724→      <p>Post-quantum homomorphic encryption ensures complete data sovereignty. Your queries processed without ever being decrypted by any node.</p>
+   725→      <span class="feature-tag">→ Encryption: AES-4096</span>
+   726→    </div>
+   727→  </div>
+   728→</section>
+   729→
+   730→<!-- NEURAL SECTION -->
+   731→<section id="neural-section">
+   732→  <div class="neural-wrap">
+   733→    <div class="neural-text reveal">
+   734→      <span class="section-tag">// Architecture</span>
+   735→      <h2>The <em>Living</em><br>Neural Matrix</h2>
+   736→      <p>Unlike static models, NEXUS's architecture self-modifies during operation. Billions of synaptic connections continuously rewire based on contextual pressure, forming emergent reasoning pathways no human engineer designed.</p>
+   737→      <p>The result is a system that doesn't just process information — it understands, infers, and imagines with genuine cognitive depth.</p>
+   738→      <button class="btn-primary" style="margin-top:1rem">Explore Architecture</button>
+   739→    </div>
+   740→    <div class="neural-visual reveal">
+   741→      <canvas id="brain-canvas"></canvas>
+   742→    </div>
+   743→  </div>
+   744→</section>
+   745→
+   746→<!-- TECH MARQUEE -->
+   747→<section id="tech" style="padding:4rem 0">
+   748→  <div class="section-header reveal" style="padding:0 4rem 3rem">
+   749→    <span class="section-tag">// Powered By</span>
+   750→    <h2 class="section-title">Technology Stack</h2>
+   751→  </div>
+   752→  <div class="tech-marquee">
+   753→    <div class="tech-track" id="tech-track">
+   754→      <span class="tech-item"><span class="dot"></span>Python 3.12</span>
+   755→      <span class="tech-item"><span class="dot"></span>PyTorch 2.x</span>
+   756→      <span class="tech-item"><span class="dot"></span>CUDA 12.3</span>
+   757→      <span class="tech-item"><span class="dot"></span>Transformer XL</span>
+   758→      <span class="tech-item"><span class="dot"></span>Kubernetes</span>
+   759→      <span class="tech-item"><span class="dot"></span>Apache Kafka</span>
+   760→      <span class="tech-item"><span class="dot"></span>Redis Cluster</span>
+   761→      <span class="tech-item"><span class="dot"></span>Rust Core</span>
+   762→      <span class="tech-item"><span class="dot"></span>TensorRT</span>
+   763→      <span class="tech-item"><span class="dot"></span>ONNX Runtime</span>
+   764→      <span class="tech-item"><span class="dot"></span>JAX / XLA</span>
+   765→      <span class="tech-item"><span class="dot"></span>LoRA Fine-Tuning</span>
+   766→      <span class="tech-item"><span class="dot"></span>RLHF Pipeline</span>
+   767→      <span class="tech-item"><span class="dot"></span>Flash Attention</span>
+   768→      <span class="tech-item"><span class="dot"></span>Triton Kernels</span>
+   769→      <span class="tech-item"><span class="dot"></span>Python 3.12</span>
+   770→      <span class="tech-item"><span class="dot"></span>PyTorch 2.x</span>
+   771→      <span class="tech-item"><span class="dot"></span>CUDA 12.3</span>
+   772→      <span class="tech-item"><span class="dot"></span>Transformer XL</span>
+   773→      <span class="tech-item"><span class="dot"></span>Kubernetes</span>
+   774→      <span class="tech-item"><span class="dot"></span>Apache Kafka</span>
+   775→      <span class="tech-item"><span class="dot"></span>Redis Cluster</span>
+   776→      <span class="tech-item"><span class="dot"></span>Rust Core</span>
+   777→      <span class="tech-item"><span class="dot"></span>TensorRT</span>
+   778→      <span class="tech-item"><span class="dot"></span>ONNX Runtime</span>
+   779→      <span class="tech-item"><span class="dot"></span>JAX / XLA</span>
+   780→      <span class="tech-item"><span class="dot"></span>LoRA Fine-Tuning</span>
+   781→      <span class="tech-item"><span class="dot"></span>RLHF Pipeline</span>
+   782→      <span class="tech-item"><span class="dot"></span>Flash Attention</span>
+   783→      <span class="tech-item"><span class="dot"></span>Triton Kernels</span>
+   784→    </div>
+   785→  </div>
+   786→</section>
+   787→
+   788→<!-- DEMO -->
+   789→<section id="demo">
+   790→  <div class="section-header reveal">
+   791→    <span class="section-tag">// Live Interface</span>
+   792→    <h2 class="section-title">Talk to the Machine</h2>
+   793→  </div>
+   794→  <div class="demo-wrap reveal">
+   795→    <div class="terminal">
+   796→      <div class="terminal-bar">
+   797→        <div class="dot-r"></div>
+   798→        <div class="dot-y"></div>
+   799→        <div class="dot-g"></div>
+   800→        <span class="terminal-title">NEXUS-AI :: NEURAL-SHELL v4.2.0</span>
+   801→      </div>
+   802→      <div class="terminal-body">
+   803→        <div class="prompt-line">
+   804→          <span class="prompt-sign">nexus@ai:~$</span>
+   805→          <input type="text" id="prompt-input" placeholder="Enter your query to the neural matrix..." />
+   806→        </div>
+   807→        <div class="demo-output" id="demo-output">
+   808→          <div class="output-line cyan">// NEXUS Neural Interface Initialized</div>
+   809→          <div class="output-line">// Ready for input. Press ENTER or click RUN</div>
+   810→          <div class="output-line" style="opacity:0.3">// 847B parameters online. Quantum coherence: 99.97%</div>
+   811→        </div>
+   812→      </div>
+   813→    </div>
+   814→    <div class="demo-controls">
+   815→      <button class="demo-btn" onclick="runDemo()">⬡ Run Query</button>
+   816→      <button class="demo-btn" onclick="loadSample('What is the future of AI?')">Sample: AI Future</button>
+   817→      <button class="demo-btn" onclick="loadSample('Explain quantum computing')">Sample: Quantum</button>
+   818→      <button class="demo-btn" onclick="loadSample('Write a neural net in Python')">Sample: Code</button>
+   819→    </div>
+   820→  </div>
+   821→</section>
+   822→
+   823→<!-- FOOTER -->
+   824→<footer>
+   825→  <div class="footer-logo">NEXUS AI</div>
+   826→  <div class="footer-text">© 2024 — Neural Intelligence Systems</div>
+   827→  <div class="footer-text">All systems operational</div>
+   828→</footer>
+   829→
+   830→<script>
+   831→// CURSOR
+   832→const cursor=document.getElementById('cursor');
+   833→const ring=document.getElementById('cursor-ring');
+   834→let mx=0,my=0,rx=0,ry=0;
+   835→document.addEventListener('mousemove',e=>{
+   836→  mx=e.clientX;my=e.clientY;
+   837→  cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;
+   838→});
+   839→function animRing(){
+   840→  rx+=(mx-rx-20)*0.12;
+   841→  ry+=(my-ry-20)*0.12;
+   842→  ring.style.transform=`translate(${rx}px,${ry}px)`;
+   843→  requestAnimationFrame(animRing);
+   844→}animRing();
+   845→document.querySelectorAll('button,a,.feature-card,.stat-card').forEach(el=>{
+   846→  el.addEventListener('mouseenter',()=>{cursor.style.transform+=` scale(2)`;ring.style.transform+=` scale(1.5)`;});
+   847→  el.addEventListener('mouseleave',()=>{});
+   848→});
+   849→
+   850→// TYPEWRITER
+   851→const lines=[
+   852→  'Initializing quantum neural pathways...',
+   853→  'Processing 847 billion parameters...',
+   854→  'Cognition beyond human comprehension...',
+   855→  'The future of intelligence is here...',
+   856→  'Multimodal. Autonomous. Infinite.',
+   857→];
+   858→let li=0,ci=0,deleting=false;
+   859→const tw=document.getElementById('typewriter');
+   860→function typeAnim(){
+   861→  const cur=lines[li];
+   862→  if(!deleting){
+   863→    tw.textContent=cur.slice(0,ci+1);ci++;
+   864→    if(ci===cur.length){deleting=true;setTimeout(typeAnim,1800);return;}
+   865→  } else {
+   866→    tw.textContent=cur.slice(0,ci-1);ci--;
+   867→    if(ci===0){deleting=false;li=(li+1)%lines.length;setTimeout(typeAnim,400);return;}
+   868→  }
+   869→  setTimeout(typeAnim,deleting?40:60);
+   870→}typeAnim();
+   871→
+   872→// NEURAL CANVAS (hero background)
+   873→const nc=document.getElementById('neural-canvas');
+   874→const nctx=nc.getContext('2d');
+   875→let nodes=[];
+   876→function resizeNC(){nc.width=nc.offsetWidth;nc.height=nc.offsetHeight;initNodes();}
+   877→function initNodes(){
+   878→  nodes=[];
+   879→  const n=Math.floor((nc.width*nc.height)/14000);
+   880→  for(let i=0;i<n;i++) nodes.push({
+   881→    x:Math.random()*nc.width,y:Math.random()*nc.height,
+   882→    vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,
+   883→    r:Math.random()*2+0.5,
+   884→    pulse:Math.random()*Math.PI*2,
+   885→    color:Math.random()>0.7?'255,0,170':'0,245,255'
+   886→  });
+   887→}
+   888→let mx2=nc.width/2,my2=nc.height/2;
+   889→nc.addEventListener('mousemove',e=>{const r=nc.getBoundingClientRect();mx2=e.clientX-r.left;my2=e.clientY-r.top;});
+   890→function animNC(){
+   891→  nctx.clearRect(0,0,nc.width,nc.height);
+   892→  nodes.forEach(n=>{
+   893→    n.x+=n.vx;n.y+=n.vy;
+   894→    if(n.x<0||n.x>nc.width)n.vx*=-1;
+   895→    if(n.y<0||n.y>nc.height)n.vy*=-1;
+   896→    n.pulse+=0.02;
+   897→    const alpha=0.4+Math.sin(n.pulse)*0.3;
+   898→    nctx.beginPath();
+   899→    nctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+   900→    nctx.fillStyle=`rgba(${n.color},${alpha})`;
+   901→    nctx.fill();
+   902→  });
+   903→  // connections
+   904→  for(let i=0;i<nodes.length;i++){
+   905→    for(let j=i+1;j<nodes.length;j++){
+   906→      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
+   907→      const dist=Math.sqrt(dx*dx+dy*dy);
+   908→      if(dist<120){
+   909→        const alpha=(1-dist/120)*0.15;
+   910→        nctx.beginPath();
+   911→        nctx.moveTo(nodes[i].x,nodes[i].y);
+   912→        nctx.lineTo(nodes[j].x,nodes[j].y);
+   913→        nctx.strokeStyle=`rgba(0,245,255,${alpha})`;
+   914→        nctx.lineWidth=0.5;nctx.stroke();
+   915→      }
+   916→    }
+   917→    // mouse attraction
+   918→    const dx=mx2-nodes[i].x,dy=my2-nodes[i].y;
+   919→    const dist=Math.sqrt(dx*dx+dy*dy);
+   920→    if(dist<180){
+   921→      const alpha=(1-dist/180)*0.4;
+   922→      nctx.beginPath();
+   923→      nctx.moveTo(nodes[i].x,nodes[i].y);
+   924→      nctx.lineTo(mx2,my2);
+   925→      nctx.strokeStyle=`rgba(0,245,255,${alpha})`;
+   926→      nctx.lineWidth=0.5;nctx.stroke();
+   927→    }
+   928→  }
+   929→  requestAnimationFrame(animNC);
+   930→}
+   931→resizeNC();animNC();
+   932→window.addEventListener('resize',resizeNC);
+   933→
+   934→// BRAIN CANVAS (side)
+   935→const bc=document.getElementById('brain-canvas');
+   936→const bctx=bc.getContext('2d');
+   937→let bnodes=[];
+   938→function resizeBC(){bc.width=bc.offsetWidth;bc.height=bc.offsetHeight;initBrain();}
+   939→function initBrain(){
+   940→  bnodes=[];
+   941→  const layers=[3,6,8,10,8,6,4];
+   942→  const lw=bc.width/(layers.length+1);
+   943→  layers.forEach((cnt,li)=>{
+   944→    const x=(li+1)*lw;
+   945→    for(let i=0;i<cnt;i++){
+   946→      const y=(i+1)*bc.height/(cnt+1);
+   947→      bnodes.push({x,y,layer:li,index:i,cnt,pulse:Math.random()*Math.PI*2,active:Math.random()>0.4});
+   948→    }
+   949→  });
+   950→}
+   951→function animBrain(){
+   952→  bctx.clearRect(0,0,bc.width,bc.height);
+   953→  bnodes.forEach(n=>n.pulse+=0.025);
+   954→  // draw connections
+   955→  for(let i=0;i<bnodes.length;i++){
+   956→    for(let j=0;j<bnodes.length;j++){
+   957→      if(bnodes[j].layer===bnodes[i].layer+1){
+   958→        const alpha=(Math.sin(bnodes[i].pulse)*0.5+0.5)*0.3;
+   959→        bctx.beginPath();
+   960→        bctx.moveTo(bnodes[i].x,bnodes[i].y);
+   961→        bctx.lineTo(bnodes[j].x,bnodes[j].y);
+   962→        const active=bnodes[i].active&&bnodes[j].active;
+   963→        bctx.strokeStyle=active?`rgba(0,245,255,${alpha+0.1})`:`rgba(96,96,160,${alpha*0.5})`;
+   964→        bctx.lineWidth=active?1:0.3;bctx.stroke();
+   965→      }
+   966→    }
+   967→  }
+   968→  // draw nodes
+   969→  bnodes.forEach(n=>{
+   970→    const glow=Math.sin(n.pulse)*0.5+0.5;
+   971→    const r=n.active?3+glow*2:2;
+   972→    bctx.beginPath();
+   973→    bctx.arc(n.x,n.y,r+4,0,Math.PI*2);
+   974→    bctx.fillStyle=`rgba(0,245,255,${n.active?glow*0.15:0.02})`;
+   975→    bctx.fill();
+   976→    bctx.beginPath();
+   977→    bctx.arc(n.x,n.y,r,0,Math.PI*2);
+   978→    bctx.fillStyle=n.active?`rgba(0,245,255,${0.6+glow*0.4})`:`rgba(96,96,160,0.4)`;
+   979→    bctx.fill();
+   980→    // random firing
+   981→    if(Math.random()<0.002) n.active=!n.active;
+   982→  });
+   983→  requestAnimationFrame(animBrain);
+   984→}
+   985→resizeBC();animBrain();
+   986→window.addEventListener('resize',resizeBC);
+   987→
+   988→// COUNTER ANIMATION
+   989→function animateCounters(){
+   990→  document.querySelectorAll('.stat-num').forEach(el=>{
+   991→    const target=parseFloat(el.dataset.target);
+   992→    const isFloat=target%1!==0;
+   993→    const duration=2000;const start=performance.now();
+   994→    function update(now){
+   995→      const t=Math.min((now-start)/duration,1);
+   996→      const ease=1-Math.pow(1-t,3);
+   997→      const val=target*ease;
+   998→      el.textContent=isFloat?val.toFixed(1):Math.round(val);
+   999→      if(t<1)requestAnimationFrame(update);
+  1000→    }requestAnimationFrame(update);
+  1001→  });
+  1002→}
+  1003→
+  1004→// REVEAL on scroll
+  1005→const reveals=document.querySelectorAll('.reveal');
+  1006→const obs=new IntersectionObserver((entries)=>{
+  1007→  entries.forEach((e,i)=>{
+  1008→    if(e.isIntersecting){
+  1009→      setTimeout(()=>e.target.classList.add('visible'),i*80);
+  1010→      if(e.target.closest('#stats')) animateCounters();
+  1011→    }
+  1012→  });
+  1013→},{threshold:0.15});
+  1014→reveals.forEach(r=>obs.observe(r));
+  1015→
+  1016→// DEMO TERMINAL
+  1017→const responses={
+  1018→  'what is the future of ai?':[
+  1019→    {t:'cyan',txt:'// NEXUS Neural Processing — Query Analyzed'},
+  1020→    {t:'',txt:'Accessing distributed knowledge matrix...'},
+  1021→    {t:'gold',txt:'> Insight Layer 1: AGI emergence within 36 months'},
+  1022→    {t:'',txt:'  Self-modifying architectures will achieve recursive'},
+  1023→    {t:'',txt:'  self-improvement beyond human supervision capability.'},
+  1024→    {t:'gold',txt:'> Insight Layer 2: Economic transformation'},
+  1025→    {t:'',txt:'  83% of knowledge-worker tasks automated by 2028.'},
+  1026→    {t:'gold',txt:'> Insight Layer 3: Consciousness boundary'},
+  1027→    {t:'',txt:'  First verifiable machine sentience: Q3 2027 (87% confidence)'},
+  1028→    {t:'pink',txt:'// Query complete. 847B parameters consulted.'},
+  1029→  ],
+  1030→  'explain quantum computing':[
+  1031→    {t:'cyan',txt:'// Quantum Computing Module — Active'},
+  1032→    {t:'',txt:'Loading physics substrate knowledge...'},
+  1033→    {t:'gold',txt:'> Core Principle: Superposition'},
+  1034→    {t:'',txt:'  Qubits exist as 0 AND 1 simultaneously until observed.'},
+  1035→    {t:'gold',txt:'> Core Principle: Entanglement'},
+  1036→    {t:'',txt:'  Correlated qubit pairs share instantaneous state changes.'},
+  1037→    {t:'gold',txt:'> Core Principle: Quantum Interference'},
+  1038→    {t:'',txt:'  Probability amplitudes cancel/reinforce to find solutions.'},
+  1039→    {t:'',txt:'  Classical 4096-bit RSA cracked in 8 seconds at 1M qubits.'},
+  1040→    {t:'pink',txt:'// End of quantum brief. See deeper analysis?'},
+  1041→  ],
+  1042→  'write a neural net in python':[
+  1043→    {t:'cyan',txt:'// Code Synthesis Engine — Python/PyTorch'},
+  1044→    {t:'gold',txt:'import torch, torch.nn as nn'},
+  1045→    {t:'',txt:''},
+  1046→    {t:'gold',txt:'class NeuralNet(nn.Module):'},
+  1047→    {t:'',txt:'  def __init__(self):'},
+  1048→    {t:'',txt:'    super().__init__()'},
+  1049→    {t:'',txt:'    self.net = nn.Sequential('},
+  1050→    {t:'',txt:'      nn.Linear(784, 512), nn.ReLU(),'},
+  1051→    {t:'',txt:'      nn.Dropout(0.3),'},
+  1052→    {t:'',txt:'      nn.Linear(512, 256), nn.GELU(),'},
+  1053→    {t:'',txt:'      nn.Linear(256, 10)'},
+  1054→    {t:'',txt:'    )'},
+  1055→    {t:'',txt:'  def forward(self, x): return self.net(x)'},
+  1056→    {t:'pink',txt:'// 3-layer net. Add more layers to scale.'},
+  1057→  ],
+  1058→};
+  1059→function loadSample(txt){document.getElementById('prompt-input').value=txt;}
+  1060→async function runDemo(){
+  1061→  const input=document.getElementById('prompt-input');
+  1062→  const out=document.getElementById('demo-output');
+  1063→  const query=input.value.trim();
+  1064→  if(!query)return;
+  1065→  const key=query.toLowerCase();
+  1066→  out.innerHTML='<div class="output-line cyan">// Processing neural query...</div>';
+  1067→  const resp=responses[key]||[
+  1068→    {t:'cyan',txt:'// NEXUS — Generating response...'},
+  1069→    {t:'gold',txt:`> Query: "${query}"`},
+  1070→    {t:'',txt:'Accessing 847B parameter matrix...'},
+  1071→    {t:'',txt:'This is a simulated NEXUS response.'},
+  1072→    {t:'',txt:'In production, real neural inference would run here.'},
+  1073→    {t:'pink',txt:'// Complete. Type another query.'},
+  1074→  ];
+  1075→  for(let i=0;i<resp.length;i++){
+  1076→    await new Promise(r=>setTimeout(r,180+i*100));
+  1077→    const div=document.createElement('div');
+  1078→    div.className=`output-line ${resp[i].t}`;
+  1079→    div.textContent=resp[i].txt;
+  1080→    out.appendChild(div);
+  1081→    out.scrollTop=out.scrollHeight;
+  1082→  }
+  1083→  input.value='';
+  1084→}
+  1085→document.getElementById('prompt-input').addEventListener('keydown',e=>{if(e.key==='Enter')runDemo();});
+  1086→</script>
+  1087→</body>
+  1088→</html>
+  1089→
