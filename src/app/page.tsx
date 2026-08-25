@@ -657,6 +657,24 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
 
   return (
     <div className="min-h-screen bg-[#00000a] text-white overflow-x-hidden relative">
+      {/* Floating N Logo - Upper Side */}
+      <div className="fixed top-4 left-4 z-50 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div className="relative">
+          <img 
+            src="/logo.jpg" 
+            alt="NEXUS AI Logo" 
+            className="w-14 h-14 object-contain rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-cyan-500/30"
+          />
+          <div className="absolute inset-0 w-14 h-14 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-xl animate-pulse-ring opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/30 to-violet-500/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+        </div>
+        {/* Tooltip */}
+        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 border border-cyan-500/50 rounded-lg text-xs text-cyan-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none font-[family-name:var(--font-mono)]">
+          Back to Top ↑
+        </div>
+      </div>
+
       {/* Custom CSS for animations */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap');
@@ -800,7 +818,15 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
               ))}
             </div>
 
-            <Button className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white border-0 glow-cyan">
+            <Button 
+              className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white border-0 glow-cyan"
+              onClick={() => {
+                setActiveSection('chat');
+                setTimeout(() => {
+                  document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
+            >
               <Rocket className="w-4 h-4 mr-2" />
               Launch App
             </Button>
@@ -853,6 +879,12 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
               size="lg" 
               variant="outline"
               className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg h-auto"
+              onClick={() => {
+                setActiveSection('features');
+                setTimeout(() => {
+                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
             >
               <Command className="w-5 h-5 mr-2" />
               View Documentation
@@ -1088,20 +1120,59 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
             <div>
               <h4 className="font-semibold text-white mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><button className="hover:text-cyan-400 transition-colors">Documentation</button></li>
-                <li><button className="hover:text-cyan-400 transition-colors">API Reference</button></li>
-                <li><button className="hover:text-cyan-400 transition-colors">Pricing</button></li>
-                <li><button className="hover:text-cyan-400 transition-colors">Status</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    setActiveSection('features');
+                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >Documentation</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    alert('📚 API Reference\n\nNEXUS AI API Documentation:\n\nEndpoint: /api/chat\nMethod: POST\nHeaders: Content-Type: application/json\nBody: { "message": "your question" }\n\nResponse: { "response": "AI answer" }');
+                  }}
+                >API Reference</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    alert('💰 Pricing Plans\n\n✨ FREE - $0/month\n  • 100 messages/day\n  • Basic features\n  • Community support\n\n⚡ PRO - $9/month\n  • Unlimited messages\n  • Advanced AI models\n  • Priority support\n  • Custom integrations\n\n🚀 ENTERPRISE - Custom\n  • Everything in Pro\n  • Dedicated infrastructure\n  • SLA guarantee\n  • 24/7 support');
+                  }}
+                >Pricing</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => window.open('https://status.vercel.com', '_blank')}
+                >Status</button></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><button className="hover:text-cyan-400 transition-colors">About</button></li>
-                <li><button className="hover:text-cyan-400 transition-colors">Blog</button></li>
-                <li><button className="hover:text-cyan-400 transition-colors">Careers</button></li>
-                <li><button className="hover:text-cyan-400 transition-colors">Contact</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    alert('🚀 About NEXUS AI\n\nNEXUS AI is a next-generation artificial intelligence platform built with cutting-edge technology.\n\n• Advanced Neural Networks\n• Real-time AI Processing\n• Cyberpunk Design\n• Enterprise Security\n\nVersion: 4.0\nBuilt with: Next.js 16, React 19, TypeScript');
+                  }}
+                >About</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    alert('📝 Blog - Coming Soon!\n\nStay tuned for:\n• AI/ML Tutorials\n• Tech Insights\n• Product Updates\n• Case Studies\n\nSubscribe to our newsletter for updates!');
+                  }}
+                >Blog</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    alert('💼 Careers at NEXUS AI\n\nWe\'re always looking for talented people!\n\nOpen Positions:\n• Frontend Developer (React/Next.js)\n• AI/ML Engineer\n• UI/UX Designer\n• DevOps Engineer\n\nSend your resume to: careers@nexusai.com');
+                  }}
+                >Careers</button></li>
+                <li><button 
+                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  onClick={() => {
+                    alert('📧 Contact Us\n\nEmail: hello@nexusai.com\nTwitter: @nexus_ai\nGitHub: github.com/nexus-ai\nDiscord: discord.gg/nexusai\n\nWe typically respond within 24 hours! 🎉');
+                  }}
+                >Contact</button></li>
               </ul>
             </div>
           </div>
