@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Sparkles, User, Mail, Lock, Eye, EyeOff, 
   ArrowRight, LogIn, UserPlus, X, Rocket,
@@ -34,6 +34,12 @@ export default function AuthModal({
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Debug: Log when isOpen changes
+  useEffect(() => {
+    console.log('🔐 AuthModal - isOpen changed to:', isOpen)
+    console.log('🔐 AuthModal - reason:', reason)
+  }, [isOpen, reason])
 
   if (!isOpen) return null
 

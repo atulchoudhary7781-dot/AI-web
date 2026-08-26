@@ -795,7 +795,12 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
             onCopy={copyToClipboard}
             onFileAttach={handleFileAttach}
             isLoggedIn={isLoggedIn}
-            onLoginRequired={() => { setAuthModalReason('file_attach'); setShowAuthModal(true); }}
+            onLoginRequired={() => { 
+              console.log('🔐 onLoginRequired called! Setting modal to open...');
+              setAuthModalReason('file_attach'); 
+              setShowAuthModal(true);
+              console.log('✅ Modal should be open now');
+            }}
           />
         )
       
@@ -1042,7 +1047,12 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
             onCopy={copyToClipboard}
             onFileAttach={handleFileAttach}
             isLoggedIn={isLoggedIn}
-            onLoginRequired={() => { setAuthModalReason('file_attach'); setShowAuthModal(true); }}
+            onLoginRequired={() => { 
+              console.log('🔐 onLoginRequired called! Setting modal to open...');
+              setAuthModalReason('file_attach'); 
+              setShowAuthModal(true);
+              console.log('✅ Modal should be open now');
+            }}
           />
         )
     }

@@ -111,6 +111,7 @@ export default function FullScreenChat({
         onLoginRequired()
       } else {
         console.log('  - ERROR: onLoginRequired not provided!')
+        alert('Login required but no handler!')
       }
       return
     }
