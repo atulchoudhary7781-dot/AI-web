@@ -222,41 +222,59 @@ export default function FullScreenChat({
                   )}
 
                   {/* Document Display - Show attached document (PDF, DOC, etc.) */}
-                  {message.fileName && !message.image && (
-                    <div className={`mb-3 p-3 rounded-xl border ${
+                  {(message.fileName || (message.content && message.content.includes('📎'))) && !message.image && (
+                    <div className={`mb-3 p-4 rounded-xl border-2 ${
                       message.role === 'user' 
-                        ? 'bg-white/10 border-white/20' 
-                        : 'bg-gray-700/50 border-gray-600/30'
-                    }`}>
-                      <div className="flex items-center gap-3">
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border-cyan-400/40' 
+                        : 'bg-gray-700/60 border-gray-500/40'
+                    } shadow-lg`}>
+                      <div className="flex items-center gap-4">
                         {/* File Icon based on type */}
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          message.fileType?.includes('pdf') ? 'bg-red-500/20' :
-                          message.fileType?.includes('word') || message.fileName?.endsWith('.docx') ? 'bg-blue-500/20' :
-                          message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') ? 'bg-green-500/20' :
-                          message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? 'bg-yellow-500/20' :
-                          'bg-cyan-500/20'
+                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md ${
+                          message.fileType?.includes('pdf') || message.fileName?.endsWith('.pdf') ? 'bg-red-500/30' :
+                          message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? 'bg-blue-500/30' :
+                          message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') || message.fileName?.endsWith('.xls') ? 'bg-green-500/30' :
+                          message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? 'bg-yellow-500/30' :
+                          message.fileName?.endsWith('.json') ? 'bg-purple-500/30' :
+                          message.fileName?.endsWith('.csv') ? 'bg-emerald-500/30' :
+                          'bg-cyan-500/30'
                         }`}>
-                          {message.fileType?.includes('pdf') ? (
-                            <span className="text-red-400 font-bold text-xs">PDF</span>
-                          ) : message.fileType?.includes('word') || message.fileName?.endsWith('.docx') ? (
-                            <span className="text-blue-400 font-bold text-xs">DOC</span>
-                          ) : message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') ? (
-                            <span className="text-green-400 font-bold text-xs">XLS</span>
+                          {message.fileType?.includes('pdf') || message.fileName?.endsWith('.pdf') ? (
+                            <span className="text-red-400 font-bold text-sm">PDF</span>
+                          ) : message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? (
+                            <span className="text-blue-400 font-bold text-sm">DOC</span>
+                          ) : message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') || message.fileName?.endsWith('.xls') ? (
+                            <span className="text-green-400 font-bold text-sm">XLS</span>
                           ) : message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? (
-                            <span className="text-yellow-400 font-bold text-xs">TXT</span>
+                            <span className="text-yellow-400 font-bold text-sm">TXT</span>
+                          ) : message.fileName?.endsWith('.json') ? (
+                            <span className="text-purple-400 font-bold text-sm">JSON</span>
+                          ) : message.fileName?.endsWith('.csv') ? (
+                            <span className="text-emerald-400 font-bold text-sm">CSV</span>
                           ) : (
-                            <Paperclip className="w-6 h-6 text-cyan-400" />
+                            <Paperclip className="w-7 h-7 text-cyan-400" />
                           )}
                         </div>
+                        
                         {/* File Info */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {message.fileName}
+                          <p className="text-base font-semibold truncate text-white">
+                            📎 {message.fileName || message.content.replace('📎 ', '')}
                           </p>
-                          <p className="text-xs opacity-70">
-                            {message.fileSize ? `${(message.fileSize / 1024).toFixed(1)} KB` : 'Document'}
+                          <p className="text-sm opacity-80 mt-1">
+                            {message.fileType ? message.fileType.split('/')[1]?.toUpperCase() || 'Document' : 'Document'}
+                            {message.fileSize && ` • ${(message.fileSize / 1024).toFixed(1)} KB`}
                           </p>
+                          <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+                            ✅ Document attached successfully
+                          </p>
+                        </div>
+
+                        {/* Download/View indicator */}
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                            <Paperclip className="w-4 h-4 text-cyan-400" />
+                          </div>
                         </div>
                       </div>
                     </div>
