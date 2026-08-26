@@ -107,26 +107,24 @@ export default function FullScreenChat({
     }
   }
 
-  // Expose clear function to parent via callback
-  const clearAttachment = () => {
-    handleRemoveFile()
-  }
+  // Track if we just sent a message (to clear attachment only after send)
+  const wasSendingRef = useRef(false)
 
-  // Register clear function with parent
+  // Update ref when isLoading changes
   useEffect(() => {
-    if (onClearAttachment) {
-      // Parent can call this to clear attachment
-      onClearAttachment()
+    if (isLoading) {
+      wasSendingRef.current = true
     }
-  }, [onClearAttachment])
+  }, [isLoading])
 
-  // Auto-clear file after successful send (when loading stops and we had a file)
+  // Clear file ONLY after successful send (when loading stops AND we were sending)
   useEffect(() => {
-    if (!isLoading && attachedFile) {
-      // Small delay to ensure message was sent
+    if (!isLoading && wasSendingRef.current && attachedFile) {
+      wasSendingRef.current = false
+      // Clear after a small delay to ensure message was processed
       const timer = setTimeout(() => {
         handleRemoveFile()
-      }, 100)
+      }, 500) // Longer delay to ensure send completed
       return () => clearTimeout(timer)
     }
   }, [isLoading, attachedFile])
