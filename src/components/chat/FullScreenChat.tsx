@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square } from 'lucide-react'
+import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square, Paperclip, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -21,6 +21,7 @@ interface FullScreenChatProps {
   onStop?: () => void
   copiedCode: boolean
   onCopy: (text: string) => void
+  onFileAttach?: (file: File) => void
 }
 
 export default function FullScreenChat({
@@ -31,10 +32,13 @@ export default function FullScreenChat({
   onSubmit,
   onStop,
   copiedCode,
-  onCopy
+  onCopy,
+  onFileAttach
 }: FullScreenChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -47,6 +51,30 @@ export default function FullScreenChat({
       e.preventDefault()
       e.stopPropagation()
       onSubmit()
+    }
+  }
+
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setAttachedFile(file)
+      if (onFileAttach) {
+        onFileAttach(file)
+      }
+    }
+  }
+
+  // Handle file attachment click
+  const handleAttachClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  // Remove attached file
+  const handleRemoveFile = () => {
+    setAttachedFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
@@ -204,6 +232,26 @@ export default function FullScreenChat({
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-violet-500/0 to-pink-500/0 focus-within:from-cyan-500/10 focus-within:via-violet-500/10 focus-within:to-pink-500/10 opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
             
             <div className="relative flex gap-3 items-end p-2">
+              {/* File Attachment Button - Left Side */}
+              <div className="flex items-center gap-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  accept="image/*,.pdf,.txt,.doc,.docx,.md,.json,.csv"
+                />
+                <button
+                  type="button"
+                  onClick={handleAttachClick}
+                  disabled={isLoading}
+                  className="p-2.5 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/30 hover:border-cyan-500/30"
+                  title="Attach file"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+              </div>
+              
               <Textarea
                 ref={textareaRef}
                 value={inputValue}
@@ -215,6 +263,22 @@ export default function FullScreenChat({
                 rows={1}
               />
               
+              {/* Attached File Preview */}
+              {attachedFile && !isLoading && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/30 rounded-lg max-w-[150px]">
+                  <span className="text-xs text-cyan-300 truncate flex-1">
+                    {attachedFile.name.length > 12 ? attachedFile.name.slice(0, 10) + '...' : attachedFile.name}
+                  </span>
+                  <button
+                    onClick={handleRemoveFile}
+                    className="text-gray-400 hover:text-red-400 transition-colors"
+                    title="Remove file"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
               {/* Stop Button - Shows when loading */}
               {isLoading && onStop && (
                 <Button

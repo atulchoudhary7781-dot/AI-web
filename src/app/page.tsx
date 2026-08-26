@@ -707,6 +707,19 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
     setTimeout(() => setCopiedCode(false), 2000)
   }
 
+  // File attachment handler
+  const handleFileAttach = (file: File) => {
+    // For now, we'll add file info to the input
+    // In a full implementation, this would upload to a server or process the file
+    const fileName = file.name
+    const fileType = file.type
+    
+    // Add file reference to input (can be enhanced for actual file processing)
+    setInputValue(prev => prev + `\n\n[Attached: ${fileName} (${fileType || 'unknown type'})]`)
+    
+    console.log('File attached:', file)
+  }
+
   // Toggle theme
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
@@ -726,6 +739,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             onStop={handleStop}
             copiedCode={copiedCode}
             onCopy={copyToClipboard}
+            onFileAttach={handleFileAttach}
           />
         )
       
@@ -970,6 +984,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             onStop={handleStop}
             copiedCode={copiedCode}
             onCopy={copyToClipboard}
+            onFileAttach={handleFileAttach}
           />
         )
     }
