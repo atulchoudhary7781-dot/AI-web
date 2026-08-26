@@ -29,6 +29,8 @@ interface FullScreenChatProps {
   onCopy: (text: string) => void
   onFileAttach?: (file: File) => void
   onClearAttachment?: () => void // Callback to clear attachment after send
+  isLoggedIn?: boolean // Authentication state
+  onLoginRequired?: () => void // Callback when login is required
 }
 
 export default function FullScreenChat({
@@ -41,7 +43,9 @@ export default function FullScreenChat({
   copiedCode,
   onCopy,
   onFileAttach,
-  onClearAttachment
+  onClearAttachment,
+  isLoggedIn = false,
+  onLoginRequired
 }: FullScreenChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -95,6 +99,14 @@ export default function FullScreenChat({
 
   // Handle file attachment click
   const handleAttachClick = () => {
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      // Trigger login modal if callback provided
+      if (onLoginRequired) {
+        onLoginRequired()
+      }
+      return
+    }
     fileInputRef.current?.click()
   }
 
@@ -449,13 +461,15 @@ export default function FullScreenChat({
                 <button
                   type="button"
                   onClick={handleAttachClick}
-                  disabled={isLoading}
+                  disabled={isLoading || !isLoggedIn}
                   className={`p-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border ${
-                    attachedFile 
-                      ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
-                      : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
+                    !isLoggedIn 
+                      ? 'bg-gray-800/30 text-gray-600 border-gray-700/30 cursor-not-allowed' 
+                      : attachedFile 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
                   }`}
-                  title="Attach file"
+                  title={!isLoggedIn ? "Login to attach files" : "Attach file"}
                 >
                   <Paperclip className="w-5 h-5" />
                 </button>

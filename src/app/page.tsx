@@ -793,6 +793,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             copiedCode={copiedCode}
             onCopy={copyToClipboard}
             onFileAttach={handleFileAttach}
+            isLoggedIn={isLoggedIn}
+            onLoginRequired={() => setShowAuthModal(true)}
           />
         )
       
@@ -1038,6 +1040,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             copiedCode={copiedCode}
             onCopy={copyToClipboard}
             onFileAttach={handleFileAttach}
+            isLoggedIn={isLoggedIn}
+            onLoginRequired={() => setShowAuthModal(true)}
           />
         )
     }
