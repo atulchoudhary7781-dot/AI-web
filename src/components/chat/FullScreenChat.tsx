@@ -179,7 +179,17 @@ export default function FullScreenChat({
       <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar sidebar-scroll ${messages.length <= 1 ? 'hidden' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
-          {messages.slice(1).map((message) => (
+          {messages.slice(1).map((message) => {
+            // DEBUG: Log each message to check document data
+            console.log('📨 Rendering message:', {
+              id: message.id,
+              hasFileName: !!message.fileName,
+              hasImage: !!message.image,
+              content: message.content?.substring(0, 50),
+              shouldShowDoc: (message.fileName || (message.content && message.content.includes('📎'))) && !message.image
+            })
+            
+            return (
             <div
               key={message.id}
               className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''} animate-fadeIn`}
@@ -326,7 +336,8 @@ export default function FullScreenChat({
                 </div>
               )}
             </div>
-          ))}
+            )
+          })}
 
           {/* Loading Indicator - Enhanced */}
           {isLoading && (

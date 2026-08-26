@@ -492,7 +492,8 @@ export default function NexusAI() {
 
   // Handle chat submission
   const handleSubmit = useCallback(async () => {
-    if (!inputValue.trim() || isLoading) return
+    // Allow sending if there's text OR an attached file
+    if ((!inputValue.trim() && !attachedFile) || isLoading) return
 
     // Check if guest has reached chat limit
     if (!isLoggedIn && chatCount >= MAX_FREE_CHATS) {
@@ -517,6 +518,12 @@ export default function NexusAI() {
         fileSize: attachedFile.size
       } : {})
     }
+
+    // DEBUG: Log message to console
+    console.log('📤 User Message Created:', userMessage)
+    console.log('  - Has fileName:', !!userMessage.fileName)
+    console.log('  - Has image:', !!userMessage.image)
+    console.log('  - Content:', userMessage.content)
 
     // If no active session, create one
     let sessionId = activeSessionId
