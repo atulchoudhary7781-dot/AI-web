@@ -226,6 +226,37 @@ export default function FullScreenChat({
       {/* Input Area - Fixed at bottom */}
       <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto p-3">
+          {/* Attached File Preview - Shows ABOVE input box when file is attached */}
+          {attachedFile && !isLoading && (
+            <div className="mb-2 p-3 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  {/* File Icon */}
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center">
+                    <Paperclip className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  {/* File Info */}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-white truncate">
+                      {attachedFile.name}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown type'}
+                    </p>
+                  </div>
+                </div>
+                {/* Remove Button */}
+                <button
+                  onClick={handleRemoveFile}
+                  className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200"
+                  title="Remove file"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Input Container */}
           <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
             {/* Gradient border effect on focus */}
@@ -245,7 +276,11 @@ export default function FullScreenChat({
                   type="button"
                   onClick={handleAttachClick}
                   disabled={isLoading}
-                  className="p-2.5 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600/30 hover:border-cyan-500/30"
+                  className={`p-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border ${
+                    attachedFile 
+                      ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                      : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
+                  }`}
                   title="Attach file"
                 >
                   <Paperclip className="w-5 h-5" />
@@ -262,22 +297,6 @@ export default function FullScreenChat({
                 disabled={isLoading}
                 rows={1}
               />
-              
-              {/* Attached File Preview */}
-              {attachedFile && !isLoading && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/30 rounded-lg max-w-[150px]">
-                  <span className="text-xs text-cyan-300 truncate flex-1">
-                    {attachedFile.name.length > 12 ? attachedFile.name.slice(0, 10) + '...' : attachedFile.name}
-                  </span>
-                  <button
-                    onClick={handleRemoveFile}
-                    className="text-gray-400 hover:text-red-400 transition-colors"
-                    title="Remove file"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
 
               {/* Stop Button - Shows when loading */}
               {isLoading && onStop && (
