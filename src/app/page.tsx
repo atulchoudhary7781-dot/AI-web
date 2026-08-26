@@ -26,6 +26,10 @@ interface ChatMessage {
   timestamp: Date
   image?: string // Base64 image data
   imageMimeType?: string
+  // Document support (PDF, DOC, TXT, etc.)
+  fileName?: string
+  fileType?: string
+  fileSize?: number
 }
 
 interface Feature {
@@ -499,12 +503,18 @@ export default function NexusAI() {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputValue || (attachedFile ? `📎 Image: ${attachedFile.name}` : ''),
+      content: inputValue || (attachedFile ? `📎 ${attachedFile.name}` : ''),
       timestamp: new Date(),
       // Attach image data if available
       ...(fileBase64 && attachedFile?.type.startsWith('image/') ? {
         image: fileBase64,
         imageMimeType: attachedFile.type
+      } : {}),
+      // Attach document info for non-image files
+      ...(attachedFile && !attachedFile?.type.startsWith('image/') ? {
+        fileName: attachedFile.name,
+        fileType: attachedFile.type,
+        fileSize: attachedFile.size
       } : {})
     }
 
@@ -542,13 +552,19 @@ export default function NexusAI() {
     abortControllerRef.current = controller
 
     try {
-      // Prepare request body with optional image data
+      // Prepare request body with optional image/document data
       const requestBody: any = { message: inputValue }
       
       // Add image data if attached
       if (attachedFile && fileBase64 && attachedFile.type.startsWith('image/')) {
         requestBody.imageData = fileBase64
         requestBody.imageMimeType = attachedFile.type
+      }
+      
+      // Add document info if non-image file is attached
+      if (attachedFile && !attachedFile.type.startsWith('image/')) {
+        requestBody.fileName = attachedFile.name
+        requestBody.fileType = attachedFile.type
       }
       
       const response = await fetch('/api/chat', {

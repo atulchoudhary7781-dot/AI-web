@@ -12,6 +12,10 @@ interface ChatMessage {
   timestamp: Date
   image?: string // Base64 image data
   imageMimeType?: string
+  // Document support (PDF, DOC, TXT, etc.)
+  fileName?: string
+  fileType?: string
+  fileSize?: number
 }
 
 interface FullScreenChatProps {
@@ -24,6 +28,7 @@ interface FullScreenChatProps {
   copiedCode: boolean
   onCopy: (text: string) => void
   onFileAttach?: (file: File) => void
+  onClearAttachment?: () => void // Callback to clear attachment after send
 }
 
 export default function FullScreenChat({
@@ -35,13 +40,21 @@ export default function FullScreenChat({
   onStop,
   copiedCode,
   onCopy,
-  onFileAttach
+  onFileAttach,
+  onClearAttachment
 }: FullScreenChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [filePreview, setFilePreview] = useState<string | null>(null)
+
+  // Sync with parent - clear file when parent sends
+  useEffect(() => {
+    if (!isLoading && attachedFile && onClearAttachment) {
+      // File will be cleared by parent after submit
+    }
+  }, [isLoading])
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -93,6 +106,30 @@ export default function FullScreenChat({
       fileInputRef.current.value = ''
     }
   }
+
+  // Expose clear function to parent via callback
+  const clearAttachment = () => {
+    handleRemoveFile()
+  }
+
+  // Register clear function with parent
+  useEffect(() => {
+    if (onClearAttachment) {
+      // Parent can call this to clear attachment
+      onClearAttachment()
+    }
+  }, [onClearAttachment])
+
+  // Auto-clear file after successful send (when loading stops and we had a file)
+  useEffect(() => {
+    if (!isLoading && attachedFile) {
+      // Small delay to ensure message was sent
+      const timer = setTimeout(() => {
+        handleRemoveFile()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoading, attachedFile])
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
@@ -181,6 +218,47 @@ export default function FullScreenChat({
                           }
                         }}
                       />
+                    </div>
+                  )}
+
+                  {/* Document Display - Show attached document (PDF, DOC, etc.) */}
+                  {message.fileName && !message.image && (
+                    <div className={`mb-3 p-3 rounded-xl border ${
+                      message.role === 'user' 
+                        ? 'bg-white/10 border-white/20' 
+                        : 'bg-gray-700/50 border-gray-600/30'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        {/* File Icon based on type */}
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          message.fileType?.includes('pdf') ? 'bg-red-500/20' :
+                          message.fileType?.includes('word') || message.fileName?.endsWith('.docx') ? 'bg-blue-500/20' :
+                          message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') ? 'bg-green-500/20' :
+                          message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? 'bg-yellow-500/20' :
+                          'bg-cyan-500/20'
+                        }`}>
+                          {message.fileType?.includes('pdf') ? (
+                            <span className="text-red-400 font-bold text-xs">PDF</span>
+                          ) : message.fileType?.includes('word') || message.fileName?.endsWith('.docx') ? (
+                            <span className="text-blue-400 font-bold text-xs">DOC</span>
+                          ) : message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') ? (
+                            <span className="text-green-400 font-bold text-xs">XLS</span>
+                          ) : message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? (
+                            <span className="text-yellow-400 font-bold text-xs">TXT</span>
+                          ) : (
+                            <Paperclip className="w-6 h-6 text-cyan-400" />
+                          )}
+                        </div>
+                        {/* File Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {message.fileName}
+                          </p>
+                          <p className="text-xs opacity-70">
+                            {message.fileSize ? `${(message.fileSize / 1024).toFixed(1)} KB` : 'Document'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   

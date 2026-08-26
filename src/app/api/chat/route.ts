@@ -11,12 +11,17 @@ export async function POST(request: NextRequest) {
   let message = ''
   let imageData: string | null = null
   let imageMimeType: string | null = null
+  // Document support
+  let fileName: string | null = null
+  let fileType: string | null = null
   
   try {
     const body = await request.json()
     message = body.message || ''
     imageData = body.imageData || null
     imageMimeType = body.imageMimeType || null
+    fileName = body.fileName || null
+    fileType = body.fileType || null
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -32,6 +37,11 @@ export async function POST(request: NextRequest) {
       // If image is attached, provide image analysis fallback
       if (imageData) {
         return getImageAnalysisFallback(message)
+      }
+      
+      // If document is attached, provide document analysis fallback
+      if (fileName) {
+        return getDocumentAnalysisFallback(message, fileName, fileType)
       }
       
       return getFallbackResponse(message)
@@ -411,6 +421,106 @@ I'm ready to analyze your images! Here's how to use this feature:
     { 
       response: fallbackResponse,
       note: 'Using fallback mode - Add OPENROUTER_API_KEY environment variable for real AI responses'
+    },
+    { status: 200 }
+  )
+}
+
+// Document Analysis Fallback Response
+function getDocumentAnalysisFallback(message: string, fileName: string, fileType: string | null): NextResponse {
+  const fileExtension = fileName.split('.').pop()?.toUpperCase() || 'FILE'
+  const fileTypeDisplay = fileType || 'Unknown type'
+  
+  // Determine file icon and color based on type
+  const fileInfo = {
+    pdf: { icon: '📕', color: 'red', type: 'PDF Document' },
+    docx: { icon: '📘', color: 'blue', type: 'Word Document' },
+    doc: { icon: '📘', color: 'blue', type: 'Word Document' },
+    xlsx: { icon: '📗', color: 'green', type: 'Excel Spreadsheet' },
+    xls: { icon: '📗', color: 'green', type: 'Excel Spreadsheet' },
+    txt: { icon: '📝', color: 'yellow', type: 'Text File' },
+    md: { icon: '📝', color: 'yellow', type: 'Markdown File' },
+    json: { icon: '📋', color: 'purple', type: 'JSON Data' },
+    csv: { icon: '📊', color: 'green', type: 'CSV Data' }
+  }
+  
+  const fileData = fileInfo[fileExtension.toLowerCase() as keyof typeof fileInfo] || { 
+    icon: '📎', 
+    color: 'cyan', 
+    type: `${fileTypeDisplay} File` 
+  }
+
+  const fallbackResponse = `## ${fileData.icon} Document Received: **${fileName}**
+
+I can see you've shared a **${fileData.type}**! 🎉
+
+### 📋 File Information:
+| Property | Value |
+|----------|-------|
+| **Name** | ${fileName} |
+| **Type** | ${fileTypeDisplay} |
+| **Format** | ${fileExtension} |
+| **Size** | See file details |
+
+### 🔧 What I Can Do With This ${fileData.type}:
+
+${fileExtension === 'pdf' ? `
+- **Extract text content** from PDF pages
+- **Summarize** document contents
+- **Answer questions** about the PDF content
+- **Analyze structure** (chapters, sections)
+- **Convert to other formats** (summary)` : ''}
+
+${['docx', 'doc'].includes(fileExtension) ? `
+- **Read and analyze** Word document content
+- **Summarize** key points
+- **Review grammar** and style
+- **Extract specific sections**
+- **Suggest improvements**` : ''}
+
+${['xlsx', 'xls', 'csv'].includes(fileExtension) ? `
+- **Analyze data patterns**
+- **Create visualizations** from data
+- **Generate insights** and statistics
+- **Find trends** and outliers
+- **Export summaries**` : ''}
+
+${['txt', 'md'].includes(fileExtension) ? `
+- **Read and analyze** text content
+- **Summarize** information
+- **Extract key points**
+- **Code review** (if code file)
+- **Format conversion**` : ''}
+
+${['json'].includes(fileExtension) ? `
+- **Parse JSON structure**
+- **Validate JSON format**
+- **Explain data schema**
+- **Query specific fields**
+- **Convert to table format**` : ''}
+
+### 💡 Tips for Best Results:
+- Make sure the file is **not password protected**
+- **Text-based files** work best for analysis
+- For images in documents, describe what you're looking for
+- Ask **specific questions** about the content
+
+### 📝 Example Prompts You Can Try:
+- *"Summarize this document"*
+- *"What are the main points in this ${fileData.type}?"*
+- *"Extract all the key data from this file"*
+- *"Can you explain the content in simple terms?"*
+
+> ⚠️ *Note: Full document processing requires API configuration. Currently showing template response.*
+
+**What would you like me to do with this ${fileData.type}?** 🚀`
+
+  return NextResponse.json(
+    { 
+      response: fallbackResponse,
+      note: `Document analysis mode - File: ${fileName}`,
+      fileName: fileName,
+      fileType: fileType
     },
     { status: 200 }
   )
