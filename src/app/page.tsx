@@ -508,6 +508,38 @@ export default function NexusAI() {
     })
   }, [activeSessionId])
 
+  // Typewriter effect for AI responses - word by word display
+  const typeWriterEffect = useCallback((sessionId: string, fullText: string, messageId: string, speed: number = 40) => {
+    const words = fullText.split(' ')
+    let currentIndex = 0
+    
+    const typeInterval = setInterval(() => {
+      if (currentIndex < words.length) {
+        currentIndex++
+        const displayedText = words.slice(0, currentIndex).join(' ')
+        
+        const partialMessage: ChatMessage = {
+          id: messageId,
+          role: 'assistant',
+          content: displayedText,
+          timestamp: new Date()
+        }
+        
+        setSessions(prev => prev.map(s => 
+          s.id === sessionId 
+            ? { ...s, messages: [...s.messages.filter(m => m.id !== messageId), partialMessage] }
+            : s
+        ))
+      } else {
+        clearInterval(typeInterval)
+        setIsLoading(false)
+      }
+    }, speed)
+    
+    // Return cleanup function to stop typing if user interrupts
+    return () => clearInterval(typeInterval)
+  }, [])
+
   // Handle chat submission
   const handleSubmit = useCallback(async () => {
     // Allow sending if there's text OR an attached file
@@ -602,19 +634,27 @@ export default function NexusAI() {
       if (!response.ok) throw new Error('Failed to get response')
 
       const data = await response.json()
-
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+      const fullResponse = data.response || 'I apologize, but I encountered an error processing your request.'
+      
+      // Create message ID for typewriter effect
+      const assistantMessageId = (Date.now() + 1).toString()
+      
+      // Add empty message first
+      const emptyMessage: ChatMessage = {
+        id: assistantMessageId,
         role: 'assistant',
-        content: data.response || 'I apologize, but I encountered an error processing your request.',
+        content: '',
         timestamp: new Date()
       }
-
+      
       setSessions(prev => prev.map(s => 
         s.id === sessionId 
-          ? { ...s, messages: [...s.messages, assistantMessage] }
+          ? { ...s, messages: [...s.messages, emptyMessage] }
           : s
       ))
+      
+      // Start typewriter effect - word by word (40ms per word)
+      typeWriterEffect(sessionId, fullResponse, assistantMessageId, 40)
       
       // Clear attached file after sending
       setAttachedFile(null)
@@ -741,13 +781,25 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         timestamp: new Date()
       }
 
+      // Add empty fallback message first, then use typewriter effect
+      const fallbackMessageId = (Date.now() + 1).toString()
+      const emptyFallbackMessage: ChatMessage = {
+        id: fallbackMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date()
+      }
+
       setSessions(prev => prev.map(s => 
         s.id === sessionId 
-          ? { ...s, messages: [...s.messages, fallbackMessage] }
+          ? { ...s, messages: [...s.messages, emptyFallbackMessage] }
           : s
       ))
+      
+      // Start typewriter effect for fallback response
+      typeWriterEffect(sessionId, fallbackResponse, fallbackMessageId, 35)
     } finally {
-      setIsLoading(false)
+      // Note: setIsLoading(false) is now handled by typeWriterEffect when typing completes
       
       // Increment chat count for guests
       if (!isLoggedIn) {
