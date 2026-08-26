@@ -10,6 +10,8 @@ interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  image?: string // Base64 image data
+  imageMimeType?: string
 }
 
 interface FullScreenChatProps {
@@ -161,6 +163,25 @@ export default function FullScreenChat({
                   {/* Gradient overlay for user messages */}
                   {message.role === 'user' && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
+                  
+                  {/* Image Display - Show attached image in message */}
+                  {message.image && (
+                    <div className="mb-3 rounded-xl overflow-hidden border border-white/20 shadow-lg cursor-pointer hover:opacity-90 transition-opacity">
+                      <img 
+                        src={`data:${message.imageMimeType || 'image/png'};base64,${message.image}`}
+                        alt="Attached image"
+                        className="w-full max-w-[300px] rounded-lg"
+                        onClick={() => {
+                          // Open image in new tab for full view
+                          const win = window.open('')
+                          if (win) {
+                            win.document.write(`<html><head><title>Image View</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;}img{max-width:100%;height:auto;}</style></head><body><img src="data:${message.imageMimeType};base64,${message.image}" /></body></html>`)
+                            win.document.close()
+                          }
+                        }}
+                      />
+                    </div>
                   )}
                   
                   <div className="text-[15px] leading-relaxed whitespace-pre-wrap">

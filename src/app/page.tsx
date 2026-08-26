@@ -24,6 +24,8 @@ interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  image?: string // Base64 image data
+  imageMimeType?: string
 }
 
 interface Feature {
@@ -497,8 +499,13 @@ export default function NexusAI() {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputValue,
-      timestamp: new Date()
+      content: inputValue || (attachedFile ? `📎 Image: ${attachedFile.name}` : ''),
+      timestamp: new Date(),
+      // Attach image data if available
+      ...(fileBase64 && attachedFile?.type.startsWith('image/') ? {
+        image: fileBase64,
+        imageMimeType: attachedFile.type
+      } : {})
     }
 
     // If no active session, create one
