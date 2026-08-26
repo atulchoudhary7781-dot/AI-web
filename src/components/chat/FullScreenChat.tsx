@@ -461,15 +461,15 @@ export default function FullScreenChat({
                 <button
                   type="button"
                   onClick={handleAttachClick}
-                  disabled={isLoading || !isLoggedIn}
+                  disabled={isLoading}
                   className={`p-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border ${
                     !isLoggedIn 
-                      ? 'bg-gray-800/30 text-gray-600 border-gray-700/30 cursor-not-allowed' 
+                      ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-400 border-orange-500/40 hover:from-orange-500/30 hover:to-red-500/30 animate-pulse' 
                       : attachedFile 
                         ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
                         : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
                   }`}
-                  title={!isLoggedIn ? "Login to attach files" : "Attach file"}
+                  title={!isLoggedIn ? "🔒 Login to attach files" : "Attach file"}
                 >
                   <Paperclip className="w-5 h-5" />
                 </button>
