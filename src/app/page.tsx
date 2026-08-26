@@ -307,6 +307,8 @@ export default function NexusAI() {
   const [copiedCode, setCopiedCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState('')
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [fileBase64, setFileBase64] = useState<string | null>(null)
   
   // AbortController for stopping responses
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -533,10 +535,19 @@ export default function NexusAI() {
     abortControllerRef.current = controller
 
     try {
+      // Prepare request body with optional image data
+      const requestBody: any = { message: inputValue }
+      
+      // Add image data if attached
+      if (attachedFile && fileBase64 && attachedFile.type.startsWith('image/')) {
+        requestBody.imageData = fileBase64
+        requestBody.imageMimeType = attachedFile.type
+      }
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: inputValue }),
+        body: JSON.stringify(requestBody),
         signal: controller.signal
       })
 
@@ -556,6 +567,10 @@ export default function NexusAI() {
           ? { ...s, messages: [...s.messages, assistantMessage] }
           : s
       ))
+      
+      // Clear attached file after sending
+      setAttachedFile(null)
+      setFileBase64(null)
     } catch (error) {
       console.error('Chat error:', error)
       
@@ -698,7 +713,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         }
       }
     }
-  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle, isLoggedIn, chatCount, MAX_FREE_CHATS])
+  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle, isLoggedIn, chatCount, MAX_FREE_CHATS, attachedFile, fileBase64])
 
   // Copy code handler
   const copyToClipboard = (text: string) => {
@@ -709,8 +724,21 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
   // File attachment handler
   const handleFileAttach = (file: File) => {
-    // Clear the chat box when file is attached
+    setAttachedFile(file)
     setInputValue('')
+    
+    // Convert image to base64 for API
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        // Get base64 string (remove data:image/xxx;base64, prefix)
+        const base64 = (reader.result as string).split(',')[1]
+        setFileBase64(base64)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      setFileBase64(null)
+    }
     
     console.log('File attached:', file)
   }

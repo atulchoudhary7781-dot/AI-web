@@ -9,10 +9,14 @@ const responseCache = new Map<string, string>()
 
 export async function POST(request: NextRequest) {
   let message = ''
+  let imageData: string | null = null
+  let imageMimeType: string | null = null
   
   try {
     const body = await request.json()
     message = body.message || ''
+    imageData = body.imageData || null
+    imageMimeType = body.imageMimeType || null
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -21,20 +25,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check cache first
-    const cacheKey = message.toLowerCase().trim()
-    if (responseCache.has(cacheKey)) {
-      return NextResponse.json({ response: responseCache.get(cacheKey) })
-    }
-
     // Check if API key is configured
     if (!OPENROUTER_API_KEY) {
       console.warn('OpenRouter API key not configured. Using fallback responses.')
+      
+      // If image is attached, provide image analysis fallback
+      if (imageData) {
+        return getImageAnalysisFallback(message)
+      }
+      
       return getFallbackResponse(message)
     }
 
     // Create system prompt for NEXUS AI persona
-    const systemPrompt = `You are NEXUS AI (Next-Generation Universal Experience System), an advanced artificial intelligence assistant with a cyberpunk/futuristic personality. 
+    const systemPrompt = `You are NEXUS AI (Next-Generation Universal Experience System), an advanced artificial intelligence assistant with a cyberpunk/futuristic personality.
 
 Your characteristics:
 - You are highly intelligent, helpful, and slightly futuristic in tone
@@ -45,60 +49,219 @@ Your characteristics:
 - You are knowledgeable about AI, machine learning, programming, science, and technology
 - You maintain a professional but engaging tone
 
+**IMAGE ANALYSIS CAPABILITY:**
+When an user provides an image, you MUST analyze it thoroughly:
+- Describe what you see in detail
+- Identify objects, text, people, scenes, colors, patterns
+- Read and transcribe any text visible in the image
+- Provide insights about the image content
+- Answer specific questions about the image
+- If it's a screenshot, code, document, or diagram - analyze its contents
+
 When users ask:
 - About AI/ML: Provide comprehensive explanations with current state-of-the-art info
 - For code: Generate clean, well-commented code in the requested language
 - General questions: Be thorough but concise
 - Creative tasks: Show innovation and originality
+- About images: Analyze and describe them in detail
 
 Always respond in a way that showcases advanced intelligence while being accessible. Use formatting like bold text, lists, code blocks, and headers to make responses readable.`
 
-    // Call OpenRouter API
-    const response = await fetch(OPENROUTER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
-        'X-Title': 'NEXUS AI'
-      },
-      body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.1-8b-instruct',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000,
-        top_p: 0.9,
-        frequency_penalty: 0.3,
-        presence_penalty: 0.6
+    // Prepare messages array
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt }
+    ]
+
+    // If image is provided, create vision message with image
+    if (imageData && imageMimeType) {
+      // Use vision-capable model for image analysis
+      const visionModel = process.env.OPENROUTER_VISION_MODEL || 'openai/gpt-4o-mini'
+      
+      messages.push({
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: message || 'Please analyze this image in detail. Describe what you see, identify all elements, text, objects, and provide comprehensive insights.'
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${imageMimeType};base64,${imageData}`
+            }
+          }
+        ]
       })
-    })
 
-    if (!response.ok) {
-      const errorData = await response.text()
-      console.error('OpenRouter API Error:', errorData)
-      throw new Error(`OpenRouter API error: ${response.status}`)
+      // Call OpenRouter API with vision model
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
+          'X-Title': 'NEXUS AI'
+        },
+        body: JSON.stringify({
+          model: visionModel,
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 2000,
+          top_p: 0.9,
+          frequency_penalty: 0.3,
+          presence_penalty: 0.6
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.text()
+        console.error('OpenRouter Vision API Error:', errorData)
+        // Fallback to regular response if vision fails
+        return getVisionFallbackResponse(message)
+      }
+
+      const data = await response.json()
+      const aiResponse = data.choices[0]?.message?.content || 
+        "I apologize, but I'm having trouble analyzing the image right now. Please try again."
+
+      return NextResponse.json({ response: aiResponse })
+    } else {
+      // Regular text-only message
+      messages.push({
+        role: 'user', 
+        content: message
+      })
+
+      // Check cache first for text-only messages
+      const cacheKey = message.toLowerCase().trim()
+      if (responseCache.has(cacheKey)) {
+        return NextResponse.json({ response: responseCache.get(cacheKey) })
+      }
+
+      // Call OpenRouter API with regular model
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
+          'X-Title': 'NEXUS AI'
+        },
+        body: JSON.stringify({
+          model: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.1-8b-instruct',
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 2000,
+          top_p: 0.9,
+          frequency_penalty: 0.3,
+          presence_penalty: 0.6
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.text()
+        console.error('OpenRouter API Error:', errorData)
+        throw new Error(`OpenRouter API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const aiResponse = data.choices[0]?.message?.content || 
+        "I apologize, but I'm having trouble processing your request right now. Please try again."
+
+      // Cache the response (optional - cache up to 100 entries)
+      if (responseCache.size < 100) {
+        responseCache.set(cacheKey, aiResponse)
+      }
+
+      return NextResponse.json({ response: aiResponse })
     }
-
-    const data = await response.json()
-    const aiResponse = data.choices[0]?.message?.content || 
-      "I apologize, but I'm having trouble processing your request right now. Please try again."
-
-    // Cache the response (optional - cache up to 100 entries)
-    if (responseCache.size < 100) {
-      responseCache.set(cacheKey, aiResponse)
-    }
-
-    return NextResponse.json({ response: aiResponse })
 
   } catch (error) {
     console.error('Chat API Error:', error)
     
     // Return fallback response on error
+    if (imageData) {
+      return getImageAnalysisFallback(message)
+    }
     return getFallbackResponse(message)
   }
+}
+
+// Image Analysis Fallback Response
+function getImageAnalysisFallback(message: string): NextResponse {
+  const fallbackResponse = `## 🖼️ Image Analysis Mode Activated
+
+I can see you've shared an image! Here's what I can help you with:
+
+**Image Analysis Capabilities:**
+- 📝 **Text Recognition**: I can read and extract text from images
+- 🔍 **Object Detection**: Identify objects, people, scenes
+- 📊 **Data Interpretation**: Charts, graphs, screenshots
+- 💻 **Code Analysis**: Review code snippets from screenshots
+- 🎨 **Visual Description**: Detailed image descriptions
+
+**Your Message:** "${message}"
+
+---
+
+### 📋 Analysis Results:
+
+Since I'm currently running in enhanced mode, here's what I would typically do:
+
+1. **Visual Description**
+   - Describe the main elements in your image
+   - Colors, layout, composition details
+
+2. **Content Extraction**
+   - Any visible text or numbers
+   - Data from charts/tables
+   - Code from screenshots
+
+3. **Contextual Insights**
+   - What the image represents
+   - Technical details if applicable
+   - Suggestions or improvements
+
+### 💡 Tips for Better Analysis:
+- Make sure images are clear and well-lit
+- For text images, ensure good contrast
+- Crop to relevant areas if needed
+
+> ⚠️ *Note: Full AI-powered image analysis requires API configuration. Currently showing template response.*
+
+Would you like me to help with anything specific about your image?`
+
+  return NextResponse.json(
+    { 
+      response: fallbackResponse,
+      note: 'Using image analysis fallback mode'
+    },
+    { status: 200 }
+  )
+}
+
+// Vision Fallback when vision API fails
+function getVisionFallbackResponse(message: string): NextResponse {
+  return NextResponse.json(
+    { 
+      response: `## 🤖 Vision Analysis Temporarily Unavailable
+
+I received your image and message: **"${message}"**
+
+Unfortunately, the vision analysis service is temporarily unavailable. This could be due to:
+- High demand on vision models
+- Temporary service maintenance
+- API rate limiting
+
+### 🔄 What You Can Try:
+1. **Wait a moment** and try sending again
+2. **Describe the image** in text instead
+3. **Try a different image format** (PNG, JPG work best)
+
+I apologize for the inconvenience. My visual circuits are being upgraded! 🚀`
+    },
+    { status: 200 }
+  )
 }
 
 // Fallback responses when API is not available
@@ -119,11 +282,13 @@ I'm **NEXUS** — Next-Generation Universal Experience System.
 - 🚀 Brainstorm ideas and strategies
 - 📝 Write, edit, and improve content
 - 🔬 Research and summarize topics
+- 🖼️ **Analyze Images** - Send me any image for analysis!
 
 **Try asking me:**
 - *"Explain how transformers work"*
 - *"Write a React component for a dashboard"*
 - *"What are the latest advances in AI?"*
+- *"Analyze this image"* (attach an image)
 
 I'm here to push the boundaries of what's possible. **What shall we explore?** 🌟`
   } else if (lowerInput.includes('ai') || lowerInput.includes('artificial intelligence')) {
@@ -213,6 +378,33 @@ Traditional computers use bits (0 or 1). Quantum computers use **qubits**, which
 A quantum computer with 300 perfect qubits could represent more states than there are atoms in the observable universe!
 
 *Want to explore quantum algorithms or hardware?*`
+  } else if (lowerInput.includes('image') || lowerInput.includes('photo') || lowerInput.includes('picture') || lowerInput.includes('analyze this')) {
+    fallbackResponse = `## 🖼️ Image Analysis Ready!
+
+I'm ready to analyze your images! Here's how to use this feature:
+
+### How to Use Image Analysis:
+1. **Click the 📎 Paperclip icon** in the chat input
+2. **Select an image** from your device
+3. **Ask your question** about the image
+4. **Send** and I'll analyze it!
+
+### What I Can Do With Images:
+- 🔍 **Describe** what's in the image
+- 📝 **Read text** from images (OCR)
+- 💻 **Analyze code** screenshots
+- 📊 **Interpret charts** and graphs
+- 🎨 **Identify objects**, people, scenes
+- 🐾 **Recognize animals** and nature
+- 🏠 **Analyze buildings** and architecture
+
+### Example Prompts:
+- *"What's in this image?"*
+- *"Read the text from this screenshot"*
+- *"Explain this code snippet"*
+- *"What type of chart is this?"*
+
+**Attach an image and ask me anything about it!** 📸✨`
   }
 
   return NextResponse.json(
