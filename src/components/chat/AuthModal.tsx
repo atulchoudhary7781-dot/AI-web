@@ -15,6 +15,7 @@ interface AuthModalProps {
   onSignup: (user: { name: string; email: string }) => void
   chatCount?: number
   maxChats?: number
+  reason?: 'chat_limit' | 'file_attach' // Why modal is showing
 }
 
 export default function AuthModal({ 
@@ -23,7 +24,8 @@ export default function AuthModal({
   onLogin, 
   onSignup,
   chatCount = 0,
-  maxChats = 6
+  maxChats = 6,
+  reason = 'chat_limit'
 }: AuthModalProps) {
   const [isLoginMode, setIsLoginMode] = useState(true)
   const [name, setName] = useState('')
@@ -96,34 +98,52 @@ export default function AuthModal({
         {/* Header with Limit Info */}
         <div className="bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border-b border-gray-800 p-6 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-            <Sparkles className="w-8 h-8 text-white" />
+            {reason === 'file_attach' ? (
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            ) : (
+              <Sparkles className="w-8 h-8 text-white" />
+            )}
           </div>
           
           <h2 className="text-2xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
-            Free Chat Limit Reached!
+            {reason === 'file_attach' ? '🔒 Login Required!' : 'Free Chat Limit Reached!'}
           </h2>
           
-          {/* Progress Indicator */}
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="flex gap-1">
-              {[...Array(maxChats)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    i < Math.min(chatCount, maxChats) 
-                      ? 'bg-gradient-to-r from-cyan-400 to-violet-400' 
-                      : 'bg-gray-700'
-                  }`}
-                />
-              ))}
+          {/* Progress Indicator - Only show for chat limit */}
+          {reason === 'chat_limit' && (
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <div className="flex gap-1">
+                {[...Array(maxChats)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full transition-colors ${
+                      i < Math.min(chatCount, maxChats) 
+                        ? 'bg-gradient-to-r from-cyan-400 to-violet-400' 
+                        : 'bg-gray-700'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-gray-400">
+                {chatCount}/{maxChats} chats used
+              </span>
             </div>
-            <span className="text-sm text-gray-400">
-              {chatCount}/{maxChats} chats used
-            </span>
-          </div>
+          )}
+          
+          {/* File attach message */}
+          {reason === 'file_attach' && (
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <Zap className="w-5 h-5 text-orange-400" />
+              <span className="text-sm text-orange-300 font-medium">File Attach Feature</span>
+            </div>
+          )}
           
           <p className="text-sm text-gray-400 mt-3">
-            Create a free account for unlimited chats & save your history!
+            {reason === 'file_attach' 
+              ? 'Login or create a free account to attach files (images, PDFs, documents) and get AI analysis!'
+              : 'Create a free account for unlimited chats & save your history!'}
           </p>
         </div>
 

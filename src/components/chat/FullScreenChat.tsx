@@ -98,15 +98,23 @@ export default function FullScreenChat({
   }
 
   // Handle file attachment click
-  const handleAttachClick = () => {
+  const handleAttachClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('📎 Attach button clicked!')
+    console.log('  - isLoggedIn:', isLoggedIn)
+    
     // Check if user is logged in
     if (!isLoggedIn) {
+      console.log('  - User NOT logged in, triggering login modal...')
       // Trigger login modal if callback provided
       if (onLoginRequired) {
+        console.log('  - Calling onLoginRequired...')
         onLoginRequired()
+      } else {
+        console.log('  - ERROR: onLoginRequired not provided!')
       }
       return
     }
+    console.log('  - User logged in, opening file picker...')
     fileInputRef.current?.click()
   }
 

@@ -307,6 +307,7 @@ export default function NexusAI() {
   // Chat Limit State
   const [chatCount, setChatCount] = useState(0)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authModalReason, setAuthModalReason] = useState<'chat_limit' | 'file_attach'>('chat_limit')
   const MAX_FREE_CHATS = 6 // Max chats without login
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -794,7 +795,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             onCopy={copyToClipboard}
             onFileAttach={handleFileAttach}
             isLoggedIn={isLoggedIn}
-            onLoginRequired={() => setShowAuthModal(true)}
+            onLoginRequired={() => { setAuthModalReason('file_attach'); setShowAuthModal(true); }}
           />
         )
       
@@ -1041,7 +1042,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             onCopy={copyToClipboard}
             onFileAttach={handleFileAttach}
             isLoggedIn={isLoggedIn}
-            onLoginRequired={() => setShowAuthModal(true)}
+            onLoginRequired={() => { setAuthModalReason('file_attach'); setShowAuthModal(true); }}
           />
         )
     }
@@ -1178,6 +1179,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         onSignup={handleLogin}
         chatCount={chatCount}
         maxChats={MAX_FREE_CHATS}
+        reason={authModalReason}
       />
     </div>
   )
