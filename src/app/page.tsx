@@ -709,13 +709,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
   // File attachment handler
   const handleFileAttach = (file: File) => {
-    // For now, we'll add file info to the input
-    // In a full implementation, this would upload to a server or process the file
-    const fileName = file.name
-    const fileType = file.type
-    
-    // Add file reference to input (can be enhanced for actual file processing)
-    setInputValue(prev => prev + `\n\n[Attached: ${fileName} (${fileType || 'unknown type'})]`)
+    // Clear the chat box when file is attached
+    setInputValue('')
     
     console.log('File attached:', file)
   }
