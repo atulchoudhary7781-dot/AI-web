@@ -39,6 +39,7 @@ export default function FullScreenChat({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [filePreview, setFilePreview] = useState<string | null>(null)
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -59,6 +60,18 @@ export default function FullScreenChat({
     const file = e.target.files?.[0]
     if (file) {
       setAttachedFile(file)
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setFilePreview(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        setFilePreview(null)
+      }
+      
       if (onFileAttach) {
         onFileAttach(file)
       }
@@ -73,6 +86,7 @@ export default function FullScreenChat({
   // Remove attached file
   const handleRemoveFile = () => {
     setAttachedFile(null)
+    setFilePreview(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -229,26 +243,60 @@ export default function FullScreenChat({
           {/* Attached File Preview - Shows ABOVE input box when file is attached */}
           {attachedFile && !isLoading && (
             <div className="mb-2 p-3 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                  {/* File Icon */}
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center">
-                    <Paperclip className="w-5 h-5 text-cyan-400" />
-                  </div>
-                  {/* File Info */}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-white truncate">
-                      {attachedFile.name}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown type'}
-                    </p>
-                  </div>
+              <div className="flex items-start gap-3">
+                {/* File Preview/Thumbnail - LEFT SIDE */}
+                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-gray-800/80 border border-gray-600/30 overflow-hidden flex items-center justify-center">
+                  {filePreview ? (
+                    /* Image Preview */
+                    <img 
+                      src={filePreview} 
+                      alt={attachedFile.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    /* Document Icon based on type */
+                    <div className={`p-2 rounded-lg ${
+                      attachedFile.type.includes('pdf') ? 'bg-red-500/20' :
+                      attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? 'bg-blue-500/20' :
+                      attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? 'bg-green-500/20' :
+                      attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? 'bg-yellow-500/20' :
+                      'bg-cyan-500/20'
+                    }`}>
+                      {attachedFile.type.includes('pdf') ? (
+                        <span className="text-red-400 font-bold text-xs">PDF</span>
+                      ) : attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? (
+                        <span className="text-blue-400 font-bold text-xs">DOC</span>
+                      ) : attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? (
+                        <span className="text-green-400 font-bold text-xs">XLS</span>
+                      ) : attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? (
+                        <span className="text-yellow-400 font-bold text-xs">TXT</span>
+                      ) : (
+                        <Paperclip className="w-6 h-6 text-cyan-400" />
+                      )}
+                    </div>
+                  )}
                 </div>
-                {/* Remove Button */}
+                
+                {/* File Info - MIDDLE */}
+                <div className="min-w-0 flex-1 py-1">
+                  <p className="text-sm font-medium text-white truncate">
+                    {attachedFile.name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown type'}
+                  </p>
+                  {filePreview && (
+                    <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      Image ready to send
+                    </p>
+                  )}
+                </div>
+                
+                {/* Remove Button - RIGHT */}
                 <button
                   onClick={handleRemoveFile}
-                  className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200"
+                  className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 mt-1"
                   title="Remove file"
                 >
                   <X className="w-4 h-4" />
