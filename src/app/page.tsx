@@ -489,7 +489,24 @@ export default function NexusAI() {
       abortControllerRef.current = null
     }
     setIsLoading(false)
-  }, [])
+    
+    // Add "stopped" message to show user that they stopped the response
+    const stoppedMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'assistant',
+      content: '⏹️ **You stopped the response**\n\nThe AI generation was interrupted. You can ask a new question or modify your prompt.',
+      timestamp: new Date()
+    }
+    
+    setSessions(prev => {
+      const activeId = activeSessionId || 'default'
+      return prev.map(s => 
+        s.id === activeId 
+          ? { ...s, messages: [...s.messages, stoppedMessage] }
+          : s
+      )
+    })
+  }, [activeSessionId])
 
   // Handle chat submission
   const handleSubmit = useCallback(async () => {
