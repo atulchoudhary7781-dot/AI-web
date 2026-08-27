@@ -1,0 +1,1206 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef, Suspense } from 'react'
+     4→import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion'
+     5→import { 
+     6→  Github, 
+     7→  Linkedin, 
+     8→  Mail, 
+     9→  ExternalLink, 
+    10→  Code2, 
+    11→  Brain, 
+    12→  Zap, 
+    13→  Sparkles,
+    14→  ArrowDown,
+    15→  Menu,
+    16→  X,
+    17→  Send,
+    18→  Star,
+    19→  Rocket,
+    20→  Cpu,
+    21→  Globe,
+    22→  Heart
+    23→} from 'lucide-react'
+    24→
+    25→// ============ ANIMATED BACKGROUND COMPONENT ============
+    26→function ParticleBackground() {
+    27→  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+    28→  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; duration: number; delay: number }>>([])
+    29→
+    30→  useEffect(() => {
+    31→    const newParticles = Array.from({ length: 50 }, (_, i) => ({
+    32→      id: i,
+    33→      x: Math.random() * 100,
+    34→      y: Math.random() * 100,
+    35→      size: Math.random() * 4 + 1,
+    36→      duration: Math.random() * 20 + 10,
+    37→      delay: Math.random() * 5
+    38→    }))
+    39→    setParticles(newParticles)
+    40→  }, [])
+    41→
+    42→  useEffect(() => {
+    43→    const handleMouseMove = (e: MouseEvent) => {
+    44→      setMousePos({ x: e.clientX, y: e.clientY })
+    45→    }
+    46→    window.addEventListener('mousemove', handleMouseMove)
+    47→    return () => window.removeEventListener('mousemove', handleMouseMove)
+    48→  }, [])
+    49→
+    50→  return (
+    51→    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    52→      {/* Gradient orbs that follow mouse */}
+    53→      <motion.div
+    54→        className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-[120px]"
+    55→        style={{
+    56→          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
+    57→          left: mousePos.x - 300,
+    58→          top: mousePos.y - 300,
+    59→        }}
+    60→        animate={{
+    61→          x: 0,
+    62→          y: 0,
+    63→        }}
+    64→        transition={{ type: 'spring', stiffness: 50, damping: 30 }}
+    65→      />
+    66→      <motion.div
+    67→        className="absolute w-[400px] h-[400px] rounded-full opacity-15 blur-[100px]"
+    68→        style={{
+    69→          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, transparent 70%)',
+    70→          right: -mousePos.x * 0.2,
+    71→          top: -mousePos.y * 0.2,
+    72→        }}
+    73→        animate={{
+    74→          x: 0,
+    75→          y: 0,
+    76→        }}
+    77→        transition={{ type: 'spring', stiffness: 30, damping: 25 }}
+    78→      />
+    79→      
+    80→      {/* Floating particles */}
+    81→      {particles.map((particle) => (
+    82→        <motion.div
+    83→          key={particle.id}
+    84→          className="absolute rounded-full bg-white/30"
+    85→          style={{
+    86→            width: particle.size,
+    87→            height: particle.size,
+    88→            left: `${particle.x}%`,
+    89→            top: `${particle.y}%`,
+    90→          }}
+    91→          animate={{
+    92→            y: [0, -100, 0],
+    93→            opacity: [0.3, 0.8, 0.3],
+    94→            scale: [1, 1.5, 1],
+    95→          }}
+    96→          transition={{
+    97→            duration: particle.duration,
+    98→            repeat: Infinity,
+    99→            delay: particle.delay,
+   100→            ease: 'easeInOut'
+   101→          }}
+   102→        />
+   103→      ))}
+   104→      
+   105→      {/* Grid pattern overlay */}
+   106→      <div 
+   107→        className="absolute inset-0 opacity-[0.03]"
+   108→        style={{
+   109→          backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+   110→          backgroundSize: '50px 50px'
+   111→        }}
+   112→      />
+   113→    </div>
+   114→  )
+   115→}
+   116→
+   117→// ============ NAVIGATION COMPONENT ============
+   118→function Navigation() {
+   119→  const [isOpen, setIsOpen] = useState(false)
+   120→  const [scrolled, setScrolled] = useState(false)
+   121→  const [activeSection, setActiveSection] = useState('home')
+   122→
+   123→  useEffect(() => {
+   124→    const handleScroll = () => {
+   125→      setScrolled(window.scrollY > 50)
+   126→      
+   127→      const sections = ['home', 'about', 'projects', 'skills', 'contact']
+   128→      for (const section of sections.reverse()) {
+   129→        const element = document.getElementById(section)
+   130→        if (element && element.getBoundingClientRect().top <= 150) {
+   131→          setActiveSection(section)
+   132→          break
+   133→        }
+   134→      }
+   135→    }
+   136→    window.addEventListener('scroll', handleScroll)
+   137→    return () => window.removeEventListener('scroll', handleScroll)
+   138→  }, [])
+   139→
+   140→  const navItems = [
+   141→    { id: 'home', label: 'Home' },
+   142→    { id: 'about', label: 'About' },
+   143→    { id: 'projects', label: 'Projects' },
+   144→    { id: 'skills', label: 'Skills' },
+   145→    { id: 'contact', label: 'Contact' }
+   146→  ]
+   147→
+   148→  const scrollToSection = (id: string) => {
+   149→    const element = document.getElementById(id)
+   150→    if (element) {
+   151→      element.scrollIntoView({ behavior: 'smooth' })
+   152→      setIsOpen(false)
+   153→    }
+   154→  }
+   155→
+   156→  return (
+   157→    <motion.nav
+   158→      initial={{ y: -100 }}
+   159→      animate={{ y: 0 }}
+   160→      transition={{ duration: 0.8, ease: 'easeOut' }}
+   161→      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+   162→        scrolled ? 'bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-2xl' : 'bg-transparent'
+   163→      }`}
+   164→    >
+   165→      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   166→        <div className="flex items-center justify-between h-16 md:h-20">
+   167→          {/* Logo */}
+   168→          <motion.div 
+   169→            className="flex items-center gap-2"
+   170→            whileHover={{ scale: 1.05 }}
+   171→            whileTap={{ scale: 0.95 }}
+   172→          >
+   173→            <div className="relative">
+   174→              <Sparkles className="w-8 h-8 text-violet-400" />
+   175→              <motion.div
+   176→                className="absolute inset-0 bg-violet-400 rounded-full blur-lg"
+   177→                animate={{ opacity: [0.5, 1, 0.5] }}
+   178→                transition={{ duration: 2, repeat: Infinity }}
+   179→              />
+   180→            </div>
+   181→            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+   182→              Atul
+   183→            </span>
+   184→          </motion.div>
+   185→
+   186→          {/* Desktop Navigation */}
+   187→          <div className="hidden md:flex items-center gap-1">
+   188→            {navItems.map((item) => (
+   189→              <motion.button
+   190→                key={item.id}
+   191→                onClick={() => scrollToSection(item.id)}
+   192→                className={`relative px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+   193→                  activeSection === item.id 
+   194→                    ? 'text-white' 
+   195→                    : 'text-gray-400 hover:text-white'
+   196→                }`}
+   197→                whileHover={{ scale: 1.05 }}
+   198→                whileTap={{ scale: 0.95 }}
+   199→              >
+   200→                {activeSection === item.id && (
+   201→                  <motion.div
+   202→                    layoutId="activeNav"
+   203→                    className="absolute inset-0 bg-white/10 rounded-full border border-white/20"
+   204→                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+   205→                  />
+   206→                )}
+   207→                <span className="relative z-10">{item.label}</span>
+   208→              </motion.button>
+   209→            ))}
+   210→            
+   211→            {/* CTA Button */}
+   212→            <motion.a
+   213→              href="https://github.com/atulchoudhary7781-dot/my-portfolio"
+   214→              target="_blank"
+   215→              rel="noopener noreferrer"
+   216→              className="ml-4 px-5 py-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white text-sm font-medium rounded-full hover:shadow-lg hover:shadow-violet-500/25 transition-all"
+   217→              whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(139, 92, 246, 0.4)' }}
+   218→              whileTap={{ scale: 0.95 }}
+   219→            >
+   220→              <Github className="w-4 h-4 inline mr-2" />
+   221→              GitHub
+   222→            </motion.a>
+   223→          </div>
+   224→
+   225→          {/* Mobile Menu Button */}
+   226→          <motion.button
+   227→            className="md:hidden p-2 text-white"
+   228→            onClick={() => setIsOpen(!isOpen)}
+   229→            whileTap={{ scale: 0.9 }}
+   230→          >
+   231→            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+   232→          </motion.button>
+   233→        </div>
+   234→
+   235→        {/* Mobile Navigation */}
+   236→        <AnimatePresence>
+   237→          {isOpen && (
+   238→            <motion.div
+   239→              initial={{ opacity: 0, height: 0 }}
+   240→              animate={{ opacity: 1, height: 'auto' }}
+   241→              exit={{ opacity: 0, height: 0 }}
+   242→              transition={{ duration: 0.3 }}
+   243→              className="md:hidden overflow-hidden"
+   244→            >
+   245→              <div className="py-4 space-y-2 border-t border-white/10">
+   246→                {navItems.map((item) => (
+   247→                  <button
+   248→                    key={item.id}
+   249→                    onClick={() => scrollToSection(item.id)}
+   250→                    className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
+   251→                      activeSection === item.id 
+   252→                        ? 'bg-white/10 text-white' 
+   253→                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+   254→                    }`}
+   255→                  >
+   256→                    {item.label}
+   257→                  </button>
+   258→                ))}
+   259→                <a
+   260→                  href="https://github.com/atulchoudhary7781-dot/my-portfolio"
+   261→                  target="_blank"
+   262→                  rel="noopener noreferrer"
+   263→                  className="block w-full text-center px-4 py-3 mt-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium rounded-lg"
+   264→                >
+   265→                  View GitHub
+   266→                </a>
+   267→              </div>
+   268→            </motion.div>
+   269→          )}
+   270→        </AnimatePresence>
+   271→      </div>
+   272→    </motion.nav>
+   273→  )
+   274→}
+   275→
+   276→// ============ HERO SECTION ============
+   277→function HeroSection() {
+   278→  const ref = useRef(null)
+   279→  const { scrollYProgress } = useScroll({
+   280→    target: ref,
+   281→    offset: ['start start', 'end start']
+   282→  })
+   283→  
+   284→  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
+   285→  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+   286→  const scale = useTransform(scrollYProgress, [0, 0.8], [1, 0.8])
+   287→
+   288→  const containerVariants = {
+   289→    hidden: { opacity: 0 },
+   290→    visible: {
+   291→      opacity: 1,
+   292→      transition: {
+   293→        staggerChildren: 0.15,
+   294→        delayChildren: 0.3
+   295→      }
+   296→    }
+   297→  }
+   298→
+   299→  const itemVariants = {
+   300→    hidden: { opacity: 0, y: 40 },
+   301→    visible: {
+   302→      opacity: 1,
+   303→      y: 0,
+   304→      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+   305→    }
+   306→  }
+   307→
+   308→  return (
+   309→    <section id="home" ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+   310→      <motion.div style={{ y, opacity, scale }} className="relative z-10 max-w-5xl mx-auto px-4 text-center">
+   311→        <motion.div
+   312→          variants={containerVariants}
+   313→          initial="hidden"
+   314→          animate="visible"
+   315→          className="space-y-8"
+   316→        >
+   317→          {/* Status Badge */}
+   318→          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 backdrop-blur-sm">
+   319→            <span className="relative flex h-2 w-2">
+   320→              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+   321→              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+   322→            </span>
+   323→            <span className="text-green-400 text-sm font-medium">Available for opportunities</span>
+   324→          </motion.div>
+   325→
+   326→          {/* Main Heading */}
+   327→          <motion.div variants={itemVariants} className="space-y-4">
+   328→            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
+   329→              <span className="block text-white">Hi, I&apos;m</span>
+   330→              <span className="block bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent relative">
+   331→                Atul
+   332→                <motion.svg
+   333→                  className="absolute -bottom-2 left-0 w-full"
+   334→                  viewBox="0 0 200 12"
+   335→                  fill="none"
+   336→                  initial={{ pathLength: 0 }}
+   337→                  animate={{ pathLength: 1 }}
+   338→                  transition={{ duration: 1.5, delay: 1, ease: 'easeInOut' }}
+   339→                >
+   340→                  <motion.path
+   341→                    d="M2 10C50 2 150 2 198 10"
+   342→                    stroke="url(#gradient)"
+   343→                    strokeWidth="3"
+   344→                    strokeLinecap="round"
+   345→                    initial={{ pathLength: 0 }}
+   346→                    animate={{ pathLength: 1 }}
+   347→                    transition={{ duration: 1.5, delay: 1 }}
+   348→                  />
+   349→                  <defs>
+   350→                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+   351→                      <stop offset="0%" stopColor="#a78bfa" />
+   352→                      <stop offset="50%" stopColor="#c084fc" />
+   353→                      <stop offset="100%" stopColor="#f472b6" />
+   354→                    </linearGradient>
+   355→                  </defs>
+   356→                </motion.svg>
+   357→              </span>
+   358→            </h1>
+   359→          </motion.div>
+   360→
+   361→          {/* Subtitle with typewriter effect */}
+   362→          <motion.div variants={itemVariants}>
+   363→            <p className="text-lg sm:text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+   364→              <span className="text-white font-semibold">Full Stack Developer</span> &amp; 
+   365→              <span className="text-white font-semibold"> AI Enthusiast</span>
+   366→              <br />
+   367→              Building intelligent digital experiences that make a difference
+   368→            </p>
+   369→          </motion.div>
+   370→
+   371→          {/* CTA Buttons */}
+   372→          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+   373→            <motion.a
+   374→              href="#projects"
+   375→              className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-full overflow-hidden"
+   376→              whileHover={{ scale: 1.05 }}
+   377→              whileTap={{ scale: 0.95 }}
+   378→            >
+   379→              <span className="relative z-10 flex items-center gap-2">
+   380→                <Rocket className="w-5 h-5" />
+   381→                View My Work
+   382→              </span>
+   383→              <motion.div
+   384→                className="absolute inset-0 bg-gradient-to-r from-purple-600 to-violet-600"
+   385→                initial={{ x: '100%' }}
+   386→                whileHover={{ x: 0 }}
+   387→                transition={{ duration: 0.3 }}
+   388→              />
+   389→            </motion.a>
+   390→            
+   391→            <motion.a
+   392→              href="#contact"
+   393→              className="group px-8 py-4 border border-white/20 text-white font-semibold rounded-full backdrop-blur-sm hover:bg-white/10 transition-all"
+   394→              whileHover={{ scale: 1.05 }}
+   395→              whileTap={{ scale: 0.95 }}
+   396→            >
+   397→              <span className="flex items-center gap-2">
+   398→                <Mail className="w-5 h-5" />
+   399→                Get In Touch
+   400→              </span>
+   401→            </motion.a>
+   402→          </motion.div>
+   403→
+   404→          {/* Social Links */}
+   405→          <motion.div variants={itemVariants} className="flex items-center justify-center gap-4 pt-8">
+   406→            {[
+   407→              { icon: Github, href: 'https://github.com/atulchoudhary7781-dot/my-portfolio', label: 'GitHub' },
+   408→              { icon: Linkedin, href: 'https://www.linkedin.com/in/atul-choudhary-018037301/', label: 'LinkedIn' },
+   409→              { icon: Mail, href: 'mailto:atulchoudhary7781@gmail.com', label: 'Email' }
+   410→            ].map((social) => (
+   411→              <motion.a
+   412→                key={social.label}
+   413→                href={social.href}
+   414→                target="_blank"
+   415→                rel="noopener noreferrer"
+   416→                className="p-3 rounded-full border border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all"
+   417→                whileHover={{ scale: 1.15, y: -3 }}
+   418→                whileTap={{ scale: 0.9 }}
+   419→                aria-label={social.label}
+   420→              >
+   421→                <social.icon className="w-5 h-5" />
+   422→              </motion.a>
+   423→            ))}
+   424→          </motion.div>
+   425→        </motion.div>
+   426→
+   427→        {/* Scroll Indicator */}
+   428→        <motion.div
+   429→          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+   430→          initial={{ opacity: 0, y: -20 }}
+   431→          animate={{ opacity: 1, y: 0 }}
+   432→          transition={{ delay: 2, duration: 0.8 }}
+   433→        >
+   434→          <motion.a
+   435→            href="#about"
+   436→            className="flex flex-col items-center gap-2 text-gray-500 hover:text-white transition-colors"
+   437→            animate={{ y: [0, 10, 0] }}
+   438→            transition={{ duration: 2, repeat: Infinity }}
+   439→          >
+   440→            <span className="text-xs uppercase tracking-widest">Scroll</span>
+   441→            <ArrowDown className="w-4 h-4" />
+   442→          </motion.a>
+   443→        </motion.div>
+   444→      </motion.div>
+   445→    </section>
+   446→  )
+   447→}
+   448→
+   449→// ============ ABOUT SECTION ============
+   450→function AboutSection() {
+   451→  const ref = useRef(null)
+   452→  const isInView = useInView(ref, { once: true, margin: '-100px' })
+   453→
+   454→  const stats = [
+   455→    { icon: Code2, value: '10+', label: 'Projects Built' },
+   456→    { icon: Brain, value: '5+', label: 'AI Models' },
+   457→    { icon: Zap, value: '99%', label: 'Client Satisfaction' },
+   458→    { icon: Star, value: '∞', label: 'Cups of Coffee' }
+   459→  ]
+   460→
+   461→  return (
+   462→    <section id="about" ref={ref} className="relative py-32 overflow-hidden">
+   463→      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   464→        <motion.div
+   465→          initial={{ opacity: 0, y: 60 }}
+   466→          animate={isInView ? { opacity: 1, y: 0 } : {}}
+   467→          transition={{ duration: 0.8, ease: 'easeOut' }}
+   468→          className="grid lg:grid-cols-2 gap-16 items-center"
+   469→        >
+   470→          {/* Left - Visual Element */}
+   471→          <motion.div
+   472→            initial={{ opacity: 0, x: -60 }}
+   473→            animate={isInView ? { opacity: 1, x: 0 } : {}}
+   474→            transition={{ duration: 0.8, delay: 0.2 }}
+   475→            className="relative"
+   476→          >
+   477→            <div className="relative aspect-square max-w-md mx-auto">
+   478→              {/* Animated rings */}
+   479→              {[...Array(3)].map((_, i) => (
+   480→                <motion.div
+   481→                  key={i}
+   482→                  className="absolute inset-0 rounded-full border border-violet-500/20"
+   483→                  animate={{ 
+   484→                    rotate: 360,
+   485→                    scale: [1, 1.05, 1]
+   486→                  }}
+   487→                  transition={{ 
+   488→                    duration: 8 + i * 2, 
+   489→                    repeat: Infinity, 
+   490→                    ease: 'linear',
+   491→                    delay: i * 0.5
+   492→                  }}
+   493→                  style={{ transformOrigin: 'center' }}
+   494→                />
+   495→              ))}
+   496→              
+   497→              {/* Main circle with avatar placeholder */}
+   498→              <motion.div
+   499→                className="absolute inset-8 rounded-full bg-gradient-to-br from-violet-600/20 to-blue-600/20 backdrop-blur-sm border border-white/10 flex items-center justify-center overflow-hidden"
+   500→                whileHover={{ scale: 1.02 }}
+   501→              >
+   502→                <div className="text-center">
+   503→                  <motion.div
+   504→                    className="text-8xl md:text-9xl font-bold bg-gradient-to-br from-violet-400 to-blue-400 bg-clip-text text-transparent"
+   505→                    animate={{ 
+   506→                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+   507→                    }}
+   508→                    transition={{ duration: 5, repeat: Infinity }}
+   509→                    style={{ backgroundSize: '200% 200%' }}
+   510→                  >
+   511→                    A
+   512→                  </motion.div>
+   513→                  <p className="text-gray-400 mt-2 text-sm">@atul.dev</p>
+   514→                </div>
+   515→                
+   516→                {/* Floating elements around avatar */}
+   517→                <motion.div
+   518→                  className="absolute top-4 right-4 p-2 rounded-lg bg-blue-500/20 backdrop-blur-sm border border-blue-500/30"
+   519→                  animate={{ y: [0, -10, 0] }}
+   520→                  transition={{ duration: 3, repeat: Infinity }}
+   521→                >
+   522→                  <Code2 className="w-5 h-5 text-blue-400" />
+   523→                </motion.div>
+   524→                <motion.div
+   525→                  className="absolute bottom-4 left-4 p-2 rounded-lg bg-purple-500/20 backdrop-blur-sm border border-purple-500/30"
+   526→                  animate={{ y: [0, 10, 0] }}
+   527→                  transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+   528→                >
+   529→                  <Brain className="w-5 h-5 text-purple-400" />
+   530→                </motion.div>
+   531→                <motion.div
+   532→                  className="absolute top-1/2 -left-2 p-2 rounded-lg bg-pink-500/20 backdrop-blur-sm border border-pink-500/30"
+   533→                  animate={{ x: [0, 10, 0] }}
+   534→                  transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+   535→                >
+   536→                  <Zap className="w-5 h-5 text-pink-400" />
+   537→                </motion.div>
+   538→              </motion.div>
+   539→            </div>
+   540→          </motion.div>
+   541→
+   542→          {/* Right - Content */}
+   543→          <motion.div
+   544→            initial={{ opacity: 0, x: 60 }}
+   545→            animate={isInView ? { opacity: 1, x: 0 } : {}}
+   546→            transition={{ duration: 0.8, delay: 0.4 }}
+   547→            className="space-y-8"
+   548→          >
+   549→            <div className="space-y-4">
+   550→              <motion.div
+   551→                initial={{ width: 0 }}
+   552→                animate={isInView ? { width: 60 } : {}}
+   553→                transition={{ duration: 0.8, delay: 0.6 }}
+   554→                className="h-1 bg-gradient-to-r from-violet-500 to-blue-500 rounded-full"
+   555→              />
+   556→              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+   557→                About{' '}
+   558→                <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Me</span>
+   559→              </h2>
+   560→            </div>
+   561→
+   562→            <div className="space-y-6 text-gray-400 text-lg leading-relaxed">
+   563→              <p>
+   564→                I&apos;m <span className="text-white font-semibold">Atul</span>, a passionate Full Stack Developer and AI enthusiast who loves turning complex problems into elegant solutions. With expertise in modern web technologies and artificial intelligence, I create digital experiences that are both beautiful and functional.
+   565→              </p>
+   566→              <p>
+   567→                My journey in tech started with curiosity about how things work under the hood. Today, I specialize in building scalable applications with <span className="text-violet-400">Next.js</span>, <span className="text-blue-400">React</span>, and integrating <span className="text-purple-400">AI capabilities</span> into everyday applications.
+   568→              </p>
+   569→              <p>
+   570→                When I&apos;m not coding, you&apos;ll find me exploring the latest advancements in machine learning, contributing to open-source projects, or sharing knowledge with the developer community.
+   571→              </p>
+   572→            </div>
+   573→
+   574→            {/* Stats Grid */}
+   575→            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+   576→              {stats.map((stat, index) => (
+   577→                <motion.div
+   578→                  key={stat.label}
+   579→                  initial={{ opacity: 0, y: 20 }}
+   580→                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+   581→                  transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+   582→                  className="text-center p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all group"
+   583→                  whileHover={{ scale: 1.05, y: -5 }}
+   584→                >
+   585→                  <stat.icon className="w-6 h-6 mx-auto mb-2 text-violet-400 group-hover:text-violet-300 transition-colors" />
+   586→                  <div className="text-2xl font-bold text-white">{stat.value}</div>
+   587→                  <div className="text-xs text-gray-500">{stat.label}</div>
+   588→                </motion.div>
+   589→              ))}
+   590→            </div>
+   591→          </motion.div>
+   592→        </motion.div>
+   593→      </div>
+   594→    </section>
+   595→  )
+   596→}
+   597→
+   598→// ============ PROJECTS SECTION ============
+   599→function ProjectsSection() {
+   600→  const ref = useRef(null)
+   601→  const isInView = useInView(ref, { once: true, margin: '-100px' })
+   602→
+   603→  const projects = [
+   604→    {
+   605→      title: 'AI Web',
+   606→      description: 'An advanced AI-powered web application featuring real-time chat, vision capabilities, file analysis, and intelligent responses. Built with Next.js, OpenRouter API, and modern UI/UX patterns.',
+   607→      tech: ['Next.js', 'TypeScript', 'AI/ML', 'Tailwind'],
+   608→      github: 'https://github.com/atulchoudhary7781-dot/AI-web',
+   609→      demo: '#',
+   610→      color: 'from-violet-600 to-purple-600',
+   611→      icon: Brain,
+   612→      features: ['Real-time AI Chat', 'Vision Analysis', 'File Processing', 'Smart Responses']
+   613→    },
+   614→    {
+   615→      title: 'Jarvis AI',
+   616→      description: 'Your personal AI assistant inspired by Iron Man\'s Jarvis. Features voice interaction, task automation, smart home integration, and contextual awareness for a truly intelligent experience.',
+   617→      tech: ['Python', 'AI/ML', 'Voice API', 'Automation'],
+   618→      github: 'https://github.com/atulchoudhary7781-dot/Jarvis-AI',
+   619→      demo: '#',
+   620→      color: 'from-blue-600 to-cyan-600',
+   621→      icon: Cpu,
+   622→      features: ['Voice Commands', 'Task Automation', 'Context Aware', 'Multi-platform']
+   623→    }
+   624→  ]
+   625→
+   626→  return (
+   627→    <section id="projects" ref={ref} className="relative py-32 overflow-hidden">
+   628→      {/* Background decoration */}
+   629→      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/10 to-transparent" />
+   630→
+   631→      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   632→        {/* Section Header */}
+   633→        <motion.div
+   634→          initial={{ opacity: 0, y: 40 }}
+   635→          animate={isInView ? { opacity: 1, y: 0 } : {}}
+   636→          transition={{ duration: 0.8 }}
+   637→          className="text-center mb-16"
+   638→        >
+   639→          <motion.span
+   640→            initial={{ opacity: 0, y: 20 }}
+   641→            animate={isInView ? { opacity: 1, y: 0 } : {}}
+   642→            transition={{ duration: 0.5 }}
+   643→            className="inline-block px-4 py-2 mb-4 text-sm font-medium text-violet-400 bg-violet-500/10 rounded-full border border-violet-500/20"
+   644→          >
+   645→            My Work
+   646→          </motion.span>
+   647→          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   648→            Featured{' '}
+   649→            <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Projects</span>
+   650→          </h2>
+   651→          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+   652→            Here are some of my recent projects that showcase my skills and passion for building innovative solutions.
+   653→          </p>
+   654→        </motion.div>
+   655→
+   656→        {/* Projects Grid */}
+   657→        <div className="grid md:grid-cols-2 gap-8">
+   658→          {projects.map((project, index) => (
+   659→            <motion.div
+   660→              key={project.title}
+   661→              initial={{ opacity: 0, y: 60 }}
+   662→              animate={isInView ? { opacity: 1, y: 0 } : {}}
+   663→              transition={{ duration: 0.8, delay: index * 0.2 }}
+   664→              className="group relative"
+   665→            >
+   666→              <div className="relative h-full p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-white/20 transition-all duration-500">
+   667→                {/* Glow effect on hover */}
+   668→                <motion.div
+   669→                  className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
+   670→                />
+   671→
+   672→                {/* Project Header */}
+   673→                <div className="relative z-10">
+   674→                  <div className="flex items-start justify-between mb-6">
+   675→                    <motion.div
+   676→                      className={`p-4 rounded-2xl bg-gradient-to-br ${project.color}`}
+   677→                      whileHover={{ rotate: 5, scale: 1.1 }}
+   678→                    >
+   679→                      <project.icon className="w-8 h-8 text-white" />
+   680→                    </motion.div>
+   681→                    
+   682→                    <div className="flex gap-3">
+   683→                      <motion.a
+   684→                        href={project.github}
+   685→                        target="_blank"
+   686→                        rel="noopener noreferrer"
+   687→                        className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+   688→                        whileHover={{ scale: 1.1, y: -2 }}
+   689→                        whileTap={{ scale: 0.9 }}
+   690→                        aria-label="View on GitHub"
+   691→                      >
+   692→                        <Github className="w-5 h-5" />
+   693→                      </motion.a>
+   694→                      <motion.a
+   695→                        href={project.demo}
+   696→                        className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+   697→                        whileHover={{ scale: 1.1, y: -2 }}
+   698→                        whileTap={{ scale: 0.9 }}
+   699→                        aria-label="Live Demo"
+   700→                      >
+   701→                        <ExternalLink className="w-5 h-5" />
+   702→                      </motion.a>
+   703→                    </div>
+   704→                  </div>
+   705→
+   706→                  {/* Project Info */}
+   707→                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-violet-400 group-hover:to-blue-400 group-hover:bg-clip-text transition-all">
+   708→                    {project.title}
+   709→                  </h3>
+   710→                  
+   711→                  <p className="text-gray-400 mb-6 leading-relaxed">
+   712→                    {project.description}
+   713→                  </p>
+   714→
+   715→                  {/* Features List */}
+   716→                  <div className="mb-6">
+   717→                    <h4 className="text-sm font-semibold text-white mb-3">Key Features</h4>
+   718→                    <div className="flex flex-wrap gap-2">
+   719→                      {project.features.map((feature) => (
+   720→                        <span
+   721→                          key={feature}
+   722→                          className="px-3 py-1 text-xs font-medium text-violet-300 bg-violet-500/10 rounded-full border border-violet-500/20"
+   723→                        >
+   724→                          {feature}
+   725→                        </span>
+   726→                      ))}
+   727→                    </div>
+   728→                  </div>
+   729→
+   730→                  {/* Tech Stack */}
+   731→                  <div className="pt-6 border-t border-white/10">
+   732→                    <div className="flex flex-wrap gap-2">
+   733→                      {project.tech.map((tech) => (
+   734→                        <span
+   735→                          key={tech}
+   736→                          className="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg"
+   737→                        >
+   738→                          {tech}
+   739→                        </span>
+   740→                      ))}
+   741→                    </div>
+   742→                  </div>
+   743→                </div>
+   744→
+   745→                {/* Bottom gradient line */}
+   746→                <motion.div
+   747→                  className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${project.color}`}
+   748→                  initial={{ scaleX: 0 }}
+   749→                  whileHover={{ scaleX: 1 }}
+   750→                  transition={{ duration: 0.5 }}
+   751→                  style={{ transformOrigin: 'left' }}
+   752→                />
+   753→              </div>
+   754→            </motion.div>
+   755→          ))}
+   756→        </div>
+   757→
+   758→        {/* View More CTA */}
+   759→        <motion.div
+   760→          initial={{ opacity: 0, y: 40 }}
+   761→          animate={isInView ? { opacity: 1, y: 0 } : {}}
+   762→          transition={{ duration: 0.8, delay: 0.6 }}
+   763→          className="text-center mt-12"
+   764→        >
+   765→          <motion.a
+   766→            href="https://github.com/atulchoudhary7781-dot/my-portfolio?tab=repositories"
+   767→            target="_blank"
+   768→            rel="noopener noreferrer"
+   769→            className="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-medium rounded-full hover:bg-white/5 transition-all"
+   770→            whileHover={{ scale: 1.05, borderColor: 'rgba(255,255,255,0.4)' }}
+   771→            whileTap={{ scale: 0.95 }}
+   772→          >
+   773→            <Github className="w-5 h-5" />
+   774→            View All Projects on GitHub
+   775→            <ExternalLink className="w-4 h-4" />
+   776→          </motion.a>
+   777→        </motion.div>
+   778→      </div>
+   779→    </section>
+   780→  )
+   781→}
+   782→
+   783→// ============ SKILLS SECTION ============
+   784→function SkillsSection() {
+   785→  const ref = useRef(null)
+   786→  const isInView = useInView(ref, { once: true, margin: '-100px' })
+   787→
+   788→  const skillCategories = [
+   789→    {
+   790→      title: 'Frontend',
+   791→      skills: [
+   792→        { name: 'React / Next.js', level: 95 },
+   793→        { name: 'TypeScript', level: 90 },
+   794→        { name: 'Tailwind CSS', level: 95 },
+   795→        { name: 'Framer Motion', level: 85 }
+   796→      ]
+   797→    },
+   798→    {
+   799→      title: 'Backend & AI',
+   800→      skills: [
+   801→        { name: 'Node.js / Bun', level: 88 },
+   802→        { name: 'Python', level: 85 },
+   803→        { name: 'AI/ML Integration', level: 90 },
+   804→        { name: 'API Development', level: 92 }
+   805→      ]
+   806→    },
+   807→    {
+   808→      title: 'Tools & Others',
+   809→      skills: [
+   810→        { name: 'Git & GitHub', level: 93 },
+   811→        { name: 'Vercel Deployment', level: 90 },
+   812→        { name: 'Database (Prisma)', level: 85 },
+   813→        { name: 'UI/UX Design', level: 80 }
+   814→      ]
+   815→    }
+   816→  ]
+   817→
+   818→  return (
+   819→    <section id="skills" ref={ref} className="relative py-32 overflow-hidden">
+   820→      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   821→        {/* Section Header */}
+   822→        <motion.div
+   823→          initial={{ opacity: 0, y: 40 }}
+   824→          animate={isInView ? { opacity: 1, y: 0 } : {}}
+   825→          transition={{ duration: 0.8 }}
+   826→          className="text-center mb-16"
+   827→        >
+   828→          <motion.span
+   829→            initial={{ opacity: 0, y: 20 }}
+   830→            animate={isInView ? { opacity: 1, y: 0 } : {}}
+   831→            transition={{ duration: 0.5 }}
+   832→            className="inline-block px-4 py-2 mb-4 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-full border border-blue-500/20"
+   833→          >
+   834→            Expertise
+   835→          </motion.span>
+   836→          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   837→            Skills &{' '}
+   838→            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Technologies</span>
+   839→          </h2>
+   840→          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+   841→            A comprehensive toolkit built through years of hands-on experience and continuous learning.
+   842→          </p>
+   843→        </motion.div>
+   844→
+   845→        {/* Skills Grid */}
+   846→        <div className="grid md:grid-cols-3 gap-8">
+   847→          {skillCategories.map((category, categoryIndex) => (
+   848→            <motion.div
+   849→              key={category.title}
+   850→              initial={{ opacity: 0, y: 40 }}
+   851→              animate={isInView ? { opacity: 1, y: 0 } : {}}
+   852→              transition={{ duration: 0.6, delay: categoryIndex * 0.2 }}
+   853→              className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all"
+   854→            >
+   855→              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   856→                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center">
+   857→                  <Code2 className="w-5 h-5 text-white" />
+   858→                </div>
+   859→                {category.title}
+   860→              </h3>
+   861→
+   862→              <div className="space-y-5">
+   863→                {category.skills.map((skill, skillIndex) => (
+   864→                  <motion.div
+   865→                    key={skill.name}
+   866→                    initial={{ opacity: 0, x: -20 }}
+   867→                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+   868→                    transition={{ duration: 0.5, delay: categoryIndex * 0.2 + skillIndex * 0.1 }}
+   869→                    className="space-y-2"
+   870→                  >
+   871→                    <div className="flex justify-between items-center">
+   872→                      <span className="text-gray-300 font-medium">{skill.name}</span>
+   873→                      <span className="text-sm text-violet-400 font-mono">{skill.level}%</span>
+   874→                    </div>
+   875→                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+   876→                      <motion.div
+   877→                        className="h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full"
+   878→                        initial={{ width: 0 }}
+   879→                        animate={isInView ? { width: `${skill.level}%` } : {}}
+   880→                        transition={{ duration: 1, delay: categoryIndex * 0.2 + skillIndex * 0.1 + 0.3, ease: 'easeOut' }}
+   881→                      />
+   882→                    </div>
+   883→                  </motion.div>
+   884→                ))}
+   885→              </div>
+   886→            </motion.div>
+   887→          ))}
+   888→        </div>
+   889→
+   890→        {/* Additional Tech Icons */}
+   891→        <motion.div
+   892→          initial={{ opacity: 0, y: 40 }}
+   893→          animate={isInView ? { opacity: 1, y: 0 } : {}}
+   894→          transition={{ duration: 0.8, delay: 0.6 }}
+   895→          className="mt-16 text-center"
+   896→        >
+   897→          <p className="text-gray-500 mb-6">And many more technologies I work with...</p>
+   898→          <div className="flex flex-wrap justify-center gap-4">
+   899→            {['JavaScript', 'HTML/CSS', 'REST APIs', 'GraphQL', 'MongoDB', 'PostgreSQL', 'Docker', 'AWS'].map((tech) => (
+   900→              <motion.span
+   901→                key={tech}
+   902→                className="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default"
+   903→                whileHover={{ scale: 1.05, y: -2 }}
+   904→              >
+   905→                {tech}
+   906→              </motion.span>
+   907→            ))}
+   908→          </div>
+   909→        </motion.div>
+   910→      </div>
+   911→    </section>
+   912→  )
+   913→}
+   914→
+   915→// ============ CONTACT SECTION ============
+   916→function ContactSection() {
+   917→  const ref = useRef(null)
+   918→  const isInView = useInView(ref, { once: true, margin: '-100px' })
+   919→  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+   920→  const [isSubmitting, setIsSubmitting] = useState(false)
+   921→
+   922→  const handleSubmit = async (e: React.FormEvent) => {
+   923→    e.preventDefault()
+   924→    setIsSubmitting(true)
+   925→    
+   926→    // Create mailto link with form data
+   927→    const subject = encodeURIComponent(`Portfolio Contact from ${formData.name}`)
+   928→    const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)
+   929→    window.open(`mailto:atulchoudhary7781@gmail.com?subject=${subject}&body=${body}`)
+   930→    
+   931→    setTimeout(() => {
+   932→      setIsSubmitting(false)
+   933→      setFormData({ name: '', email: '', message: '' })
+   934→    }, 1000)
+   935→  }
+   936→
+   937→  return (
+   938→    <section id="contact" ref={ref} className="relative py-32 overflow-hidden">
+   939→      {/* Background glow */}
+   940→      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-t from-violet-900/20 to-transparent rounded-full blur-3xl" />
+   941→
+   942→      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   943→        {/* Section Header */}
+   944→        <motion.div
+   945→          initial={{ opacity: 0, y: 40 }}
+   946→          animate={isInView ? { opacity: 1, y: 0 } : {}}
+   947→          transition={{ duration: 0.8 }}
+   948→          className="text-center mb-16"
+   949→        >
+   950→          <motion.span
+   951→            initial={{ opacity: 0, y: 20 }}
+   952→            animate={isInView ? { opacity: 1, y: 0 } : {}}
+   953→            transition={{ duration: 0.5 }}
+   954→            className="inline-block px-4 py-2 mb-4 text-sm font-medium text-pink-400 bg-pink-500/10 rounded-full border border-pink-500/20"
+   955→          >
+   956→            Get In Touch
+   957→          </motion.span>
+   958→          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   959→            Let&apos;s Work{' '}
+   960→            <span className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Together</span>
+   961→          </h2>
+   962→          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+   963→            Have a project in mind or want to collaborate? Feel free to reach out!
+   964→          </p>
+   965→        </motion.div>
+   966→
+   967→        <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+   968→          {/* Contact Info */}
+   969→          <motion.div
+   970→            initial={{ opacity: 0, x: -40 }}
+   971→            animate={isInView ? { opacity: 1, x: 0 } : {}}
+   972→            transition={{ duration: 0.8, delay: 0.2 }}
+   973→            className="space-y-8"
+   974→          >
+   975→            <div className="space-y-6">
+   976→              <h3 className="text-2xl font-bold text-white">Contact Information</h3>
+   977→              <p className="text-gray-400 leading-relaxed">
+   978→                I&apos;m always open to discussing new projects, creative ideas, or opportunities to be part of your visions.
+   979→              </p>
+   980→            </div>
+   981→
+   982→            <div className="space-y-4">
+   983→              {/* Email Card */}
+   984→              <motion.a
+   985→                href="mailto:atulchoudhary7781@gmail.com"
+   986→                className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-pink-500/30 transition-all group"
+   987→                whileHover={{ x: 5 }}
+   988→              >
+   989→                <div className="p-3 rounded-xl bg-gradient-to-br from-pink-600 to-violet-600 group-hover:scale-110 transition-transform">
+   990→                  <Mail className="w-6 h-6 text-white" />
+   991→                </div>
+   992→                <div>
+   993→                  <p className="text-sm text-gray-500">Email</p>
+   994→                  <p className="text-white font-medium">atulchoudhary7781@gmail.com</p>
+   995→                </div>
+   996→              </motion.a>
+   997→
+   998→              {/* GitHub Card */}
+   999→              <motion.a
+  1000→                href="https://github.com/atulchoudhary7781-dot/my-portfolio"
+  1001→                target="_blank"
+  1002→                rel="noopener noreferrer"
+  1003→                className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-violet-500/30 transition-all group"
+  1004→                whileHover={{ x: 5 }}
+  1005→              >
+  1006→                <div className="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 group-hover:scale-110 transition-transform">
+  1007→                  <Github className="w-6 h-6 text-white" />
+  1008→                </div>
+  1009→                <div>
+  1010→                  <p className="text-sm text-gray-500">GitHub</p>
+  1011→                  <p className="text-white font-medium">@atulchoudhary7781-dot</p>
+  1012→                </div>
+  1013→              </motion.a>
+  1014→
+  1015→              {/* LinkedIn Card */}
+  1016→              <motion.a
+  1017→                href="https://www.linkedin.com/in/atul-choudhary-018037301/"
+  1018→                target="_blank"
+  1019→                rel="noopener noreferrer"
+  1020→                className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-blue-500/30 transition-all group"
+  1021→                whileHover={{ x: 5 }}
+  1022→              >
+  1023→                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 group-hover:scale-110 transition-transform">
+  1024→                  <Linkedin className="w-6 h-6 text-white" />
+  1025→                </div>
+  1026→                <div>
+  1027→                  <p className="text-sm text-gray-500">LinkedIn</p>
+  1028→                  <p className="text-white font-medium">Atul</p>
+  1029→                </div>
+  1030→              </motion.a>
+  1031→            </div>
+  1032→          </motion.div>
+  1033→
+  1034→          {/* Contact Form */}
+  1035→          <motion.form
+  1036→            onSubmit={handleSubmit}
+  1037→            initial={{ opacity: 0, x: 40 }}
+  1038→            animate={isInView ? { opacity: 1, x: 0 } : {}}
+  1039→            transition={{ duration: 0.8, delay: 0.4 }}
+  1040→            className="space-y-6"
+  1041→          >
+  1042→            <div className="p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm space-y-6">
+  1043→              <div>
+  1044→                <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">
+  1045→                  Your Name
+  1046→                </label>
+  1047→                <input
+  1048→                  type="text"
+  1049→                  id="name"
+  1050→                  value={formData.name}
+  1051→                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+  1052→                  required
+  1053→                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+  1054→                  placeholder="John Doe"
+  1055→                />
+  1056→              </div>
+  1057→
+  1058→              <div>
+  1059→                <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">
+  1060→                  Your Email
+  1061→                </label>
+  1062→                <input
+  1063→                  type="email"
+  1064→                  id="email"
+  1065→                  value={formData.email}
+  1066→                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+  1067→                  required
+  1068→                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+  1069→                  placeholder="john@example.com"
+  1070→                />
+  1071→              </div>
+  1072→
+  1073→              <div>
+  1074→                <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-2">
+  1075→                  Message
+  1076→                </label>
+  1077→                <textarea
+  1078→                  id="message"
+  1079→                  rows={5}
+  1080→                  value={formData.message}
+  1081→                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+  1082→                  required
+  1083→                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all resize-none"
+  1084→                  placeholder="Tell me about your project..."
+  1085→                />
+  1086→              </div>
+  1087→
+  1088→              <motion.button
+  1089→                type="submit"
+  1090→                disabled={isSubmitting}
+  1091→                className="w-full py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+  1092→                whileHover={{ scale: 1.02 }}
+  1093→                whileTap={{ scale: 0.98 }}
+  1094→              >
+  1095→                {isSubmitting ? (
+  1096→                  <>
+  1097→                    <motion.div
+  1098→                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+  1099→                      animate={{ rotate: 360 }}
+  1100→                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+  1101→                    />
+  1102→                    Sending...
+  1103→                  </>
+  1104→                ) : (
+  1105→                  <>
+  1106→                    <Send className="w-5 h-5" />
+  1107→                    Send Message
+  1108→                  </>
+  1109→                )}
+  1110→              </motion.button>
+  1111→            </div>
+  1112→          </motion.form>
+  1113→        </div>
+  1114→      </div>
+  1115→    </section>
+  1116→  )
+  1117→}
+  1118→
+  1119→// ============ FOOTER COMPONENT ============
+  1120→function Footer() {
+  1121→  const currentYear = new Date().getFullYear()
+  1122→
+  1123→  return (
+  1124→    <footer className="relative py-12 border-t border-white/10">
+  1125→      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  1126→        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+  1127→          {/* Logo & Copyright */}
+  1128→          <div className="flex items-center gap-3">
+  1129→            <Sparkles className="w-6 h-6 text-violet-400" />
+  1130→            <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+  1131→              Atul
+  1132→            </span>
+  1133→            <span className="text-gray-500">|</span>
+  1134→            <span className="text-gray-500 text-sm">
+  1135→              © {currentYear} All rights reserved.
+  1136→            </span>
+  1137→          </div>
+  1138→
+  1139→          {/* Social Links */}
+  1140→          <div className="flex items-center gap-4">
+  1141→            {[
+  1142→              { icon: Github, href: 'https://github.com/atulchoudhary7781-dot/my-portfolio', label: 'GitHub' },
+  1143→              { icon: Linkedin, href: 'https://www.linkedin.com/in/atul-choudhary-018037301/', label: 'LinkedIn' },
+  1144→              { icon: Mail, href: 'mailto:atulchoudhary7781@gmail.com', label: 'Email' }
+  1145→            ].map((social) => (
+  1146→              <motion.a
+  1147→                key={social.label}
+  1148→                href={social.href}
+  1149→                target="_blank"
+  1150→                rel="noopener noreferrer"
+  1151→                className="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
+  1152→                whileHover={{ scale: 1.1, y: -2 }}
+  1153→                aria-label={social.label}
+  1154→              >
+  1155→                <social.icon className="w-5 h-5" />
+  1156→              </motion.a>
+  1157→            ))}
+  1158→          </div>
+  1159→
+  1160→          {/* Made with love */}
+  1161→          <div className="flex items-center gap-2 text-gray-500 text-sm">
+  1162→            <span>Made with</span>
+  1163→            <Heart className="w-4 h-4 text-red-500 fill-red-500 animate-pulse" />
+  1164→            <span>by Atul</span>
+  1165→          </div>
+  1166→        </div>
+  1167→      </div>
+  1168→    </footer>
+  1169→  )
+  1170→}
+  1171→
+  1172→// ============ MAIN PAGE COMPONENT ============
+  1173→export default function PortfolioPage() {
+  1174→  return (
+  1175→    <Suspense fallback={
+  1176→      <div className="min-h-screen bg-black flex items-center justify-center">
+  1177→        <motion.div
+  1178→          animate={{ rotate: 360 }}
+  1179→          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+  1180→          className="w-12 h-12 border-4 border-violet-500/30 border-t-violet-500 rounded-full"
+  1181→        />
+  1182→      </div>
+  1183→    }>
+  1184→      <main className="relative min-h-screen bg-black text-white overflow-x-hidden">
+  1185→        {/* Animated Background */}
+  1186→        <ParticleBackground />
+  1187→
+  1188→        {/* Navigation */}
+  1189→        <Navigation />
+  1190→
+  1191→        {/* Main Content */}
+  1192→        <div className="relative z-10">
+  1193→          <HeroSection />
+  1194→          <AboutSection />
+  1195→          <ProjectsSection />
+  1196→          <SkillsSection />
+  1197→          <ContactSection />
+  1198→        </div>
+  1199→
+  1200→        {/* Footer */}
+  1201→        <Footer />
+  1202→      </main>
+  1203→    </Suspense>
+  1204→  )
+  1205→}
+  1206→
