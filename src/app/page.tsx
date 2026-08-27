@@ -1,926 +1,1265 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
-  Github, Linkedin, Mail, ExternalLink, ArrowRight, 
-  Sparkles, Code2, Brain, Zap, Rocket, Star,
-  Menu, X, Download, ChevronUp, Terminal
+  Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
+  Cpu, Globe, Rocket, Star, Layers, Command, Shield,
+  TrendingUp, Users, Eye, Heart, ArrowRight, Send,
+  Menu, X, ChevronLeft, Plus, LogIn, LogOut
 } from 'lucide-react'
-import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
-// ============ ANIMATED BACKGROUND COMPONENT ============
-function ParticleField() {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {[...Array(50)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
-          initial={{ 
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-            y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-            opacity: 0 
-          }}
-          animate={{
-            y: [null, -20, 20, -20],
-            opacity: [0, 1, 0.5, 1, 0],
-            scale: [0, 1, 1.5, 1, 0]
-          }}
-          transition={{
-            duration: 4 + Math.random() * 4,
-            repeat: Infinity,
-            delay: Math.random() * 4,
-            ease: "easeInOut"
-          }}
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`
-          }}
-        />
-      ))}
-    </div>
-  )
+// Import chat components
+import Sidebar from '@/components/chat/Sidebar'
+import FullScreenChat from '@/components/chat/FullScreenChat'
+import SettingsView from '@/components/chat/SettingsView'
+import LoginView from '@/components/chat/LoginView'
+import AuthModal from '@/components/chat/AuthModal'
+
+// Types
+interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
+  image?: string // Base64 image data
+  imageMimeType?: string
+  // Document support (PDF, DOC, TXT, etc.)
+  fileName?: string
+  fileType?: string
+  fileSize?: number
 }
 
-// ============ MAGNETIC BUTTON COMPONENT ============
-function MagneticButton({ children, href, className = "", variant = "primary" }: {
-  children: React.ReactNode
-  href?: string
-  className?: string
-  variant?: "primary" | "secondary" | "ghost"
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-
-  const handleMouse = (e: React.MouseEvent) => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const x = e.clientX - rect.left - rect.width / 2
-    const y = e.clientY - rect.top - rect.height / 2
-    setPosition({ x: x * 0.3, y: y * 0.3 })
-  }
-
-  const reset = () => setPosition({ x: 0, y: 0 })
-
-  const baseClasses = variant === "primary" 
-    ? "bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40"
-    : variant === "secondary"
-    ? "bg-white/10 text-white border border-white/20 hover:bg-white/20"
-    : "text-cyan-400 hover:text-cyan-300"
-
-  const content = (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouse}
-      onMouseLeave={reset}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
-      className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 cursor-pointer ${baseClasses} ${className}`}
-    >
-      {children}
-    </motion.div>
-  )
-
-  if (href) {
-    return <a href={href} target="_blank" rel="noopener noreferrer">{content}</a>
-  }
-  return content
+interface Feature {
+  icon: React.ReactNode
+  title: string
+  description: string
+  gradient: string
 }
 
-// ============ FLOATING ICON COMPONENT ============
-function FloatingIcon({ Icon, delay = 0, x = 0, y = 0 }: {
-  Icon: React.ElementType
-  delay?: number
-  x?: number
-  y?: number
-}) {
-  return (
-    <motion.div
-      className="absolute text-cyan-500/10"
-      style={{ left: `${x}%`, top: `${y}%` }}
-      animate={{
-        y: [0, -30, 0],
-        rotate: [0, 10, -10, 0],
-        scale: [1, 1.1, 1]
-      }}
-      transition={{
-        duration: 6,
-        repeat: Infinity,
-        ease: "easeInOut",
-        delay
-      }}
-    >
-      <Icon size={60} />
-    </motion.div>
-  )
+interface Stat {
+  label: string
+  value: number
+  suffix: string
+  icon: React.ReactNode
 }
 
-// ============ GLITCH TEXT EFFECT ============
-function GlitchText({ text, className = "" }: { text: string; className?: string }) {
-  return (
-    <motion.span
-      className={`relative inline-block ${className}`}
-      whileHover={{
-        textShadow: [
-          "2px 0 #ff00ff, -2px 0 #00ffff",
-          "-2px 0 #ff00ff, 2px 0 #00ffff",
-          "2px 0 #ff00ff, -2px 0 #00ffff",
-          "0 0 transparent"
-        ]
-      }}
-      transition={{ duration: 0.5 }}
-    >
-      {text}
-    </motion.span>
-  )
+interface ChatSession {
+  id: string
+  title: string
+  date: Date
+  messages: ChatMessage[]
 }
 
-// ============ TYPING EFFECT ============
-function TypingEffect({ text, delay = 0 }: { text: string; delay?: number }) {
-  const [displayText, setDisplayText] = useState("")
-  const [currentIndex, setCurrentIndex] = useState(0)
+interface User {
+  name: string
+  email: string
+}
+
+// Neural Network Background Component
+function NeuralNetworkBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (currentIndex < text.length) {
-        setDisplayText(text.slice(0, currentIndex + 1))
-        setCurrentIndex(currentIndex + 1)
-      }
-    }, 80)
-    return () => clearTimeout(timeout)
-  }, [currentIndex, text, delay])
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let animationFrameId: number
+    let mouseX = 0
+    let mouseY = 0
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+
+    resizeCanvas()
+    window.addEventListener('resize', resizeCanvas)
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX
+      mouseY = e.clientY
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+
+    // Nodes for neural network
+    interface Node {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      radius: number
+      opacity: number
+    }
+
+    const nodes: Node[] = []
+    const nodeCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 15000))
+
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        radius: Math.random() * 2 + 1,
+        opacity: Math.random() * 0.5 + 0.3
+      })
+    }
+
+    const animate = () => {
+      ctx.fillStyle = 'rgba(0, 0, 10, 0.1)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      // Update and draw nodes
+      nodes.forEach((node, i) => {
+        // Mouse attraction
+        const dx = mouseX - node.x
+        const dy = mouseY - node.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        
+        if (dist < 200) {
+          node.vx += dx * 0.00005
+          node.vy += dy * 0.00005
+        }
+
+        node.x += node.vx
+        node.y += node.vy
+
+        // Bounce off edges
+        if (node.x < 0 || node.x > canvas.width) node.vx *= -1
+        if (node.y < 0 || node.y > canvas.height) node.vy *= -1
+
+        // Draw connections
+        nodes.slice(i + 1).forEach(otherNode => {
+          const distance = Math.sqrt(
+            Math.pow(node.x - otherNode.x, 2) + Math.pow(node.y - otherNode.y, 2)
+          )
+          
+          if (distance < 150) {
+            const opacity = (1 - distance / 150) * 0.3
+            ctx.beginPath()
+            ctx.strokeStyle = `rgba(0, 245, 255, ${opacity})`
+            ctx.lineWidth = 0.5
+            ctx.moveTo(node.x, node.y)
+            ctx.lineTo(otherNode.x, otherNode.y)
+            ctx.stroke()
+          }
+        })
+
+        // Draw node
+        ctx.beginPath()
+        const gradient = ctx.createRadialGradient(
+          node.x, node.y, 0,
+          node.x, node.y, node.radius * 2
+        )
+        gradient.addColorStop(0, `rgba(0, 245, 255, ${node.opacity})`)
+        gradient.addColorStop(1, 'rgba(124, 58, 237, 0)')
+        ctx.fillStyle = gradient
+        ctx.arc(node.x, node.y, node.radius * 2, 0, Math.PI * 2)
+        ctx.fill()
+      })
+
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas)
+      window.removeEventListener('mousemove', handleMouseMove)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
 
   return (
-    <span>
-      {displayText}
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.5, repeat: Infinity }}
-        className="text-cyan-400"
-      >
-        |
-      </motion.span>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ background: '#00000a' }}
+    />
+  )
+}
+
+// Glitch Text Component
+function GlitchText({ text, className = '' }: { text: string; className?: string }) {
+  const [glitchActive, setGlitchActive] = useState(false)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGlitchActive(true)
+      setTimeout(() => setGlitchActive(false), 200)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <span className={`relative inline-block ${className}`}>
+      <span className={`relative z-10 ${glitchActive ? 'animate-pulse' : ''}`}>
+        {text}
+      </span>
+      {glitchActive && (
+        <>
+          <span className="absolute top-0 left-0.5 text-[#ff00aa] opacity-80 clip-text-glitch-1" aria-hidden="true">
+            {text}
+          </span>
+          <span className="absolute top-0 -left-0.5 text-[#00f5ff] opacity-80 clip-text-glitch-2" aria-hidden="true">
+            {text}
+          </span>
+        </>
+      )}
     </span>
   )
 }
 
-// ============ SKILL BAR COMPONENT ============
-function SkillBar({ skill, level, delay = 0 }: { skill: string; level: number; delay?: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -50 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay }}
-      className="mb-4"
-    >
-      <div className="flex justify-between mb-2">
-        <span className="text-gray-300 font-medium">{skill}</span>
-        <span className="text-cyan-400">{level}%</span>
-      </div>
-      <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${level}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: delay + 0.3, ease: "easeOut" }}
-          className="h-full bg-gradient-to-r from-cyan-500 to-violet-600 rounded-full"
-        />
-      </div>
-    </motion.div>
-  )
+// Animated Counter Component
+function AnimatedCounter({ target, suffix = '', duration = 2000 }: { target: number; suffix?: string; duration?: number }) {
+  const [count, setCount] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [isVisible])
+
+  useEffect(() => {
+    if (!isVisible) return
+    
+    let start = 0
+    const increment = target / (duration / 16)
+    
+    const timer = setInterval(() => {
+      start += increment
+      if (start >= target) {
+        setCount(target)
+        clearInterval(timer)
+      } else {
+        setCount(Math.floor(start))
+      }
+    }, 16)
+
+    return () => clearInterval(timer)
+  }, [isVisible, target, duration])
+
+  return <div ref={ref}>{count.toLocaleString()}{suffix}</div>
 }
 
-// ============ PROJECT CARD COMPONENT ============
-function ProjectCard({ title, description, tech, github, live, index }: {
-  title: string
-  description: string
-  tech: string[]
-  github: string
-  live?: string
-  index: number
-}) {
+// Feature Card Component
+function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+    <Card 
+      className="group relative bg-black/40 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group relative"
+      style={{
+        transform: isHovered ? 'translateY(-10px) rotateX(5deg)' : 'translateY(0)',
+        transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+        transformStyle: 'preserve-3d',
+        perspective: '1000px'
+      }}
     >
-      <motion.div
-        animate={{ 
-          scale: isHovered ? 1.02 : 1,
-          rotateY: isHovered ? 5 : 0
-        }}
-        transition={{ duration: 0.3 }}
-        className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8 overflow-hidden"
-      >
-        {/* Glow effect */}
-        <motion.div
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 blur-xl"
-        />
-        
-        {/* Content */}
-        <div className="relative z-10">
-          <div className="flex items-start justify-between mb-4">
-            <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">
-              <GlitchText text={title} />
-            </h3>
-            <motion.div
-              animate={{ rotate: isHovered ? 360 : 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <ExternalLink className="w-5 h-5 text-cyan-400" />
-            </motion.div>
-          </div>
-          
-          <p className="text-gray-400 mb-6 leading-relaxed">{description}</p>
-          
-          {/* Tech stack */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {tech.map((t) => (
-              <motion.span
-                key={t}
-                whileHover={{ scale: 1.05 }}
-                className="px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-lg text-sm font-medium border border-cyan-500/20"
-              >
-                {t}
-              </motion.span>
-            ))}
-          </div>
-          
-          {/* Links */}
-          <div className="flex gap-4">
-            <MagneticButton href={github} variant="ghost" className="text-sm !px-4 !py-2">
-              <Github size={16} /> Code
-            </MagneticButton>
-            {live && (
-              <MagneticButton href={live} variant="ghost" className="text-sm !px-4 !py-2">
-                <ExternalLink size={16} /> Live
-              </MagneticButton>
-            )}
-          </div>
+      <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <CardContent className="p-6 relative z-10">
+        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 transform transition-transform duration-500 ${isHovered ? 'scale-110 rotate-3' : ''}`}>
+          {feature.icon}
         </div>
         
-        {/* Animated border */}
-        <motion.div
-          className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-cyan-500 to-violet-600"
-          animate={{ width: isHovered ? "100%" : "0%" }}
-          transition={{ duration: 0.3 }}
-        />
-      </motion.div>
-    </motion.div>
+        <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
+          {feature.title}
+        </h3>
+        <p className="text-gray-400 text-sm leading-relaxed">
+          {feature.description}
+        </p>
+
+        <div className="mt-4 flex items-center gap-2 text-cyan-400 text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+          <span>Explore</span>
+          <ArrowRight className="w-4 h-4" />
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
-// ============ TIMELINE ITEM COMPONENT ============
-function TimelineItem({ title, subtitle, description, date, index }: {
-  title: string
-  subtitle: string
-  description: string
-  date: string
-  index: number
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="relative pl-8 pb-12 last:pb-0"
-    >
-      {/* Timeline line */}
-      <motion.div
-        initial={{ height: 0 }}
-        whileInView={{ height: "100%" }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="absolute left-[11px] top-3 w-0.5 bg-gradient-to-b from-cyan-500 to-violet-600"
-      />
-      
-      {/* Dot */}
-      <motion.div
-        initial={{ scale: 0 }}
-        whileInView={{ scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="absolute left-0 top-1 w-6 h-6 rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 flex items-center justify-center"
-      >
-        <div className="w-2 h-2 bg-white rounded-full" />
-      </motion.div>
-      
-      {/* Content */}
-      <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300">
-        <div className="flex flex-wrap items-center justify-between mb-2">
-          <h3 className="text-xl font-bold text-white">{title}</h3>
-          <span className="text-sm text-cyan-400">{date}</span>
-        </div>
-        <p className="text-cyan-300 font-medium mb-2">{subtitle}</p>
-        <p className="text-gray-400 leading-relaxed">{description}</p>
-      </div>
-    </motion.div>
-  )
-}
-
-// ============ MAIN PORTFOLIO COMPONENT ============
-export default function Portfolio() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState("hero")
-  const containerRef = useRef<HTMLDivElement>(null)
+// Main App Component
+export default function NexusAI() {
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const [currentView, setCurrentView] = useState<string>('chat') // Start with chat (free mode)
   
-  const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 })
+  // Chat Limit State
+  const [chatCount, setChatCount] = useState(0)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authModalReason, setAuthModalReason] = useState<'chat_limit' | 'file_attach'>('chat_limit')
+  const MAX_FREE_CHATS = 6 // Max chats without login
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(true)
+  const [copiedCode, setCopiedCode] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [fileBase64, setFileBase64] = useState<string | null>(null)
   
-  const { scrollY } = useScroll()
-  const y1 = useTransform(scrollY, [0, 1000], [0, -200])
-  const y2 = useTransform(scrollY, [0, 1000], [0, -400])
-  const opacity = useTransform(scrollY, [0, 300], [1, 0])
+  // AbortController for stopping responses
+  const abortControllerRef = useRef<AbortController | null>(null)
+  
+  // Auth State
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
 
-  // Smooth scroll handler
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-    setIsMenuOpen(false)
+  // Check for existing session on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('nexus_user')
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser)
+        setIsLoggedIn(true)
+        setUser(parsedUser)
+        
+        // Load sessions only if logged in
+        const savedSessions = localStorage.getItem('nexus_sessions')
+        if (savedSessions) {
+          setSessions(JSON.parse(savedSessions))
+        }
+      } catch (e) {
+        console.error('Error parsing saved user:', e)
+      }
+    }
+    
+    // Load chat count for guests
+    const savedChatCount = localStorage.getItem('nexus_chat_count')
+    if (savedChatCount) {
+      setChatCount(parseInt(savedChatCount, 10))
+    }
+  }, [])
+
+  // Save sessions to localStorage when they change (only if logged in)
+  useEffect(() => {
+    if (isLoggedIn && sessions.length > 0) {
+      localStorage.setItem('nexus_sessions', JSON.stringify(sessions))
+    }
+  }, [sessions, isLoggedIn])
+
+  // Login Handler
+  const handleLogin = (userData: User) => {
+    setIsLoggedIn(true)
+    setUser(userData)
+    setCurrentView('chat') // Redirect to chat after login
+    setShowAuthModal(false) // Close modal if open
+    setChatCount(0) // Reset chat count for logged in users
+    localStorage.removeItem('nexus_chat_count')
   }
 
-  // Navigation items
-  const navItems = [
-    { id: "hero", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "projects", label: "Projects" },
-    { id: "skills", label: "Skills" },
-    { id: "experience", label: "Experience" },
-    { id: "contact", label: "Contact" }
-  ]
+  // Logout Handler
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setUser(null)
+    setSessions([])
+    setActiveSessionId(null)
+    setChatCount(0) // Reset chat count on logout
+    localStorage.removeItem('nexus_user')
+    localStorage.removeItem('nexus_sessions')
+    localStorage.removeItem('nexus_chat_count')
+  }
 
-  // Projects data
-  const projects = [
+  // Get current session messages
+  const getCurrentMessages = (): ChatMessage[] => {
+    if (activeSessionId) {
+      const session = sessions.find(s => s.id === activeSessionId)
+      return session?.messages || getDefaultMessages()
+    }
+    return getDefaultMessages()
+  }
+
+  const getDefaultMessages = (): ChatMessage[] => [
     {
-      title: "NEXUS AI Chat",
-      description: "Advanced AI chat interface with file attachment, vision capabilities, and real-time streaming responses. Features include multi-modal AI interactions, document analysis, and secure authentication.",
-      tech: ["Next.js", "TypeScript", "OpenRouter API", "Tailwind CSS", "Framer Motion"],
-      github: "https://github.com/atulchoudhary7781-dot/AI-web",
-      live: "#"
-    },
-    {
-      title: "Jarvis AI Agent",
-      description: "Multimodal autonomous AI agent optimized for near-zero latency using Groq SDK. Features advanced RAG pipelines, multi-agent orchestration, and complex reasoning capabilities.",
-      tech: ["Python", "LangChain", "Groq SDK", "RAG", "Multi-Agent Systems"],
-      github: "https://github.com/atulchoudhary7781-dot/Jarvis-AI"
-    },
-    {
-      title: "Portfolio Website",
-      description: "World-class interactive portfolio with heavy animations, 3D effects, and modern design. Built with cutting-edge web technologies for optimal performance.",
-      tech: ["Next.js", "React", "Three.js", "Framer Motion", "Tailwind CSS"],
-      github: "https://github.com/atulchoudhary7781-dot/my-portfolio"
+      id: '1',
+      role: 'assistant',
+      content: '👋 Welcome to **NEXUS AI** — The Future of Intelligence!\n\nI\'m your advanced AI assistant powered by Llama 3.1. Ask me anything about:\n• 🤖 Artificial Intelligence & Machine Learning\n• 💻 Programming & Code\n• 🔬 Science & Technology\n• 🚀 Innovation & Future Trends\n\n*How can I help you today?*',
+      timestamp: new Date()
     }
   ]
 
-  // Skills data
-  const skills = [
-    { name: "TypeScript / JavaScript", level: 95 },
-    { name: "Next.js / React", level: 92 },
-    { name: "Python & AI/ML", level: 88 },
-    { name: "LangChain & RAG", level: 85 },
-    { name: "Vertex AI & LLMs", level: 82 },
-    { name: "Full-Stack Development", level: 90 }
-  ]
-
-  // Experience data
-  const experiences = [
+  // Features data
+  const features: Feature[] = [
     {
-      title: "AI Product Engineer",
-      subtitle: "Jarvis AI (Independent Project)",
-      description: "Developing Jarvis, a multimodal autonomous AI agent optimized for near-zero latency using Groq SDK. Implementing high-performance RAG pipelines and multi-agent orchestration for complex reasoning tasks.",
-      date: "Feb 2026 - Present"
+      icon: <Brain className="w-7 h-7 text-white" />,
+      title: 'Neural Processing',
+      description: 'Advanced deep learning algorithms that understand context, nuance, and intent like never before.',
+      gradient: 'from-violet-600 to-purple-600'
     },
     {
-      title: "AI Operations Advanced Specialist",
-      subtitle: "Invisible Technologies",
-      description: "Collaborating with global teams on production-grade Generative AI solutions. Optimizing LLM deployment, engineering prompt datasets (Few-shot, Chain-of-Thought), and implementing semantic search with embeddings.",
-      date: "Remote / Global"
+      icon: <Code2 className="w-7 h-7 text-white" />,
+      title: 'Code Generation',
+      description: 'Generate production-ready code in 50+ languages with intelligent auto-completion and optimization.',
+      gradient: 'from-cyan-600 to-blue-600'
     },
     {
-      title: "AI & Machine Learning Intern",
-      subtitle: "Venura Tech",
-      description: "Refined and optimized large language models using PyTorch. Developed agentic workflows, multi-agent orchestration, and advanced RAG pipelines. Implemented REST APIs using FastAPI for enterprise clients.",
-      date: "May 2026 - Jun 2026"
+      icon: <MessageSquare className="w-7 h-7 text-white" />,
+      title: 'Natural Conversations',
+      description: 'Human-like dialogue capabilities with emotional intelligence and contextual awareness.',
+      gradient: 'from-pink-600 to-rose-600'
+    },
+    {
+      icon: <Terminal className="w-7 h-7 text-white" />,
+      title: 'Command Center',
+      description: 'Powerful terminal interface for developers with real-time execution and debugging tools.',
+      gradient: 'from-amber-600 to-orange-600'
+    },
+    {
+      icon: <Shield className="w-7 h-7 text-white" />,
+      title: 'Quantum Security',
+      description: 'Military-grade encryption with quantum-resistant protocols protecting your data.',
+      gradient: 'from-emerald-600 to-green-600'
+    },
+    {
+      icon: <Globe className="w-7 h-7 text-white" />,
+      title: 'Global Network',
+      description: 'Distributed computing across 200+ edge locations for lightning-fast responses worldwide.',
+      gradient: 'from-indigo-600 to-violet-600'
     }
   ]
 
-  return (
-    <div ref={containerRef} className="min-h-screen bg-[#00000a] text-white overflow-x-hidden relative">
-      {/* Animated Background */}
-      <ParticleField />
-      <FloatingIcon Icon={Code2} delay={0} x={10} y={20} />
-      <FloatingIcon Icon={Brain} delay={1} x={85} y={15} />
-      <FloatingIcon Icon={Zap} delay={2} x={75} y={70} />
-      <FloatingIcon Icon={Rocket} delay={1.5} x={15} y={75} />
+  // Stats data
+  const stats: Stat[] = [
+    { label: 'API Calls/Day', value: 50, suffix: 'M+', icon: <TrendingUp className="w-5 h-5" /> },
+    { label: 'Active Users', value: 10, suffix: 'M+', icon: <Users className="w-5 h-5" /> },
+    { label: 'Uptime', value: 99.9, suffix: '%', icon: <Shield className="w-5 h-5" /> },
+    { label: 'Response Time', value: 50, suffix: 'ms', icon: <Zap className="w-5 h-5" /> }
+  ]
 
-      {/* Progress Bar */}
-      <motion.div
-        style={{ scaleX }}
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-violet-600 to-pink-500 z-50 origin-left"
-      />
+  // Create new chat session
+  const handleNewChat = useCallback(() => {
+    const newSession: ChatSession = {
+      id: Date.now().toString(),
+      title: 'New Chat',
+      date: new Date(),
+      messages: getDefaultMessages()
+    }
+    setSessions(prev => [newSession, ...prev])
+    setActiveSessionId(newSession.id)
+    setCurrentView('chat')
+    setInputValue('')
+  }, [])
 
-      {/* Navigation */}
-      <motion.nav
-        style={{ opacity }}
-        className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-black/50 border-b border-gray-800/50"
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-violet-600 bg-clip-text text-transparent cursor-pointer"
-              onClick={() => scrollToSection("hero")}
-            >
-              {"<AC />"}
-            </motion.div>
+  // Select session
+  const handleSelectSession = useCallback((id: string) => {
+    setActiveSessionId(id)
+    setCurrentView('chat')
+  }, [])
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <motion.button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  className={`text-sm font-medium transition-colors ${
-                    activeSection === item.id ? "text-cyan-400" : "text-gray-400 hover:text-white"
-                  }`}
-                >
-                  {item.label}
-                </motion.button>
-              ))}
-              <MagneticButton href="/upload/Profile.pdf" variant="primary" className="!px-4 !py-2 text-sm">
-                <Download size={16} /> Resume
-              </MagneticButton>
-            </div>
+  // Delete session
+  const handleDeleteSession = useCallback((id: string) => {
+    setSessions(prev => prev.filter(s => s.id !== id))
+    if (activeSessionId === id) {
+      setActiveSessionId(null)
+    }
+  }, [activeSessionId])
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-white"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+  // Update session title based on first message
+  const updateSessionTitle = useCallback((sessionId: string, firstMessage: string) => {
+    setSessions(prev => prev.map(s => 
+      s.id === sessionId 
+        ? { ...s, title: firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : '') }
+        : s
+    ))
+  }, [])
 
-          {/* Mobile Menu */}
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="md:hidden mt-4 pb-4 border-t border-gray-800"
-              >
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className="block w-full text-left py-3 text-gray-400 hover:text-cyan-400 transition-colors"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <a
-                  href="/upload/Profile.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 pt-3 text-cyan-400"
-                >
-                  <Download size={16} /> Download Resume
-                </a>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </motion.nav>
+  // Handle stop generating response
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+    setIsLoading(false)
+    
+    // Add "stopped" message to show user that they stopped the response
+    const stoppedMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'assistant',
+      content: '⏹️ **You stopped the response**\n\nThe AI generation was interrupted. You can ask a new question or modify your prompt.',
+      timestamp: new Date()
+    }
+    
+    setSessions(prev => {
+      const activeId = activeSessionId || 'default'
+      return prev.map(s => 
+        s.id === activeId 
+          ? { ...s, messages: [...s.messages, stoppedMessage] }
+          : s
+      )
+    })
+  }, [activeSessionId])
 
-      {/* ============ HERO SECTION ============ */}
-      <section id="hero" className="min-h-screen flex items-center justify-center relative px-6">
-        <motion.div
-          style={{ y: y1 }}
-          className="max-w-5xl mx-auto text-center z-10"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, type: "spring" }}
-            className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full"
-          >
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-cyan-400 text-sm font-medium">Available for opportunities</span>
-          </motion.div>
+  // Typewriter effect for AI responses - word by word display
+  const typeWriterEffect = useCallback((sessionId: string, fullText: string, messageId: string, speed: number = 40) => {
+    const words = fullText.split(' ')
+    let currentIndex = 0
+    
+    const typeInterval = setInterval(() => {
+      if (currentIndex < words.length) {
+        currentIndex++
+        const displayedText = words.slice(0, currentIndex).join(' ')
+        
+        const partialMessage: ChatMessage = {
+          id: messageId,
+          role: 'assistant',
+          content: displayedText,
+          timestamp: new Date()
+        }
+        
+        setSessions(prev => prev.map(s => 
+          s.id === sessionId 
+            ? { ...s, messages: [...s.messages.filter(m => m.id !== messageId), partialMessage] }
+            : s
+        ))
+      } else {
+        clearInterval(typeInterval)
+        setIsLoading(false)
+      }
+    }, speed)
+    
+    // Return cleanup function to stop typing if user interrupts
+    return () => clearInterval(typeInterval)
+  }, [])
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
-          >
-            Hi, I&apos;m{" "}
-            <span className="bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 bg-clip-text text-transparent">
-              <GlitchText text="Atul Choudhary" />
-            </span>
-          </motion.h1>
+  // Handle chat submission
+  const handleSubmit = useCallback(async () => {
+    // Allow sending if there's text OR an attached file
+    if ((!inputValue.trim() && !attachedFile) || isLoading) return
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-xl md:text-2xl text-gray-400 mb-8 min-h-[2rem]"
-          >
-            <TypingEffect text="AI Product & Generative AI Engineer | Building the Future of Autonomous Intelligence" />
-          </motion.div>
+    // Check if guest has reached chat limit
+    if (!isLoggedIn && chatCount >= MAX_FREE_CHATS) {
+      setShowAuthModal(true)
+      return
+    }
 
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-lg text-gray-500 max-w-3xl mx-auto mb-12 leading-relaxed"
-          >
-            Architecting low-latency RAG pipelines, autonomous multi-agent workflows, 
-            and scalable AI solutions that bridge the gap between cutting-edge research 
-            and real-world impact.
-          </motion.p>
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: inputValue || (attachedFile ? `📎 ${attachedFile.name}` : ''),
+      timestamp: new Date(),
+      // Attach image data if available
+      ...(fileBase64 && attachedFile?.type.startsWith('image/') ? {
+        image: fileBase64,
+        imageMimeType: attachedFile.type
+      } : {}),
+      // Attach document info for non-image files
+      ...(attachedFile && !attachedFile?.type.startsWith('image/') ? {
+        fileName: attachedFile.name,
+        fileType: attachedFile.type,
+        fileSize: attachedFile.size
+      } : {})
+    }
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="flex flex-wrap items-center justify-center gap-4"
-          >
-            <MagneticButton href="#projects" variant="primary">
-              View My Work <ArrowRight size={18} />
-            </MagneticButton>
-            <MagneticButton href="#contact" variant="secondary">
-              Get In Touch <Mail size={18} />
-            </MagneticButton>
-          </motion.div>
+    // DEBUG: Log message to console
+    console.log('📤 User Message Created:', userMessage)
+    console.log('  - Has fileName:', !!userMessage.fileName)
+    console.log('  - Has image:', !!userMessage.image)
+    console.log('  - Content:', userMessage.content)
 
-          {/* Social Links */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1 }}
-            className="flex items-center justify-center gap-6 mt-16"
-          >
-            <MagneticButton href="https://github.com/atulchoudhary7781-dot" variant="ghost">
-              <Github size={24} />
-            </MagneticButton>
-            <MagneticButton href="https://www.linkedin.com/in/atul-choudhary-018037301/" variant="ghost">
-              <Linkedin size={24} />
-            </MagneticButton>
-            <MagneticButton href="mailto:atulchoudhary7781@gmail.com" variant="ghost">
-              <Mail size={24} />
-            </MagneticButton>
-          </motion.div>
-        </motion.div>
+    // If no active session, create one
+    let sessionId = activeSessionId
+    if (!sessionId) {
+      const newSession: ChatSession = {
+        id: Date.now().toString(),
+        title: inputValue.slice(0, 30),
+        date: new Date(),
+        messages: [...getDefaultMessages(), userMessage]
+      }
+      setSessions(prev => [newSession, ...prev])
+      sessionId = newSession.id
+      setActiveSessionId(sessionId)
+    } else {
+      // Update existing session
+      setSessions(prev => prev.map(s => 
+        s.id === sessionId 
+          ? { ...s, messages: [...s.messages, userMessage] }
+          : s
+      ))
+      // Update title if it's "New Chat"
+      const session = sessions.find(s => s.id === sessionId)
+      if (session?.title === 'New Chat') {
+        updateSessionTitle(sessionId, inputValue)
+      }
+    }
 
-        {/* Scroll indicator */}
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        >
-          <div className="w-6 h-10 border-2 border-gray-700 rounded-full flex justify-center pt-2">
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
-            />
-          </div>
-        </motion.div>
-      </section>
+    setInputValue('')
+    setIsLoading(true)
 
-      {/* ============ ABOUT SECTION ============ */}
-      <section id="about" className="py-32 px-6 relative">
-        <motion.div
-          style={{ y: y2 }}
-          className="max-w-6xl mx-auto"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              About <span className="text-cyan-400">Me</span>
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-violet-600 mx-auto rounded-full" />
-          </motion.div>
+    // Create new AbortController for this request
+    const controller = new AbortController()
+    abortControllerRef.current = controller
 
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <p className="text-gray-300 text-lg leading-relaxed">
-                I&apos;m an <span className="text-cyan-400 font-semibold">AI Product & Generative AI Engineer</span> passionate about pushing the boundaries of artificial intelligence and creating scalable, production-ready solutions.
-              </p>
-              <p className="text-gray-400 leading-relaxed">
-                Currently working at <span className="text-white font-medium">Invisible Technologies</span> as an AI Operations Advanced Specialist, where I collaborate with global teams to deliver cutting-edge generative AI solutions.
-              </p>
-              <p className="text-gray-400 leading-relaxed">
-                My expertise lies in architecting <span className="text-violet-400">low-latency RAG pipelines</span>, <span className="text-pink-400">multi-agent orchestration</span>, and building <span className="text-cyan-400">autonomous AI systems</span> like Jarvis that solve real-world operational challenges.
-              </p>
+    try {
+      // Prepare request body with optional image/document data
+      const requestBody: any = { message: inputValue }
+      
+      // Add image data if attached
+      if (attachedFile && fileBase64 && attachedFile.type.startsWith('image/')) {
+        requestBody.imageData = fileBase64
+        requestBody.imageMimeType = attachedFile.type
+      }
+      
+      // Add document info if non-image file is attached
+      if (attachedFile && !attachedFile.type.startsWith('image/')) {
+        requestBody.fileName = attachedFile.name
+        requestBody.fileType = attachedFile.type
+      }
+      
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      })
 
-              <div className="flex flex-wrap gap-3 pt-4">
-                {["AI/ML", "RAG Pipelines", "LLMs", "Full-Stack", "Agentic AI"].map((tag) => (
-                  <motion.span
-                    key={tag}
-                    whileHover={{ scale: 1.05 }}
-                    className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm border border-gray-700 hover:border-cyan-500/50 transition-colors"
-                  >
-                    {tag}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
+      if (!response.ok) throw new Error('Failed to get response')
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative"
-            >
-              <div className="relative z-10 bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl border border-gray-700/50">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-400" /> Quick Facts
-                </h3>
+      const data = await response.json()
+      const fullResponse = data.response || 'I apologize, but I encountered an error processing your request.'
+      
+      // Create message ID for typewriter effect
+      const assistantMessageId = (Date.now() + 1).toString()
+      
+      // Add empty message first
+      const emptyMessage: ChatMessage = {
+        id: assistantMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date()
+      }
+      
+      setSessions(prev => prev.map(s => 
+        s.id === sessionId 
+          ? { ...s, messages: [...s.messages, emptyMessage] }
+          : s
+      ))
+      
+      // Start typewriter effect - word by word (40ms per word)
+      typeWriterEffect(sessionId, fullResponse, assistantMessageId, 40)
+      
+      // Clear attached file after sending
+      setAttachedFile(null)
+      setFileBase64(null)
+    } catch (error) {
+      console.error('Chat error:', error)
+      
+      // Fallback responses based on keywords
+      let fallbackResponse = "I'm NEXUS AI, your advanced intelligence system. I can help you explore the frontiers of technology, generate code, analyze complex problems, and much more. What would you like to discover?"
+      
+      const lowerInput = inputValue.toLowerCase()
+      if (lowerInput.includes('ai') || lowerInput.includes('artificial intelligence')) {
+        fallbackResponse = `## 🤖 The Future of AI
+
+Artificial Intelligence is evolving at an unprecedented pace. Here's what's next:
+
+**Current Frontiers:**
+- **Large Language Models**: GPT-4, Claude, and beyond — systems that truly understand context
+- **Multimodal AI**: Vision, language, and reasoning combined in unified architectures
+- **Agentic AI**: Autonomous systems that can plan, execute, and iterate on complex tasks
+
+**Emerging Capabilities:**
+- Reasoning & planning at human-level or superhuman performance
+- Scientific discovery acceleration (protein folding, materials science)
+- Creative collaboration in art, music, and design
+
+**The NEXUS Advantage:**
+Our neural architecture processes information through 175B+ parameters, enabling nuanced understanding that bridges the gap between artificial and natural intelligence.
+
+*Would you like me to dive deeper into any specific area?*`
+      } else if (lowerInput.includes('code') || lowerInput.includes('programming') || lowerInput.includes('python')) {
+        fallbackResponse = `## 💻 Code Generation Example
+
+Here's a **Neural Network implementation in Python** using PyTorch:
+
+\`\`\`python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+class NexusNet(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(NexusNet, self).__init__()
+        # Neural architecture layers
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+        self.dropout = nn.Dropout(0.3)
+        self.relu = nn.ReLU()
+        
+    def forward(self, x):
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.relu(self.fc2(x))
+        x = self.dropout(x)
+        x = self.fc3(x)
+        return x
+
+# Initialize model
+model = NexusNet(input_size=784, hidden_size=256, output_size=10)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+print(f"NEXUS Neural Network initialized")
+print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+\`\`\`
+
+**Key Features:**
+- 🧠 Deep architecture with dropout regularization
+- ⚡ Adam optimizer for fast convergence
+- 📊 Suitable for image classification, NLP, and more
+
+Need code in another language or for a specific use case?`
+      } else if (lowerInput.includes('quantum') || lowerInput.includes('computing')) {
+        fallbackResponse = `## ⚛️ Quantum Computing Explained
+
+**What is Quantum Computing?**
+
+Traditional computers use bits (0 or 1). Quantum computers use **qubits**, which can exist in **superposition** — being 0 AND 1 simultaneously.
+
+**Key Concepts:**
+
+| Concept | Description |
+|---------|-------------|
+| Superposition | Qubits exist in multiple states at once |
+| Entanglement | Correlated qubits affect each other instantly |
+| Interference | Amplify correct answers, cancel wrong ones |
+
+**Real-World Applications:**
+- 🔐 Breaking current encryption (Shor's algorithm)
+- 💊 Drug discovery & molecular simulation
+- 📈 Financial modeling & optimization
+- 🤖 Training better AI models
+
+**The Quantum Advantage:**
+A quantum computer with 300 perfect qubits could represent more states than there are atoms in the observable universe!
+
+*Want to explore quantum algorithms or hardware?*`
+      } else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('hey')) {
+        fallbackResponse = `## 👋 Hello, Human! Welcome to NEXUS AI
+
+I'm **NEXUS** — Next-Generation Universal Experience System.
+
+**What I Can Do For You:**
+- 🎯 Answer complex questions with detailed analysis
+- 💻 Generate code in any programming language
+- 📊 Explain technical concepts simply
+- 🚀 Brainstorm ideas and strategies
+- 📝 Write, edit, and improve content
+- 🔬 Research and summarize topics
+
+**Try asking me:**
+- *"Explain how transformers work"*
+- *"Write a React component for a dashboard"*
+- *"What are the latest advances in AI?"*
+
+I'm here to push the boundaries of what's possible. **What shall we explore?** 🌟`
+      }
+
+      const fallbackMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: fallbackResponse,
+        timestamp: new Date()
+      }
+
+      // Add empty fallback message first, then use typewriter effect
+      const fallbackMessageId = (Date.now() + 1).toString()
+      const emptyFallbackMessage: ChatMessage = {
+        id: fallbackMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date()
+      }
+
+      setSessions(prev => prev.map(s => 
+        s.id === sessionId 
+          ? { ...s, messages: [...s.messages, emptyFallbackMessage] }
+          : s
+      ))
+      
+      // Start typewriter effect for fallback response
+      typeWriterEffect(sessionId, fallbackResponse, fallbackMessageId, 35)
+    } finally {
+      // Note: setIsLoading(false) is now handled by typeWriterEffect when typing completes
+      
+      // Increment chat count for guests
+      if (!isLoggedIn) {
+        const newCount = chatCount + 1
+        setChatCount(newCount)
+        localStorage.setItem('nexus_chat_count', newCount.toString())
+        
+        // Show modal if limit reached after this message
+        if (newCount >= MAX_FREE_CHATS) {
+          setTimeout(() => setShowAuthModal(true), 500)
+        }
+      }
+    }
+  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle, isLoggedIn, chatCount, MAX_FREE_CHATS, attachedFile, fileBase64])
+
+  // Copy code handler
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedCode(true)
+    setTimeout(() => setCopiedCode(false), 2000)
+  }
+
+  // File attachment handler
+  const handleFileAttach = (file: File) => {
+    setAttachedFile(file)
+    setInputValue('')
+    
+    // Convert image to base64 for API
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        // Get base64 string (remove data:image/xxx;base64, prefix)
+        const base64 = (reader.result as string).split(',')[1]
+        setFileBase64(base64)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      setFileBase64(null)
+    }
+    
+    console.log('File attached:', file)
+  }
+
+  // Toggle theme
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+  }
+
+  // Render current view
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'chat':
+        return (
+          <FullScreenChat
+            messages={getCurrentMessages()}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            isLoading={isLoading}
+            onSubmit={handleSubmit}
+            onStop={handleStop}
+            copiedCode={copiedCode}
+            onCopy={copyToClipboard}
+            onFileAttach={handleFileAttach}
+            isLoggedIn={isLoggedIn}
+            onLoginRequired={() => { 
+              console.log('🔐 onLoginRequired called! Setting modal to open...');
+              setAuthModalReason('file_attach'); 
+              setShowAuthModal(true);
+              console.log('✅ Modal should be open now');
+            }}
+          />
+        )
+      
+      case 'settings':
+        return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+
+      case 'login':
+        return (
+          <LoginView 
+            onLogin={handleLogin}
+            onLogout={handleLogout}
+            isLoggedIn={isLoggedIn}
+            user={user}
+          />
+        )
+
+      case 'home':
+        return (
+          <>
+            {/* Hero Section */}
+            <section className="relative min-h-screen flex items-center justify-center px-4">
+              <div className="max-w-5xl mx-auto text-center">
+                <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-6">
+                  <Rocket className="w-3 h-3 mr-1" />
+                  Next Generation AI Platform
+                </Badge>
                 
-                <div className="space-y-4">
-                  {[
-                    { label: "Location", value: "Greater Delhi Area, India" },
-                    { label: "Education", value: "Diploma in Software Engineering, IICS" },
-                    { label: "Specialization", value: "Generative AI & Multi-Agent Systems" },
-                    { label: "Certifications", value: "Vertex AI, Gen AI, Deloitte Analytics" }
-                  ].map((fact, i) => (
-                    <motion.div
-                      key={fact.label}
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: i * 0.1 }}
-                      className="flex justify-between py-2 border-b border-gray-800 last:border-0"
-                    >
-                      <span className="text-gray-500">{fact.label}</span>
-                      <span className="text-white font-medium text-right max-w-[60%]">{fact.value}</span>
-                    </motion.div>
+                <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 font-[family-name:var(--font-orbitron)]">
+                  <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400" />
+                  <br />
+                  <span className="text-3xl sm:text-4xl md:text-5xl text-white mt-4 block">AI</span>
+                </h1>
+                
+                <p className="text-xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  Experience the future of artificial intelligence. NEXUS AI combines cutting-edge neural networks 
+                  with intuitive design to deliver superhuman capabilities at your fingertips.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                  <Button 
+                    size="lg"
+                    onClick={() => setCurrentView('chat')}
+                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 py-6 text-lg glow-cyan"
+                  >
+                    <MessageSquare className="w-5 h-5 mr-2" />
+                    Try AI Chat Now
+                  </Button>
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setCurrentView('features')}
+                    className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg"
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Explore Features
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-green-400" />
+                    Enterprise Ready
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    Lightning Fast
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-red-400" />
+                    Free to Use
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Features Section */}
+            <section id="features" className="relative py-24 px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+                    <Layers className="w-3 h-3 mr-1" />
+                    Capabilities
+                  </Badge>
+                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+                      Powerful Features
+                    </span>
+                  </h2>
+                  <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+                    Built with cutting-edge technology to deliver unparalleled performance and intelligence.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {features.map((feature, index) => (
+                    <FeatureCard key={index} feature={feature} index={index} />
                   ))}
                 </div>
               </div>
-              
-              {/* Decorative glow */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 rounded-2xl blur-xl -z-10" />
-            </motion.div>
-          </div>
-        </motion.div>
-      </section>
+            </section>
 
-      {/* ============ PROJECTS SECTION ============ */}
-      <section id="projects" className="py-32 px-6 relative">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Featured <span className="text-cyan-400">Projects</span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Here are some of my notable projects showcasing my expertise in AI, full-stack development, and innovative solutions.
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-violet-600 mx-auto rounded-full mt-4" />
-          </motion.div>
+            {/* Stats Section */}
+            <section id="stats" className="relative py-24 px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="text-center mb-16">
+                  <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    By The Numbers
+                  </Badge>
+                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+                      Impact at Scale
+                    </span>
+                  </h2>
+                </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, i) => (
-              <ProjectCard key={project.title} {...project} index={i} />
-            ))}
-          </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  {stats.map((stat, index) => (
+                    <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+                      <CardContent className="p-6 text-center">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+                          {stat.icon}
+                        </div>
+                        <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+                          <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                        </div>
+                        <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </section>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mt-12"
-          >
-            <MagneticButton href="https://github.com/atulchoudhary7781-dot?tab=repositories" variant="secondary">
-              <Github size={18} /> View All Projects
-            </MagneticButton>
-          </motion.div>
-        </div>
-      </section>
+            {/* CTA Section */}
+            <section className="relative py-24 px-4">
+              <div className="max-w-4xl mx-auto text-center">
+                <Card className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 backdrop-blur-xl">
+                  <CardContent className="p-12">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-orbitron)]">
+                      Ready to Experience the Future?
+                    </h2>
+                    <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+                      Join millions of users already leveraging NEXUS AI to transform their workflow and unlock new possibilities.
+                    </p>
+                    <Button 
+                      size="lg"
+                      onClick={() => setCurrentView('chat')}
+                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 glow-cyan"
+                    >
+                      <Rocket className="w-5 h-5 mr-2" />
+                      Start Chatting Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+          </>
+        )
 
-      {/* ============ SKILLS SECTION ============ */}
-      <section id="skills" className="py-32 px-6 relative">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Technical <span className="text-cyan-400">Skills</span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              A comprehensive toolkit built through hands-on experience in AI development, full-stack engineering, and system design.
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-violet-600 mx-auto rounded-full mt-4" />
-          </motion.div>
+      case 'features':
+        return (
+          <div className="h-full overflow-y-auto overflow-x-hidden px-4 py-12 custom-scrollbar">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+                  <Layers className="w-3 h-3 mr-1" />
+                  Capabilities
+                </Badge>
+                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+                    Powerful Features
+                  </span>
+                </h2>
+                <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+                  Built with cutting-edge technology to deliver unparalleled performance and intelligence.
+                </p>
+              </div>
 
-          <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8 md:p-12">
-            {skills.map((skill, i) => (
-              <SkillBar key={skill.name} {...skill} delay={i * 0.1} />
-            ))}
-
-            {/* Tech Stack Grid */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="mt-12 pt-8 border-t border-gray-800"
-            >
-              <h3 className="text-xl font-bold text-white mb-6 text-center">Tech Stack</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  "Python", "TypeScript", "Next.js", "React",
-                  "LangChain", "Vertex AI", "FastAPI", "PostgreSQL",
-                  "Docker", "Git", "Tailwind CSS", "Prisma"
-                ].map((tech) => (
-                  <motion.div
-                    key={tech}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    className="flex items-center justify-center gap-2 p-3 bg-gray-800/50 rounded-xl text-gray-300 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/30"
-                  >
-                    <Terminal size={14} />
-                    <span className="text-sm font-medium">{tech}</span>
-                  </motion.div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {features.map((feature, index) => (
+                  <FeatureCard key={index} feature={feature} index={index} />
                 ))}
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
-      {/* ============ EXPERIENCE SECTION ============ */}
-      <section id="experience" className="py-32 px-6 relative">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Experience & <span className="text-cyan-400">Journey</span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              My professional journey building AI systems and contributing to impactful projects.
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-violet-600 mx-auto rounded-full mt-4" />
-          </motion.div>
-
-          <div className="relative">
-            {experiences.map((exp, i) => (
-              <TimelineItem key={exp.title} {...exp} index={i} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ CONTACT SECTION ============ */}
-      <section id="contact" className="py-32 px-6 relative">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Let&apos;s <span className="text-cyan-400">Connect</span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              I&apos;m always open to discussing new opportunities, interesting projects, or just having a chat about AI and technology.
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-violet-600 mx-auto rounded-full mt-4" />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8 md:p-12 text-center"
-          >
-            <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 flex items-center justify-center">
-              <Mail className="w-12 h-12 text-white" />
-            </div>
-
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Ready to Build Something Amazing?
-            </h3>
-            <p className="text-gray-400 mb-8 max-w-md mx-auto">
-              Whether you have a project in mind, a job opportunity, or just want to connect, feel free to reach out!
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-              <MagneticButton href="mailto:atulchoudhary7781@gmail.com" variant="primary">
-                <Mail size={18} /> Send Email
-              </MagneticButton>
-              <MagneticButton href="https://www.linkedin.com/in/atul-choudhary-018037301/" variant="secondary">
-                <Linkedin size={18} /> LinkedIn
-              </MagneticButton>
-              <MagneticButton href="/upload/Profile.pdf" variant="secondary">
-                <Download size={18} /> Resume
-              </MagneticButton>
-            </div>
-
-            <div className="pt-8 border-t border-gray-800">
-              <p className="text-gray-500 text-sm mb-4">Or reach out directly at:</p>
-              <a
-                href="mailto:atulchoudhary7781@gmail.com"
-                className="text-cyan-400 hover:text-cyan-300 font-mono text-lg transition-colors"
-              >
-                atulchoudhary7781@gmail.com
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ============ FOOTER ============ */}
-      <footer className="py-8 px-6 border-t border-gray-800/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-gray-500 text-sm">
-              © 2026 Atul Choudhary. Crafted with passion and lots of ☕
-            </div>
-            
-            <div className="flex items-center gap-6">
-              <a
-                href="https://github.com/atulchoudhary7781-dot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-cyan-400 transition-colors"
-              >
-                <Github size={20} />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/atul-choudhary-018037301/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-cyan-400 transition-colors"
-              >
-                <Linkedin size={20} />
-              </a>
-              <a
-                href="mailto:atulchoudhary7781@gmail.com"
-                className="text-gray-500 hover:text-cyan-400 transition-colors"
-              >
-                <Mail size={20} />
-              </a>
+              <div className="mt-12 text-center">
+                <Button 
+                  onClick={() => setCurrentView('chat')}
+                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white glow-cyan"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Try AI Chat
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        )
 
-      {/* Scroll to Top Button */}
-      <motion.button
-        onClick={() => scrollToSection("hero")}
-        initial={{ opacity: 0, scale: 0 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: false }}
-        className="fixed bottom-8 right-8 z-40 p-4 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-full shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-shadow"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+      case 'stats':
+        return (
+          <div className="min-h-screen px-4 py-12">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  By The Numbers
+                </Badge>
+                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+                    Impact at Scale
+                  </span>
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, index) => (
+                  <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+                    <CardContent className="p-6 text-center">
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+                        {stat.icon}
+                      </div>
+                      <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+
+      default:
+        return (
+          <FullScreenChat
+            messages={getCurrentMessages()}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            isLoading={isLoading}
+            onSubmit={handleSubmit}
+            onStop={handleStop}
+            copiedCode={copiedCode}
+            onCopy={copyToClipboard}
+            onFileAttach={handleFileAttach}
+            isLoggedIn={isLoggedIn}
+            onLoginRequired={() => { 
+              console.log('🔐 onLoginRequired called! Setting modal to open...');
+              setAuthModalReason('file_attach'); 
+              setShowAuthModal(true);
+              console.log('✅ Modal should be open now');
+            }}
+          />
+        )
+    }
+  }
+
+  return (
+    <div className={`min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300`}>
+      {/* Background Animation - Only on home view */}
+      {currentView === 'home' && <NeuralNetworkBackground />}
+
+      {/* Menu Toggle Button - Always visible */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`fixed top-4 left-4 z-30 p-3 backdrop-blur-xl border rounded-xl transition-all duration-300 hover:scale-105 ${
+          sidebarOpen 
+            ? 'bg-red-500/20 border-red-500/50 rotate-90' 
+            : 'bg-gray-900/80 border-gray-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10'
+        }`}
+        title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
       >
-        <ChevronUp size={20} />
-      </motion.button>
+        {sidebarOpen ? (
+          <X className="w-5 h-5 text-red-400" />
+        ) : (
+          <Menu className="w-5 h-5 text-cyan-400" />
+        )}
+      </button>
+
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onNewChat={handleNewChat}
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onSelectSession={handleSelectSession}
+        onDeleteSession={handleDeleteSession}
+        onViewChange={setCurrentView}
+        currentView={currentView}
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleTheme}
+        isLoggedIn={isLoggedIn}
+        user={user}
+        onLoginClick={() => setCurrentView('login')}
+        onSignupClick={() => setCurrentView('login')}
+        onLogoutClick={handleLogout}
+        chatCount={chatCount}
+        maxChats={MAX_FREE_CHATS}
+      />
+
+      {/* Main Content - FULL SCREEN */}
+      <main className="min-h-screen w-full">
+        {/* Top Bar - Only show when not on home */}
+        {currentView !== 'home' && (
+          <header className="sticky top-0 z-20 border-b border-gray-800 bg-gray-900/80 backdrop-blur-xl">
+            <div className="flex items-center justify-between px-4 py-3 pl-16">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-white hidden sm:block">
+                  {currentView === 'chat' ? 'AI Chat' : 
+                   currentView === 'settings' ? 'Settings' :
+                   currentView === 'features' ? 'Features' :
+                   currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {isLoggedIn ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleNewChat}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">New Chat</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <LogOut className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">Logout</span>
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {/* Chat Count Badge for Guests */}
+                    <div className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                      chatCount >= MAX_FREE_CHATS 
+                        ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                    }`}>
+                      {chatCount}/{MAX_FREE_CHATS} chats
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setCurrentView('login')}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <LogIn className="w-4 h-4 mr-1" />
+                      Login
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setCurrentView('login')}
+                      className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-400 hover:to-pink-400 text-white shadow-lg shadow-violet-500/25"
+                    >
+                      <LogIn className="w-4 h-4 mr-1" />
+                      Sign Up
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+        )}
+
+        {/* Content Area - Full height, no scroll */}
+        <div className="h-[calc(100vh-57px)] overflow-hidden">
+          {renderCurrentView()}
+        </div>
+      </main>
+
+      {/* Auth Modal - Shows when free chat limit reached */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLogin={handleLogin}
+        onSignup={handleLogin}
+        chatCount={chatCount}
+        maxChats={MAX_FREE_CHATS}
+        reason={authModalReason}
+      />
     </div>
   )
 }
