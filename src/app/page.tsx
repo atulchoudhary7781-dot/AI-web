@@ -1229,14 +1229,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                       <LogIn className="w-4 h-4 mr-1" />
                       Login
                     </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => setCurrentView('login')}
-                      className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-400 hover:to-pink-400 text-white shadow-lg shadow-violet-500/25"
-                    >
-                      <LogIn className="w-4 h-4 mr-1" />
-                      Sign Up
-                    </Button>
                   </div>
                 )}
               </div>
