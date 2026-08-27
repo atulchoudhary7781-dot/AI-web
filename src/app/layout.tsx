@@ -14,22 +14,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Atul | Full Stack Developer & AI Enthusiast",
-  description: "Portfolio of Atul - A passionate Full Stack Developer and AI enthusiast building intelligent digital experiences with modern web technologies.",
-  keywords: ["Atul", "Full Stack Developer", "AI Developer", "React", "Next.js", "TypeScript", "Portfolio"],
-  authors: [{ name: "Atul" }],
+  title: "NEXUS AI - Next Generation AI Platform",
+  description: "Pioneering the future of artificial intelligence. Building systems that understand, reason, and create at superhuman levels.",
+  keywords: ["NEXUS AI", "AI", "Chatbot", "Machine Learning", "Neural Network", "Next.js"],
+  authors: [{ name: "NEXUS AI Team" }],
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.jpg",
   },
   openGraph: {
-    title: "Atul | Full Stack Developer & AI Enthusiast",
-    description: "Portfolio of Atul - Building intelligent digital experiences",
+    title: "NEXUS AI - Future of AI",
+    description: "Next-generation artificial intelligence platform",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Atul | Portfolio",
-    description: "Full Stack Developer & AI Enthusiast",
+    title: "NEXUS AI",
+    description: "Next-generation AI platform",
   },
 };
 
@@ -39,8 +39,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark scroll-smooth">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+      >
         {children}
         <Toaster />
       </body>
