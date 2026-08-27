@@ -236,6 +236,31 @@
         .heartbeat {
             animation: heartbeat 2s ease-in-out infinite;
         }
+
+        /* Social Card Photo Styling */
+        .social-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid;
+            box-shadow: 0 0 30px currentColor;
+        }
+
+        .github-photo {
+            border-color: #8b5cf6;
+            color: rgba(139, 92, 246, 0.5);
+        }
+
+        .linkedin-photo {
+            border-color: #3b82f6;
+            color: rgba(59, 130, 246, 0.5);
+        }
+
+        /* Live Badge */
+        .live-badge {
+            animation: pulse-glow 1.5s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -263,7 +288,6 @@
                     <a href="#about" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">About</a>
                     <a href="#projects" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">Projects</a>
                     <a href="#skills" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">Skills</a>
-                    <a href="#contact" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">Contact</a>
                     
                     <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
                        class="ml-4 px-5 py-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white text-sm font-medium rounded-full hover:shadow-lg hover:shadow-violet-500/25 transition-all btn-shine">
@@ -285,7 +309,6 @@
                     <a href="#about" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">About</a>
                     <a href="#projects" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">Projects</a>
                     <a href="#skills" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">Skills</a>
-                    <a href="#contact" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">Contact</a>
                     <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
                        class="block w-full text-center px-4 py-3 mt-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium rounded-lg">View GitHub</a>
                 </div>
@@ -348,10 +371,10 @@
                         </span>
                     </a>
                     
-                    <a href="#contact" 
+                    <a href="#social" 
                        class="px-8 py-4 border border-white/20 text-white font-semibold rounded-full backdrop-blur-sm hover:bg-white/10 transition-all">
                         <span class="flex items-center gap-2">
-                            <i data-lucide="mail" class="w-5 h-5"></i>Get In Touch
+                            <i data-lucide="user" class="w-5 h-5"></i>Connect With Me
                         </span>
                     </a>
                 </div>
@@ -489,7 +512,7 @@
                 <!-- Projects Grid -->
                 <div class="grid md:grid-cols-2 gap-8">
                     
-                    <!-- Project 1: AI Web -->
+                    <!-- Project 1: AI Web (NEXUS AI) -->
                     <div data-aos="fade-up" data-aos-delay="100" 
                          class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-white/20 transition-all duration-500 card-hover">
                         
@@ -499,18 +522,26 @@
                                     <i data-lucide="brain" class="w-8 h-8 text-white"></i>
                                 </div>
                                 
-                                <div class="flex gap-3">
-                                    <a href="https://github.com/atulchoudhary7781-dot/AI-web" target="_blank" 
-                                       class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
-                                        <i data-lucide="github" class="w-5 h-5"></i>
-                                    </a>
-                                    <a href="#" class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
-                                        <i data-lucide="external-link" class="w-5 h-5"></i>
-                                    </a>
+                                <div class="flex items-center gap-2">
+                                    <!-- Live Badge -->
+                                    <span class="live-badge px-2 py-1 text-xs font-bold text-green-400 bg-green-500/10 rounded-full border border-green-500/30">
+                                        ● LIVE
+                                    </span>
+                                    
+                                    <div class="flex gap-3">
+                                        <a href="https://github.com/atulchoudhary7781-dot/AI-web" target="_blank" 
+                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+                                            <i data-lucide="github" class="w-5 h-5"></i>
+                                        </a>
+                                        <a href="https://ai-web-rho-fawn.vercel.app/" target="_blank" 
+                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+                                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
-                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:gradient-text transition-all">AI Web</h3>
+                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:gradient-text transition-all">NEXUS AI (AI Web)</h3>
                             
                             <p class="text-gray-400 mb-6 leading-relaxed">
                                 An advanced AI-powered web application featuring real-time chat, vision capabilities, file analysis, and intelligent responses. Built with Next.js, OpenRouter API, and modern UI/UX patterns.
@@ -533,6 +564,14 @@
                                     <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">AI/ML</span>
                                     <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Tailwind</span>
                                 </div>
+                                
+                                <!-- Live Link -->
+                                <a href="https://ai-web-rho-fawn.vercel.app/" target="_blank" 
+                                   class="mt-4 inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors">
+                                    <i data-lucide="globe" class="w-4 h-4"></i>
+                                    ai-web-rho-fawn.vercel.app
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
                             </div>
                         </div>
 
@@ -549,14 +588,22 @@
                                     <i data-lucide="cpu" class="w-8 h-8 text-white"></i>
                                 </div>
                                 
-                                <div class="flex gap-3">
-                                    <a href="https://github.com/atulchoudhary7781-dot/Jarvis-AI" target="_blank" 
-                                       class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
-                                        <i data-lucide="github" class="w-5 h-5"></i>
-                                    </a>
-                                    <a href="#" class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
-                                        <i data-lucide="external-link" class="w-5 h-5"></i>
-                                    </a>
+                                <div class="flex items-center gap-2">
+                                    <!-- Live Badge -->
+                                    <span class="live-badge px-2 py-1 text-xs font-bold text-green-400 bg-green-500/10 rounded-full border border-green-500/30">
+                                        ● LIVE
+                                    </span>
+                                    
+                                    <div class="flex gap-3">
+                                        <a href="https://github.com/atulchoudhary7781-dot/Jarvis-AI" target="_blank" 
+                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+                                            <i data-lucide="github" class="w-5 h-5"></i>
+                                        </a>
+                                        <a href="https://i9fm8n3pz2wn67bkro5y2q.streamlit.app/" target="_blank" 
+                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+                                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
@@ -580,9 +627,17 @@
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Python</span>
                                     <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">AI/ML</span>
-                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Voice API</span>
+                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Streamlit</span>
                                     <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Automation</span>
                                 </div>
+                                
+                                <!-- Live Link -->
+                                <a href="https://i9fm8n3pz2wn67bkro5y2q.streamlit.app/" target="_blank" 
+                                   class="mt-4 inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors">
+                                    <i data-lucide="globe" class="w-4 h-4"></i>
+                                    i9fm8n3pz2wn67bkro5y2q.streamlit.app
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
                             </div>
                         </div>
 
@@ -791,106 +846,140 @@
             </div>
         </section>
 
-        <!-- Contact Section -->
-        <section id="contact" class="relative py-32 overflow-hidden">
+        <!-- Social Connect Section (GitHub & LinkedIn with Photos) -->
+        <section id="social" class="relative py-32 overflow-hidden">
             <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-t from-violet-900/20 to-transparent rounded-full blur-3xl"></div>
 
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
                 <div class="text-center mb-16">
                     <span data-aos="fade-down" 
                           class="inline-block px-4 py-2 mb-4 text-sm font-medium text-pink-400 bg-pink-500/10 rounded-full border border-pink-500/20">
-                        Get In Touch
+                        Let's Connect
                     </span>
                     <h2 data-aos="fade-up" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                        Let's Work <span class="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Together</span>
+                        Find Me <span class="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Online</span>
                     </h2>
                     <p data-aos="fade-up" data-aos-delay="100" 
                        class="text-gray-400 text-lg max-w-2xl mx-auto">
-                        Have a project in mind or want to collaborate? Feel free to reach out!
+                        Let's build something amazing together! Connect with me on social platforms.
                     </p>
                 </div>
 
-                <div class="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                <!-- Social Cards Grid -->
+                <div class="grid md:grid-cols-2 gap-8">
                     
-                    <!-- Contact Info -->
-                    <div data-aos="fade-right" data-aos-delay="200" class="space-y-8">
-                        <div class="space-y-6">
-                            <h3 class="text-2xl font-bold text-white">Contact Information</h3>
-                            <p class="text-gray-400 leading-relaxed">
-                                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your visions.
-                            </p>
-                        </div>
+                    <!-- GitHub Card with Photo -->
+                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+                       data-aos="fade-right" data-aos-delay="200"
+                       class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-violet-500/50 transition-all duration-500 card-hover block">
+                        
+                        <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+                            <!-- GitHub Photo/Avatar -->
+                            <div class="relative">
+                                <img src="https://avatars.githubusercontent.com/u/your-github-id?v=4" 
+                                     alt="Atul's GitHub Avatar"
+                                     class="social-photo github-photo group-hover:scale-110 transition-transform duration-300"
+                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%238b5cf6%22 width=%22100%22 height=%22100%22 rx=%2250%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>'">
+                                
+                                <!-- Online indicator -->
+                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black"></span>
+                            </div>
 
-                        <div class="space-y-4">
-                            <!-- Email Card -->
-                            <a href="mailto:atulchoudhary7781@gmail.com" 
-                               class="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-pink-500/30 transition-all group card-hover">
-                                <div class="p-3 rounded-xl bg-gradient-to-br from-pink-600 to-violet-600 group-hover:scale-110 transition-transform">
-                                    <i data-lucide="mail" class="w-6 h-6 text-white"></i>
+                            <!-- Info -->
+                            <div class="space-y-2">
+                                <div class="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 inline-block group-hover:scale-110 transition-transform">
+                                    <i data-lucide="github" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white group-hover:gradient-text transition-all">GitHub</h3>
+                                <p class="text-gray-400">@atulchoudhary7781-dot</p>
+                                <p class="text-sm text-violet-400">Check out my code & projects</p>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="flex gap-6 text-center">
+                                <div>
+                                    <div class="text-2xl font-bold text-white">10+</div>
+                                    <div class="text-xs text-gray-500">Repositories</div>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">Email</p>
-                                    <p class="text-white font-medium">atulchoudhary7781@gmail.com</p>
+                                    <div class="text-2xl font-bold text-white">∞</div>
+                                    <div class="text-xs text-gray-500">Commits</div>
                                 </div>
-                            </a>
+                            </div>
 
-                            <!-- GitHub Card -->
-                            <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
-                               class="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-violet-500/30 transition-all group card-hover">
-                                <div class="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 group-hover:scale-110 transition-transform">
-                                    <i data-lucide="github" class="w-6 h-6 text-white"></i>
+                            <!-- CTA -->
+                            <div class="pt-4 border-t border-white/10 w-full">
+                                <span class="inline-flex items-center gap-2 text-violet-400 font-medium group-hover:text-violet-300 transition-colors">
+                                    View Profile on GitHub
+                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-blue-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                    </a>
+
+                    <!-- LinkedIn Card with Photo -->
+                    <a href="https://www.linkedin.com/in/atul-choudhary-018037301/" target="_blank" 
+                       data-aos="fade-left" data-aos-delay="300"
+                       class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-blue-500/50 transition-all duration-500 card-hover block">
+                        
+                        <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+                            <!-- LinkedIn Photo/Avatar -->
+                            <div class="relative">
+                                <img src="https://media.licdn.com/dms/image/v2/D4D03AQE-xxx/photo-shrink_800_800/0/xxx/profile-displayphoto-image.jpg" 
+                                     alt="Atul's LinkedIn Photo"
+                                     class="social-photo linkedin-photo group-hover:scale-110 transition-transform duration-300"
+                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233b82f6%22 width=%22100%22 height=%22100%22 rx=%2250%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>'">
+                                
+                                <!-- Online indicator -->
+                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black"></span>
+                            </div>
+
+                            <!-- Info -->
+                            <div class="space-y-2">
+                                <div class="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 inline-block group-hover:scale-110 transition-transform">
+                                    <i data-lucide="linkedin" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white group-hover:text-blue-400 transition-all">LinkedIn</h3>
+                                <p class="text-gray-400">Atul</p>
+                                <p class="text-sm text-blue-400">Let's connect professionally</p>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="flex gap-6 text-center">
+                                <div>
+                                    <div class="text-2xl font-bold text-white">500+</div>
+                                    <div class="text-xs text-gray-500">Connections</div>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">GitHub</p>
-                                    <p class="text-white font-medium">@atulchoudhary7781-dot</p>
+                                    <div class="text-2xl font-bold text-white">∞</div>
+                                    <div class="text-xs text-gray-500">Opportunities</div>
                                 </div>
-                            </a>
+                            </div>
 
-                            <!-- LinkedIn Card -->
-                            <a href="https://www.linkedin.com/in/atul-choudhary-018037301/" target="_blank" 
-                               class="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-blue-500/30 transition-all group card-hover">
-                                <div class="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 group-hover:scale-110 transition-transform">
-                                    <i data-lucide="linkedin" class="w-6 h-6 text-white"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">LinkedIn</p>
-                                    <p class="text-white font-medium">Atul</p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Contact Form -->
-                    <form data-aos="fade-left" data-aos-delay="300" id="contactForm" 
-                          class="space-y-6 p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-400 mb-2">Your Name</label>
-                            <input type="text" id="name" required 
-                                   class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
-                                   placeholder="John Doe">
+                            <!-- CTA -->
+                            <div class="pt-4 border-t border-white/10 w-full">
+                                <span class="inline-flex items-center gap-2 text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+                                    View Profile on LinkedIn
+                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                                </span>
+                            </div>
                         </div>
 
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-400 mb-2">Your Email</label>
-                            <input type="email" id="email" required 
-                                   class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
-                                   placeholder="john@example.com">
-                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                    </a>
+                </div>
 
-                        <div>
-                            <label for="message" class="block text-sm font-medium text-gray-400 mb-2">Message</label>
-                            <textarea id="message" rows="5" required 
-                                      class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all resize-none"
-                                      placeholder="Tell me about your project..."></textarea>
-                        </div>
-
-                        <button type="submit" 
-                                class="w-full py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all btn-shine flex items-center justify-center gap-2">
-                            <i data-lucide="send" class="w-5 h-5"></i>
-                            Send Message
-                        </button>
-                    </form>
+                <!-- Email CTA -->
+                <div data-aos="fade-up" data-aos-delay="400" class="text-center mt-12">
+                    <a href="mailto:atulchoudhary7781@gmail.com" 
+                       class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-pink-600 to-violet-600 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-pink-500/25 transition-all btn-shine">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                        Email Me Directly
+                        <span class="text-sm opacity-75">atulchoudhary7781@gmail.com</span>
+                    </a>
                 </div>
             </div>
         </section>
@@ -976,7 +1065,7 @@
             }
             
             // Update active nav link
-            const sections = ['home', 'about', 'projects', 'skills', 'contact'];
+            const sections = ['home', 'about', 'projects', 'skills'];
             const navLinks = document.querySelectorAll('.nav-link');
             
             let currentSection = '';
@@ -1017,24 +1106,6 @@
                 menuIcon.classList.remove('hidden');
                 closeIcon.classList.add('hidden');
             });
-        });
-        
-        // Contact form submission
-        const contactForm = document.getElementById('contactForm');
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            
-            // Create mailto link
-            const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
-            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-            window.open(`mailto:atulchoudhary7781@gmail.com?subject=${subject}&body=${body}`);
-            
-            // Reset form
-            contactForm.reset();
         });
         
         // Skill bar animation on scroll
