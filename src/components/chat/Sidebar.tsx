@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Github, Cpu, BookOpen, FileText, Plus, Trash2, Moon, Sun,
-  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut
+  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut,
+  UserCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -63,6 +65,8 @@ export default function Sidebar({
   chatCount = 0,
   maxChats = 6
 }: SidebarProps) {
+  const router = useRouter()
+  
   // ESC key handler to close sidebar
   useEffect(() => {
     const handleEscKey = (e: KeyboardEvent) => {
@@ -164,6 +168,16 @@ export default function Sidebar({
                 active={currentView === 'settings'}
                 onClick={() => { onViewChange('settings'); onClose(); }}
               />
+
+              {/* Profile Button - Only show when logged in */}
+              {isLoggedIn && (
+                <SidebarButton
+                  icon={<UserCircle className="w-4 h-4" />}
+                  label="My Profile"
+                  active={false}
+                  onClick={() => { router.push('/profile'); onClose(); }}
+                />
+              )}
             </div>
 
             {/* External Links - No Scroll */}
@@ -232,15 +246,31 @@ export default function Sidebar({
           <div className="flex-shrink-0 p-3 border-t border-gray-800/50 bg-gray-900/30">
             {isLoggedIn && user ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-3 px-3 py-2">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
-                    <User className="w-4 h-4 text-white" />
+                <button
+                  onClick={() => { router.push('/profile'); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-800/50 rounded-xl transition-all duration-200 group cursor-pointer"
+                >
+                  <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20 overflow-hidden">
+                    {user.avatar ? (
+                      <img 
+                        src={user.avatar} 
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
+                    {/* Online indicator */}
+                    <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-gray-900" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white font-medium truncate">{user.name}</p>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm text-white font-medium truncate group-hover:text-cyan-400 transition-colors">{user.name}</p>
                     <p className="text-xs text-green-400">✓ Unlimited Chats</p>
                   </div>
-                </div>
+                  <svg className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
                 {onLogoutClick && (
                   <button
                     onClick={() => { onLogoutClick(); onClose(); }}
