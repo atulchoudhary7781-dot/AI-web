@@ -5,12 +5,15 @@ import {
   User, Mail, Camera, Save, X, CheckCircle,
   MapPin, Phone, Globe, Edit3, Sparkles,
   Calendar, MessageSquare, Settings, LogOut,
-  ChevronLeft, Shield, Award, Zap
+  ChevronLeft, Shield, Award, Zap, Upload,
+  Download, Crown, Star, Clock, RefreshCw,
+  Image as ImageIcon, CreditCard, Check, AlertCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
+// Types
 interface UserProfileProps {
   user: {
     name: string
@@ -21,12 +24,76 @@ interface UserProfileProps {
   onLogout?: () => void
 }
 
+interface SubscriptionPlan {
+  id: 'free' | 'normal' | 'pro'
+  name: string
+  price: number
+  period: string
+  features: string[]
+  popular?: boolean
+  color: string
+  gradient: string
+}
+
+// Subscription Plans Data
+const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    period: 'forever',
+    features: [
+      '10 chats per day',
+      'Basic AI responses',
+      'Community support',
+      'Chat history (7 days)'
+    ],
+    color: 'text-gray-400',
+    gradient: 'from-gray-500 to-gray-600'
+  },
+  {
+    id: 'normal',
+    name: 'Normal',
+    price: 10,
+    period: 'month',
+    features: [
+      'Unlimited chats',
+      'Advanced AI models',
+      'Priority support',
+      'Chat history (30 days)',
+      'File attachments',
+      'Export data'
+    ],
+    popular: true,
+    color: 'text-cyan-400',
+    gradient: 'from-cyan-500 to-blue-500'
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 20,
+    period: 'month',
+    features: [
+      'Everything in Normal',
+      'GPT-4 & Claude access',
+      'Image generation',
+      'Voice conversations',
+      'API access',
+      'Custom AI training',
+      'Priority queue',
+      'Dedicated support'
+    ],
+    color: 'text-yellow-400',
+    gradient: 'from-yellow-500 to-orange-500'
+  }
+]
+
 export default function UserProfilePage({ user: initialUser, onBack, onLogout }: UserProfileProps) {
   const [user, setUser] = useState(initialUser)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [activeTab, setActiveTab] = useState<'profile' | 'stats' | 'settings'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'subscription' | 'settings'>('profile')
   
   // Form states
   const [name, setName] = useState(initialUser.name || '')
@@ -37,8 +104,22 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   const [location, setLocation] = useState('')
   const [website, setWebsite] = useState('')
 
+  // Subscription state
+  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
+  const [chatCountToday, setChatCountToday] = useState(0)
+  const [maxChatsForPlan, setMaxChatsForPlan] = useState(10)
+  const [chatResetTime, setChatResetTime] = useState<string>('')
+
+  // Import/Export state
+  const [isImporting, setIsImporting] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+
+  // Gmail sync state
+  const [isSyncingGmail, setIsSyncingGmail] = useState(false)
+
   // File input ref
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const importInputRef = useRef<HTMLInputElement>(null)
 
   // Load user data from localStorage on mount
   useEffect(() => {
@@ -67,7 +148,74 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         console.error('Error parsing profile data:', e)
       }
     }
+
+    // Load subscription data
+    loadSubscriptionData()
+
+    // Load chat count for today
+    loadChatCountForToday()
   }, [])
+
+  // Calculate chat reset time
+  const calculateResetTime = () => {
+    const now = new Date()
+    const tomorrow = new Date(now)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    tomorrow.setHours(0, 0, 0, 0)
+    
+    const diff = tomorrow.getTime() - now.getTime()
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    
+    return `${hours}h ${minutes}m`
+  }
+
+  // Load subscription data
+  const loadSubscriptionData = () => {
+    const savedSub = localStorage.getItem('nexus_subscription')
+    if (savedSub) {
+      try {
+        const sub = JSON.parse(savedSub)
+        setCurrentPlan(sub.plan || 'free')
+        
+        // Set max chats based on plan
+        if (sub.plan === 'pro' || sub.plan === 'normal') {
+          setMaxChatsForPlan(Infinity) // Unlimited
+        } else {
+          setMaxChatsForPlan(10)
+        }
+      } catch (e) {
+        console.error('Error parsing subscription:', e)
+      }
+    }
+    
+    // Update reset time
+    setChatResetTime(calculateResetTime())
+    
+    // Update reset time every minute
+    const interval = setInterval(() => {
+      setChatResetTime(calculateResetTime())
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }
+
+  // Load chat count for today
+  const loadChatCountForToday = () => {
+    const savedChats = localStorage.getItem('nexus_chat_count_today')
+    const savedDate = localStorage.getItem('nexus_chat_date')
+    
+    const today = new Date().toDateString()
+    
+    if (savedDate === today && savedChats) {
+      setChatCountToday(parseInt(savedChats, 10))
+    } else {
+      // New day, reset count
+      setChatCountToday(0)
+      localStorage.setItem('nexus_chat_count_today', '0')
+      localStorage.setItem('nexus_chat_date', today)
+    }
+  }
 
   // Handle avatar upload
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,6 +251,33 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     setUser(prev => ({ ...prev, avatar: undefined }))
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+  }
+
+  // Sync photo from Gmail/Google
+  const handleGmailPhotoSync = async () => {
+    setIsSyncingGmail(true)
+    
+    try {
+      // Simulate Google OAuth flow (in production, use Google OAuth API)
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // For demo: Use a placeholder Google avatar or ask user to enter URL
+      const googleImageUrl = prompt('Enter your Google Profile Photo URL (or leave blank for default):', 
+        'https://lh3.googleusercontent.com/a/default-user'
+      )
+      
+      if (googleImageUrl) {
+        setAvatar(googleImageUrl)
+        setUser(prev => ({ ...prev, avatar: googleImageUrl }))
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 3000)
+      }
+    } catch (error) {
+      console.error('Gmail sync error:', error)
+      alert('Failed to sync Google photo. Please try again.')
+    } finally {
+      setIsSyncingGmail(false)
     }
   }
 
@@ -147,6 +322,129 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     setIsEditing(false)
   }
 
+  // Handle subscription upgrade
+  const handleSubscriptionChange = async (planId: 'free' | 'normal' | 'pro') => {
+    if (planId === currentPlan) return
+    
+    setIsLoading(true)
+    
+    // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    // Update subscription
+    const newSub = {
+      plan: planId,
+      startDate: new Date().toISOString(),
+      ...(planId !== 'free' && {
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+        price: planId === 'normal' ? 10 : 20
+      })
+    }
+    
+    localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
+    setCurrentPlan(planId)
+    
+    // Update max chats
+    if (planId === 'pro' || planId === 'normal') {
+      setMaxChatsForPlan(Infinity)
+    } else {
+      setMaxChatsForPlan(10)
+    }
+    
+    setIsLoading(false)
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 3000)
+    
+    alert(`Successfully upgraded to ${planId.toUpperCase()} plan!${planId !== 'free' ? ' 🎉' : ''}`)
+  }
+
+  // Export data
+  const handleExportData = async () => {
+    setIsExporting(true)
+    
+    try {
+      // Gather all user data
+      const exportData = {
+        user: JSON.parse(localStorage.getItem('nexus_user') || '{}'),
+        profile: JSON.parse(localStorage.getItem('nexus_profile') || '{}'),
+        subscription: JSON.parse(localStorage.getItem('nexus_subscription') || '{}'),
+        chats: JSON.parse(localStorage.getItem('nexus_chats') || '[]'),
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      }
+      
+      // Create and download file
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `nexus-ai-export-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('Failed to export data')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  // Import data
+  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsImporting(true)
+    
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const importData = JSON.parse(e.target?.result as string)
+        
+        // Validate import data
+        if (!importData.user || !importData.version) {
+          throw new Error('Invalid export file')
+        }
+        
+        // Confirm import
+        const confirmed = confirm(
+          `This will overwrite your current data with:\n` +
+          `- User: ${importData.user?.name || 'Unknown'}\n` +
+          `- Chats: ${importData.chats?.length || 0} sessions\n\n` +
+          `Continue with import?`
+        )
+        
+        if (confirmed) {
+          // Import data
+          if (importData.user) localStorage.setItem('nexus_user', JSON.stringify(importData.user))
+          if (importData.profile) localStorage.setItem('nexus_profile', JSON.stringify(importData.profile))
+          if (importData.subscription) {
+            localStorage.setItem('nexus_subscription', JSON.stringify(importData.subscription))
+            loadSubscriptionData()
+          }
+          if (importData.chats) localStorage.setItem('nexus_chats', JSON.stringify(importData.chats))
+          
+          // Reload page to show imported data
+          window.location.reload()
+        }
+      } catch (error) {
+        console.error('Import error:', error)
+        alert('Failed to import data. Please check the file format.')
+      } finally {
+        setIsImporting(false)
+        if (importInputRef.current) {
+          importInputRef.current.value = ''
+        }
+      }
+    }
+    reader.readAsText(file)
+  }
+
   // Get initials for fallback avatar
   const getInitials = (name: string) => {
     return name
@@ -159,11 +457,14 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
 
   // Generate stats (mock data - in real app, fetch from API)
   const stats = [
-    { label: 'Total Chats', value: '24', icon: MessageSquare, color: 'from-cyan-500 to-blue-500' },
+    { label: 'Total Chats', value: currentPlan === 'free' ? `${chatCountToday}/${maxChatsForPlan}` : '∞', icon: MessageSquare, color: 'from-cyan-500 to-blue-500' },
     { label: 'Days Active', value: '15', icon: Calendar, color: 'from-violet-500 to-purple-500' },
     { label: 'AI Queries', value: '156', icon: Zap, color: 'from-pink-500 to-rose-500' },
-    { label: 'Member Since', value: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), icon: Award, color: 'from-green-500 to-emerald-500' }
+    { label: 'Plan', value: currentPlan.toUpperCase(), icon: currentPlan === 'pro' ? Crown : Star, color: currentPlan === 'pro' ? 'from-yellow-500 to-orange-500' : currentPlan === 'normal' ? 'from-cyan-500 to-blue-500' : 'from-gray-500 to-gray-600' }
   ]
+
+  // Chat limit percentage (for progress bar)
+  const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
@@ -172,7 +473,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
           <div className="bg-green-500/20 border border-green-500/30 backdrop-blur-xl rounded-xl px-6 py-4 flex items-center gap-3 shadow-lg shadow-green-500/20">
             <CheckCircle className="w-5 h-5 text-green-400" />
-            <span className="text-green-300 font-medium">Profile updated successfully!</span>
+            <span className="text-green-300 font-medium">Action completed successfully!</span>
           </div>
         </div>
       )}
@@ -185,6 +486,49 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500 rounded-full filter blur-[120px]" />
         </div>
+
+        {/* Chat Limit Banner - Only for Free Users */}
+        {currentPlan === 'free' && (
+          <div className="relative bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 border-b border-orange-500/30 px-4 py-3">
+            <div className="max-w-4xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-orange-400 animate-pulse" />
+                <div>
+                  <p className="text-sm font-medium text-orange-300">
+                    Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Resets in: <span className="text-cyan-400 font-mono">{chatResetTime}</span>
+                  </p>
+                </div>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="hidden sm:flex items-center gap-3">
+                <div className="w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-500 ${
+                      chatLimitPercentage >= 90 
+                        ? 'bg-red-500' 
+                        : chatLimitPercentage >= 70 
+                          ? 'bg-yellow-500' 
+                          : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                    }`}
+                    style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => setActiveTab('subscription')}
+                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:shadow-lg hover:shadow-cyan-500/25 text-xs"
+                >
+                  <Crown className="w-3 h-3 mr-1" />
+                  Upgrade
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="relative max-w-4xl mx-auto px-4 py-8">
           {/* Navigation */}
@@ -305,6 +649,20 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                           Verified
                         </Badge>
                       </div>
+
+                      {/* Gmail Sync Button */}
+                      <button
+                        onClick={handleGmailPhotoSync}
+                        disabled={isSyncingGmail}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/20 transition-all text-sm disabled:opacity-50"
+                      >
+                        {isSyncingGmail ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <ImageIcon className="w-4 h-4" />
+                        )}
+                        {isSyncingGmail ? 'Syncing...' : 'Sync Google Photo'}
+                      </button>
                     </div>
                   ) : (
                     <>
@@ -318,6 +676,13 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                           <Badge variant="secondary" className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">
                             <Shield className="w-3 h-3 mr-1" />
                             Verified
+                          </Badge>
+                          <Badge 
+                            variant="secondary" 
+                            className={`${currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'} text-xs`}
+                          >
+                            {currentPlan === 'pro' ? <Crown className="w-3 h-3 mr-1" /> : <Star className="w-3 h-3 mr-1" />}
+                            {currentPlan.toUpperCase()}
                           </Badge>
                         </div>
                       </div>
@@ -374,7 +739,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         <div className="flex gap-2 mb-8 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
             { id: 'profile', label: 'Profile Info', icon: User },
-            { id: 'stats', label: 'Statistics', icon: BarChart3 },
+            { id: 'subscription', label: 'Subscription', icon: CreditCard },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => (
             <button
@@ -513,36 +878,128 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           </div>
         )}
 
-        {activeTab === 'stats' && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-gray-900/50 border-gray-800 backdrop-blur-xl hover:border-gray-700 transition-all">
-                <CardContent className="p-6 text-center space-y-3">
-                  <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-white">{stat.value}</div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider">{stat.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-            
-            {/* Additional Stats Card */}
-            <Card className="col-span-full bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
+        {activeTab === 'subscription' && (
+          <div className="space-y-8">
+            {/* Current Plan Status */}
+            <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-8 text-center">
-                <Sparkles className="w-12 h-12 mx-auto text-cyan-400 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">NEXUS AI Power User</h3>
-                <p className="text-gray-400 max-w-md mx-auto">
-                  You're making great use of AI! Keep exploring and creating amazing things.
-                </p>
-                <div className="mt-6 flex items-center justify-center gap-2">
-                  <Badge className="bg-gradient-to-r from-cyan-500 to-violet-600 text-white border-0">
-                    <Zap className="w-3 h-3 mr-1" />
-                    Pro Member
-                  </Badge>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-full mb-4">
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <span className="text-sm text-gray-300">Current Plan</span>
                 </div>
+                <h2 className="text-3xl font-bold text-white mb-2">
+                  {currentPlan === 'pro' ? '👑 Pro' : currentPlan === 'normal' ? '⭐ Normal' : '🆓 Free'}
+                </h2>
+                <p className="text-gray-400 mb-6">
+                  {currentPlan === 'free' 
+                    ? `You have ${maxChatsForPlan - chatCountToday} chats remaining today`
+                    : 'Unlimited access to all features!'
+                  }
+                </p>
+                
+                {/* Free User Progress */}
+                {currentPlan === 'free' && (
+                  <div className="max-w-md mx-auto mb-6">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-gray-400">Daily Usage</span>
+                      <span className="text-cyan-400">{chatCountToday}/{maxChatsForPlan} chats</span>
+                    </div>
+                    <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-500 ${
+                          chatLimitPercentage >= 90 
+                            ? 'bg-red-500' 
+                            : chatLimitPercentage >= 70 
+                              ? 'bg-yellow-500' 
+                              : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                        }`}
+                        style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs mt-2">
+                      <span className="text-gray-500">Resets at midnight</span>
+                      <span className="text-cyan-400">{chatResetTime}</span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
+
+            {/* Subscription Plans Grid */}
+            <div className="grid md:grid-cols-3 gap-6">
+              {SUBSCRIPTION_PLANS.map((plan) => (
+                <Card 
+                  key={plan.id}
+                  className={`relative bg-gray-900/50 backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+                    currentPlan === plan.id 
+                      ? 'border-2 border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
+                      : 'border-gray-800 hover:border-gray-700'
+                  } ${plan.popular ? 'md:-mt-4 md:mb-[-16px]' : ''}`}
+                >
+                  {plan.popular && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      POPULAR
+                    </div>
+                  )}
+                  
+                  <CardContent className="p-6">
+                    <div className="text-center mb-6">
+                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3`}>
+                        {plan.id === 'pro' ? (
+                          <Crown className="w-6 h-6 text-white" />
+                        ) : plan.id === 'normal' ? (
+                          <Star className="w-6 h-6 text-white" />
+                        ) : (
+                          <User className="w-6 h-6 text-white" />
+                        )}
+                      </div>
+                      <h3 className={`text-xl font-bold ${plan.color}`}>{plan.name}</h3>
+                      <div className="mt-2">
+                        <span className="text-3xl font-bold text-white">${plan.price}</span>
+                        <span className="text-gray-400">/{plan.period}</span>
+                      </div>
+                    </div>
+
+                    <ul className="space-y-3 mb-6">
+                      {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm">
+                          <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                            currentPlan === plan.id ? 'text-cyan-400' : 'text-gray-500'
+                          }`} />
+                          <span className={currentPlan === plan.id ? 'text-gray-200' : 'text-gray-400'}>
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Button
+                      onClick={() => handleSubscriptionChange(plan.id)}
+                      disabled={currentPlan === plan.id || isLoading}
+                      className={`w-full ${
+                        currentPlan === plan.id
+                          ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
+                          : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
+                      } transition-all`}
+                    >
+                      {currentPlan === plan.id ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Current Plan
+                        </>
+                      ) : plan.price === 0 ? (
+                        'Downgrade to Free'
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Upgrade to {plan.name}
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         )}
 
@@ -556,17 +1013,6 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                 </h3>
 
                 <div className="space-y-4">
-                  {/* Theme Setting */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">Dark Mode</p>
-                      <p className="text-sm text-gray-400">Use dark theme throughout the app</p>
-                    </div>
-                    <div className="w-12 h-6 bg-cyan-500 rounded-full relative cursor-pointer">
-                      <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" />
-                    </div>
-                  </div>
-
                   {/* Notifications */}
                   <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
                     <div>
@@ -584,8 +1030,71 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                       <p className="text-white font-medium">Export Data</p>
                       <p className="text-sm text-gray-400">Download all your chat history and data</p>
                     </div>
-                    <Button variant="outline" size="sm" className="border-gray-600">
-                      Export
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportData}
+                      disabled={isExporting}
+                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                    >
+                      {isExporting ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      {isExporting ? 'Exporting...' : 'Export'}
+                    </Button>
+                  </div>
+
+                  {/* Data Import */}
+                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                    <div>
+                      <p className="text-white font-medium">Import Data</p>
+                      <p className="text-sm text-gray-400">Restore data from backup file</p>
+                    </div>
+                    <div className="relative">
+                      <input
+                        ref={importInputRef}
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportData}
+                        className="hidden"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => importInputRef.current?.click()}
+                        disabled={isImporting}
+                        className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+                      >
+                        {isImporting ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                        {isImporting ? 'Importing...' : 'Import'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Clear Cache */}
+                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                    <div>
+                      <p className="text-white font-medium">Clear Cache</p>
+                      <p className="text-sm text-gray-400">Clear local storage and cache</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (confirm('Clear all cache? This will not delete your account.')) {
+                          localStorage.clear()
+                          window.location.reload()
+                        }
+                      }}
+                      className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                    >
+                      Clear
                     </Button>
                   </div>
 
@@ -595,7 +1104,17 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                       <p className="text-red-400 font-medium">Delete Account</p>
                       <p className="text-sm text-gray-400">Permanently delete your account and data</p>
                     </div>
-                    <Button variant="outline" size="sm" className="border-red-500/30 text-red-400 hover:bg-red-500/10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (confirm('Are you sure? This action cannot be undone!')) {
+                          localStorage.clear()
+                          onLogout?.()
+                        }
+                      }}
+                      className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                    >
                       Delete
                     </Button>
                   </div>
