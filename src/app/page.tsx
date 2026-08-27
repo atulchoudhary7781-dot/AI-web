@@ -1210,27 +1210,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                       <span className="hidden sm:inline">Logout</span>
                     </Button>
                   </>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    {/* Chat Count Badge for Guests */}
-                    <div className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                      chatCount >= MAX_FREE_CHATS 
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
-                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                    }`}>
-                      {chatCount}/{MAX_FREE_CHATS} chats
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setCurrentView('login')}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      <LogIn className="w-4 h-4 mr-1" />
-                      Login
-                    </Button>
-                  </div>
-                )}
+) : null}
               </div>
             </div>
           </header>
