@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
+import { sendVerificationEmail } from '@/lib/email'
 
 const prisma = new PrismaClient()
 
@@ -57,33 +58,29 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // In production, you would send an email here using Resend, SendGrid, Nodemailer, etc.
-    // For demo purposes, we'll log the token and return it
+    // Send verification email using Resend
+    const emailResult = await sendVerificationEmail(email, token)
+
+    // Log for development/debugging
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${token}`
     
     console.log('=== EMAIL VERIFICATION ===')
     console.log(`To: ${email}`)
     console.log(`Verification URL: ${verificationUrl}`)
+    console.log(`Email Service Result:`, emailResult)
     console.log('=========================')
-
-    // TODO: Integrate with email service (Resend recommended for Vercel deployments)
-    // Example with Resend:
-    // import { Resend } from 'resend'
-    // const resend = new Resend(process.env.RESEND_API_KEY)
-    // await resend.emails.send({
-    //   from: 'NEXUS AI <noreply@nexusai.com>',
-    //   to: [email],
-    //   subject: 'Verify your email address',
-    //   html: `<p>Click <a href="${verificationUrl}">here</a> to verify your email.</p>`
-    // })
 
     return NextResponse.json({
       success: true,
-      message: 'Verification email sent successfully',
-      // Only include token in development
-      ...(process.env.NODE_ENV === 'development' && { 
+      message: emailResult.success 
+        ? 'Verification email sent successfully!' 
+        : 'Verification prepared (check logs for dev mode)',
+      emailSent: emailResult.success,
+      // Include dev info in development mode
+      ...(process.env.NODE_ENV === 'development' && !emailResult.success && { 
         verificationUrl,
-        token 
+        token,
+        devNote: 'Resend not configured - see .env.example'
       })
     })
 
