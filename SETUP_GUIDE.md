@@ -186,11 +186,13 @@ stripe listen --forward-to localhost:3000/api/payments/webhook
 ```bash
 # In .env file:
 STRIPE_SECRET_KEY=sk_test_your_actual_key_here
-STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_your_actual_webhook_secret_here
 STRIPE_PRICE_NORMAL=price_xxx  # From step 3
 STRIPE_PRICE_PRO=price_yyy     # From step 3
 NEXT_PUBLIC_APP_URL=http://localhost:3000  # Change for production
 ```
+
+> ⚠️ **Important**: Replace the placeholder values with your actual keys from Stripe Dashboard. Never commit real API keys to GitHub!
 
 ---
 
