@@ -14,19 +14,121 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  avatar    String?  // Profile photo URL or base64
-  bio       String?  // User bio/description
-  phone     String?  // Phone number (optional)
-  location  String?  // Location (optional)
-  website   String?  // Personal website (optional)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String?
+  password          String?  // Hashed password
+  avatar            String?  // Profile photo URL or base64
+  bio               String?  // User bio/description
+  phone             String?  // Phone number (optional)
+  location          String?  // Location (optional)
+  website           String?  // Personal website (optional)
+  role              String   @default("user") // "user" | "admin"
+  emailVerified     Boolean  @default(false)
+  emailVerifiedAt   DateTime?
+  
+  // Subscription fields
+  subscriptionPlan  String   @default("free") // "free" | "normal" | "pro"
+  subscriptionStatus String  @default("active") // "active" | "cancelled" | "expired" | "past_due"
+  stripeCustomerId  String?  // Stripe customer ID
+  stripeSubscriptionId String? // Stripe subscription ID
+  subscriptionStartDate DateTime?
+  subscriptionEndDate    DateTime?
+  
+  // Chat limit tracking for free tier
+  chatsToday        Int      @default(0)
+  lastChatResetDate DateTime? // Date when chat count was last reset
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   
   // Relations
-  chats    Chat[]
+  chats             Chat[]
+  subscriptions     Subscription[]
+  emailVerifications EmailVerification[]
+  passwordResets    PasswordReset[]
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String
+  plan              String   // "free" | "normal" | "pro"
+  status            String   // "active" | "cancelled" | "expired" | "past_due"
+  stripeSubscriptionId String? @unique
+  stripePriceId     String?
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd Boolean  @default(false)
+  amount            Int      // Price in cents (1000 = $10.00)
+  currency          String   @default("usd")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([stripeSubscriptionId])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  verifiedAt DateTime?
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId])
+}
+
+model Payment {
+  id                  String   @id @default(cuid())
+  userId              String
+  stripePaymentIntentId String? @unique
+  stripeCheckoutSessionId String? @unique
+  amount              Int      // Amount in cents
+  currency            String   @default("usd")
+  status              String   // "pending" | "succeeded" | "failed" | "refunded"
+  paymentMethod       String?  // "card" | "paypal" etc.
+  description         String?
+  metadata            String?  // JSON string for additional data
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([stripePaymentIntentId])
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String   // "user_ban", "user_unban", "plan_change", "refund", etc.
+  targetId  String?  // ID of affected user/entity
+  details   String?  // JSON string with additional info
+  ipAddress String?
+  createdAt DateTime @default(now())
+  
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 model Post {

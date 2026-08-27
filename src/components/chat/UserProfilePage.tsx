@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   User, Mail, Camera, Save, X, CheckCircle,
   MapPin, Phone, Globe, Edit3, Sparkles,
   Calendar, MessageSquare, Settings, LogOut,
   ChevronLeft, Shield, Award, Zap, Upload,
   Download, Crown, Star, Clock, RefreshCw,
-  Image as ImageIcon, CreditCard, Check, AlertCircle
+  Image as ImageIcon, CreditCard, Check, AlertCircle,
+  Lock, Key, ShieldCheck, ExternalLink, Database
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -117,6 +119,15 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   // Gmail sync state
   const [isSyncingGmail, setIsSyncingGmail] = useState(false)
 
+  // Stripe/Email verification states
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+  const [isSendingVerification, setIsSendingVerification] = useState(false)
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  
+  // Router for navigation
+  const router = useRouter()
+
   // File input ref
   const fileInputRef = useRef<HTMLInputElement>(null)
   const importInputRef = useRef<HTMLInputElement>(null)
@@ -154,6 +165,30 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
 
     // Load chat count for today
     loadChatCountForToday()
+
+    // Check if email is verified (from localStorage or API)
+    const savedVerified = localStorage.getItem('nexus_email_verified')
+    setEmailVerified(savedVerified === 'true')
+
+    // Check if user is admin
+    const savedRole = localStorage.getItem('nexus_user_role')
+    setIsAdmin(savedRole === 'admin')
+
+    // Check URL params for success/canceled from Stripe
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('success') === 'true') {
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 5000)
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+    if (urlParams.get('verified') === 'true') {
+      setEmailVerified(true)
+      localStorage.setItem('nexus_email_verified', 'true')
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 5000)
+      window.history.replaceState({}, '', window.location.pathname)
+    }
   }, [])
 
   // Calculate chat reset time
@@ -322,40 +357,101 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     setIsEditing(false)
   }
 
-  // Handle subscription upgrade
+  // Handle subscription upgrade with real Stripe integration
   const handleSubscriptionChange = async (planId: 'free' | 'normal' | 'pro') => {
     if (planId === currentPlan) return
     
+    // If downgrading to free, just do it locally
+    if (planId === 'free') {
+      setIsLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      const newSub = { plan: 'free', startDate: new Date().toISOString() }
+      localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
+      setCurrentPlan('free')
+      setMaxChatsForPlan(10)
+      
+      setIsLoading(false)
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+      return
+    }
+    
+    // For paid plans, use Stripe Checkout
+    setIsProcessingPayment(true)
     setIsLoading(true)
     
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // Update subscription
-    const newSub = {
-      plan: planId,
-      startDate: new Date().toISOString(),
-      ...(planId !== 'free' && {
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-        price: planId === 'normal' ? 10 : 20
+    try {
+      const response = await fetch('/api/payments/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, plan: planId })
       })
+      
+      const data = await response.json()
+      
+      if (data.success && data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url
+      } else {
+        // Fallback to mock payment if Stripe not configured
+        console.log('Stripe not configured, using mock payment')
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        
+        const newSub = {
+          plan: planId,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          price: planId === 'normal' ? 10 : 20
+        }
+        
+        localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
+        setCurrentPlan(planId)
+        setMaxChatsForPlan(Infinity)
+        
+        setIsLoading(false)
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 3000)
+        
+        alert(`Successfully upgraded to ${planId.toUpperCase()} plan! 🎉`)
+      }
+    } catch (error) {
+      console.error('Payment error:', error)
+      alert('Failed to process payment. Please try again.')
+      setIsLoading(false)
+    } finally {
+      setIsProcessingPayment(false)
     }
+  }
+
+  // Send email verification
+  const handleSendVerification = async () => {
+    setIsSendingVerification(true)
     
-    localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
-    setCurrentPlan(planId)
-    
-    // Update max chats
-    if (planId === 'pro' || planId === 'normal') {
-      setMaxChatsForPlan(Infinity)
-    } else {
-      setMaxChatsForPlan(10)
+    try {
+      const response = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        alert(data.message + (data.verificationUrl ? `\n\nDev URL: ${data.verificationUrl}` : ''))
+        if (data.verified) {
+          setEmailVerified(true)
+          localStorage.setItem('nexus_email_verified', 'true')
+        }
+      } else {
+        alert(data.error || 'Failed to send verification email')
+      }
+    } catch (error) {
+      console.error('Verification error:', error)
+      alert('Failed to send verification email.')
+    } finally {
+      setIsSendingVerification(false)
     }
-    
-    setIsLoading(false)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-    
-    alert(`Successfully upgraded to ${planId.toUpperCase()} plan!${planId !== 'free' ? ' 🎉' : ''}`)
   }
 
   // Export data
@@ -1097,6 +1193,96 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                       Clear
                     </Button>
                   </div>
+
+                  {/* Email Verification */}
+                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                    <div>
+                      <p className="text-white font-medium flex items-center gap-2">
+                        Email Verification
+                        {emailVerified && (
+                          <ShieldCheck className="w-4 h-4 text-green-400" />
+                        )}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        {emailVerified ? 'Your email is verified' : 'Verify your email address'}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSendVerification}
+                      disabled={isSendingVerification || emailVerified}
+                      className={emailVerified ? "border-green-500/30 text-green-400" : "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"}
+                    >
+                      {emailVerified ? (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          Verified
+                        </>
+                      ) : isSendingVerification ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Mail className="w-4 h-4" />
+                          Verify
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Password Reset */}
+                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                    <div>
+                      <p className="text-white font-medium">Password</p>
+                      <p className="text-sm text-gray-400">Reset your password via email</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // Open password reset modal or navigate
+                        const shouldReset = confirm('Send password reset link to ' + email + '?')
+                        if (shouldReset) {
+                          fetch('/api/auth/forgot-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email })
+                          })
+                          .then(res => res.json())
+                          .then(data => {
+                            alert(data.message + (data.resetUrl ? '\n\nDev URL: ' + data.resetUrl : ''))
+                          })
+                          .catch(() => alert('Failed to send reset email'))
+                        }
+                      }}
+                      className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                    >
+                      <Key className="w-4 h-4 mr-1" />
+                      Reset
+                    </Button>
+                  </div>
+
+                  {/* Admin Dashboard - Only show for admins */}
+                  {isAdmin && (
+                    <div className="flex items-center justify-between p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg">
+                      <div>
+                        <p className="text-purple-400 font-medium flex items-center gap-2">
+                          <Database className="w-4 h-4" />
+                          Admin Dashboard
+                        </p>
+                        <p className="text-sm text-gray-400">Manage users, view stats & revenue</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push('/admin')}
+                        className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        Open
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Delete Account */}
                   <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-lg">

@@ -1,0 +1,1151 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import {
+     5→  User, Mail, Camera, Save, X, CheckCircle,
+     6→  MapPin, Phone, Globe, Edit3, Sparkles,
+     7→  Calendar, MessageSquare, Settings, LogOut,
+     8→  ChevronLeft, Shield, Award, Zap, Upload,
+     9→  Download, Crown, Star, Clock, RefreshCw,
+    10→  Image as ImageIcon, CreditCard, Check, AlertCircle
+    11→} from 'lucide-react'
+    12→import { Button } from '@/components/ui/button'
+    13→import { Card, CardContent } from '@/components/ui/card'
+    14→import { Badge } from '@/components/ui/badge'
+    15→
+    16→// Types
+    17→interface UserProfileProps {
+    18→  user: {
+    19→    name: string
+    20→    email: string
+    21→    avatar?: string
+    22→  }
+    23→  onBack?: () => void
+    24→  onLogout?: () => void
+    25→}
+    26→
+    27→interface SubscriptionPlan {
+    28→  id: 'free' | 'normal' | 'pro'
+    29→  name: string
+    30→  price: number
+    31→  period: string
+    32→  features: string[]
+    33→  popular?: boolean
+    34→  color: string
+    35→  gradient: string
+    36→}
+    37→
+    38→// Subscription Plans Data
+    39→const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+    40→  {
+    41→    id: 'free',
+    42→    name: 'Free',
+    43→    price: 0,
+    44→    period: 'forever',
+    45→    features: [
+    46→      '10 chats per day',
+    47→      'Basic AI responses',
+    48→      'Community support',
+    49→      'Chat history (7 days)'
+    50→    ],
+    51→    color: 'text-gray-400',
+    52→    gradient: 'from-gray-500 to-gray-600'
+    53→  },
+    54→  {
+    55→    id: 'normal',
+    56→    name: 'Normal',
+    57→    price: 10,
+    58→    period: 'month',
+    59→    features: [
+    60→      'Unlimited chats',
+    61→      'Advanced AI models',
+    62→      'Priority support',
+    63→      'Chat history (30 days)',
+    64→      'File attachments',
+    65→      'Export data'
+    66→    ],
+    67→    popular: true,
+    68→    color: 'text-cyan-400',
+    69→    gradient: 'from-cyan-500 to-blue-500'
+    70→  },
+    71→  {
+    72→    id: 'pro',
+    73→    name: 'Pro',
+    74→    price: 20,
+    75→    period: 'month',
+    76→    features: [
+    77→      'Everything in Normal',
+    78→      'GPT-4 & Claude access',
+    79→      'Image generation',
+    80→      'Voice conversations',
+    81→      'API access',
+    82→      'Custom AI training',
+    83→      'Priority queue',
+    84→      'Dedicated support'
+    85→    ],
+    86→    color: 'text-yellow-400',
+    87→    gradient: 'from-yellow-500 to-orange-500'
+    88→  }
+    89→]
+    90→
+    91→export default function UserProfilePage({ user: initialUser, onBack, onLogout }: UserProfileProps) {
+    92→  const [user, setUser] = useState(initialUser)
+    93→  const [isEditing, setIsEditing] = useState(false)
+    94→  const [isLoading, setIsLoading] = useState(false)
+    95→  const [showSuccess, setShowSuccess] = useState(false)
+    96→  const [activeTab, setActiveTab] = useState<'profile' | 'subscription' | 'settings'>('profile')
+    97→  
+    98→  // Form states
+    99→  const [name, setName] = useState(initialUser.name || '')
+   100→  const [email] = useState(initialUser.email || '')
+   101→  const [avatar, setAvatar] = useState(initialUser.avatar || '')
+   102→  const [bio, setBio] = useState('')
+   103→  const [phone, setPhone] = useState('')
+   104→  const [location, setLocation] = useState('')
+   105→  const [website, setWebsite] = useState('')
+   106→
+   107→  // Subscription state
+   108→  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
+   109→  const [chatCountToday, setChatCountToday] = useState(0)
+   110→  const [maxChatsForPlan, setMaxChatsForPlan] = useState(10)
+   111→  const [chatResetTime, setChatResetTime] = useState<string>('')
+   112→
+   113→  // Import/Export state
+   114→  const [isImporting, setIsImporting] = useState(false)
+   115→  const [isExporting, setIsExporting] = useState(false)
+   116→
+   117→  // Gmail sync state
+   118→  const [isSyncingGmail, setIsSyncingGmail] = useState(false)
+   119→
+   120→  // File input ref
+   121→  const fileInputRef = useRef<HTMLInputElement>(null)
+   122→  const importInputRef = useRef<HTMLInputElement>(null)
+   123→
+   124→  // Load user data from localStorage on mount
+   125→  useEffect(() => {
+   126→    const savedUser = localStorage.getItem('nexus_user')
+   127→    if (savedUser) {
+   128→      try {
+   129→        const parsedUser = JSON.parse(savedUser)
+   130→        setUser(parsedUser)
+   131→        setName(parsedUser.name || '')
+   132→        setAvatar(parsedUser.avatar || '')
+   133→      } catch (e) {
+   134→        console.error('Error parsing user data:', e)
+   135→      }
+   136→    }
+   137→
+   138→    // Load profile data if exists
+   139→    const savedProfile = localStorage.getItem('nexus_profile')
+   140→    if (savedProfile) {
+   141→      try {
+   142→        const profile = JSON.parse(savedProfile)
+   143→        setBio(profile.bio || '')
+   144→        setPhone(profile.phone || '')
+   145→        setLocation(profile.location || '')
+   146→        setWebsite(profile.website || '')
+   147→      } catch (e) {
+   148→        console.error('Error parsing profile data:', e)
+   149→      }
+   150→    }
+   151→
+   152→    // Load subscription data
+   153→    loadSubscriptionData()
+   154→
+   155→    // Load chat count for today
+   156→    loadChatCountForToday()
+   157→  }, [])
+   158→
+   159→  // Calculate chat reset time
+   160→  const calculateResetTime = () => {
+   161→    const now = new Date()
+   162→    const tomorrow = new Date(now)
+   163→    tomorrow.setDate(tomorrow.getDate() + 1)
+   164→    tomorrow.setHours(0, 0, 0, 0)
+   165→    
+   166→    const diff = tomorrow.getTime() - now.getTime()
+   167→    const hours = Math.floor(diff / (1000 * 60 * 60))
+   168→    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+   169→    
+   170→    return `${hours}h ${minutes}m`
+   171→  }
+   172→
+   173→  // Load subscription data
+   174→  const loadSubscriptionData = () => {
+   175→    const savedSub = localStorage.getItem('nexus_subscription')
+   176→    if (savedSub) {
+   177→      try {
+   178→        const sub = JSON.parse(savedSub)
+   179→        setCurrentPlan(sub.plan || 'free')
+   180→        
+   181→        // Set max chats based on plan
+   182→        if (sub.plan === 'pro' || sub.plan === 'normal') {
+   183→          setMaxChatsForPlan(Infinity) // Unlimited
+   184→        } else {
+   185→          setMaxChatsForPlan(10)
+   186→        }
+   187→      } catch (e) {
+   188→        console.error('Error parsing subscription:', e)
+   189→      }
+   190→    }
+   191→    
+   192→    // Update reset time
+   193→    setChatResetTime(calculateResetTime())
+   194→    
+   195→    // Update reset time every minute
+   196→    const interval = setInterval(() => {
+   197→      setChatResetTime(calculateResetTime())
+   198→    }, 60000)
+   199→
+   200→    return () => clearInterval(interval)
+   201→  }
+   202→
+   203→  // Load chat count for today
+   204→  const loadChatCountForToday = () => {
+   205→    const savedChats = localStorage.getItem('nexus_chat_count_today')
+   206→    const savedDate = localStorage.getItem('nexus_chat_date')
+   207→    
+   208→    const today = new Date().toDateString()
+   209→    
+   210→    if (savedDate === today && savedChats) {
+   211→      setChatCountToday(parseInt(savedChats, 10))
+   212→    } else {
+   213→      // New day, reset count
+   214→      setChatCountToday(0)
+   215→      localStorage.setItem('nexus_chat_count_today', '0')
+   216→      localStorage.setItem('nexus_chat_date', today)
+   217→    }
+   218→  }
+   219→
+   220→  // Handle avatar upload
+   221→  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+   222→    const file = event.target.files?.[0]
+   223→    if (!file) return
+   224→
+   225→    // Validate file type
+   226→    if (!file.type.startsWith('image/')) {
+   227→      alert('Please select an image file')
+   228→      return
+   229→    }
+   230→
+   231→    // Validate file size (max 5MB)
+   232→    if (file.size > 5 * 1024 * 1024) {
+   233→      alert('Image size should be less than 5MB')
+   234→      return
+   235→    }
+   236→
+   237→    const reader = new FileReader()
+   238→    reader.onload = (e) => {
+   239→      const result = e.target?.result as string
+   240→      setAvatar(result)
+   241→      
+   242→      // Update user state immediately for preview
+   243→      setUser(prev => ({ ...prev, avatar: result }))
+   244→    }
+   245→    reader.readAsDataURL(file)
+   246→  }
+   247→
+   248→  // Remove avatar
+   249→  const handleRemoveAvatar = () => {
+   250→    setAvatar('')
+   251→    setUser(prev => ({ ...prev, avatar: undefined }))
+   252→    if (fileInputRef.current) {
+   253→      fileInputRef.current.value = ''
+   254→    }
+   255→  }
+   256→
+   257→  // Sync photo from Gmail/Google
+   258→  const handleGmailPhotoSync = async () => {
+   259→    setIsSyncingGmail(true)
+   260→    
+   261→    try {
+   262→      // Simulate Google OAuth flow (in production, use Google OAuth API)
+   263→      await new Promise(resolve => setTimeout(resolve, 2000))
+   264→      
+   265→      // For demo: Use a placeholder Google avatar or ask user to enter URL
+   266→      const googleImageUrl = prompt('Enter your Google Profile Photo URL (or leave blank for default):', 
+   267→        'https://lh3.googleusercontent.com/a/default-user'
+   268→      )
+   269→      
+   270→      if (googleImageUrl) {
+   271→        setAvatar(googleImageUrl)
+   272→        setUser(prev => ({ ...prev, avatar: googleImageUrl }))
+   273→        setShowSuccess(true)
+   274→        setTimeout(() => setShowSuccess(false), 3000)
+   275→      }
+   276→    } catch (error) {
+   277→      console.error('Gmail sync error:', error)
+   278→      alert('Failed to sync Google photo. Please try again.')
+   279→    } finally {
+   280→      setIsSyncingGmail(false)
+   281→    }
+   282→  }
+   283→
+   284→  // Save profile
+   285→  const handleSaveProfile = async () => {
+   286→    setIsLoading(true)
+   287→    
+   288→    // Simulate API call
+   289→    await new Promise(resolve => setTimeout(resolve, 1000))
+   290→
+   291→    // Update user object
+   292→    const updatedUser = {
+   293→      ...user,
+   294→      name,
+   295→      avatar
+   296→    }
+   297→
+   298→    // Save to localStorage
+   299→    localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
+   300→    
+   301→    // Save extended profile data
+   302→    const profileData = { bio, phone, location, website }
+   303→    localStorage.setItem('nexus_profile', JSON.stringify(profileData))
+   304→
+   305→    setUser(updatedUser)
+   306→    setIsEditing(false)
+   307→    setShowSuccess(true)
+   308→    setIsLoading(false)
+   309→
+   310→    // Hide success message after 3 seconds
+   311→    setTimeout(() => setShowSuccess(false), 3000)
+   312→  }
+   313→
+   314→  // Cancel editing
+   315→  const handleCancelEdit = () => {
+   316→    setName(user.name || '')
+   317→    setAvatar(user.avatar || '')
+   318→    setBio(bio)
+   319→    setPhone(phone)
+   320→    setLocation(location)
+   321→    setWebsite(website)
+   322→    setIsEditing(false)
+   323→  }
+   324→
+   325→  // Handle subscription upgrade
+   326→  const handleSubscriptionChange = async (planId: 'free' | 'normal' | 'pro') => {
+   327→    if (planId === currentPlan) return
+   328→    
+   329→    setIsLoading(true)
+   330→    
+   331→    // Simulate payment processing
+   332→    await new Promise(resolve => setTimeout(resolve, 1500))
+   333→    
+   334→    // Update subscription
+   335→    const newSub = {
+   336→      plan: planId,
+   337→      startDate: new Date().toISOString(),
+   338→      ...(planId !== 'free' && {
+   339→        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+   340→        price: planId === 'normal' ? 10 : 20
+   341→      })
+   342→    }
+   343→    
+   344→    localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
+   345→    setCurrentPlan(planId)
+   346→    
+   347→    // Update max chats
+   348→    if (planId === 'pro' || planId === 'normal') {
+   349→      setMaxChatsForPlan(Infinity)
+   350→    } else {
+   351→      setMaxChatsForPlan(10)
+   352→    }
+   353→    
+   354→    setIsLoading(false)
+   355→    setShowSuccess(true)
+   356→    setTimeout(() => setShowSuccess(false), 3000)
+   357→    
+   358→    alert(`Successfully upgraded to ${planId.toUpperCase()} plan!${planId !== 'free' ? ' 🎉' : ''}`)
+   359→  }
+   360→
+   361→  // Export data
+   362→  const handleExportData = async () => {
+   363→    setIsExporting(true)
+   364→    
+   365→    try {
+   366→      // Gather all user data
+   367→      const exportData = {
+   368→        user: JSON.parse(localStorage.getItem('nexus_user') || '{}'),
+   369→        profile: JSON.parse(localStorage.getItem('nexus_profile') || '{}'),
+   370→        subscription: JSON.parse(localStorage.getItem('nexus_subscription') || '{}'),
+   371→        chats: JSON.parse(localStorage.getItem('nexus_chats') || '[]'),
+   372→        exportDate: new Date().toISOString(),
+   373→        version: '1.0'
+   374→      }
+   375→      
+   376→      // Create and download file
+   377→      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+   378→      const url = URL.createObjectURL(blob)
+   379→      const a = document.createElement('a')
+   380→      a.href = url
+   381→      a.download = `nexus-ai-export-${new Date().toISOString().split('T')[0]}.json`
+   382→      document.body.appendChild(a)
+   383→      a.click()
+   384→      document.body.removeChild(a)
+   385→      URL.revokeObjectURL(url)
+   386→      
+   387→      setShowSuccess(true)
+   388→      setTimeout(() => setShowSuccess(false), 3000)
+   389→    } catch (error) {
+   390→      console.error('Export error:', error)
+   391→      alert('Failed to export data')
+   392→    } finally {
+   393→      setIsExporting(false)
+   394→    }
+   395→  }
+   396→
+   397→  // Import data
+   398→  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+   399→    const file = event.target.files?.[0]
+   400→    if (!file) return
+   401→
+   402→    setIsImporting(true)
+   403→    
+   404→    const reader = new FileReader()
+   405→    reader.onload = async (e) => {
+   406→      try {
+   407→        const importData = JSON.parse(e.target?.result as string)
+   408→        
+   409→        // Validate import data
+   410→        if (!importData.user || !importData.version) {
+   411→          throw new Error('Invalid export file')
+   412→        }
+   413→        
+   414→        // Confirm import
+   415→        const confirmed = confirm(
+   416→          `This will overwrite your current data with:\n` +
+   417→          `- User: ${importData.user?.name || 'Unknown'}\n` +
+   418→          `- Chats: ${importData.chats?.length || 0} sessions\n\n` +
+   419→          `Continue with import?`
+   420→        )
+   421→        
+   422→        if (confirmed) {
+   423→          // Import data
+   424→          if (importData.user) localStorage.setItem('nexus_user', JSON.stringify(importData.user))
+   425→          if (importData.profile) localStorage.setItem('nexus_profile', JSON.stringify(importData.profile))
+   426→          if (importData.subscription) {
+   427→            localStorage.setItem('nexus_subscription', JSON.stringify(importData.subscription))
+   428→            loadSubscriptionData()
+   429→          }
+   430→          if (importData.chats) localStorage.setItem('nexus_chats', JSON.stringify(importData.chats))
+   431→          
+   432→          // Reload page to show imported data
+   433→          window.location.reload()
+   434→        }
+   435→      } catch (error) {
+   436→        console.error('Import error:', error)
+   437→        alert('Failed to import data. Please check the file format.')
+   438→      } finally {
+   439→        setIsImporting(false)
+   440→        if (importInputRef.current) {
+   441→          importInputRef.current.value = ''
+   442→        }
+   443→      }
+   444→    }
+   445→    reader.readAsText(file)
+   446→  }
+   447→
+   448→  // Get initials for fallback avatar
+   449→  const getInitials = (name: string) => {
+   450→    return name
+   451→      .split(' ')
+   452→      .map(word => word[0])
+   453→      .join('')
+   454→      .toUpperCase()
+   455→      .slice(0, 2)
+   456→  }
+   457→
+   458→  // Generate stats (mock data - in real app, fetch from API)
+   459→  const stats = [
+   460→    { label: 'Total Chats', value: currentPlan === 'free' ? `${chatCountToday}/${maxChatsForPlan}` : '∞', icon: MessageSquare, color: 'from-cyan-500 to-blue-500' },
+   461→    { label: 'Days Active', value: '15', icon: Calendar, color: 'from-violet-500 to-purple-500' },
+   462→    { label: 'AI Queries', value: '156', icon: Zap, color: 'from-pink-500 to-rose-500' },
+   463→    { label: 'Plan', value: currentPlan.toUpperCase(), icon: currentPlan === 'pro' ? Crown : Star, color: currentPlan === 'pro' ? 'from-yellow-500 to-orange-500' : currentPlan === 'normal' ? 'from-cyan-500 to-blue-500' : 'from-gray-500 to-gray-600' }
+   464→  ]
+   465→
+   466→  // Chat limit percentage (for progress bar)
+   467→  const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
+   468→
+   469→  return (
+   470→    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
+   471→      {/* Success Toast */}
+   472→      {showSuccess && (
+   473→        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
+   474→          <div className="bg-green-500/20 border border-green-500/30 backdrop-blur-xl rounded-xl px-6 py-4 flex items-center gap-3 shadow-lg shadow-green-500/20">
+   475→            <CheckCircle className="w-5 h-5 text-green-400" />
+   476→            <span className="text-green-300 font-medium">Action completed successfully!</span>
+   477→          </div>
+   478→        </div>
+   479→      )}
+   480→
+   481→      {/* Header */}
+   482→      <div className="relative overflow-hidden">
+   483→        {/* Background Pattern */}
+   484→        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10" />
+   485→        <div className="absolute inset-0 opacity-20">
+   486→          <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]" />
+   487→          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500 rounded-full filter blur-[120px]" />
+   488→        </div>
+   489→
+   490→        {/* Chat Limit Banner - Only for Free Users */}
+   491→        {currentPlan === 'free' && (
+   492→          <div className="relative bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 border-b border-orange-500/30 px-4 py-3">
+   493→            <div className="max-w-4xl mx-auto flex items-center justify-between">
+   494→              <div className="flex items-center gap-3">
+   495→                <Clock className="w-5 h-5 text-orange-400 animate-pulse" />
+   496→                <div>
+   497→                  <p className="text-sm font-medium text-orange-300">
+   498→                    Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used
+   499→                  </p>
+   500→                  <p className="text-xs text-gray-400">
+   501→                    Resets in: <span className="text-cyan-400 font-mono">{chatResetTime}</span>
+   502→                  </p>
+   503→                </div>
+   504→              </div>
+   505→              
+   506→              {/* Progress Bar */}
+   507→              <div className="hidden sm:flex items-center gap-3">
+   508→                <div className="w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+   509→                  <div 
+   510→                    className={`h-full transition-all duration-500 ${
+   511→                      chatLimitPercentage >= 90 
+   512→                        ? 'bg-red-500' 
+   513→                        : chatLimitPercentage >= 70 
+   514→                          ? 'bg-yellow-500' 
+   515→                          : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+   516→                    }`}
+   517→                    style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+   518→                  />
+   519→                </div>
+   520→                <Button
+   521→                  size="sm"
+   522→                  onClick={() => setActiveTab('subscription')}
+   523→                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:shadow-lg hover:shadow-cyan-500/25 text-xs"
+   524→                >
+   525→                  <Crown className="w-3 h-3 mr-1" />
+   526→                  Upgrade
+   527→                </Button>
+   528→              </div>
+   529→            </div>
+   530→          </div>
+   531→        )}
+   532→
+   533→        <div className="relative max-w-4xl mx-auto px-4 py-8">
+   534→          {/* Navigation */}
+   535→          <div className="flex items-center justify-between mb-8">
+   536→            <button
+   537→              onClick={onBack}
+   538→              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+   539→            >
+   540→              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+   541→              <span>Back</span>
+   542→            </button>
+   543→
+   544→            <h1 className="text-2xl font-bold gradient-text font-[family-name:var(--font-orbitron)]">
+   545→              User Profile
+   546→            </h1>
+   547→
+   548→            {!isEditing ? (
+   549→              <button
+   550→                onClick={() => setIsEditing(true)}
+   551→                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+   552→              >
+   553→                <Edit3 className="w-4 h-4" />
+   554→                Edit Profile
+   555→              </button>
+   556→            ) : (
+   557→              <div className="flex items-center gap-2">
+   558→                <button
+   559→                  onClick={handleCancelEdit}
+   560→                  className="flex items-center gap-2 px-4 py-2 border border-gray-600 rounded-lg text-sm text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+   561→                >
+   562→                  <X className="w-4 h-4" />
+   563→                  Cancel
+   564→                </button>
+   565→              </div>
+   566→            )}
+   567→          </div>
+   568→
+   569→          {/* Profile Header Card */}
+   570→          <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl overflow-hidden">
+   571→            <CardContent className="p-8">
+   572→              <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+   573→                
+   574→                {/* Avatar Section */}
+   575→                <div className="relative group">
+   576→                  {/* Avatar */}
+   577→                  <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
+   578→                    <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
+   579→                      {avatar ? (
+   580→                        <img
+   581→                          src={avatar}
+   582→                          alt={name || 'User'}
+   583→                          className="w-full h-full object-cover"
+   584→                        />
+   585→                      ) : (
+   586→                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/20 to-violet-600/20">
+   587→                          <span className="text-4xl font-bold text-cyan-400">
+   588→                            {getInitials(name || 'U')}
+   589→                          </span>
+   590→                        </div>
+   591→                      )}
+   592→                    </div>
+   593→                  </div>
+   594→
+   595→                  {/* Camera Overlay - Only show when editing */}
+   596→                  {isEditing && (
+   597→                    <>
+   598→                      <button
+   599→                        onClick={() => fileInputRef.current?.click()}
+   600→                        className="absolute inset-0 w-32 h-32 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+   601→                      >
+   602→                        <Camera className="w-8 h-8 text-white" />
+   603→                      </button>
+   604→                      <input
+   605→                        ref={fileInputRef}
+   606→                        type="file"
+   607→                        accept="image/*"
+   608→                        onChange={handleAvatarUpload}
+   609→                        className="hidden"
+   610→                      />
+   611→                    </>
+   612→                  )}
+   613→
+   614→                  {/* Online Status */}
+   615→                  <span className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-4 border-gray-900" />
+   616→
+   617→                  {/* Remove Avatar Button */}
+   618→                  {isEditing && avatar && (
+   619→                    <button
+   620→                      onClick={handleRemoveAvatar}
+   621→                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+   622→                    >
+   623→                      <X className="w-3 h-3 text-white" />
+   624→                    </button>
+   625→                  )}
+   626→                </div>
+   627→
+   628→                {/* User Info */}
+   629→                <div className="flex-1 text-center md:text-left space-y-4">
+   630→                  {isEditing ? (
+   631→                    <div className="space-y-4">
+   632→                      <div>
+   633→                        <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">
+   634→                          Display Name
+   635→                        </label>
+   636→                        <input
+   637→                          type="text"
+   638→                          value={name}
+   639→                          onChange={(e) => setName(e.target.value)}
+   640→                          placeholder="Enter your name"
+   641→                          className="w-full max-w-md bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all"
+   642→                        />
+   643→                      </div>
+   644→                      
+   645→                      <div className="flex items-center gap-2 text-gray-400 text-sm">
+   646→                        <Mail className="w-4 h-4" />
+   647→                        <span>{email}</span>
+   648→                        <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 text-xs">
+   649→                          Verified
+   650→                        </Badge>
+   651→                      </div>
+   652→
+   653→                      {/* Gmail Sync Button */}
+   654→                      <button
+   655→                        onClick={handleGmailPhotoSync}
+   656→                        disabled={isSyncingGmail}
+   657→                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/20 transition-all text-sm disabled:opacity-50"
+   658→                      >
+   659→                        {isSyncingGmail ? (
+   660→                          <RefreshCw className="w-4 h-4 animate-spin" />
+   661→                        ) : (
+   662→                          <ImageIcon className="w-4 h-4" />
+   663→                        )}
+   664→                        {isSyncingGmail ? 'Syncing...' : 'Sync Google Photo'}
+   665→                      </button>
+   666→                    </div>
+   667→                  ) : (
+   668→                    <>
+   669→                      <div>
+   670→                        <h2 className="text-3xl font-bold text-white mb-2">
+   671→                          {name || 'User'}
+   672→                        </h2>
+   673→                        <div className="flex items-center gap-2 text-gray-400 text-sm justify-center md:justify-start">
+   674→                          <Mail className="w-4 h-4" />
+   675→                          <span>{email}</span>
+   676→                          <Badge variant="secondary" className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">
+   677→                            <Shield className="w-3 h-3 mr-1" />
+   678→                            Verified
+   679→                          </Badge>
+   680→                          <Badge 
+   681→                            variant="secondary" 
+   682→                            className={`${currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'} text-xs`}
+   683→                          >
+   684→                            {currentPlan === 'pro' ? <Crown className="w-3 h-3 mr-1" /> : <Star className="w-3 h-3 mr-1" />}
+   685→                            {currentPlan.toUpperCase()}
+   686→                          </Badge>
+   687→                        </div>
+   688→                      </div>
+   689→
+   690→                      {bio && !isEditing && (
+   691→                        <p className="text-gray-400 max-w-lg">{bio}</p>
+   692→                      )}
+   693→                    </>
+   694→                  )}
+   695→                </div>
+   696→
+   697→                {/* Action Buttons */}
+   698→                <div className="flex flex-col gap-3">
+   699→                  {isEditing && (
+   700→                    <Button
+   701→                      onClick={handleSaveProfile}
+   702→                      disabled={isLoading}
+   703→                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
+   704→                    >
+   705→                      {isLoading ? (
+   706→                        <div className="flex items-center gap-2">
+   707→                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+   708→                          Saving...
+   709→                        </div>
+   710→                      ) : (
+   711→                        <>
+   712→                          <Save className="w-4 h-4 mr-2" />
+   713→                          Save Changes
+   714→                        </>
+   715→                      )}
+   716→                    </Button>
+   717→                  )}
+   718→                  
+   719→                  {onLogout && (
+   720→                    <Button
+   721→                      variant="outline"
+   722→                      onClick={onLogout}
+   723→                      className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
+   724→                    >
+   725→                      <LogOut className="w-4 h-4 mr-2" />
+   726→                      Logout
+   727→                    </Button>
+   728→                  )}
+   729→                </div>
+   730→              </div>
+   731→            </CardContent>
+   732→          </Card>
+   733→        </div>
+   734→      </div>
+   735→
+   736→      {/* Tabs & Content */}
+   737→      <div className="max-w-4xl mx-auto px-4 pb-12">
+   738→        {/* Tab Navigation */}
+   739→        <div className="flex gap-2 mb-8 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
+   740→          {[
+   741→            { id: 'profile', label: 'Profile Info', icon: User },
+   742→            { id: 'subscription', label: 'Subscription', icon: CreditCard },
+   743→            { id: 'settings', label: 'Settings', icon: Settings }
+   744→          ].map((tab) => (
+   745→            <button
+   746→              key={tab.id}
+   747→              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+   748→              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+   749→                activeTab === tab.id
+   750→                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg'
+   751→                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+   752→              }`}
+   753→            >
+   754→              <tab.icon className="w-4 h-4" />
+   755→              {tab.label}
+   756→            </button>
+   757→          ))}
+   758→        </div>
+   759→
+   760→        {/* Tab Content */}
+   761→        {activeTab === 'profile' && (
+   762→          <div className="grid md:grid-cols-2 gap-6">
+   763→            {/* Bio Card */}
+   764→            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
+   765→              <CardContent className="p-6 space-y-4">
+   766→                <div className="flex items-center gap-2 mb-4">
+   767→                  <Sparkles className="w-5 h-5 text-cyan-400" />
+   768→                  <h3 className="font-semibold text-white">About Me</h3>
+   769→                </div>
+   770→                
+   771→                {isEditing ? (
+   772→                  <textarea
+   773→                    value={bio}
+   774→                    onChange={(e) => setBio(e.target.value)}
+   775→                    placeholder="Tell us about yourself..."
+   776→                    rows={4}
+   777→                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none resize-none transition-all"
+   778→                  />
+   779→                ) : (
+   780→                  <p className="text-gray-400 leading-relaxed">
+   781→                    {bio || 'No bio added yet. Click edit to add your bio!'}
+   782→                  </p>
+   783→                )}
+   784→              </CardContent>
+   785→            </Card>
+   786→
+   787→            {/* Contact Info Card */}
+   788→            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
+   789→              <CardContent className="p-6 space-y-4">
+   790→                <div className="flex items-center gap-2 mb-4">
+   791→                  <User className="w-5 h-5 text-violet-400" />
+   792→                  <h3 className="font-semibold text-white">Contact Information</h3>
+   793→                </div>
+   794→
+   795→                <div className="space-y-4">
+   796→                  {/* Phone */}
+   797→                  <div className="flex items-center gap-3">
+   798→                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+   799→                      <Phone className="w-4 h-4 text-blue-400" />
+   800→                    </div>
+   801→                    <div className="flex-1">
+   802→                      {isEditing ? (
+   803→                        <input
+   804→                          type="tel"
+   805→                          value={phone}
+   806→                          onChange={(e) => setPhone(e.target.value)}
+   807→                          placeholder="Phone number"
+   808→                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
+   809→                        />
+   810→                      ) : (
+   811→                        <div>
+   812→                          <p className="text-xs text-gray-500">Phone</p>
+   813→                          <p className="text-sm text-gray-300">{phone || 'Not added'}</p>
+   814→                        </div>
+   815→                      )}
+   816→                    </div>
+   817→                  </div>
+   818→
+   819→                  {/* Location */}
+   820→                  <div className="flex items-center gap-3">
+   821→                    <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+   822→                      <MapPin className="w-4 h-4 text-green-400" />
+   823→                    </div>
+   824→                    <div className="flex-1">
+   825→                      {isEditing ? (
+   826→                        <input
+   827→                          type="text"
+   828→                          value={location}
+   829→                          onChange={(e) => setLocation(e.target.value)}
+   830→                          placeholder="Location"
+   831→                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
+   832→                        />
+   833→                      ) : (
+   834→                        <div>
+   835→                          <p className="text-xs text-gray-500">Location</p>
+   836→                          <p className="text-sm text-gray-300">{location || 'Not added'}</p>
+   837→                        </div>
+   838→                      )}
+   839→                    </div>
+   840→                  </div>
+   841→
+   842→                  {/* Website */}
+   843→                  <div className="flex items-center gap-3">
+   844→                    <div className="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
+   845→                      <Globe className="w-4 h-4 text-pink-400" />
+   846→                    </div>
+   847→                    <div className="flex-1">
+   848→                      {isEditing ? (
+   849→                        <input
+   850→                          type="url"
+   851→                          value={website}
+   852→                          onChange={(e) => setWebsite(e.target.value)}
+   853→                          placeholder="https://yourwebsite.com"
+   854→                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
+   855→                        />
+   856→                      ) : (
+   857→                        <div>
+   858→                          <p className="text-xs text-gray-500">Website</p>
+   859→                          {website ? (
+   860→                            <a 
+   861→                              href={website} 
+   862→                              target="_blank" 
+   863→                              rel="noopener noreferrer"
+   864→                              className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+   865→                            >
+   866→                              {website}
+   867→                            </a>
+   868→                          ) : (
+   869→                            <p className="text-sm text-gray-300">Not added</p>
+   870→                          )}
+   871→                        </div>
+   872→                      )}
+   873→                    </div>
+   874→                  </div>
+   875→                </div>
+   876→              </CardContent>
+   877→            </Card>
+   878→          </div>
+   879→        )}
+   880→
+   881→        {activeTab === 'subscription' && (
+   882→          <div className="space-y-8">
+   883→            {/* Current Plan Status */}
+   884→            <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
+   885→              <CardContent className="p-8 text-center">
+   886→                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-full mb-4">
+   887→                  <Sparkles className="w-4 h-4 text-cyan-400" />
+   888→                  <span className="text-sm text-gray-300">Current Plan</span>
+   889→                </div>
+   890→                <h2 className="text-3xl font-bold text-white mb-2">
+   891→                  {currentPlan === 'pro' ? '👑 Pro' : currentPlan === 'normal' ? '⭐ Normal' : '🆓 Free'}
+   892→                </h2>
+   893→                <p className="text-gray-400 mb-6">
+   894→                  {currentPlan === 'free' 
+   895→                    ? `You have ${maxChatsForPlan - chatCountToday} chats remaining today`
+   896→                    : 'Unlimited access to all features!'
+   897→                  }
+   898→                </p>
+   899→                
+   900→                {/* Free User Progress */}
+   901→                {currentPlan === 'free' && (
+   902→                  <div className="max-w-md mx-auto mb-6">
+   903→                    <div className="flex justify-between text-sm mb-2">
+   904→                      <span className="text-gray-400">Daily Usage</span>
+   905→                      <span className="text-cyan-400">{chatCountToday}/{maxChatsForPlan} chats</span>
+   906→                    </div>
+   907→                    <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
+   908→                      <div 
+   909→                        className={`h-full transition-all duration-500 ${
+   910→                          chatLimitPercentage >= 90 
+   911→                            ? 'bg-red-500' 
+   912→                            : chatLimitPercentage >= 70 
+   913→                              ? 'bg-yellow-500' 
+   914→                              : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+   915→                        }`}
+   916→                        style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+   917→                      />
+   918→                    </div>
+   919→                    <div className="flex justify-between text-xs mt-2">
+   920→                      <span className="text-gray-500">Resets at midnight</span>
+   921→                      <span className="text-cyan-400">{chatResetTime}</span>
+   922→                    </div>
+   923→                  </div>
+   924→                )}
+   925→              </CardContent>
+   926→            </Card>
+   927→
+   928→            {/* Subscription Plans Grid */}
+   929→            <div className="grid md:grid-cols-3 gap-6">
+   930→              {SUBSCRIPTION_PLANS.map((plan) => (
+   931→                <Card 
+   932→                  key={plan.id}
+   933→                  className={`relative bg-gray-900/50 backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+   934→                    currentPlan === plan.id 
+   935→                      ? 'border-2 border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
+   936→                      : 'border-gray-800 hover:border-gray-700'
+   937→                  } ${plan.popular ? 'md:-mt-4 md:mb-[-16px]' : ''}`}
+   938→                >
+   939→                  {plan.popular && (
+   940→                    <div className="absolute top-0 right-0 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+   941→                      POPULAR
+   942→                    </div>
+   943→                  )}
+   944→                  
+   945→                  <CardContent className="p-6">
+   946→                    <div className="text-center mb-6">
+   947→                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3`}>
+   948→                        {plan.id === 'pro' ? (
+   949→                          <Crown className="w-6 h-6 text-white" />
+   950→                        ) : plan.id === 'normal' ? (
+   951→                          <Star className="w-6 h-6 text-white" />
+   952→                        ) : (
+   953→                          <User className="w-6 h-6 text-white" />
+   954→                        )}
+   955→                      </div>
+   956→                      <h3 className={`text-xl font-bold ${plan.color}`}>{plan.name}</h3>
+   957→                      <div className="mt-2">
+   958→                        <span className="text-3xl font-bold text-white">${plan.price}</span>
+   959→                        <span className="text-gray-400">/{plan.period}</span>
+   960→                      </div>
+   961→                    </div>
+   962→
+   963→                    <ul className="space-y-3 mb-6">
+   964→                      {plan.features.map((feature, idx) => (
+   965→                        <li key={idx} className="flex items-start gap-2 text-sm">
+   966→                          <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+   967→                            currentPlan === plan.id ? 'text-cyan-400' : 'text-gray-500'
+   968→                          }`} />
+   969→                          <span className={currentPlan === plan.id ? 'text-gray-200' : 'text-gray-400'}>
+   970→                            {feature}
+   971→                          </span>
+   972→                        </li>
+   973→                      ))}
+   974→                    </ul>
+   975→
+   976→                    <Button
+   977→                      onClick={() => handleSubscriptionChange(plan.id)}
+   978→                      disabled={currentPlan === plan.id || isLoading}
+   979→                      className={`w-full ${
+   980→                        currentPlan === plan.id
+   981→                          ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
+   982→                          : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
+   983→                      } transition-all`}
+   984→                    >
+   985→                      {currentPlan === plan.id ? (
+   986→                        <>
+   987→                          <Check className="w-4 h-4 mr-2" />
+   988→                          Current Plan
+   989→                        </>
+   990→                      ) : plan.price === 0 ? (
+   991→                        'Downgrade to Free'
+   992→                      ) : (
+   993→                        <>
+   994→                          <CreditCard className="w-4 h-4 mr-2" />
+   995→                          Upgrade to {plan.name}
+   996→                        </>
+   997→                      )}
+   998→                    </Button>
+   999→                  </CardContent>
+  1000→                </Card>
+  1001→              ))}
+  1002→            </div>
+  1003→          </div>
+  1004→        )}
+  1005→
+  1006→        {activeTab === 'settings' && (
+  1007→          <div className="space-y-6">
+  1008→            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
+  1009→              <CardContent className="p-6 space-y-6">
+  1010→                <h3 className="font-semibold text-white flex items-center gap-2">
+  1011→                  <Settings className="w-5 h-5 text-cyan-400" />
+  1012→                  Account Settings
+  1013→                </h3>
+  1014→
+  1015→                <div className="space-y-4">
+  1016→                  {/* Notifications */}
+  1017→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1018→                    <div>
+  1019→                      <p className="text-white font-medium">Notifications</p>
+  1020→                      <p className="text-sm text-gray-400">Receive updates about your account</p>
+  1021→                    </div>
+  1022→                    <div className="w-12 h-6 bg-cyan-500 rounded-full relative cursor-pointer">
+  1023→                      <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" />
+  1024→                    </div>
+  1025→                  </div>
+  1026→
+  1027→                  {/* Data Export */}
+  1028→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1029→                    <div>
+  1030→                      <p className="text-white font-medium">Export Data</p>
+  1031→                      <p className="text-sm text-gray-400">Download all your chat history and data</p>
+  1032→                    </div>
+  1033→                    <Button
+  1034→                      variant="outline"
+  1035→                      size="sm"
+  1036→                      onClick={handleExportData}
+  1037→                      disabled={isExporting}
+  1038→                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+  1039→                    >
+  1040→                      {isExporting ? (
+  1041→                        <RefreshCw className="w-4 h-4 animate-spin" />
+  1042→                      ) : (
+  1043→                        <Download className="w-4 h-4" />
+  1044→                      )}
+  1045→                      {isExporting ? 'Exporting...' : 'Export'}
+  1046→                    </Button>
+  1047→                  </div>
+  1048→
+  1049→                  {/* Data Import */}
+  1050→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1051→                    <div>
+  1052→                      <p className="text-white font-medium">Import Data</p>
+  1053→                      <p className="text-sm text-gray-400">Restore data from backup file</p>
+  1054→                    </div>
+  1055→                    <div className="relative">
+  1056→                      <input
+  1057→                        ref={importInputRef}
+  1058→                        type="file"
+  1059→                        accept=".json"
+  1060→                        onChange={handleImportData}
+  1061→                        className="hidden"
+  1062→                      />
+  1063→                      <Button
+  1064→                        variant="outline"
+  1065→                        size="sm"
+  1066→                        onClick={() => importInputRef.current?.click()}
+  1067→                        disabled={isImporting}
+  1068→                        className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+  1069→                      >
+  1070→                        {isImporting ? (
+  1071→                          <RefreshCw className="w-4 h-4 animate-spin" />
+  1072→                        ) : (
+  1073→                          <Upload className="w-4 h-4" />
+  1074→                        )}
+  1075→                        {isImporting ? 'Importing...' : 'Import'}
+  1076→                      </Button>
+  1077→                    </div>
+  1078→                  </div>
+  1079→
+  1080→                  {/* Clear Cache */}
+  1081→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1082→                    <div>
+  1083→                      <p className="text-white font-medium">Clear Cache</p>
+  1084→                      <p className="text-sm text-gray-400">Clear local storage and cache</p>
+  1085→                    </div>
+  1086→                    <Button
+  1087→                      variant="outline"
+  1088→                      size="sm"
+  1089→                      onClick={() => {
+  1090→                        if (confirm('Clear all cache? This will not delete your account.')) {
+  1091→                          localStorage.clear()
+  1092→                          window.location.reload()
+  1093→                        }
+  1094→                      }}
+  1095→                      className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+  1096→                    >
+  1097→                      Clear
+  1098→                    </Button>
+  1099→                  </div>
+  1100→
+  1101→                  {/* Delete Account */}
+  1102→                  <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-lg">
+  1103→                    <div>
+  1104→                      <p className="text-red-400 font-medium">Delete Account</p>
+  1105→                      <p className="text-sm text-gray-400">Permanently delete your account and data</p>
+  1106→                    </div>
+  1107→                    <Button
+  1108→                      variant="outline"
+  1109→                      size="sm"
+  1110→                      onClick={() => {
+  1111→                        if (confirm('Are you sure? This action cannot be undone!')) {
+  1112→                          localStorage.clear()
+  1113→                          onLogout?.()
+  1114→                        }
+  1115→                      }}
+  1116→                      className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+  1117→                    >
+  1118→                      Delete
+  1119→                    </Button>
+  1120→                  </div>
+  1121→                </div>
+  1122→              </CardContent>
+  1123→            </Card>
+  1124→          </div>
+  1125→        )}
+  1126→      </div>
+  1127→    </div>
+  1128→  )
+  1129→}
+  1130→
+  1131→// Missing icon import
+  1132→function BarChart3(props: any) {
+  1133→  return (
+  1134→    <svg
+  1135→      xmlns="http://www.w3.org/2000/svg"
+  1136→      width="24"
+  1137→      height="24"
+  1138→      viewBox="0 0 24 24"
+  1139→      fill="none"
+  1140→      stroke="currentColor"
+  1141→      strokeWidth="2"
+  1142→      strokeLinecap="round"
+  1143→      strokeLinejoin="round"
+  1144→      {...props}
+  1145→    >
+  1146→      <path d="M3 3v18h18"/>
+  1147→      <path d="m19 9-5 5-4-4-3 3"/>
+  1148→    </svg>
+  1149→  )
+  1150→}
+  1151→
