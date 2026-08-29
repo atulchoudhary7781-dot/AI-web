@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square, Paperclip, X } from 'lucide-react'
+import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square, Paperclip, X, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import ToolsPanel from './ToolsPanel'
 
 interface ChatMessage {
   id: string
@@ -52,6 +53,9 @@ export default function FullScreenChat({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [filePreview, setFilePreview] = useState<string | null>(null)
+  
+  // Tools Panel State
+  const [isToolsOpen, setIsToolsOpen] = useState(false)
 
   // Sync with parent - clear file when parent sends
   useEffect(() => {
@@ -126,6 +130,13 @@ export default function FullScreenChat({
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  // Handle insert text from tools panel to chat input
+  const handleInsertFromTools = (text: string) => {
+    setInputValue(prev => prev ? `${prev}\n${text}` : text)
+    setIsToolsOpen(false)
+    textareaRef.current?.focus()
   }
 
   // Track if we just sent a message (to clear attachment only after send)
@@ -470,6 +481,21 @@ export default function FullScreenChat({
               >
                 <Paperclip className="w-[18px] h-[18px]" />
               </button>
+
+              {/* AI Tools Button */}
+              <button
+                type="button"
+                onClick={() => setIsToolsOpen(true)}
+                disabled={isLoading}
+                className={`p-2 rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isToolsOpen
+                    ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30' 
+                    : 'bg-transparent text-gray-400 hover:text-violet-400 hover:bg-gray-700/50'
+                }`}
+                title="AI Tools (Web Search, Images, Voice, Code, Files, Translate)"
+              >
+                <Wrench className="w-[18px] h-[18px]" />
+              </button>
               
               {/* Text Input */}
               <Textarea
@@ -529,6 +555,13 @@ export default function FullScreenChat({
           </div>
         </div>
       </div>
+
+      {/* AI Tools Panel */}
+      <ToolsPanel
+        isOpen={isToolsOpen}
+        onClose={() => setIsToolsOpen(false)}
+        onInsertToChat={handleInsertFromTools}
+      />
 
       {/* Custom Styles */}
       <style jsx>{`
