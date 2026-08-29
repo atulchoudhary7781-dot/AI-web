@@ -152,54 +152,36 @@ export default function FullScreenChat({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
-      {/* Global style to disable ALL scrolling on this page */}
-      <style>{`
-        /* Disable all scrollbars - Chrome, Safari, Opera */
-        ::-webkit-scrollbar {
-          display: none !important;
-          width: 0 !important;
-          height: 0 !important;
-        }
-        
-        /* Disable scrollbars - Firefox, IE, Edge */
-        * {
-          scrollbar-width: none !important;
-          -ms-overflow-style: none !important;
-          overflow: hidden !important;
-        }
-        
-        /* Force no scroll on html/body */
-        html, body {
-          overflow: hidden !important;
-          height: 100% !important;
-        }
-      `}</style>
-      
-      {/* Welcome Header - Only show when no messages or first load */}
-      {messages.length <= 1 && (
-        <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
-          <div className="text-center max-w-2xl py-8">
-            {/* Logo */}
-            <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
-              <Sparkles className="w-8 h-8 text-white" />
+      {/* Welcome Screen - Perfect Fit Layout */}
+      {messages.length <= 1 ? (
+        <>
+          {/* Centered Content Area */}
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className="text-center max-w-xl">
+              {/* Logo - Compact */}
+              <div className="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-xl shadow-cyan-500/20">
+                <Sparkles className="w-7 h-7 text-white" />
+              </div>
+              
+              {/* Title - Compact */}
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                Welcome to{' '}
+                <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                  NEXUS AI
+                </span>
+              </h2>
+              
+              {/* Description - Compact */}
+              <p className="text-gray-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+                Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
+              </p>
             </div>
-            
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-[family-name:var(--font-orbitron)]">
-              Welcome to{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
-                NEXUS AI
-              </span>
-            </h2>
-            
-            <p className="text-gray-400 text-base mb-6 max-w-xl mx-auto leading-relaxed">
-              Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
-            </p>
           </div>
-        </div>
-      )}
-
-      {/* Messages Area - NO SCROLLING - Fixed position */}
-      <div className={`flex-1 overflow-hidden min-h-0 ${messages.length <= 1 ? 'hidden' : ''}`}>
+        </>
+      ) : (
+        <>
+      {/* Messages Area - Show when chat has messages */}
+      <div className="flex-1 overflow-y-auto min-h-0">
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => {
@@ -387,8 +369,10 @@ export default function FullScreenChat({
           <div ref={chatEndRef} />
         </div>
       </div>
+        </>
+      )}
 
-      {/* Input Area - Fixed at bottom */}
+      {/* Input Area - Fixed at bottom - Shared for Welcome & Chat */}
       <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto p-3">
           {/* Attached File Preview - Shows ABOVE input box when file is attached */}
