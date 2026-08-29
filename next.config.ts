@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: false,
   
+  // Force Node.js runtime for middleware (fixes Edge runtime issues)
+  middleware: {
+    runtime: 'nodejs',
+  },
+  
   // ==================== SECURITY CONFIGURATION ====================
   
   // Security headers (additional to middleware)
