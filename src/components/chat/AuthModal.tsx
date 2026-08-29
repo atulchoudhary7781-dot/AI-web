@@ -299,8 +299,8 @@ export default function AuthModal({
           </button>
         </div>
 
-        {/* Form - Scrollable if needed */}
-        <form onSubmit={handleSubmit} className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
+        {/* Form - Scrollable when content overflows */}
+        <form onSubmit={handleSubmit} className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4 overflow-y-auto flex-1 min-h-0">
           {/* Avatar Upload - Only for Signup */}
           {!isLoginMode && (
             <div className="space-y-2 sm:space-y-3">

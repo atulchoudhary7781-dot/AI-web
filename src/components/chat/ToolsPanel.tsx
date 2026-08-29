@@ -150,8 +150,8 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn
             </p>
           </div>
 
-          {/* Features List - Scrollable on small screens */}
-          <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-2 sm:space-y-3 border-t border-gray-800/50 overflow-y-auto flex-shrink-0">
+          {/* Features List - Scrollable when needed */}
+          <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-2 sm:space-y-3 border-t border-gray-800/50 overflow-y-auto flex-1 min-h-0">
             {[
               { icon: Search, label: 'Web Search', desc: 'Real-time internet search' },
               { icon: Image, label: 'AI Images', desc: 'Generate stunning visuals' },
@@ -174,7 +174,7 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn
           </div>
 
           {/* CTA Section - Fixed at bottom */}
-          <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-t from-gray-800/40 to-transparent border-t border-gray-800/50 flex-shrink-0 mt-auto">
+          <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-t from-gray-800/40 to-transparent border-t border-gray-800/50 flex-shrink-0">
             <div className="flex items-center gap-2 mb-3 sm:mb-4 px-1">
               <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" />
               <span className="text-[11px] sm:text-xs text-gray-400">Free account • No credit card required</span>
@@ -724,32 +724,32 @@ print(f"Sum of evens: {even_sum}")`,
   ]
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-gray-900/95 backdrop-blur-xl border border-gray-800/50 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-4xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col animate-in slide-in-from-bottom-4 sm:zoom-in-95 sm:duration-300">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm sm:bg-black/70 sm:backdrop-blur-md flex items-end sm:items-center justify-center animate-in fade-in duration-150">
+      <div className="bg-gray-900/95 backdrop-blur-xl border border-gray-800/60 rounded-b-none sm:rounded-2xl w-full sm:max-w-4xl max-h-[100vh] sm:max-h-[92vh] shadow-2xl shadow-black/50 flex flex-col animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-300 overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800/50 bg-gradient-to-r from-gray-900 to-gray-800/50">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-800/50 bg-gradient-to-r from-gray-900 to-gray-800/50 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">AI Tools</h2>
-              <p className="text-xs text-gray-400">Powered by NEXUS AI</p>
+              <h2 className="text-base sm:text-lg font-semibold text-white">AI Tools</h2>
+              <p className="text-[11px] sm:text-xs text-gray-400">Powered by NEXUS AI</p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="p-2 rounded-lg hover:bg-gray-800 transition-all hover:rotate-90 duration-200"
+            className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-800 transition-all hover:rotate-90 duration-200"
           >
-            <X className="w-5 h-5 text-gray-400 hover:text-white" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-white" />
           </button>
         </div>
 
         {!activeTool ? (
-          /* Tool Selection Grid */
-          <div className="p-5 overflow-y-auto">
-            <p className="text-sm text-gray-400 mb-4">Choose a tool to get started</p>
+          /* Tool Selection Grid - Scrollable */
+          <div className="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0">
+            <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">Choose a tool to get started</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {tools.map((tool) => (
                 <button
@@ -772,15 +772,15 @@ print(f"Sum of evens: {even_sum}")`,
             </div>
           </div>
         ) : (
-          /* Active Tool Panel */
-          <div className="flex-1 overflow-y-auto">
+          /* Active Tool Panel - Scrollable */
+          <div className="flex-1 overflow-y-auto min-h-0">
             {/* Back Button */}
             <button
               onClick={() => {
                 setActiveTool(null)
                 resetToolState()
               }}
-              className="mx-5 mt-4 mb-1 flex items-center gap-2 text-sm text-gray-400 hover:text-cyan-400 transition-colors group"
+              className="mx-4 sm:mx-5 mt-3 sm:mt-4 mb-1 flex items-center gap-2 text-xs sm:text-sm text-gray-400 hover:text-cyan-400 transition-colors group"
             >
               <span className="group-hover:-translate-x-1 transition-transform">←</span>
               Back to all tools
