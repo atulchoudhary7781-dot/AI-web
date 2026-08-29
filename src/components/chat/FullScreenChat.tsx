@@ -171,25 +171,6 @@ export default function FullScreenChat({
             <p className="text-gray-400 text-base mb-6 max-w-xl mx-auto leading-relaxed">
               Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
             </p>
-
-            {/* Quick action buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-lg mx-auto">
-              {[
-                { icon: '💡', text: 'Explain', prompt: 'Explain quantum computing' },
-                { icon: '💻', text: 'Code', prompt: 'Write Python code' },
-                { icon: '📝', text: 'Write', prompt: 'Help me write an email' },
-                { icon: '🎯', text: 'Ideas', prompt: 'Creative business ideas' }
-              ].map((action, i) => (
-                <button
-                  key={i}
-                  onClick={() => setInputValue(action.prompt)}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-cyan-500/30 hover:bg-gray-800 transition-all duration-200 group"
-                >
-                  <span className="text-lg">{action.icon}</span>
-                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">{action.text}</span>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       )}
