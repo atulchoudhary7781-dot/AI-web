@@ -274,31 +274,33 @@ export function middleware(request: NextRequest) {
     return addSecurityHeaders(response)
   }
   
+  // TEMPORARILY DISABLED: IP blocking for deployment testing
   // Check if IP is blocked
-  if (isIPBlocked(ip)) {
-    logSecurityEvent('BLOCKED_IP_ATTEMPT', { ip, pathname, method })
-    return new NextResponse(
-      JSON.stringify({ error: 'Access denied' }),
-      { status: 403, headers: { 'content-type': 'application/json' } }
-    )
-  }
+  // if (isIPBlocked(ip)) {
+  //   logSecurityEvent('BLOCKED_IP_ATTEMPT', { ip, pathname, method })
+  //   return new NextResponse(
+  //     JSON.stringify({ error: 'Access denied' }),
+  //     { status: 403, headers: { 'content-type': 'application/json' } }
+  //   )
+  // }
   
+  // TEMPORARILY DISABLED: Suspicious content detection
   // Detect suspicious content (skip in development)
-  const isDevelopment = process.env.NODE_ENV === 'development'
-  
-  if (!isDevelopment && detectSuspiciousContent(request)) {
-    logSecurityEvent('SUSPICIOUS_REQUEST_DETECTED', { ip, pathname, method })
-    
-    // Only block after multiple suspicious attempts (not random!)
-    // In production, implement proper scoring system
-    if (false) { // Disabled - too aggressive for now
-      blockIP(ip)
-      return new NextResponse(
-        JSON.stringify({ error: 'Suspicious request detected' }),
-        { status: 403, headers: { 'content-type': 'application/json' } }
-      )
-    }
-  }
+  // const isDevelopment = process.env.NODE_ENV === 'development'
+  // 
+  // if (!isDevelopment && detectSuspiciousContent(request)) {
+  //   logSecurityEvent('SUSPICIOUS_REQUEST_DETECTED', { ip, pathname, method })
+  //   
+  //   // Only block after multiple suspicious attempts (not random!)
+  //   // In production, implement proper scoring system
+  //   if (false) { // Disabled - too aggressive for now
+  //     blockIP(ip)
+  //     return new NextResponse(
+  //       JSON.stringify({ error: 'Suspicious request detected' }),
+  //       { status: 403, headers: { 'content-type': 'application/json' } }
+  //     )
+  //   }
+  // }
   
   // Apply rate limiting to API routes
   if (pathname.startsWith('/api/')) {
