@@ -561,6 +561,8 @@ export default function FullScreenChat({
         isOpen={isToolsOpen}
         onClose={() => setIsToolsOpen(false)}
         onInsertToChat={handleInsertFromTools}
+        isLoggedIn={isLoggedIn}
+        onLoginRequired={onLoginRequired}
       />
 
       {/* Custom Styles */}

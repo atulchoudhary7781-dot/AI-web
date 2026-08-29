@@ -6,7 +6,7 @@ import {
   X, Send, Loader2, Copy, Check, Download,
   Play, Square, Volume2, VolumeX, Upload,
   ExternalLink, Sparkles, AlertCircle, CheckCircle2,
-  RefreshCw, FileImage, Zap
+  RefreshCw, FileImage, Zap, Lock, LogIn, Shield, Crown
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -14,11 +14,13 @@ interface ToolsPanelProps {
   isOpen: boolean
   onClose: () => void
   onInsertToChat: (text: string) => void
+  isLoggedIn?: boolean
+  onLoginRequired?: () => void
 }
 
 type ToolType = 'web-search' | 'image-gen' | 'voice-chat' | 'code-executor' | 'file-analyzer' | 'translator' | null
 
-export default function ToolsPanel({ isOpen, onClose, onInsertToChat }: ToolsPanelProps) {
+export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn = false, onLoginRequired }: ToolsPanelProps) {
   const [activeTool, setActiveTool] = useState<ToolType>(null)
   
   // Tool states - Web Search
@@ -118,6 +120,84 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat }: ToolsPan
   }
 
   if (!isOpen) return null
+
+  // ==================== AUTH LOCK SCREEN ====================
+  if (!isLoggedIn) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+        <div className="bg-gray-900/95 backdrop-blur-xl border border-gray-800/50 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 sm:duration-300">
+          
+          {/* Lock Screen Header */}
+          <div className="relative px-6 py-8 text-center bg-gradient-to-b from-cyan-500/10 via-purple-500/10 to-transparent">
+            {/* Animated Lock Icon */}
+            <div className="relative inline-flex items-center justify-center w-20 h-20 mb-5">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 animate-pulse" />
+              <div className="absolute inset-1 rounded-full bg-gray-800/80 flex items-center justify-center">
+                <Lock className="w-9 h-9 text-cyan-400" />
+              </div>
+              {/* Lock Badge */}
+              <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                <Crown className="w-4 h-4 text-white" />
+              </div>
+            </div>
+            
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Premium Tools
+            </h2>
+            <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
+              AI tools are exclusive for registered members. Create your free account to unlock all powerful features.
+            </p>
+          </div>
+
+          {/* Features List */}
+          <div className="px-6 py-5 space-y-3 border-t border-gray-800/50">
+            {[
+              { icon: Search, label: 'Web Search', desc: 'Real-time internet search' },
+              { icon: Image, label: 'AI Images', desc: 'Generate stunning visuals' },
+              { icon: Mic, label: 'Voice Chat', desc: 'Talk with AI assistant' },
+              { icon: Code2, label: 'Code Runner', desc: 'Execute code instantly' },
+              { icon: FileText, label: 'File Analyzer', desc: 'Analyze documents & files' },
+              { icon: Languages, label: 'Translator', desc: '100+ languages supported' }
+            ].map((feature, idx) => (
+              <div key={idx} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gray-800/30 group hover:bg-gray-800/50 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-colors">
+                  <feature.icon className="w-4 h-4 text-gray-400 group-hover:text-cyan-400 transition-colors" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white">{feature.label}</p>
+                  <p className="text-xs text-gray-500">{feature.desc}</p>
+                </div>
+                <Lock className="w-3.5 h-3.5 text-amber-500/60" />
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Section */}
+          <div className="px-6 py-5 bg-gradient-to-t from-gray-800/30 to-transparent border-t border-gray-800/50">
+            <div className="flex items-center gap-2 mb-4 px-2">
+              <Shield className="w-4 h-4 text-green-400" />
+              <span className="text-xs text-gray-400">Free account • No credit card required</span>
+            </div>
+            
+            <button
+              onClick={onLoginRequired}
+              className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            >
+              <LogIn className="w-5 h-5" />
+              Sign In to Unlock Tools
+            </button>
+            
+            <button
+              onClick={onClose}
+              className="w-full mt-3 px-6 py-2.5 text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-xl transition-all"
+            >
+              Maybe Later
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // ==================== TOOL HANDLERS ====================
 
