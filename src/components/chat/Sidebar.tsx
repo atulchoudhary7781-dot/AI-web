@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
-  Github, Cpu, BookOpen, FileText, Plus, Trash2, Moon, Sun,
+  Plus, Trash2, Moon, Sun,
   ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut,
   UserCircle
 } from 'lucide-react'
@@ -180,35 +180,6 @@ export default function Sidebar({
               )}
             </div>
 
-            {/* External Links - No Scroll */}
-            <div className="mb-6">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Resources</p>
-              
-              <ExternalLinkButton
-                icon={<Github className="w-4 h-4" />}
-                label="GitHub Repository"
-                href="https://github.com/atulchoudhary7781-dot/AI-web"
-              />
-
-              <ExternalLinkButton
-                icon={<Cpu className="w-4 h-4" />}
-                label="AI Models"
-                href="https://openrouter.ai/models"
-              />
-
-              <ExternalLinkButton
-                icon={<BookOpen className="w-4 h-4" />}
-                label="Documentation"
-                href="https://openrouter.ai/docs"
-              />
-
-              <ExternalLinkButton
-                icon={<FileText className="w-4 h-4" />}
-                label="Vercel Docs"
-                href="https://vercel.com/docs"
-              />
-            </div>
-
             {/* Chat History - No Individual Scroll (uses main nav scroll) */}
             {sessions.length > 0 && (
               <div className="mb-6">
@@ -363,32 +334,5 @@ function SidebarButton({
         <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
       )}
     </button>
-  )
-}
-
-function ExternalLinkButton({ 
-  icon, 
-  label, 
-  href 
-}: { 
-  icon: React.ReactNode
-  label: string
-  href: string 
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800/50 hover:text-white transition-all duration-200 group border border-transparent hover:border-gray-700/50"
-    >
-      <div className="text-gray-500 group-hover:text-gray-300 transition-colors">
-        {icon}
-      </div>
-      <span className="text-sm font-medium flex-1">{label}</span>
-      <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-      </svg>
-    </a>
   )
 }
