@@ -12,6 +12,9 @@ const responseCache = new Map<string, string>()
 const MAX_MESSAGE_LENGTH = 10000
 
 export async function POST(request: NextRequest) {
+  // Enhanced error handling for Vercel deployment
+  console.log('🤖 Chat API called')
+  
   let message = ''
   let imageData: string | null = null
   let imageMimeType: string | null = null
@@ -21,16 +24,19 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json()
+    console.log('📝 Request body received:', { hasMessage: !!body.message })
     
     // Validate and sanitize input
     const messageValidation = validateMessage(body.message)
     if (!messageValidation.valid) {
+      console.log('❌ Message validation failed:', messageValidation.errors)
       return NextResponse.json(
         { error: messageValidation.errors?.[0] || 'Invalid message' },
         { status: 400 }
       )
     }
     message = messageValidation.value
+    console.log('✅ Message validated:', message.substring(0, 50))
     
     // Sanitize optional fields
     imageData = sanitizeString(body.imageData, { maxLength: 5000000 }) // 5MB base64 limit
@@ -54,8 +60,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if API key is configured
+    console.log('🔑 Checking API key...', { 
+      hasKey: !!OPENROUTER_API_KEY, 
+      keyLength: OPENROUTER_API_KEY?.length 
+    })
+    
     if (!OPENROUTER_API_KEY) {
-      console.warn('OpenRouter API key not configured. Using fallback responses.')
+      console.warn('⚠️ OpenRouter API key not configured. Using fallback responses.')
       
       // If image is attached, provide image analysis fallback
       if (imageData) {
@@ -210,13 +221,33 @@ Always respond in a way that showcases advanced intelligence while being accessi
     }
 
   } catch (error) {
-    console.error('Chat API Error:', error)
+    console.error('❌ Chat API Error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    })
     
-    // Return fallback response on error
-    if (imageData) {
-      return getImageAnalysisFallback(message)
+    // Return detailed error for debugging (in production, you may want to hide this)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    
+    // Try to return fallback, if that fails return error
+    try {
+      if (imageData) {
+        return getImageAnalysisFallback(message)
+      }
+      return getFallbackResponse(message)
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError)
+      return NextResponse.json(
+        { 
+          error: 'Error processing your request',
+          details: errorMessage,
+          debugInfo: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        },
+        { status: 500 }
+      )
     }
-    return getFallbackResponse(message)
   }
 }
 
