@@ -152,19 +152,26 @@ export default function FullScreenChat({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
-      {/* Global style to hide ALL scrollbars on this page */}
+      {/* Global style to disable ALL scrolling on this page */}
       <style>{`
-        /* Hide scrollbars completely - Chrome, Safari, Opera */
+        /* Disable all scrollbars - Chrome, Safari, Opera */
         ::-webkit-scrollbar {
           display: none !important;
           width: 0 !important;
           height: 0 !important;
         }
         
-        /* Hide scrollbars - Firefox */
+        /* Disable scrollbars - Firefox, IE, Edge */
         * {
           scrollbar-width: none !important;
           -ms-overflow-style: none !important;
+          overflow: hidden !important;
+        }
+        
+        /* Force no scroll on html/body */
+        html, body {
+          overflow: hidden !important;
+          height: 100% !important;
         }
       `}</style>
       
@@ -191,8 +198,8 @@ export default function FullScreenChat({
         </div>
       )}
 
-      {/* Messages Area - Smooth scroll, no visible scrollbar */}
-      <div className={`flex-1 overflow-y-auto min-h-0 ${messages.length <= 1 ? 'hidden' : ''}`}>
+      {/* Messages Area - NO SCROLLING - Fixed position */}
+      <div className={`flex-1 overflow-hidden min-h-0 ${messages.length <= 1 ? 'hidden' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => {
