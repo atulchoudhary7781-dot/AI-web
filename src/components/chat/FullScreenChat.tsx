@@ -152,11 +152,30 @@ export default function FullScreenChat({
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
-      {/* Welcome Screen - Perfect Fit Layout */}
+      {/* Scrollbar Style - Hidden but functional */}
+      <style>{`
+        /* Hide scrollbar visually but keep functionality */
+        .chat-scroll::-webkit-scrollbar {
+          width: 0px;
+          display: none;
+        }
+        
+        .chat-scroll {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        /* Smooth scroll behavior */
+        .chat-scroll {
+          scroll-behavior: smooth;
+        }
+      `}</style>
+      
+      {/* Welcome Screen - Perfect Fit Layout (No Scroll) */}
       {messages.length <= 1 ? (
         <>
           {/* Centered Content Area */}
-          <div className="flex-1 flex items-center justify-center px-4">
+          <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
             <div className="text-center max-w-xl">
               {/* Logo - Compact */}
               <div className="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-xl shadow-cyan-500/20">
@@ -180,8 +199,8 @@ export default function FullScreenChat({
         </>
       ) : (
         <>
-      {/* Messages Area - Show when chat has messages */}
-      <div className="flex-1 overflow-y-auto min-h-0">
+      {/* Messages Area - Scroll only when content overflows (hidden scrollbar) */}
+      <div className="flex-1 overflow-y-auto min-h-0 chat-scroll">
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => {
