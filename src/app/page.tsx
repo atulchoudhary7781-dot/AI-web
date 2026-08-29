@@ -1155,24 +1155,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       {/* Background Animation - Only on home view */}
       {currentView === 'home' && <NeuralNetworkBackground />}
 
-      {/* Menu Toggle Button - Always visible - Polished Style */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className={`fixed top-3.5 left-3.5 z-40 w-11 h-11 flex items-center justify-center backdrop-blur-md border transition-all duration-300 ease-out hover:scale-105 active:scale-95 ${
-          sidebarOpen 
-            ? 'bg-red-500/15 border-red-500/40 shadow-lg shadow-red-500/10 rotate-90' 
-            : 'bg-gray-900/70 border-gray-700/60 hover:border-cyan-500/50 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-cyan-500/15'
-        }`}
-        style={{ borderRadius: '12px' }}
-        title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
-      >
-        {sidebarOpen ? (
-          <X className="w-[18px] h-[18px] text-red-400" strokeWidth={2} />
-        ) : (
-          <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
-        )}
-      </button>
-
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -1198,22 +1180,47 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
       {/* Main Content - FULL SCREEN */}
       <main className="min-h-screen w-full">
-        {/* Top Bar - Only show when not on home */}
-        {currentView !== 'home' && (
-          <header className="sticky top-0 z-20 border-b border-gray-800 bg-gray-900/80 backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 py-3 pl-[58px]">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-cyan-400" />
-                <span className="font-semibold text-white hidden sm:block">
-                  {currentView === 'chat' ? 'AI Chat' : 
-                   currentView === 'settings' ? 'Settings' :
-                   currentView === 'features' ? 'Features' :
-                   currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
-                </span>
-              </div>
+        {/* Top Header Bar - Always visible with integrated Nav Button */}
+        <header className={`sticky top-0 z-30 border-b bg-gray-900/90 backdrop-blur-xl transition-all duration-300 ${
+          currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
+        }`}>
+          <div className="flex items-center justify-between px-4 py-2.5">
+            {/* Left Side - Navigation Button + Title */}
+            <div className="flex items-center gap-3">
+              {/* Integrated Navigation Button - Part of Header */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-200 ease-out hover:scale-105 active:scale-95 ${
+                  sidebarOpen 
+                    ? 'bg-red-500/15 border-red-500/40 shadow-sm shadow-red-500/10 rotate-90' 
+                    : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
+                }`}
+                title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
+              >
+                {sidebarOpen ? (
+                  <X className="w-[17px] h-[17px] text-red-400" strokeWidth={2} />
+                ) : (
+                  <Menu className="w-[17px] h-[17px] text-cyan-400" strokeWidth={2} />
+                )}
+              </button>
+              
+              {/* Title - Show only when not on home view */}
+              {currentView !== 'home' && (
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4.5 h-4.5 text-cyan-400" />
+                  <span className="font-semibold text-white text-sm hidden sm:block">
+                    {currentView === 'chat' ? 'AI Chat' : 
+                     currentView === 'settings' ? 'Settings' :
+                     currentView === 'features' ? 'Features' :
+                     currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
+                  </span>
+                </div>
+              )}
+            </div>
 
-              <div className="flex items-center gap-2">
-                {isLoggedIn ? (
+            {/* Right Side - Actions */}
+            <div className="flex items-center gap-2">
+              {isLoggedIn ? (
                   <>
                     <Button
                       variant="ghost"
@@ -1234,14 +1241,13 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                       <span className="hidden sm:inline">Logout</span>
                     </Button>
                   </>
-) : null}
+                ) : null}
               </div>
             </div>
           </header>
-        )}
 
         {/* Content Area - Full height, no scroll */}
-        <div className="h-[calc(100vh-57px)] overflow-hidden">
+        <div className="h-[calc(100vh-45px)] overflow-hidden">
           {renderCurrentView()}
         </div>
       </main>
