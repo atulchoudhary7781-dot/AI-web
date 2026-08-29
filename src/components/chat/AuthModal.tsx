@@ -207,47 +207,41 @@ export default function AuthModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-gray-900 to-gray-950 border border-cyan-500/30 rounded-2xl shadow-2xl shadow-cyan-500/20 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm sm:bg-black/80 sm:backdrop-blur-md flex items-end sm:items-center justify-center animate-in fade-in duration-150">
+      {/* Mobile: Full width bottom sheet | Desktop: Centered modal */}
+      <div className="relative w-full sm:w-auto sm:min-w-[440px] sm:max-w-lg bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800/60 sm:border-cyan-500/30 rounded-b-none sm:rounded-2xl shadow-2xl shadow-black/50 sm:shadow-cyan-500/20 animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-200 max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Close Button - Fixed position */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all z-10"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 text-gray-400 hover:text-white hover:bg-gray-800/80 rounded-lg transition-all z-10"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
-        {/* Header with Limit Info */}
-        <div className="bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border-b border-gray-800 p-6 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+        {/* Header with Limit Info - Fixed height */}
+        <div className="bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border-b border-gray-800 px-5 sm:px-6 py-5 sm:py-6 text-center flex-shrink-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
             {reason === 'file_attach' ? (
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
               </svg>
             ) : (
-              <Sparkles className="w-8 h-8 text-white" />
+              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             )}
           </div>
           
-          <h2 className="text-2xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-1.5 sm:mb-2 font-[family-name:var(--font-orbitron)]">
             {reason === 'file_attach' ? '🔒 Login Required!' : isLoginMode ? 'Welcome Back! 👋' : 'Join NEXUS AI 🚀'}
           </h2>
           
           {/* Progress Indicator - Only show for chat limit and login mode */}
           {reason === 'chat_limit' && isLoginMode && (
-            <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="mt-3 sm:mt-4 flex items-center justify-center gap-2">
               <div className="flex gap-1">
                 {[...Array(maxChats)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-3 h-3 rounded-full transition-colors ${
+                    className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors ${
                       i < Math.min(chatCount, maxChats) 
                         ? 'bg-gradient-to-r from-cyan-400 to-violet-400' 
                         : 'bg-gray-700'
@@ -255,7 +249,7 @@ export default function AuthModal({
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-400">
+              <span className="text-xs sm:text-sm text-gray-400">
                 {chatCount}/{maxChats} chats used
               </span>
             </div>
@@ -263,13 +257,13 @@ export default function AuthModal({
           
           {/* File attach message */}
           {reason === 'file_attach' && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              <Zap className="w-5 h-5 text-orange-400" />
-              <span className="text-sm text-orange-300 font-medium">File Attach Feature</span>
+            <div className="mt-3 sm:mt-4 flex items-center justify-center gap-2">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
+              <span className="text-xs sm:text-sm text-orange-300 font-medium">File Attach Feature</span>
             </div>
           )}
           
-          <p className="text-sm text-gray-400 mt-3">
+          <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3 leading-relaxed">
             {reason === 'file_attach' 
               ? 'Login or create a free account to attach files!'
               : isLoginMode 
@@ -280,50 +274,50 @@ export default function AuthModal({
         </div>
 
         {/* Toggle Buttons */}
-        <div className="flex bg-gray-900/50 m-4 rounded-xl p-1 border border-gray-800">
+        <div className="flex bg-gray-900/50 mx-3 sm:m-4 rounded-xl p-1 border border-gray-800 flex-shrink-0">
           <button
             onClick={() => { setIsLoginMode(true); setError(''); }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
               isLoginMode 
                 ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            <LogIn className="w-4 h-4 inline mr-2" />
+            <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1.5" />
             Login
           </button>
           <button
             onClick={() => { setIsLoginMode(false); setError(''); }}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
               !isLoginMode 
                 ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            <UserPlus className="w-4 h-4 inline mr-2" />
+            <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1.5" />
             Sign Up
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-4 pb-4 space-y-4">
+        {/* Form - Scrollable if needed */}
+        <form onSubmit={handleSubmit} className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
           {/* Avatar Upload - Only for Signup */}
           {!isLoginMode && (
-            <div className="space-y-3">
-              <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-                <Camera className="w-4 h-4 text-cyan-400" />
+            <div className="space-y-2 sm:space-y-3">
+              <label className="text-xs sm:text-sm text-gray-400 font-medium flex items-center gap-1.5 sm:gap-2">
+                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
                 Profile Photo (Optional)
               </label>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 {/* Avatar Preview */}
-                <div className="relative group">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
+                <div className="relative group flex-shrink-0">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
                     <div className="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
                       {avatar ? (
                         <img src={avatar} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
-                        <User className="w-8 h-8 text-gray-500" />
+                        <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" />
                       )}
                     </div>
                   </div>
@@ -332,9 +326,9 @@ export default function AuthModal({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute inset-0 w-20 h-20 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                    className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                   >
-                    <Camera className="w-6 h-6 text-white" />
+                    <Camera className="w-5 w-5 sm:w-6 sm:h-6 text-white" />
                   </button>
                   
                   <input
@@ -346,12 +340,12 @@ export default function AuthModal({
                   />
                 </div>
 
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
+                    className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-[11px] sm:text-xs"
                   >
                     <ImageIcon className="w-3 h-3 mr-1" />
                     Upload Photo
@@ -362,7 +356,7 @@ export default function AuthModal({
                     variant="outline"
                     onClick={handleGmailSync}
                     disabled={isSyncingGmail}
-                    className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                    className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 text-[11px] sm:text-xs"
                   >
                     {isSyncingGmail ? (
                       <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
@@ -376,7 +370,7 @@ export default function AuthModal({
                     <button
                       type="button"
                       onClick={handleRemoveAvatar}
-                      className="text-xs text-red-400 hover:text-red-300"
+                      className="text-[11px] sm:text-xs text-red-400 hover:text-red-300"
                     >
                       Remove photo
                     </button>
@@ -388,9 +382,9 @@ export default function AuthModal({
 
           {/* Name Field - Only for Sign Up */}
           {!isLoginMode && (
-            <div className="space-y-2">
-              <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-                <User className="w-4 h-4 text-cyan-400" />
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-xs sm:text-sm text-gray-400 font-medium flex items-center gap-1.5 sm:gap-2">
+                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
                 Full Name
               </label>
               <div className="relative">
@@ -399,17 +393,17 @@ export default function AuthModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
-                  className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+                  className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pl-9 sm:pl-11 text-sm sm:text-base text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
                 />
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <User className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
               </div>
             </div>
           )}
 
           {/* Email Field */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-              <Mail className="w-4 h-4 text-cyan-400" />
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-xs sm:text-sm text-gray-400 font-medium flex items-center gap-1.5 sm:gap-2">
+              <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
               Email Address
             </label>
             <div className="relative">
@@ -418,16 +412,16 @@ export default function AuthModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pl-9 sm:pl-11 text-sm sm:text-base text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
               />
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Mail className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
             </div>
           </div>
 
           {/* Password Field */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-              <Lock className="w-4 h-4 text-cyan-400" />
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-xs sm:text-sm text-gray-400 font-medium flex items-center gap-1.5 sm:gap-2">
+              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
               Password
             </label>
             <div className="relative">
@@ -436,55 +430,55 @@ export default function AuthModal({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min 4 characters"
-                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 pr-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pl-9 sm:pl-11 pr-9 sm:pr-11 text-sm sm:text-base text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
               />
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Lock className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-500" />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
             </div>
           </div>
 
           {/* Plan Selection - Only for Signup */}
           {!isLoginMode && (
-            <div className="space-y-3">
-              <label className="text-sm text-gray-400 font-medium flex items-center gap-2">
-                <Crown className="w-4 h-4 text-yellow-400" />
+            <div className="space-y-2 sm:space-y-3">
+              <label className="text-xs sm:text-sm text-gray-400 font-medium flex items-center gap-1.5 sm:gap-2">
+                <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400" />
                 Choose Your Plan
               </label>
               
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 {PLAN_OPTIONS.map((plan) => (
                   <button
                     key={plan.id}
                     type="button"
                     onClick={() => setSelectedPlan(plan.id)}
-                    className={`relative p-3 rounded-xl border transition-all ${
+                    className={`relative p-2 sm:p-3 rounded-lg sm:rounded-xl border transition-all ${
                       selectedPlan === plan.id
                         ? 'border-cyan-500 bg-cyan-500/10'
                         : 'border-gray-700 bg-gray-800/30 hover:border-gray-600'
-                    } ${plan.popular ? 'ring-2 ring-yellow-500/30' : ''}`}
+                    } ${plan.popular ? 'ring-1 sm:ring-2 ring-yellow-500/30' : ''}`}
                   >
                     {plan.popular && (
-                      <span className="absolute -top-2 right-2 text-[9px] bg-yellow-500 text-black px-1.5 py-0.5 rounded-full font-bold">
+                      <span className="absolute -top-1.5 right-1 text-[8px] sm:text-[9px] bg-yellow-500 text-black px-1 sm:px-1.5 py-0.5 rounded-full font-bold">
                         BEST
                       </span>
                     )}
                     
                     <div className="text-center">
-                      <div className="text-lg mb-1">
+                      <div className="text-base sm:text-lg mb-0.5 sm:mb-1">
                         {plan.id === 'pro' ? '👑' : plan.id === 'normal' ? '⭐' : '🆓'}
                       </div>
-                      <div className={`font-semibold text-sm ${
+                      <div className={`font-semibold text-[11px] sm:text-sm ${
                         selectedPlan === plan.id ? 'text-cyan-400' : 'text-white'
                       }`}>
                         {plan.name}
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-[10px] sm:text-xs text-gray-400">
                         ${plan.price}/mo
                       </div>
                     </div>
@@ -493,12 +487,12 @@ export default function AuthModal({
               </div>
 
               {/* Selected Plan Features */}
-              <div className="bg-gray-800/30 rounded-lg p-3">
-                <p className="text-xs text-gray-400 mb-2">Selected plan includes:</p>
+              <div className="bg-gray-800/30 rounded-lg p-2 sm:p-3">
+                <p className="text-[11px] sm:text-xs text-gray-400 mb-1.5 sm:mb-2">Selected plan includes:</p>
                 <ul className="space-y-1">
                   {PLAN_OPTIONS.find(p => p.id === selectedPlan)?.features.map((feature, idx) => (
-                    <li key={idx} className="text-xs text-gray-300 flex items-center gap-2">
-                      <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                    <li key={idx} className="text-[11px] sm:text-xs text-gray-300 flex items-center gap-1.5 sm:gap-2">
+                      <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
                       {feature}
                     </li>
                   ))}
@@ -509,8 +503,8 @@ export default function AuthModal({
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm flex items-center gap-2">
-              <X className="w-4 h-4 flex-shrink-0" />
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3 text-red-400 text-xs sm:text-sm flex items-center gap-2">
+              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               {error}
             </div>
           )}
@@ -519,56 +513,56 @@ export default function AuthModal({
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-12 font-medium text-base"
+            className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-10 sm:h-12 font-medium text-sm sm:text-base"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Processing...
               </div>
             ) : (
               <>
                 {isLoginMode ? (
                   <>
-                    <LogIn className="w-5 h-5 mr-2" />
+                    <LogIn className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                     Login to Continue
                   </>
                 ) : (
                   <>
-                    <UserPlus className="w-5 h-5 mr-2" />
+                    <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                     Create {PLAN_OPTIONS.find(p => p.id === selectedPlan)?.name} Account
                     {selectedPlan !== 'free' && (
-                      <span className="ml-auto text-xs opacity-75">
+                      <span className="ml-auto text-[11px] sm:text-xs opacity-75">
                         (${PLAN_OPTIONS.find(p => p.id === selectedPlan)?.price}/mo)
                       </span>
                     )}
                   </>
                 )}
-                <ArrowRight className="w-5 h-5 ml-auto" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-auto" />
               </>
             )}
           </Button>
         </form>
 
-        {/* Benefits Footer */}
-        <div className="px-4 pb-6">
-          <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4">
-            <p className="text-xs font-semibold text-cyan-400 mb-2">✨ Why Join NEXUS AI?</p>
-            <ul className="space-y-1.5 text-xs text-gray-400">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+        {/* Benefits Footer - Hidden on small screens if space is tight */}
+        <div className="px-3 sm:px-4 pb-4 sm:pb-6 flex-shrink-0">
+          <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <p className="text-[11px] sm:text-xs font-semibold text-cyan-400 mb-1.5 sm:mb-2">✨ Why Join NEXUS AI?</p>
+            <ul className="space-y-1 sm:space-y-1.5 text-[11px] sm:text-xs text-gray-400">
+              <li className="flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
                 Powerful AI models (GPT-4, Claude, Llama)
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+              <li className="flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
                 Chat history saved securely
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+              <li className="flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
                 Access from any device
               </li>
-              <li className="flex items-center gap-2">
-                <Zap className="w-3 h-3 text-yellow-400 flex-shrink-0" />
+              <li className="flex items-center gap-1.5 sm:gap-2">
+                <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400 flex-shrink-0" />
                 Free tier available forever!
               </li>
             </ul>
