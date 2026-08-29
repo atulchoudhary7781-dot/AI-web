@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force Node.js runtime (Edge is deprecated for anonymous deployments)
+export const runtime = 'nodejs'
+
 // ==================== SECURITY CONFIGURATION ====================
 
 // Rate limiting configuration
