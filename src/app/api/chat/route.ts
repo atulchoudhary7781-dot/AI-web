@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib/security'
 
 // OpenRouter API Configuration - Using Environment Variables (SECURE!)
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || ''
@@ -6,6 +7,9 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
 // AI Response cache for common questions
 const responseCache = new Map<string, string>()
+
+// Maximum message length
+const MAX_MESSAGE_LENGTH = 10000
 
 export async function POST(request: NextRequest) {
   let message = ''
@@ -17,15 +21,34 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json()
-    message = body.message || ''
-    imageData = body.imageData || null
-    imageMimeType = body.imageMimeType || null
-    fileName = body.fileName || null
-    fileType = body.fileType || null
-
-    if (!message || typeof message !== 'string') {
+    
+    // Validate and sanitize input
+    const messageValidation = validateMessage(body.message)
+    if (!messageValidation.valid) {
       return NextResponse.json(
-        { error: 'Message is required and must be a string' },
+        { error: messageValidation.errors?.[0] || 'Invalid message' },
+        { status: 400 }
+      )
+    }
+    message = messageValidation.value
+    
+    // Sanitize optional fields
+    imageData = sanitizeString(body.imageData, { maxLength: 5000000 }) // 5MB base64 limit
+    imageMimeType = sanitizeString(body.imageMimeType, { maxLength: 100 })
+    fileName = sanitizeString(body.fileName, { maxLength: 255 })
+    fileType = sanitizeString(body.fileType, { maxLength: 50 })
+
+    // Additional security checks
+    if (imageData && !['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(imageMimeType || '')) {
+      return NextResponse.json(
+        { error: 'Unsupported image format' },
+        { status: 400 }
+      )
+    }
+    
+    if (fileName && checkForDangerousContent(fileName)) {
+      return NextResponse.json(
+        { error: 'Invalid filename' },
         { status: 400 }
       )
     }
