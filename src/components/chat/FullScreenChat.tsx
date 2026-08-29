@@ -372,25 +372,19 @@ export default function FullScreenChat({
         </>
       )}
 
-      {/* Input Area - Fixed at bottom - Shared for Welcome & Chat */}
-      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto p-3">
+      {/* Input Area - Fixed at bottom - Shared for Welcome & Chat - Clean Compact Design */}
+      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/95 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-3 py-2.5">
           {/* Attached File Preview - Shows ABOVE input box when file is attached */}
           {attachedFile && !isLoading && (
-            <div className="mb-2 p-3 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
-              <div className="flex items-start gap-3">
-                {/* File Preview/Thumbnail - LEFT SIDE */}
-                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-gray-800/80 border border-gray-600/30 overflow-hidden flex items-center justify-center">
+            <div className="mb-2 p-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
+              <div className="flex items-center gap-3">
+                {/* File Preview/Thumbnail */}
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gray-800/80 border border-gray-600/30 overflow-hidden flex items-center justify-center">
                   {filePreview ? (
-                    /* Image Preview */
-                    <img 
-                      src={filePreview} 
-                      alt={attachedFile.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={filePreview} alt={attachedFile.name} className="w-full h-full object-cover" />
                   ) : (
-                    /* Document Icon based on type */
-                    <div className={`p-2 rounded-lg ${
+                    <div className={`p-1.5 rounded-lg ${
                       attachedFile.type.includes('pdf') ? 'bg-red-500/20' :
                       attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? 'bg-blue-500/20' :
                       attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? 'bg-green-500/20' :
@@ -398,124 +392,118 @@ export default function FullScreenChat({
                       'bg-cyan-500/20'
                     }`}>
                       {attachedFile.type.includes('pdf') ? (
-                        <span className="text-red-400 font-bold text-xs">PDF</span>
+                        <span className="text-red-400 font-bold text-[10px]">PDF</span>
                       ) : attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? (
-                        <span className="text-blue-400 font-bold text-xs">DOC</span>
+                        <span className="text-blue-400 font-bold text-[10px]">DOC</span>
                       ) : attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? (
-                        <span className="text-green-400 font-bold text-xs">XLS</span>
+                        <span className="text-green-400 font-bold text-[10px]">XLS</span>
                       ) : attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? (
-                        <span className="text-yellow-400 font-bold text-xs">TXT</span>
+                        <span className="text-yellow-400 font-bold text-[10px]">TXT</span>
                       ) : (
-                        <Paperclip className="w-6 h-6 text-cyan-400" />
+                        <Paperclip className="w-5 h-5 text-cyan-400" />
                       )}
                     </div>
                   )}
                 </div>
                 
-                {/* File Info - MIDDLE */}
-                <div className="min-w-0 flex-1 py-1">
-                  <p className="text-sm font-medium text-white truncate">
-                    {attachedFile.name}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown type'}
-                  </p>
-                  {filePreview && (
-                    <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      Image ready to send
-                    </p>
-                  )}
+                {/* File Info */}
+                <div className="min-w-0 flex-1 py-0.5">
+                  <p className="text-sm font-medium text-white truncate">{attachedFile.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown'}</p>
                 </div>
                 
-                {/* Remove Button - RIGHT */}
+                {/* Remove Button */}
                 <button
                   onClick={handleRemoveFile}
-                  className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 mt-1"
+                  className="flex-shrink-0 p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200"
                   title="Remove file"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
           )}
 
-          {/* Input Container */}
-          <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
-            {/* Gradient border effect on focus */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-violet-500/0 to-pink-500/0 focus-within:from-cyan-500/10 focus-within:via-violet-500/10 focus-within:to-pink-500/10 opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          {/* Input Container - Clean Design */}
+          <div className="relative bg-gray-800/60 border border-gray-700/60 rounded-xl focus-within:border-cyan-500/50 focus-within:shadow-md focus-within:shadow-cyan-500/10 transition-all duration-200 overflow-hidden">
             
-            <div className="relative flex gap-3 items-end p-2">
-              {/* File Attachment Button - Left Side */}
-              <div className="flex items-center gap-1">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  accept="image/*,.pdf,.txt,.doc,.docx,.md,.json,.csv"
-                />
-                <button
-                  type="button"
-                  onClick={handleAttachClick}
-                  disabled={isLoading}
-                  className={`p-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border ${
-                    !isLoggedIn 
-                      ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-400 border-orange-500/40 hover:from-orange-500/30 hover:to-red-500/30 animate-pulse' 
-                      : attachedFile 
-                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
-                        : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
-                  }`}
-                  title={!isLoggedIn ? "🔒 Login to attach files" : "Attach file"}
-                >
-                  <Paperclip className="w-5 h-5" />
-                </button>
-              </div>
+            <div className="relative flex items-center gap-2 p-2">
+              {/* File Attachment Button */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*,.pdf,.txt,.doc,.docx,.md,.json,.csv"
+              />
+              <button
+                type="button"
+                onClick={handleAttachClick}
+                disabled={isLoading}
+                className={`p-2 rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  !isLoggedIn 
+                    ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 border border-orange-500/30' 
+                    : attachedFile 
+                      ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' 
+                      : 'bg-transparent text-gray-400 hover:text-cyan-400 hover:bg-gray-700/50'
+                }`}
+                title={!isLoggedIn ? "🔒 Login to attach files" : "Attach file"}
+              >
+                <Paperclip className="w-[18px] h-[18px]" />
+              </button>
               
+              {/* Text Input */}
               <Textarea
                 ref={textareaRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask NEXUS AI anything..."
-                className="flex-1 min-h-[52px] max-h-[200px] resize-none bg-transparent border-none text-white placeholder:text-gray-500 focus:ring-0 focus:outline-none text-base px-2"
+                className="flex-1 min-h-[44px] max-h-[120px] resize-none bg-transparent border-none text-white placeholder:text-gray-500 focus:ring-0 focus:outline-none text-sm px-1 py-1"
                 disabled={isLoading}
                 rows={1}
               />
 
-              {/* Stop Button - Shows when loading */}
-              {isLoading && onStop && (
-                <Button
-                  onClick={onStop}
-                  className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white px-4 h-11 rounded-xl shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300 animate-pulse"
-                  title="Stop generating"
-                >
-                  <Square className="w-4 h-4 fill-current" />
-                  <span className="ml-1.5 text-sm font-medium hidden sm:inline">Stop</span>
-                </Button>
-              )}
-              
-              {/* Send Button */}
-              <Button
-                onClick={onSubmit}
-                disabled={!inputValue.trim() || isLoading}
-                className={`bg-gradient-to-r ${isLoading ? 'from-gray-600 to-gray-700' : 'from-cyan-500 to-violet-600'} ${isLoading ? '' : 'hover:from-cyan-400 hover:to-violet-500'} text-white px-5 h-11 rounded-xl shadow-lg ${isLoading ? '' : 'shadow-cyan-500/25 hover:shadow-cyan-500/40'} transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                {isLoading ? (
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
+              {/* Action Buttons Container */}
+              <div className="flex items-center gap-1.5">
+                {/* Stop Button - Shows when loading */}
+                {isLoading && onStop && (
+                  <Button
+                    onClick={onStop}
+                    size="sm"
+                    className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white px-3 h-9 rounded-lg shadow-md shadow-red-500/25 hover:shadow-red-500/35 transition-all duration-200"
+                    title="Stop generating"
+                  >
+                    <Square className="w-3.5 h-3.5 fill-current" />
+                    <span className="ml-1 text-xs font-medium hidden sm:inline">Stop</span>
+                  </Button>
                 )}
-              </Button>
+                
+                {/* Send Button */}
+                <Button
+                  onClick={onSubmit}
+                  disabled={!inputValue.trim() || isLoading}
+                  size="sm"
+                  className={`bg-gradient-to-r ${isLoading ? 'from-gray-600 to-gray-700' : 'from-cyan-500 to-violet-600'} ${isLoading ? '' : 'hover:from-cyan-400 hover:to-violet-500'} text-white px-3.5 h-9 rounded-lg shadow-md ${isLoading ? '' : 'shadow-cyan-500/25 hover:shadow-cyan-500/35'} transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isLoading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Helper Text */}
-          <div className="flex items-center justify-between mt-3 px-2">
-            <p className="text-xs text-gray-500">
-              Press <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Enter</kbd> to send • <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Shift+Enter</kbd> for new line
+          {/* Footer Helper Text - Compact */}
+          <div className="flex items-center justify-between mt-1.5 px-1">
+            <p className="text-[11px] text-gray-500 leading-tight">
+              Press <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-400 text-[9px] font-mono mx-0.5">Enter</kbd> to send
+              <span className="mx-1">•</span>
+              <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-400 text-[9px] font-mono mx-0.5">Shift+Enter</kbd> for new line
             </p>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-1 text-[11px] text-gray-500">
               <Sparkles className="w-3 h-3 text-cyan-400" />
               <span>Llama 3.1</span>
             </div>
