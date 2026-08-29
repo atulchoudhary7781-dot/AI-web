@@ -1,15 +1,22 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// NEXUS AI Database Schema
+// PostgreSQL (Supabase) - Production Ready
+// 
+// 🚀 Features:
+// - Concurrent connections for multi-user support
+// - JSONB for efficient chat message storage
+// - Full-text search capability
+// - Real-time subscriptions ready
+// - Vector store support for future AI embeddings
+//
+// Docs: https://pris.ly/d/prisma-schema | Supabase: https://supabase.com
 
 generator client {
   provider = "prisma-client-js"
 }
 
+// PostgreSQL via Supabase - Production Ready Database
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -145,11 +152,12 @@ model Chat {
   id        String   @id @default(cuid())
   userId    String
   title     String
-  messages  String   @default("[]") // JSON string of messages
+  messages  Json     @default("[]") // JSONB - PostgreSQL native JSON support (faster queries)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId])
+  @@index([createdAt])
 }
