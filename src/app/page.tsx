@@ -1155,20 +1155,21 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       {/* Background Animation - Only on home view */}
       {currentView === 'home' && <NeuralNetworkBackground />}
 
-      {/* Menu Toggle Button - Always visible */}
+      {/* Menu Toggle Button - Always visible - Polished Style */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className={`fixed top-4 left-4 z-30 p-3 backdrop-blur-xl border rounded-xl transition-all duration-300 hover:scale-105 ${
+        className={`fixed top-3.5 left-3.5 z-40 w-11 h-11 flex items-center justify-center backdrop-blur-md border transition-all duration-300 ease-out hover:scale-105 active:scale-95 ${
           sidebarOpen 
-            ? 'bg-red-500/20 border-red-500/50 rotate-90' 
-            : 'bg-gray-900/80 border-gray-700/50 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10'
+            ? 'bg-red-500/15 border-red-500/40 shadow-lg shadow-red-500/10 rotate-90' 
+            : 'bg-gray-900/70 border-gray-700/60 hover:border-cyan-500/50 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-cyan-500/15'
         }`}
+        style={{ borderRadius: '12px' }}
         title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
       >
         {sidebarOpen ? (
-          <X className="w-5 h-5 text-red-400" />
+          <X className="w-[18px] h-[18px] text-red-400" strokeWidth={2} />
         ) : (
-          <Menu className="w-5 h-5 text-cyan-400" />
+          <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
         )}
       </button>
 
@@ -1200,7 +1201,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         {/* Top Bar - Only show when not on home */}
         {currentView !== 'home' && (
           <header className="sticky top-0 z-20 border-b border-gray-800 bg-gray-900/80 backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 py-3 pl-16">
+            <div className="flex items-center justify-between px-4 py-3 pl-[58px]">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-cyan-400" />
                 <span className="font-semibold text-white hidden sm:block">
