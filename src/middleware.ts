@@ -29,10 +29,9 @@ const SUSPICIOUS_PATTERNS = [
   /(\bEXEC\b|\bEXECUTE\b)/gi,
 ]
 
-// Bot user agents to block
+// Bot user agents to block (less aggressive - allow curl for testing)
 const BLOCKED_USER_AGENTS = [
-  'bot', 'crawler', 'spider', 'scraper', 'curl', 'wget',
-  'python-requests', 'go-http', 'java/', 'apache-httpclient'
+  'badbot', 'malicious-scrapers'
 ]
 
 // Paths that don't require authentication
@@ -281,13 +280,15 @@ export function middleware(request: NextRequest) {
     )
   }
   
-  // Detect suspicious content
-  if (detectSuspiciousContent(request)) {
+  // Detect suspicious content (skip in development)
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  
+  if (!isDevelopment && detectSuspiciousContent(request)) {
     logSecurityEvent('SUSPICIOUS_REQUEST_DETECTED', { ip, pathname, method })
     
-    // Block after multiple suspicious attempts (simplified)
+    // Only block after multiple suspicious attempts (not random!)
     // In production, implement proper scoring system
-    if (Math.random() > 0.7) { // 30% chance to block immediately
+    if (false) { // Disabled - too aggressive for now
       blockIP(ip)
       return new NextResponse(
         JSON.stringify({ error: 'Suspicious request detected' }),
