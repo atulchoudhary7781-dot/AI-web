@@ -175,8 +175,8 @@ export default function FullScreenChat({
         </div>
       )}
 
-      {/* Messages Area - ONLY this scrolls */}
-      <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar sidebar-scroll ${messages.length <= 1 ? 'hidden' : ''}`}>
+      {/* Messages Area - ONLY this scrolls, scrollbar hidden until content overflows */}
+      <div className={`flex-1 overflow-y-auto min-h-0 scrollbar-hide ${messages.length <= 1 ? 'hidden' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Skip welcome message when showing chat */}
           {messages.slice(1).map((message) => {
@@ -552,6 +552,16 @@ export default function FullScreenChat({
         
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(100, 116, 139, 0.5);
+        }
+
+        /* Hide scrollbar by default - show only when scrolling/long content */
+        .scrollbar-hide {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;  /* Chrome, Safari and Opera */
         }
       `}</style>
     </div>
