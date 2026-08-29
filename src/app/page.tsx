@@ -17,6 +17,7 @@ import FullScreenChat from '@/components/chat/FullScreenChat'
 import SettingsView from '@/components/chat/SettingsView'
 import LoginView from '@/components/chat/LoginView'
 import AuthModal from '@/components/chat/AuthModal'
+import IntroAnimation from '@/components/chat/IntroAnimation'
 
 // Types
 interface ChatMessage {
@@ -317,6 +318,10 @@ export default function NexusAI() {
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [fileBase64, setFileBase64] = useState<string | null>(null)
   
+  // Intro Animation State
+  const [showIntro, setShowIntro] = useState(true)
+  const [introComplete, setIntroComplete] = useState(false)
+  
   // AbortController for stopping responses
   const abortControllerRef = useRef<AbortController | null>(null)
   
@@ -347,6 +352,13 @@ export default function NexusAI() {
     const savedChatCount = localStorage.getItem('nexus_chat_count')
     if (savedChatCount) {
       setChatCount(parseInt(savedChatCount, 10))
+    }
+    
+    // Check if intro was already shown in this session
+    const introShown = sessionStorage.getItem('nexus_intro_shown')
+    if (introShown) {
+      setShowIntro(false)
+      setIntroComplete(true)
     }
   }, [])
 
@@ -1129,6 +1141,17 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300`}>
+      {/* Intro Animation - Shows on first visit */}
+      {showIntro && (
+        <IntroAnimation onComplete={() => {
+          setShowIntro(false)
+          setIntroComplete(true)
+          sessionStorage.setItem('nexus_intro_shown', 'true')
+        }} />
+      )}
+
+      {/* Main Content - Only show after intro completes */}
+      <div className={`transition-opacity duration-500 ${introComplete ? 'opacity-100' : 'opacity-0'}`}>
       {/* Background Animation - Only on home view */}
       {currentView === 'home' && <NeuralNetworkBackground />}
 
@@ -1232,6 +1255,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         maxChats={MAX_FREE_CHATS}
         reason={authModalReason}
       />
+      </div>
     </div>
   )
 }
