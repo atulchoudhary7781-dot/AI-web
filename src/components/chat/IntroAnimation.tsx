@@ -12,22 +12,23 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    // Phase timeline
+    // Phase timeline - Gemini style smooth animation
     const timers = [
-      setTimeout(() => setPhase(1), 300),      // Start particle explosion
-      setTimeout(() => setPhase(2), 800),      // Show logo glow
-      setTimeout(() => setPhase(3), 1400),     // Show NEXUS text
-      setTimeout(() => setPhase(4), 2000),     // Show AI text with gradient
-      setTimeout(() => setPhase(5), 2600),     // Show tagline
-      setTimeout(() => setPhase(6), 3200),     // Full reveal
-      setTimeout(() => setFadeOut(true), 4000), // Start fade out
-      setTimeout(() => onComplete(), 4500),     // Complete & show main content
+      setTimeout(() => setPhase(1), 100),      // Start subtle particles
+      setTimeout(() => setPhase(2), 600),      // Star begins to form
+      setTimeout(() => setPhase(3), 1200),     // Star fully visible with glow
+      setTimeout(() => setPhase(4), 1800),     // NEXUS text fades in elegantly
+      setTimeout(() => setPhase(5), 2400),     // AI text with gradient shimmer
+      setTimeout(() => setPhase(6), 3000),     // Tagline appears
+      setTimeout(() => setPhase(7), 3600),     // Full brightness
+      setTimeout(() => setFadeOut(true), 4200), // Gentle fade out
+      setTimeout(() => onComplete(), 4800),     // Complete & show main content
     ]
 
     return () => timers.forEach(clearTimeout)
   }, [onComplete])
 
-  // Particle Animation on Canvas
+  // Gemini-style Particle Animation on Canvas
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -39,160 +40,178 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
     canvas.height = window.innerHeight
 
     let animationFrameId: number
-    const particles: Array<{
+    let time = 0
+    
+    // Floating particles - Gemini style (subtle, elegant)
+    interface StarParticle {
       x: number
       y: number
-      vx: number
-      vy: number
-      radius: number
+      size: number
       opacity: number
+      speed: number
+      angle: number
+      twinkleSpeed: number
+      twinkleOffset: number
       color: string
-      life: number
-      maxLife: number
-    }> = []
-
-    // Colors for particles
-    const colors = [
-      '#8B5CF6', // Violet
-      '#06B6D4', // Cyan
-      '#EC4899', // Pink
-      '#3B82F6', // Blue
-      '#10B981', // Emerald
-    ]
-
-    // Create burst of particles from center
-    const createParticleBurst = () => {
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      for (let i = 0; i < 150; i++) {
-        const angle = (Math.PI * 2 * i) / 150 + Math.random() * 0.5
-        const speed = 2 + Math.random() * 8
-        const maxLife = 60 + Math.random() * 120
-        
-        particles.push({
-          x: centerX,
-          y: centerY,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          radius: 1 + Math.random() * 3,
-          opacity: 1,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          life: 0,
-          maxLife,
-        })
-      }
     }
 
-    // Create orbital ring particles
-    const createOrbitalRings = () => {
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      // Multiple rings
-      ;[100, 180, 260].forEach((radius, ringIndex) => {
-        const particleCount = 20 + ringIndex * 10
-        for (let i = 0; i < particleCount; i++) {
-          const angle = (Math.PI * 2 * i) / particleCount
-          particles.push({
-            x: centerX + Math.cos(angle) * radius,
-            y: centerY + Math.sin(angle) * radius,
-            vx: Math.cos(angle + Math.PI / 2) * 0.5,
-            vy: Math.sin(angle + Math.PI / 2) * 0.5,
-            radius: 1 + Math.random() * 2,
-            opacity: 0.6,
-            color: colors[ringIndex % colors.length],
-            life: 0,
-            maxLife: 200,
-          })
-        }
+    const particles: StarParticle[] = []
+    
+    // Gemini-inspired colors (blue, purple, cyan, soft pink)
+    const geminiColors = [
+      '#4285F4', // Google Blue
+      '#9B72CB', // Purple  
+      '#00BCD4', // Cyan
+      '#F4B400', // Amber/Gold
+      '#E91E63', // Soft Pink
+    ]
+
+    // Create elegant floating stars/constellations
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 0.5,
+        opacity: Math.random() * 0.6 + 0.2,
+        speed: Math.random() * 0.3 + 0.1,
+        angle: Math.random() * Math.PI * 2,
+        twinkleSpeed: Math.random() * 0.02 + 0.01,
+        twinkleOffset: Math.random() * Math.PI * 2,
+        color: geminiColors[Math.floor(Math.random() * geminiColors.length)],
       })
     }
 
-    if (phase >= 1) {
-      createParticleBurst()
-      setTimeout(createOrbitalRings, 500)
+    // Constellation lines data
+    interface ConstellationLine {
+      from: number
+      to: number
+      opacity: number
+    }
+    
+    const constellationLines: ConstellationLine[] = []
+
+    // Create some constellation connections near center
+    const centerX = canvas.width / 2
+    const centerY = canvas.height / 2
+
+    for (let i = 0; i < 20; i++) {
+      const fromIdx = Math.floor(Math.random() * 30) // Use first 30 particles
+      let toIdx = Math.floor(Math.random() * 30)
+      while (toIdx === fromIdx) {
+        toIdx = Math.floor(Math.random() * 30)
+      }
+      
+      constellationLines.push({
+        from: fromIdx,
+        to: toIdx,
+        opacity: Math.random() * 0.15 + 0.05,
+      })
     }
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(3, 5, 15, 0.15)'
+      time += 0.016 // ~60fps
+      
+      // Clear with fade effect for trails
+      ctx.fillStyle = 'rgba(10, 12, 20, 0.2)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      particles.forEach((particle, index) => {
-        // Update life
-        particle.life++
+      // Draw constellation lines first (behind particles)
+      constellationLines.forEach((line) => {
+        const p1 = particles[line.from]
+        const p2 = particles[line.to]
         
-        // Calculate opacity based on life
-        const lifeRatio = particle.life / particle.maxLife
-        if (lifeRatio > 0.7) {
-          particle.opacity = 1 - ((lifeRatio - 0.7) / 0.3)
+        if (p1 && p2) {
+          const dx = p1.x - p2.x
+          const dy = p1.y - p2.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          
+          if (distance < 250) {
+            const lineOpacity = line.opacity * (1 - distance / 250) * 
+                              (phase >= 2 ? Math.min(1, (phase - 1) * 0.5) : 0.3)
+            
+            ctx.save()
+            ctx.globalAlpha = lineOpacity
+            ctx.strokeStyle = '#6366F1'
+            ctx.lineWidth = 0.5
+            ctx.beginPath()
+            ctx.moveTo(p1.x, p1.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.stroke()
+            ctx.restore()
+          }
         }
+      })
 
-        // Update position
-        particle.x += particle.vx
-        particle.y += particle.vy
+      // Update and draw particles
+      particles.forEach((particle, index) => {
+        // Gentle floating motion
+        particle.angle += particle.speed * 0.01
+        particle.x += Math.cos(particle.angle) * particle.speed
+        particle.y += Math.sin(particle.angle) * particle.speed * 0.5
         
-        // Slight deceleration
-        particle.vx *= 0.99
-        particle.vy *= 0.99
-
-        // Draw particle with glow
-        if (particle.opacity > 0) {
+        // Wrap around screen
+        if (particle.x < 0) particle.x = canvas.width
+        if (particle.x > canvas.width) particle.x = 0
+        if (particle.y < 0) particle.y = canvas.height
+        if (particle.y > canvas.height) particle.y = 0
+        
+        // Twinkle effect
+        const twinkle = Math.sin(time * 60 * particle.twinkleSpeed + particle.twinkleOffset)
+        const currentOpacity = particle.opacity * (0.5 + twinkle * 0.5)
+        
+        // Phase-based visibility multiplier
+        const phaseMultiplier = phase >= 1 ? Math.min(1, phase * 0.3) : 0.1
+        
+        if (currentOpacity * phaseMultiplier > 0.01) {
           ctx.save()
-          ctx.globalAlpha = particle.opacity
+          ctx.globalAlpha = currentOpacity * phaseMultiplier
           
-          // Glow effect
-          const gradient = ctx.createRadialGradient(
-            particle.x, particle.y, 0,
-            particle.x, particle.y, particle.radius * 4
-          )
-          gradient.addColorStop(0, particle.color)
-          gradient.addColorStop(0.4, particle.color + '80')
-          gradient.addColorStop(1, 'transparent')
+          // Soft glow for larger particles
+          if (particle.size > 1.5) {
+            const gradient = ctx.createRadialGradient(
+              particle.x, particle.y, 0,
+              particle.x, particle.y, particle.size * 4
+            )
+            gradient.addColorStop(0, particle.color)
+            gradient.addColorStop(0.5, particle.color + '40')
+            gradient.addColorStop(1, 'transparent')
+            
+            ctx.fillStyle = gradient
+            ctx.beginPath()
+            ctx.arc(particle.x, particle.y, particle.size * 4, 0, Math.PI * 2)
+            ctx.fill()
+          }
           
-          ctx.fillStyle = gradient
-          ctx.beginPath()
-          ctx.arc(particle.x, particle.y, particle.radius * 4, 0, Math.PI * 2)
-          ctx.fill()
-          
-          // Core
+          // Core star particle
           ctx.fillStyle = '#FFFFFF'
+          ctx.shadowBlur = particle.size * 3
+          ctx.shadowColor = particle.color
           ctx.beginPath()
-          ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
+          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
           ctx.fill()
           
           ctx.restore()
         }
-
-        // Remove dead particles
-        if (particle.life >= particle.maxLife || particle.opacity <= 0) {
-          particles.splice(index, 1)
-        }
       })
 
-      // Draw connections between nearby particles
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.1)'
-      ctx.lineWidth = 0.5
-      
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-          
-          if (distance < 100) {
-            ctx.globalAlpha = (100 - distance) / 100 * 0.3
-            ctx.beginPath()
-            ctx.moveTo(particles[i].x, particles[i].y)
-            ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.stroke()
-          }
-        }
+      // Central glow effect when star is forming (phase 2+)
+      if (phase >= 2 && phase <= 5) {
+        const glowIntensity = Math.min(1, (phase - 1) * 0.4) * (1 - (phase - 2) * 0.2)
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, 300
+        )
+        
+        gradient.addColorStop(0, `rgba(99, 102, 241, ${0.15 * glowIntensity})`)
+        gradient.addColorStop(0.3, `rgba(139, 92, 246, ${0.08 * glowIntensity})`)
+        gradient.addColorStop(0.6, `rgba(6, 182, 212, ${0.04 * glowIntensity})`)
+        gradient.addColorStop(1, 'transparent')
+        
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
 
-      if (particles.length > 0 || phase < 6) {
-        animationFrameId = requestAnimationFrame(animate)
-      }
+      animationFrameId = requestAnimationFrame(animate)
     }
 
     animate()
@@ -212,215 +231,288 @@ export default function IntroAnimation({ onComplete }: IntroAnimationProps) {
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] bg-[#03050F] flex items-center justify-center transition-opacity duration-700 ${
+      className={`fixed inset-0 z-[9999] bg-[#0A0C14] flex items-center justify-center transition-opacity duration-1000 ease-out ${
         fadeOut ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      {/* Canvas for particle effects */}
+      {/* Canvas for Gemini-style particle effects */}
       <canvas 
         ref={canvasRef} 
         className="absolute inset-0 w-full h-full"
       />
       
-      {/* Central Content */}
+      {/* Central Content - Gemini Style */}
       <div className="relative z-10 flex flex-col items-center justify-center">
-        {/* Logo Container */}
+        
+        {/* Gemini-style Star Logo */}
         <div 
-          className={`transition-all duration-1000 ${
-            phase >= 2 ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+          className={`transition-all duration-1500 ease-out ${
+            phase >= 2 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
           }`}
+          style={{
+            transform: phase >= 2 ? 'scale(1)' : 'scale(0.7)',
+            opacity: phase >= 2 ? 1 : 0,
+          }}
         >
-          {/* Glowing Logo Background */}
           <div className="relative">
-            {/* Outer Glow Rings */}
+            {/* Outer ambient glow - expands gently */}
             <div 
-              className={`absolute inset-0 -m-8 rounded-full transition-all duration-1500 delay-500 ${
-                phase >= 3 ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="absolute inset-0 -m-16 rounded-full"
               style={{
-                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(6, 182, 212, 0.2) 40%, transparent 70%)',
-                filter: 'blur(30px)',
-                transform: phase >= 4 ? 'scale(1.5)' : 'scale(1)',
-                transition: 'all 2s ease-out',
+                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.15) 35%, rgba(6, 182, 212, 0.08) 60%, transparent 80%)',
+                filter: 'blur(40px)',
+                transform: phase >= 4 ? 'scale(1.8)' : 'scale(1)',
+                transition: 'all 2.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: phase >= 3 ? 1 : 0.5,
               }}
             />
             
-            {/* Spinning Ring */}
+            {/* Rotating ring - very subtle */}
             <div 
-              className={`absolute inset-0 -m-4 transition-all duration-1000 ${
-                phase >= 2 ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              <div 
-                className="w-32 h-32 rounded-full border-2 border-transparent"
-                style={{
-                  borderColor: 'rgba(139, 92, 246, 0.5)',
-                  borderTopColor: '#06B6D4',
-                  borderRightColor: '#EC4899',
-                  animation: 'spin 2s linear infinite',
-                }}
-              />
-            </div>
-            
-            {/* Logo Icon */}
-            <div 
-              className="w-28 h-28 rounded-2xl bg-gradient-to-br from-cyan-500 via-violet-500 to-pink-500 flex items-center justify-center shadow-2xl relative overflow-hidden"
+              className="absolute inset-0 -m-6"
               style={{
-                boxShadow: phase >= 3 
-                  ? '0 0 60px rgba(139, 92, 246, 0.6), 0 0 100px rgba(6, 182, 212, 0.4)' 
-                  : '0 25px 50px rgba(0, 0, 0, 0.5)',
-                transition: 'box-shadow 1s ease-out',
+                opacity: phase >= 3 ? 0.4 : 0,
+                transition: 'opacity 1s ease-out',
               }}
             >
-              {/* Inner shimmer */}
+              <svg 
+                className="w-40 h-40 animate-spin" 
+                style={{ animationDuration: '8s' }}
+                viewBox="0 0 160 160"
+              >
+                <defs>
+                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#4285F4" stopOpacity="0" />
+                    <stop offset="25%" stopColor="#9B72CB" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor="#00BCD4" stopOpacity="0.3" />
+                    <stop offset="75%" stopColor="#E91E63" stopOpacity="0.6" />
+                    <stop offset="100%" stopColor="#4285F4" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="76"
+                  fill="none"
+                  stroke="url(#ringGradient)"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  strokeDasharray="200 400"
+                />
+              </svg>
+            </div>
+
+            {/* Main Star Container */}
+            <div 
+              className="w-28 h-28 rounded-3xl relative overflow-hidden flex items-center justify-center"
+              style={{
+                background: phase >= 3 
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' 
+                  : 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
+                boxShadow: phase >= 3 
+                  ? '0 25px 60px rgba(99, 102, 241, 0.4), 0 0 120px rgba(139, 92, 246, 0.25), inset 0 1px 0 rgba(255,255,255,0.2)'
+                  : '0 20px 40px rgba(0, 0, 0, 0.4)',
+                transition: 'all 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+            >
+              {/* Inner shimmer overlay */}
               <div 
-                className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"
+                className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent"
                 style={{
-                  animation: 'shimmer 2s ease-in-out infinite',
+                  background: 'linear-gradient(105deg, rgba(255,255,255,0.2) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.05) 100%)',
                 }}
               />
               
-              {/* Sparkle Icon */}
+              {/* Gemini-style 4-pointed Star */}
               <svg 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                className="w-14 h-14 text-white drop-shadow-lg"
-                stroke="currentColor" 
-                strokeWidth="1.5"
+                viewBox="0 0 64 64" 
+                className="w-16 h-16 relative z-10 drop-shadow-2xl"
+                fill="none"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"
-                />
+                <defs>
+                  <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#FFFFFF" />
+                    <stop offset="50%" stopColor="#E0E7FF" />
+                    <stop offset="100%" stopColor="#C7D2FE" />
+                  </linearGradient>
+                  <filter id="starGlow">
+                    <feGaussianBlur stdDeviation="2" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                
+                {/* Main star shape - elegant 4-pointed design */}
+                <g filter="url(#starGlow)">
+                  {/* Top point */}
+                  <path
+                    d="M32 4 L36 26 L58 32 L36 38 L32 60 L28 38 L6 32 L28 26 Z"
+                    fill="url(#starGradient)"
+                    style={{
+                      transformOrigin: 'center',
+                      transform: phase >= 2 ? 'rotate(0deg) scale(1)' : 'rotate(-90deg) scale(0)',
+                      transition: 'transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    }}
+                  />
+                  
+                  {/* Inner diamond accent */}
+                  <path
+                    d="M32 18 L36 32 L32 46 L28 32 Z"
+                    fill="white"
+                    fillOpacity="0.6"
+                    style={{
+                      transformOrigin: 'center',
+                      transform: phase >= 3 ? 'scale(1)' : 'scale(0)',
+                      transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s',
+                      opacity: phase >= 3 ? 1 : 0,
+                    }}
+                  />
+                  
+                  {/* Center bright core */}
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="3"
+                    fill="white"
+                    style={{
+                      opacity: phase >= 3 ? 1 : 0,
+                      transition: 'opacity 0.5s ease-out 0.6s',
+                    }}
+                  />
+                </g>
               </svg>
+
+              {/* Pulsing glow effect on star */}
+              <div 
+                className="absolute inset-0 rounded-3xl"
+                style={{
+                  background: 'radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%)',
+                  opacity: phase >= 4 ? 0.5 : 0,
+                  animation: phase >= 4 ? 'pulseGlow 2s ease-in-out infinite' : 'none',
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* NEXUS Text */}
+        {/* NEXUS Text - Clean, Elegant Typography */}
         <div 
-          className={`mt-8 transition-all duration-700 delay-300 ${
-            phase >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
+          className="mt-10 transition-all duration-1000 ease-out"
+          style={{
+            opacity: phase >= 4 ? 1 : 0,
+            transform: phase >= 4 ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '200ms',
+          }}
         >
-          <h1 className="text-6xl md:text-7xl font-bold tracking-tight">
-            <span className="text-white">NEXUS</span>
+          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight">
+            <span 
+              className="text-transparent bg-clip-text"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, #FFFFFF 0%, #E0E7FF 50%, #C7D2FE 100%)',
+              }}
+            >
+              NEXUS
+            </span>
           </h1>
         </div>
 
-        {/* AI Text with Gradient */}
+        {/* AI Text - Gradient Shimmer Effect */}
         <div 
-          className={`transition-all duration-700 delay-500 ${
-            phase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
+          className="transition-all duration-1000 ease-out"
+          style={{
+            opacity: phase >= 5 ? 1 : 0,
+            transform: phase >= 5 ? 'translateY(0)' : 'translateY(20px)',
+            transitionDelay: '400ms',
+          }}
         >
           <h2 
-            className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-cyan-400 to-pink-400"
+            className="text-5xl md:text-6xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 via-cyan-400 to-pink-400"
             style={{
-              backgroundSize: '200% auto',
-              animation: phase >= 5 ? 'gradientShift 3s ease infinite' : 'none',
+              backgroundSize: '300% auto',
+              animation: phase >= 6 ? 'geminiShimmer 4s linear infinite' : 'none',
             }}
           >
             AI
           </h2>
         </div>
 
-        {/* Tagline */}
+        {/* Tagline - Subtle and Clean */}
         <div 
-          className={`mt-6 transition-all duration-700 delay-700 ${
-            phase >= 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
+          className="mt-8 transition-all duration-800 ease-out"
+          style={{
+            opacity: phase >= 6 ? 1 : 0,
+            transform: phase >= 6 ? 'translateY(0)' : 'translateY(15px)',
+            transitionDelay: '600ms',
+          }}
         >
-          <p className="text-gray-400 text-lg md:text-xl tracking-wide text-center max-w-md px-4">
-            Your Advanced AI Assistant
+          <p className="text-gray-400 text-lg md:text-xl tracking-wide text-center max-w-sm px-4 font-light">
+            Think bigger. Build faster.
           </p>
           
-          {/* Decorative line */}
+          {/* Minimalist divider line */}
           <div 
-            className={`mt-4 h-0.5 mx-auto transition-all duration-1000 delay-1000 ${
-              phase >= 6 ? 'w-32 opacity-100' : 'w-0 opacity-0'
-            }`}
+            className="mt-6 mx-auto h-px transition-all duration-1500 ease-out"
             style={{
-              background: 'linear-gradient(to right, transparent, #8B5CF6, #06B6D4, transparent)',
+              width: phase >= 7 ? '120px' : '0px',
+              background: 'linear-gradient(to right, transparent, rgba(99, 102, 241, 0.5), rgba(139, 92, 246, 0.3), transparent)',
+              transitionDelay: '800ms',
             }}
           />
         </div>
 
-        {/* Loading dots during final phase */}
+        {/* Loading indicator - minimal dots */}
         <div 
-          className={`flex gap-2 mt-8 transition-opacity duration-500 ${
-            phase >= 6 && !fadeOut ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="flex gap-1.5 mt-10 transition-opacity duration-500"
+          style={{
+            opacity: phase >= 7 && !fadeOut ? 1 : 0,
+          }}
         >
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="w-2 h-2 rounded-full bg-violet-500"
+              className="w-1.5 h-1.5 rounded-full bg-indigo-400"
               style={{
-                animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
+                animation: `gentlePulse 1.6s ease-in-out ${i * 0.25}s infinite`,
               }}
             />
           ))}
         </div>
       </div>
 
-      {/* Corner Decorations */}
-      <div 
-        className={`absolute top-8 left-8 transition-opacity duration-1000 delay-1000 ${
-          phase >= 4 ? 'opacity-30' : 'opacity-0'
-        }`}
-      >
-        <div className="w-16 h-16 border-l-2 border-t-2 border-violet-500/50" />
-      </div>
-      <div 
-        className={`absolute top-8 right-8 transition-opacity duration-1000 delay-1000 ${
-          phase >= 4 ? 'opacity-30' : 'opacity-0'
-        }`}
-      >
-        <div className="w-16 h-16 border-r-2 border-t-2 border-cyan-500/50" />
-      </div>
-      <div 
-        className={`absolute bottom-8 left-8 transition-opacity duration-1000 delay-1000 ${
-          phase >= 4 ? 'opacity-30' : 'opacity-0'
-        }`}
-      >
-        <div className="w-16 h-16 border-l-2 border-b-2 border-pink-500/50" />
-      </div>
-      <div 
-        className={`absolute bottom-8 right-8 transition-opacity duration-1000 delay-1000 ${
-          phase >= 4 ? 'opacity-30' : 'opacity-0'
-        }`}
-      >
-        <div className="w-16 h-16 border-r-2 border-b-2 border-emerald-500/50" />
-      </div>
-
-      {/* CSS Animations */}
+      {/* CSS Animations - Gemini Style */}
       <style jsx global>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes geminiShimmer {
+          0% { background-position: 0% center; }
+          100% { background-position: 300% center; }
         }
         
-        @keyframes shimmer {
-          0%, 100% { transform: translateX(-100%) rotate(45deg); }
-          50% { transform: translateX(100%) rotate(45deg); }
+        @keyframes pulseGlow {
+          0%, 100% { 
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.6;
+            transform: scale(1.02);
+          }
         }
         
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% center; }
-          50% { background-position: 200% center; }
-        }
-        
-        @keyframes pulse {
+        @keyframes gentlePulse {
           0%, 80%, 100% { 
-            transform: scale(0.6);
-            opacity: 0.5;
+            transform: scale(0.8);
+            opacity: 0.4;
           }
           40% { 
             transform: scale(1);
             opacity: 1;
           }
+        }
+        
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
