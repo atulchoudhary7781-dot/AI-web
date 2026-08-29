@@ -5,7 +5,7 @@ import {
   Sparkles, User, Mail, Lock, Eye, EyeOff, 
   ArrowRight, LogIn, UserPlus, X, Rocket,
   CheckCircle, Zap, Camera, Crown, Star,
-  Image as ImageIcon, RefreshCw
+  Image as ImageIcon
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -70,7 +70,6 @@ export default function AuthModal({
   const [avatar, setAvatar] = useState('')
   const [selectedPlan, setSelectedPlan] = useState<string>('free')
   const [showPlanSelection, setShowPlanSelection] = useState(false)
-  const [isSyncingGmail, setIsSyncingGmail] = useState(false)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -103,25 +102,6 @@ export default function AuthModal({
       setError('')
     }
     reader.readAsDataURL(file)
-  }
-
-  // Handle Gmail photo sync
-  const handleGmailSync = async () => {
-    setIsSyncingGmail(true)
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      const googleImageUrl = prompt('Enter your Google Profile Photo URL:', '')
-      
-      if (googleImageUrl) {
-        setAvatar(googleImageUrl)
-      }
-    } catch (error) {
-      console.error('Gmail sync error:', error)
-    } finally {
-      setIsSyncingGmail(false)
-    }
   }
 
   // Remove avatar
@@ -351,20 +331,7 @@ export default function AuthModal({
                     Upload Photo
                   </Button>
                   
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleGmailSync}
-                    disabled={isSyncingGmail}
-                    className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 text-[11px] sm:text-xs"
-                  >
-                    {isSyncingGmail ? (
-                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-                    ) : (
-                      <ImageIcon className="w-3 h-3 mr-1" />
-                    )}
-                    {isSyncingGmail ? 'Syncing...' : 'Use Google Photo'}
-                  </Button>
+
 
                   {avatar && (
                     <button
