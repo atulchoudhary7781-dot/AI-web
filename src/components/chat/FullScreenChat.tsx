@@ -162,7 +162,7 @@ export default function FullScreenChat({
   }, [isLoading, attachedFile])
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden rounded-none">
       {/* Scrollbar Style - Hidden but functional */}
       <style>{`
         /* Hide scrollbar visually but keep functionality */
@@ -403,8 +403,8 @@ export default function FullScreenChat({
       )}
 
       {/* Input Area - Fixed at bottom - Shared for Welcome & Chat - Clean Compact Design */}
-      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/95 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-3 py-2.5">
+      <div className="flex-shrink-0 border-t border-gray-800/60 bg-gray-900/98 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3">
           {/* Attached File Preview - Shows ABOVE input box when file is attached */}
           {attachedFile && !isLoading && (
             <div className="mb-2 p-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
@@ -455,9 +455,9 @@ export default function FullScreenChat({
           )}
 
           {/* Input Container - Clean Design */}
-          <div className="relative bg-gray-800/60 border border-gray-700/60 rounded-xl focus-within:border-cyan-500/50 focus-within:shadow-md focus-within:shadow-cyan-500/10 transition-all duration-200 overflow-hidden">
+          <div className="relative bg-gray-800/70 border border-gray-700/60 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-200 overflow-hidden">
             
-            <div className="relative flex items-center gap-2 p-2">
+            <div className="relative flex items-center gap-2.5 p-2.5">
               {/* File Attachment Button */}
               <input
                 ref={fileInputRef}
@@ -470,7 +470,7 @@ export default function FullScreenChat({
                 type="button"
                 onClick={handleAttachClick}
                 disabled={isLoading}
-                className={`p-2 rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`p-2.5 rounded-xl transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
                   !isLoggedIn 
                     ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 border border-orange-500/30' 
                     : attachedFile 
@@ -479,7 +479,7 @@ export default function FullScreenChat({
                 }`}
                 title={!isLoggedIn ? "🔒 Login to attach files" : "Attach file"}
               >
-                <Paperclip className="w-[18px] h-[18px]" />
+                <Paperclip className="w-[19px] h-[19px]" />
               </button>
 
               {/* AI Tools Button */}
@@ -487,14 +487,14 @@ export default function FullScreenChat({
                 type="button"
                 onClick={() => setIsToolsOpen(true)}
                 disabled={isLoading}
-                className={`p-2 rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`p-2.5 rounded-xl transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
                   isToolsOpen
                     ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30' 
                     : 'bg-transparent text-gray-400 hover:text-violet-400 hover:bg-gray-700/50'
                 }`}
                 title="AI Tools (Web Search, Images, Voice, Code, Files, Translate)"
               >
-                <Wrench className="w-[18px] h-[18px]" />
+                <Wrench className="w-[19px] h-[19px]" />
               </button>
               
               {/* Text Input */}
@@ -542,15 +542,15 @@ export default function FullScreenChat({
           </div>
 
           {/* Footer Helper Text - Compact */}
-          <div className="flex items-center justify-between mt-1.5 px-1">
+          <div className="flex items-center justify-between mt-2 px-1">
             <p className="text-[11px] text-gray-500 leading-tight">
-              Press <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-400 text-[9px] font-mono mx-0.5">Enter</kbd> to send
-              <span className="mx-1">•</span>
-              <kbd className="px-1 py-0.5 bg-gray-800 rounded text-gray-400 text-[9px] font-mono mx-0.5">Shift+Enter</kbd> for new line
+              Press <kbd className="px-1.5 py-0.5 bg-gray-800/80 rounded text-gray-400 text-[10px] font-mono mx-1 border border-gray-700/50">Enter</kbd> to send
+              <span className="mx-1.5 text-gray-600">|</span>
+              <kbd className="px-1.5 py-0.5 bg-gray-800/80 rounded text-gray-400 text-[10px] font-mono mx-1 border border-gray-700/50">Shift+Enter</kbd> for new line
             </p>
-            <div className="flex items-center gap-1 text-[11px] text-gray-500">
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
               <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>Llama 3.1</span>
+              <span className="font-medium">NEXUS AI</span>
             </div>
           </div>
         </div>

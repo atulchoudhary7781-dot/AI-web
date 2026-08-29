@@ -1179,18 +1179,18 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       />
 
       {/* Main Content - FULL SCREEN */}
-      <main className="min-h-screen w-full">
+      <main className="h-screen w-full flex flex-col overflow-hidden">
         {/* Top Header Bar - Always visible with integrated Nav Button */}
-        <header className={`sticky top-0 z-30 border-b bg-gray-900/90 backdrop-blur-xl transition-all duration-300 ${
+        <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 ${
           currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
         }`}>
-          <div className="flex items-center justify-between px-4 py-2.5">
+          <div className="flex items-center justify-between px-4 sm:px-6 h-[52px]">
             {/* Left Side - Navigation Button + Title */}
             <div className="flex items-center gap-3">
               {/* Integrated Navigation Button - Part of Header */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-200 ease-out hover:scale-105 active:scale-95 ${
+                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-200 ease-out hover:scale-105 active:scale-95 ${
                   sidebarOpen 
                     ? 'bg-red-500/15 border-red-500/40 shadow-sm shadow-red-500/10 rotate-90' 
                     : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
@@ -1198,17 +1198,19 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                 title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
               >
                 {sidebarOpen ? (
-                  <X className="w-[17px] h-[17px] text-red-400" strokeWidth={2} />
+                  <X className="w-[18px] h-[18px] text-red-400" strokeWidth={2} />
                 ) : (
-                  <Menu className="w-[17px] h-[17px] text-cyan-400" strokeWidth={2} />
+                  <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
                 )}
               </button>
               
               {/* Title - Show only when not on home view */}
               {currentView !== 'home' && (
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4.5 h-4.5 text-cyan-400" />
-                  <span className="font-semibold text-white text-sm hidden sm:block">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                  </div>
+                  <span className="font-semibold text-white text-base hidden sm:block tracking-tight">
                     {currentView === 'chat' ? 'AI Chat' : 
                      currentView === 'settings' ? 'Settings' :
                      currentView === 'features' ? 'Features' :
@@ -1219,26 +1221,26 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
 
             {/* Right Side - Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {isLoggedIn ? (
                   <>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleNewChat}
-                      className="text-gray-400 hover:text-white"
+                      className="text-gray-400 hover:text-white hover:bg-gray-800/80 h-9 px-3 rounded-lg transition-all"
                     >
-                      <Plus className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">New Chat</span>
+                      <Plus className="w-4 h-4 mr-1.5" />
+                      <span className="hidden sm:inline text-sm font-medium">New Chat</span>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleLogout}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      className="text-red-400/80 hover:text-red-300 hover:bg-red-500/10 h-9 px-3 rounded-lg transition-all"
                     >
-                      <LogOut className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">Logout</span>
+                      <LogOut className="w-4 h-4 mr-1.5" />
+                      <span className="hidden sm:inline text-sm font-medium">Logout</span>
                     </Button>
                   </>
                 ) : null}
@@ -1246,8 +1248,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
           </header>
 
-        {/* Content Area - Full height, no scroll */}
-        <div className="h-[calc(100vh-45px)] overflow-hidden">
+        {/* Content Area - Full height, fills remaining space */}
+        <div className="flex-1 min-h-0 overflow-hidden">
           {renderCurrentView()}
         </div>
       </main>
