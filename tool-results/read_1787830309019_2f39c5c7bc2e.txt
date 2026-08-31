@@ -1,0 +1,402 @@
+   600→                                            <i data-lucide="github" class="w-5 h-5"></i>
+   601→                                        </a>
+   602→                                        <a href="https://i9fm8n3pz2wn67bkro5y2q.streamlit.app/" target="_blank" 
+   603→                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+   604→                                            <i data-lucide="external-link" class="w-5 h-5"></i>
+   605→                                        </a>
+   606→                                    </div>
+   607→                                </div>
+   608→                            </div>
+   609→
+   610→                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:gradient-text transition-all">Jarvis AI</h3>
+   611→                            
+   612→                            <p class="text-gray-400 mb-6 leading-relaxed">
+   613→                                Your personal AI assistant inspired by Iron Man's Jarvis. Features voice interaction, task automation, smart home integration, and contextual awareness for a truly intelligent experience.
+   614→                            </p>
+   615→
+   616→                            <div class="mb-6">
+   617→                                <h4 class="text-sm font-semibold text-white mb-3">Key Features</h4>
+   618→                                <div class="flex flex-wrap gap-2">
+   619→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Voice Commands</span>
+   620→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Task Automation</span>
+   621→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Context Aware</span>
+   622→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Multi-platform</span>
+   623→                                </div>
+   624→                            </div>
+   625→
+   626→                            <div class="pt-6 border-t border-white/10">
+   627→                                <div class="flex flex-wrap gap-2">
+   628→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Python</span>
+   629→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">AI/ML</span>
+   630→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Streamlit</span>
+   631→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Automation</span>
+   632→                                </div>
+   633→                                
+   634→                                <!-- Live Link -->
+   635→                                <a href="https://i9fm8n3pz2wn67bkro5y2q.streamlit.app/" target="_blank" 
+   636→                                   class="mt-4 inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors">
+   637→                                    <i data-lucide="globe" class="w-4 h-4"></i>
+   638→                                    i9fm8n3pz2wn67bkro5y2q.streamlit.app
+   639→                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+   640→                                </a>
+   641→                            </div>
+   642→                        </div>
+   643→
+   644→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   645→                    </div>
+   646→                </div>
+   647→
+   648→                <!-- View More CTA -->
+   649→                <div data-aos="fade-up" data-aos-delay="300" class="text-center mt-12">
+   650→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio?tab=repositories" target="_blank" 
+   651→                       class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-medium rounded-full hover:bg-white/5 transition-all hover:border-white/40 btn-shine">
+   652→                        <i data-lucide="github" class="w-5 h-5"></i>
+   653→                        View All Projects on GitHub
+   654→                        <i data-lucide="external-link" class="w-4 h-4"></i>
+   655→                    </a>
+   656→                </div>
+   657→            </div>
+   658→        </section>
+   659→
+   660→        <!-- Skills Section -->
+   661→        <section id="skills" class="relative py-32 overflow-hidden">
+   662→            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   663→                <!-- Section Header -->
+   664→                <div class="text-center mb-16">
+   665→                    <span data-aos="fade-down" 
+   666→                          class="inline-block px-4 py-2 mb-4 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-full border border-blue-500/20">
+   667→                        Expertise
+   668→                    </span>
+   669→                    <h2 data-aos="fade-up" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   670→                        Skills & <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Technologies</span>
+   671→                    </h2>
+   672→                    <p data-aos="fade-up" data-aos-delay="100" 
+   673→                       class="text-gray-400 text-lg max-w-2xl mx-auto">
+   674→                        A comprehensive toolkit built through years of hands-on experience and continuous learning.
+   675→                    </p>
+   676→                </div>
+   677→
+   678→                <!-- Skills Grid -->
+   679→                <div class="grid md:grid-cols-3 gap-8">
+   680→                    
+   681→                    <!-- Frontend Skills -->
+   682→                    <div data-aos="fade-right" data-aos-delay="100" 
+   683→                         class="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all card-hover">
+   684→                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   685→                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center">
+   686→                                <i data-lucide="code-2" class="w-5 h-5 text-white"></i>
+   687→                            </div>
+   688→                            Frontend
+   689→                        </h3>
+   690→
+   691→                        <div class="space-y-5">
+   692→                            <div class="space-y-2">
+   693→                                <div class="flex justify-between items-center">
+   694→                                    <span class="text-gray-300 font-medium">React / Next.js</span>
+   695→                                    <span class="text-sm text-violet-400 font-mono">95%</span>
+   696→                                </div>
+   697→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   698→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 95%;"></div>
+   699→                                </div>
+   700→                            </div>
+   701→                            <div class="space-y-2">
+   702→                                <div class="flex justify-between items-center">
+   703→                                    <span class="text-gray-300 font-medium">TypeScript</span>
+   704→                                    <span class="text-sm text-violet-400 font-mono">90%</span>
+   705→                                </div>
+   706→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   707→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 90%;"></div>
+   708→                                </div>
+   709→                            </div>
+   710→                            <div class="space-y-2">
+   711→                                <div class="flex justify-between items-center">
+   712→                                    <span class="text-gray-300 font-medium">Tailwind CSS</span>
+   713→                                    <span class="text-sm text-violet-400 font-mono">95%</span>
+   714→                                </div>
+   715→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   716→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 95%;"></div>
+   717→                                </div>
+   718→                            </div>
+   719→                            <div class="space-y-2">
+   720→                                <div class="flex justify-between items-center">
+   721→                                    <span class="text-gray-300 font-medium">Framer Motion</span>
+   722→                                    <span class="text-sm text-violet-400 font-mono">85%</span>
+   723→                                </div>
+   724→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   725→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 85%;"></div>
+   726→                                </div>
+   727→                            </div>
+   728→                        </div>
+   729→                    </div>
+   730→
+   731→                    <!-- Backend & AI Skills -->
+   732→                    <div data-aos="fade-up" data-aos-delay="200" 
+   733→                         class="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all card-hover">
+   734→                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   735→                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
+   736→                                <i data-lucide="brain" class="w-5 h-5 text-white"></i>
+   737→                            </div>
+   738→                            Backend & AI
+   739→                        </h3>
+   740→
+   741→                        <div class="space-y-5">
+   742→                            <div class="space-y-2">
+   743→                                <div class="flex justify-between items-center">
+   744→                                    <span class="text-gray-300 font-medium">Node.js / Bun</span>
+   745→                                    <span class="text-sm text-violet-400 font-mono">88%</span>
+   746→                                </div>
+   747→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   748→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 88%;"></div>
+   749→                                </div>
+   750→                            </div>
+   751→                            <div class="space-y-2">
+   752→                                <div class="flex justify-between items-center">
+   753→                                    <span class="text-gray-300 font-medium">Python</span>
+   754→                                    <span class="text-sm text-violet-400 font-mono">85%</span>
+   755→                                </div>
+   756→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   757→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 85%;"></div>
+   758→                                </div>
+   759→                            </div>
+   760→                            <div class="space-y-2">
+   761→                                <div class="flex justify-between items-center">
+   762→                                    <span class="text-gray-300 font-medium">AI/ML Integration</span>
+   763→                                    <span class="text-sm text-violet-400 font-mono">90%</span>
+   764→                                </div>
+   765→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   766→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 90%;"></div>
+   767→                                </div>
+   768→                            </div>
+   769→                            <div class="space-y-2">
+   770→                                <div class="flex justify-between items-center">
+   771→                                    <span class="text-gray-300 font-medium">API Development</span>
+   772→                                    <span class="text-sm text-violet-400 font-mono">92%</span>
+   773→                                </div>
+   774→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   775→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 92%;"></div>
+   776→                                </div>
+   777→                            </div>
+   778→                        </div>
+   779→                    </div>
+   780→
+   781→                    <!-- Tools & Others -->
+   782→                    <div data-aos="fade-left" data-aos-delay="300" 
+   783→                         class="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all card-hover">
+   784→                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   785→                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
+   786→                                <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
+   787→                            </div>
+   788→                            Tools & Others
+   789→                        </h3>
+   790→
+   791→                        <div class="space-y-5">
+   792→                            <div class="space-y-2">
+   793→                                <div class="flex justify-between items-center">
+   794→                                    <span class="text-gray-300 font-medium">Git & GitHub</span>
+   795→                                    <span class="text-sm text-violet-400 font-mono">93%</span>
+   796→                                </div>
+   797→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   798→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 93%;"></div>
+   799→                                </div>
+   800→                            </div>
+   801→                            <div class="space-y-2">
+   802→                                <div class="flex justify-between items-center">
+   803→                                    <span class="text-gray-300 font-medium">Vercel Deployment</span>
+   804→                                    <span class="text-sm text-violet-400 font-mono">90%</span>
+   805→                                </div>
+   806→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   807→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 90%;"></div>
+   808→                                </div>
+   809→                            </div>
+   810→                            <div class="space-y-2">
+   811→                                <div class="flex justify-between items-center">
+   812→                                    <span class="text-gray-300 font-medium">Database (Prisma)</span>
+   813→                                    <span class="text-sm text-violet-400 font-mono">85%</span>
+   814→                                </div>
+   815→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   816→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 85%;"></div>
+   817→                                </div>
+   818→                            </div>
+   819→                            <div class="space-y-2">
+   820→                                <div class="flex justify-between items-center">
+   821→                                    <span class="text-gray-300 font-medium">UI/UX Design</span>
+   822→                                    <span class="text-sm text-violet-400 font-mono">80%</span>
+   823→                                </div>
+   824→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   825→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 80%;"></div>
+   826→                                </div>
+   827→                            </div>
+   828→                        </div>
+   829→                    </div>
+   830→                </div>
+   831→
+   832→                <!-- Additional Tech Icons -->
+   833→                <div data-aos="fade-up" data-aos-delay="400" class="mt-16 text-center">
+   834→                    <p class="text-gray-500 mb-6">And many more technologies I work with...</p>
+   835→                    <div class="flex flex-wrap justify-center gap-4">
+   836→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">JavaScript</span>
+   837→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">HTML/CSS</span>
+   838→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">REST APIs</span>
+   839→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">GraphQL</span>
+   840→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">MongoDB</span>
+   841→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">PostgreSQL</span>
+   842→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">Docker</span>
+   843→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">AWS</span>
+   844→                    </div>
+   845→                </div>
+   846→            </div>
+   847→        </section>
+   848→
+   849→        <!-- Social Connect Section (GitHub & LinkedIn with Photos) -->
+   850→        <section id="social" class="relative py-32 overflow-hidden">
+   851→            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-t from-violet-900/20 to-transparent rounded-full blur-3xl"></div>
+   852→
+   853→            <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+   854→                <!-- Section Header -->
+   855→                <div class="text-center mb-16">
+   856→                    <span data-aos="fade-down" 
+   857→                          class="inline-block px-4 py-2 mb-4 text-sm font-medium text-pink-400 bg-pink-500/10 rounded-full border border-pink-500/20">
+   858→                        Let's Connect
+   859→                    </span>
+   860→                    <h2 data-aos="fade-up" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   861→                        Find Me <span class="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Online</span>
+   862→                    </h2>
+   863→                    <p data-aos="fade-up" data-aos-delay="100" 
+   864→                       class="text-gray-400 text-lg max-w-2xl mx-auto">
+   865→                        Let's build something amazing together! Connect with me on social platforms.
+   866→                    </p>
+   867→                </div>
+   868→
+   869→                <!-- Social Cards Grid -->
+   870→                <div class="grid md:grid-cols-2 gap-8">
+   871→                    
+   872→                    <!-- GitHub Card with Photo -->
+   873→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+   874→                       data-aos="fade-right" data-aos-delay="200"
+   875→                       class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-violet-500/50 transition-all duration-500 card-hover block">
+   876→                        
+   877→                        <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+   878→                            <!-- GitHub Photo/Avatar -->
+   879→                            <div class="relative">
+   880→                                <img src="https://avatars.githubusercontent.com/u/your-github-id?v=4" 
+   881→                                     alt="Atul's GitHub Avatar"
+   882→                                     class="social-photo github-photo group-hover:scale-110 transition-transform duration-300"
+   883→                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%238b5cf6%22 width=%22100%22 height=%22100%22 rx=%2250%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>'">
+   884→                                
+   885→                                <!-- Online indicator -->
+   886→                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black"></span>
+   887→                            </div>
+   888→
+   889→                            <!-- Info -->
+   890→                            <div class="space-y-2">
+   891→                                <div class="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 inline-block group-hover:scale-110 transition-transform">
+   892→                                    <i data-lucide="github" class="w-8 h-8 text-white"></i>
+   893→                                </div>
+   894→                                <h3 class="text-2xl font-bold text-white group-hover:gradient-text transition-all">GitHub</h3>
+   895→                                <p class="text-gray-400">@atulchoudhary7781-dot</p>
+   896→                                <p class="text-sm text-violet-400">Check out my code & projects</p>
+   897→                            </div>
+   898→
+   899→                            <!-- Stats -->
+   900→                            <div class="flex gap-6 text-center">
+   901→                                <div>
+   902→                                    <div class="text-2xl font-bold text-white">10+</div>
+   903→                                    <div class="text-xs text-gray-500">Repositories</div>
+   904→                                </div>
+   905→                                <div>
+   906→                                    <div class="text-2xl font-bold text-white">∞</div>
+   907→                                    <div class="text-xs text-gray-500">Commits</div>
+   908→                                </div>
+   909→                            </div>
+   910→
+   911→                            <!-- CTA -->
+   912→                            <div class="pt-4 border-t border-white/10 w-full">
+   913→                                <span class="inline-flex items-center gap-2 text-violet-400 font-medium group-hover:text-violet-300 transition-colors">
+   914→                                    View Profile on GitHub
+   915→                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+   916→                                </span>
+   917→                            </div>
+   918→                        </div>
+   919→
+   920→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-blue-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   921→                    </a>
+   922→
+   923→                    <!-- LinkedIn Card with Photo -->
+   924→                    <a href="https://www.linkedin.com/in/atul-choudhary-018037301/" target="_blank" 
+   925→                       data-aos="fade-left" data-aos-delay="300"
+   926→                       class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-blue-500/50 transition-all duration-500 card-hover block">
+   927→                        
+   928→                        <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+   929→                            <!-- LinkedIn Photo/Avatar -->
+   930→                            <div class="relative">
+   931→                                <img src="https://media.licdn.com/dms/image/v2/D4D03AQE-xxx/photo-shrink_800_800/0/xxx/profile-displayphoto-image.jpg" 
+   932→                                     alt="Atul's LinkedIn Photo"
+   933→                                     class="social-photo linkedin-photo group-hover:scale-110 transition-transform duration-300"
+   934→                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233b82f6%22 width=%22100%22 height=%22100%22 rx=%2250%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>'">
+   935→                                
+   936→                                <!-- Online indicator -->
+   937→                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black"></span>
+   938→                            </div>
+   939→
+   940→                            <!-- Info -->
+   941→                            <div class="space-y-2">
+   942→                                <div class="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 inline-block group-hover:scale-110 transition-transform">
+   943→                                    <i data-lucide="linkedin" class="w-8 h-8 text-white"></i>
+   944→                                </div>
+   945→                                <h3 class="text-2xl font-bold text-white group-hover:text-blue-400 transition-all">LinkedIn</h3>
+   946→                                <p class="text-gray-400">Atul</p>
+   947→                                <p class="text-sm text-blue-400">Let's connect professionally</p>
+   948→                            </div>
+   949→
+   950→                            <!-- Stats -->
+   951→                            <div class="flex gap-6 text-center">
+   952→                                <div>
+   953→                                    <div class="text-2xl font-bold text-white">500+</div>
+   954→                                    <div class="text-xs text-gray-500">Connections</div>
+   955→                                </div>
+   956→                                <div>
+   957→                                    <div class="text-2xl font-bold text-white">∞</div>
+   958→                                    <div class="text-xs text-gray-500">Opportunities</div>
+   959→                                </div>
+   960→                            </div>
+   961→
+   962→                            <!-- CTA -->
+   963→                            <div class="pt-4 border-t border-white/10 w-full">
+   964→                                <span class="inline-flex items-center gap-2 text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+   965→                                    View Profile on LinkedIn
+   966→                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+   967→                                </span>
+   968→                            </div>
+   969→                        </div>
+   970→
+   971→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   972→                    </a>
+   973→                </div>
+   974→
+   975→                <!-- Email CTA -->
+   976→                <div data-aos="fade-up" data-aos-delay="400" class="text-center mt-12">
+   977→                    <a href="mailto:atulchoudhary7781@gmail.com" 
+   978→                       class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-pink-600 to-violet-600 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-pink-500/25 transition-all btn-shine">
+   979→                        <i data-lucide="mail" class="w-5 h-5"></i>
+   980→                        Email Me Directly
+   981→                        <span class="text-sm opacity-75">atulchoudhary7781@gmail.com</span>
+   982→                    </a>
+   983→                </div>
+   984→            </div>
+   985→        </section>
+   986→    </main>
+   987→
+   988→    <!-- Footer -->
+   989→    <footer class="relative py-12 border-t border-white/10">
+   990→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   991→            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+   992→                <!-- Logo & Copyright -->
+   993→                <div class="flex items-center gap-3">
+   994→                    <i data-lucide="sparkles" class="w-6 h-6 text-violet-400"></i>
+   995→                    <span class="text-lg font-bold gradient-text">Atul</span>
+   996→                    <span class="text-gray-500">|</span>
+   997→                    <span class="text-gray-500 text-sm" id="copyrightYear">© 2024 All rights reserved.</span>
+   998→                </div>
+   999→
+
+[showing lines 600-999 of 1154; use offset=1000 with limit to continue reading]

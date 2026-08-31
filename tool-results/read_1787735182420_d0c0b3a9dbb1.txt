@@ -1,0 +1,734 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square, Paperclip, X } from 'lucide-react'
+     5→import { Button } from '@/components/ui/button'
+     6→import { Textarea } from '@/components/ui/textarea'
+     7→
+     8→interface ChatMessage {
+     9→  id: string
+    10→  role: 'user' | 'assistant'
+    11→  content: string
+    12→  timestamp: Date
+    13→  image?: string // Base64 image data
+    14→  imageMimeType?: string
+    15→  // Document support (PDF, DOC, TXT, etc.)
+    16→  fileName?: string
+    17→  fileType?: string
+    18→  fileSize?: number
+    19→}
+    20→
+    21→interface FullScreenChatProps {
+    22→  messages: ChatMessage[]
+    23→  inputValue: string
+    24→  setInputValue: (value: string) => void
+    25→  isLoading: boolean
+    26→  onSubmit: () => void
+    27→  onStop?: () => void
+    28→  copiedCode: boolean
+    29→  onCopy: (text: string) => void
+    30→  onFileAttach?: (file: File) => void
+    31→  onClearAttachment?: () => void // Callback to clear attachment after send
+    32→  isLoggedIn?: boolean // Authentication state
+    33→  onLoginRequired?: () => void // Callback when login is required
+    34→}
+    35→
+    36→export default function FullScreenChat({
+    37→  messages,
+    38→  inputValue,
+    39→  setInputValue,
+    40→  isLoading,
+    41→  onSubmit,
+    42→  onStop,
+    43→  copiedCode,
+    44→  onCopy,
+    45→  onFileAttach,
+    46→  onClearAttachment,
+    47→  isLoggedIn = false,
+    48→  onLoginRequired
+    49→}: FullScreenChatProps) {
+    50→  const chatEndRef = useRef<HTMLDivElement>(null)
+    51→  const textareaRef = useRef<HTMLTextAreaElement>(null)
+    52→  const fileInputRef = useRef<HTMLInputElement>(null)
+    53→  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+    54→  const [filePreview, setFilePreview] = useState<string | null>(null)
+    55→
+    56→  // Sync with parent - clear file when parent sends
+    57→  useEffect(() => {
+    58→    if (!isLoading && attachedFile && onClearAttachment) {
+    59→      // File will be cleared by parent after submit
+    60→    }
+    61→  }, [isLoading])
+    62→
+    63→  // Auto-scroll chat to bottom
+    64→  useEffect(() => {
+    65→    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    66→  }, [messages])
+    67→
+    68→  // Handle key press
+    69→  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    70→    if (e.key === 'Enter' && !e.shiftKey) {
+    71→      e.preventDefault()
+    72→      e.stopPropagation()
+    73→      onSubmit()
+    74→    }
+    75→  }
+    76→
+    77→  // Handle file selection
+    78→  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    79→    const file = e.target.files?.[0]
+    80→    if (file) {
+    81→      setAttachedFile(file)
+    82→      
+    83→      // Create preview for images
+    84→      if (file.type.startsWith('image/')) {
+    85→        const reader = new FileReader()
+    86→        reader.onloadend = () => {
+    87→          setFilePreview(reader.result as string)
+    88→        }
+    89→        reader.readAsDataURL(file)
+    90→      } else {
+    91→        setFilePreview(null)
+    92→      }
+    93→      
+    94→      if (onFileAttach) {
+    95→        onFileAttach(file)
+    96→      }
+    97→    }
+    98→  }
+    99→
+   100→  // Handle file attachment click
+   101→  const handleAttachClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+   102→    console.log('📎 Attach button clicked!')
+   103→    console.log('  - isLoggedIn:', isLoggedIn)
+   104→    
+   105→    // Check if user is logged in
+   106→    if (!isLoggedIn) {
+   107→      console.log('  - User NOT logged in, triggering login modal...')
+   108→      // Trigger login modal if callback provided
+   109→      if (onLoginRequired) {
+   110→        console.log('  - Calling onLoginRequired...')
+   111→        onLoginRequired()
+   112→      } else {
+   113→        console.log('  - ERROR: onLoginRequired not provided!')
+   114→        alert('Login required but no handler!')
+   115→      }
+   116→      return
+   117→    }
+   118→    console.log('  - User logged in, opening file picker...')
+   119→    fileInputRef.current?.click()
+   120→  }
+   121→
+   122→  // Remove attached file
+   123→  const handleRemoveFile = () => {
+   124→    setAttachedFile(null)
+   125→    setFilePreview(null)
+   126→    if (fileInputRef.current) {
+   127→      fileInputRef.current.value = ''
+   128→    }
+   129→  }
+   130→
+   131→  // Track if we just sent a message (to clear attachment only after send)
+   132→  const wasSendingRef = useRef(false)
+   133→
+   134→  // Update ref when isLoading changes
+   135→  useEffect(() => {
+   136→    if (isLoading) {
+   137→      wasSendingRef.current = true
+   138→    }
+   139→  }, [isLoading])
+   140→
+   141→  // Clear file ONLY after successful send (when loading stops AND we were sending)
+   142→  useEffect(() => {
+   143→    if (!isLoading && wasSendingRef.current && attachedFile) {
+   144→      wasSendingRef.current = false
+   145→      // Clear after a small delay to ensure message was processed
+   146→      const timer = setTimeout(() => {
+   147→        handleRemoveFile()
+   148→      }, 500) // Longer delay to ensure send completed
+   149→      return () => clearTimeout(timer)
+   150→    }
+   151→  }, [isLoading, attachedFile])
+   152→
+   153→  return (
+   154→    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+   155→      {/* Welcome Header - Only show when no messages or first load */}
+   156→      {messages.length <= 1 && (
+   157→        <div className="flex-1 flex items-center justify-center px-4 overflow-y-auto custom-scrollbar sidebar-scroll">
+   158→          <div className="text-center max-w-2xl py-8">
+   159→            {/* Logo */}
+   160→            <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
+   161→              <Sparkles className="w-8 h-8 text-white" />
+   162→            </div>
+   163→            
+   164→            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-[family-name:var(--font-orbitron)]">
+   165→              Welcome to{' '}
+   166→              <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+   167→                NEXUS AI
+   168→              </span>
+   169→            </h2>
+   170→            
+   171→            <p className="text-gray-400 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+   172→              Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
+   173→            </p>
+   174→
+   175→            {/* Quick action buttons */}
+   176→            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-lg mx-auto">
+   177→              {[
+   178→                { icon: '💡', text: 'Explain', prompt: 'Explain quantum computing' },
+   179→                { icon: '💻', text: 'Code', prompt: 'Write Python code' },
+   180→                { icon: '📝', text: 'Write', prompt: 'Help me write an email' },
+   181→                { icon: '🎯', text: 'Ideas', prompt: 'Creative business ideas' }
+   182→              ].map((action, i) => (
+   183→                <button
+   184→                  key={i}
+   185→                  onClick={() => setInputValue(action.prompt)}
+   186→                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-cyan-500/30 hover:bg-gray-800 transition-all duration-200 group"
+   187→                >
+   188→                  <span className="text-lg">{action.icon}</span>
+   189→                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">{action.text}</span>
+   190→                </button>
+   191→              ))}
+   192→            </div>
+   193→          </div>
+   194→        </div>
+   195→      )}
+   196→
+   197→      {/* Messages Area - ONLY this scrolls */}
+   198→      <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar sidebar-scroll ${messages.length <= 1 ? 'hidden' : ''}`}>
+   199→        <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
+   200→          {/* Skip welcome message when showing chat */}
+   201→          {messages.slice(1).map((message) => {
+   202→            // DEBUG: Log each message to check document data
+   203→            console.log('📨 Rendering message:', {
+   204→              id: message.id,
+   205→              hasFileName: !!message.fileName,
+   206→              hasImage: !!message.image,
+   207→              content: message.content?.substring(0, 50),
+   208→              shouldShowDoc: (message.fileName || (message.content && message.content.includes('📎'))) && !message.image
+   209→            })
+   210→            
+   211→            return (
+   212→            <div
+   213→              key={message.id}
+   214→              className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''} animate-fadeIn`}
+   215→            >
+   216→              {message.role === 'assistant' && (
+   217→                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20">
+   218→                  <Sparkles className="w-5 h-5 text-white" />
+   219→                </div>
+   220→              )}
+   221→              
+   222→              <div className={`relative group ${message.role === 'user' ? 'order-1 max-w-[85%] md:max-w-[75%]' : 'max-w-[85%] md:max-width-[80%]'}`}>
+   223→                {/* Message Bubble */}
+   224→                <div className={`rounded-2xl px-5 py-3.5 relative overflow-hidden ${
+   225→                  message.role === 'user'
+   226→                    ? 'bg-gradient-to-br from-cyan-500 to-violet-600 text-white shadow-xl shadow-cyan-500/25'
+   227→                    : 'bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-lg'
+   228→                }`}>
+   229→                  {/* Gradient overlay for user messages */}
+   230→                  {message.role === 'user' && (
+   231→                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+   232→                  )}
+   233→                  
+   234→                  {/* Image Display - Show attached image in message */}
+   235→                  {message.image && (
+   236→                    <div className="mb-3 rounded-xl overflow-hidden border border-white/20 shadow-lg cursor-pointer hover:opacity-90 transition-opacity">
+   237→                      <img 
+   238→                        src={`data:${message.imageMimeType || 'image/png'};base64,${message.image}`}
+   239→                        alt="Attached image"
+   240→                        className="w-full max-w-[300px] rounded-lg"
+   241→                        onClick={() => {
+   242→                          // Open image in new tab for full view
+   243→                          const win = window.open('')
+   244→                          if (win) {
+   245→                            win.document.write(`<html><head><title>Image View</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;}img{max-width:100%;height:auto;}</style></head><body><img src="data:${message.imageMimeType};base64,${message.image}" /></body></html>`)
+   246→                            win.document.close()
+   247→                          }
+   248→                        }}
+   249→                      />
+   250→                    </div>
+   251→                  )}
+   252→
+   253→                  {/* Document Display - Show attached document (PDF, DOC, etc.) */}
+   254→                  {(message.fileName || (message.content && message.content.includes('📎'))) && !message.image && (
+   255→                    <div className={`mb-3 p-4 rounded-xl border-2 ${
+   256→                      message.role === 'user' 
+   257→                        ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border-cyan-400/40' 
+   258→                        : 'bg-gray-700/60 border-gray-500/40'
+   259→                    } shadow-lg`}>
+   260→                      <div className="flex items-center gap-4">
+   261→                        {/* File Icon based on type */}
+   262→                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md ${
+   263→                          message.fileType?.includes('pdf') || message.fileName?.endsWith('.pdf') ? 'bg-red-500/30' :
+   264→                          message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? 'bg-blue-500/30' :
+   265→                          message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') || message.fileName?.endsWith('.xls') ? 'bg-green-500/30' :
+   266→                          message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? 'bg-yellow-500/30' :
+   267→                          message.fileName?.endsWith('.json') ? 'bg-purple-500/30' :
+   268→                          message.fileName?.endsWith('.csv') ? 'bg-emerald-500/30' :
+   269→                          'bg-cyan-500/30'
+   270→                        }`}>
+   271→                          {message.fileType?.includes('pdf') || message.fileName?.endsWith('.pdf') ? (
+   272→                            <span className="text-red-400 font-bold text-sm">PDF</span>
+   273→                          ) : message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? (
+   274→                            <span className="text-blue-400 font-bold text-sm">DOC</span>
+   275→                          ) : message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') || message.fileName?.endsWith('.xls') ? (
+   276→                            <span className="text-green-400 font-bold text-sm">XLS</span>
+   277→                          ) : message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? (
+   278→                            <span className="text-yellow-400 font-bold text-sm">TXT</span>
+   279→                          ) : message.fileName?.endsWith('.json') ? (
+   280→                            <span className="text-purple-400 font-bold text-sm">JSON</span>
+   281→                          ) : message.fileName?.endsWith('.csv') ? (
+   282→                            <span className="text-emerald-400 font-bold text-sm">CSV</span>
+   283→                          ) : (
+   284→                            <Paperclip className="w-7 h-7 text-cyan-400" />
+   285→                          )}
+   286→                        </div>
+   287→                        
+   288→                        {/* File Info */}
+   289→                        <div className="flex-1 min-w-0">
+   290→                          <p className="text-base font-semibold truncate text-white">
+   291→                            📎 {message.fileName || message.content.replace('📎 ', '')}
+   292→                          </p>
+   293→                          <p className="text-sm opacity-80 mt-1">
+   294→                            {message.fileType ? message.fileType.split('/')[1]?.toUpperCase() || 'Document' : 'Document'}
+   295→                            {message.fileSize && ` • ${(message.fileSize / 1024).toFixed(1)} KB`}
+   296→                          </p>
+   297→                          <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+   298→                            ✅ Document attached successfully
+   299→                          </p>
+   300→                        </div>
+   301→
+   302→                        {/* Download/View indicator */}
+   303→                        <div className="flex-shrink-0">
+   304→                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+   305→                            <Paperclip className="w-4 h-4 text-cyan-400" />
+   306→                          </div>
+   307→                        </div>
+   308→                      </div>
+   309→                    </div>
+   310→                  )}
+   311→                  
+   312→                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
+   313→                    {renderMessageContent(message.content, onCopy, copiedCode)}
+   314→                  </div>
+   315→                </div>
+   316→
+   317→                {/* Message Actions */}
+   318→                <div className={`flex items-center gap-2 mt-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+   319→                  message.role === 'user' ? 'justify-end' : ''
+   320→                }`}>
+   321→                  <p className="text-xs text-gray-500">
+   322→                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+   323→                  </p>
+   324→                  
+   325→                  {message.role === 'assistant' && (
+   326→                    <>
+   327→                      <button 
+   328→                        onClick={() => onCopy(message.content)}
+   329→                        className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+   330→                        title="Copy response"
+   331→                      >
+   332→                        {copiedCode ? (
+   333→                          <Check className="w-3.5 h-3.5 text-green-400" />
+   334→                        ) : (
+   335→                          <Copy className="w-3.5 h-3.5 text-gray-400 hover:text-white" />
+   336→                        )}
+   337→                      </button>
+   338→                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Good response">
+   339→                        <ThumbsUp className="w-3.5 h-3.5 text-gray-400 hover:text-green-400" />
+   340→                      </button>
+   341→                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Bad response">
+   342→                        <ThumbsDown className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
+   343→                      </button>
+   344→                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Regenerate">
+   345→                        <RotateCcw className="w-3.5 h-3.5 text-gray-400 hover:text-cyan-400" />
+   346→                      </button>
+   347→                    </>
+   348→                  )}
+   349→                </div>
+   350→              </div>
+   351→
+   352→              {message.role === 'user' && (
+   353→                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center flex-shrink-0 order-2 shadow-lg">
+   354→                  <User className="w-5 h-5 text-gray-200" />
+   355→                </div>
+   356→              )}
+   357→            </div>
+   358→            )
+   359→          })}
+   360→
+   361→          {/* Loading Indicator - Enhanced */}
+   362→          {isLoading && (
+   363→            <div className="flex gap-4 animate-fadeIn">
+   364→              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+   365→                <Bot className="w-5 h-5 text-white animate-bounce" />
+   366→              </div>
+   367→              <div className="bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg">
+   368→                <div className="flex items-center gap-3">
+   369→                  <div className="flex gap-1.5">
+   370→                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-cyan-400 to-cyan-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+   371→                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-violet-400 to-violet-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+   372→                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-pink-400 to-pink-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+   373→                  </div>
+   374→                  <div className="flex flex-col">
+   375→                    <span className="text-sm text-gray-300 font-medium">NEXUS is thinking</span>
+   376→                    <span className="text-xs text-gray-500">Generating response...</span>
+   377→                  </div>
+   378→                </div>
+   379→              </div>
+   380→            </div>
+   381→          )}
+   382→
+   383→          <div ref={chatEndRef} />
+   384→        </div>
+   385→      </div>
+   386→
+   387→      {/* Input Area - Fixed at bottom */}
+   388→      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
+   389→        <div className="max-w-4xl mx-auto p-3">
+   390→          {/* Attached File Preview - Shows ABOVE input box when file is attached */}
+   391→          {attachedFile && !isLoading && (
+   392→            <div className="mb-2 p-3 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
+   393→              <div className="flex items-start gap-3">
+   394→                {/* File Preview/Thumbnail - LEFT SIDE */}
+   395→                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-gray-800/80 border border-gray-600/30 overflow-hidden flex items-center justify-center">
+   396→                  {filePreview ? (
+   397→                    /* Image Preview */
+   398→                    <img 
+   399→                      src={filePreview} 
+   400→                      alt={attachedFile.name}
+   401→                      className="w-full h-full object-cover"
+   402→                    />
+   403→                  ) : (
+   404→                    /* Document Icon based on type */
+   405→                    <div className={`p-2 rounded-lg ${
+   406→                      attachedFile.type.includes('pdf') ? 'bg-red-500/20' :
+   407→                      attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? 'bg-blue-500/20' :
+   408→                      attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? 'bg-green-500/20' :
+   409→                      attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? 'bg-yellow-500/20' :
+   410→                      'bg-cyan-500/20'
+   411→                    }`}>
+   412→                      {attachedFile.type.includes('pdf') ? (
+   413→                        <span className="text-red-400 font-bold text-xs">PDF</span>
+   414→                      ) : attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? (
+   415→                        <span className="text-blue-400 font-bold text-xs">DOC</span>
+   416→                      ) : attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? (
+   417→                        <span className="text-green-400 font-bold text-xs">XLS</span>
+   418→                      ) : attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? (
+   419→                        <span className="text-yellow-400 font-bold text-xs">TXT</span>
+   420→                      ) : (
+   421→                        <Paperclip className="w-6 h-6 text-cyan-400" />
+   422→                      )}
+   423→                    </div>
+   424→                  )}
+   425→                </div>
+   426→                
+   427→                {/* File Info - MIDDLE */}
+   428→                <div className="min-w-0 flex-1 py-1">
+   429→                  <p className="text-sm font-medium text-white truncate">
+   430→                    {attachedFile.name}
+   431→                  </p>
+   432→                  <p className="text-xs text-gray-400 mt-0.5">
+   433→                    {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown type'}
+   434→                  </p>
+   435→                  {filePreview && (
+   436→                    <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+   437→                      <Sparkles className="w-3 h-3" />
+   438→                      Image ready to send
+   439→                    </p>
+   440→                  )}
+   441→                </div>
+   442→                
+   443→                {/* Remove Button - RIGHT */}
+   444→                <button
+   445→                  onClick={handleRemoveFile}
+   446→                  className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 mt-1"
+   447→                  title="Remove file"
+   448→                >
+   449→                  <X className="w-4 h-4" />
+   450→                </button>
+   451→              </div>
+   452→            </div>
+   453→          )}
+   454→
+   455→          {/* Input Container */}
+   456→          <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
+   457→            {/* Gradient border effect on focus */}
+   458→            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-violet-500/0 to-pink-500/0 focus-within:from-cyan-500/10 focus-within:via-violet-500/10 focus-within:to-pink-500/10 opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
+   459→            
+   460→            <div className="relative flex gap-3 items-end p-2">
+   461→              {/* File Attachment Button - Left Side */}
+   462→              <div className="flex items-center gap-1">
+   463→                <input
+   464→                  ref={fileInputRef}
+   465→                  type="file"
+   466→                  onChange={handleFileSelect}
+   467→                  className="hidden"
+   468→                  accept="image/*,.pdf,.txt,.doc,.docx,.md,.json,.csv"
+   469→                />
+   470→                <button
+   471→                  type="button"
+   472→                  onClick={handleAttachClick}
+   473→                  disabled={isLoading}
+   474→                  className={`p-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border ${
+   475→                    !isLoggedIn 
+   476→                      ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-400 border-orange-500/40 hover:from-orange-500/30 hover:to-red-500/30 animate-pulse' 
+   477→                      : attachedFile 
+   478→                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+   479→                        : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
+   480→                  }`}
+   481→                  title={!isLoggedIn ? "🔒 Login to attach files" : "Attach file"}
+   482→                >
+   483→                  <Paperclip className="w-5 h-5" />
+   484→                </button>
+   485→              </div>
+   486→              
+   487→              <Textarea
+   488→                ref={textareaRef}
+   489→                value={inputValue}
+   490→                onChange={(e) => setInputValue(e.target.value)}
+   491→                onKeyDown={handleKeyDown}
+   492→                placeholder="Ask NEXUS AI anything..."
+   493→                className="flex-1 min-h-[52px] max-h-[200px] resize-none bg-transparent border-none text-white placeholder:text-gray-500 focus:ring-0 focus:outline-none text-base px-2"
+   494→                disabled={isLoading}
+   495→                rows={1}
+   496→              />
+   497→
+   498→              {/* Stop Button - Shows when loading */}
+   499→              {isLoading && onStop && (
+   500→                <Button
+   501→                  onClick={onStop}
+   502→                  className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white px-4 h-11 rounded-xl shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300 animate-pulse"
+   503→                  title="Stop generating"
+   504→                >
+   505→                  <Square className="w-4 h-4 fill-current" />
+   506→                  <span className="ml-1.5 text-sm font-medium hidden sm:inline">Stop</span>
+   507→                </Button>
+   508→              )}
+   509→              
+   510→              {/* Send Button */}
+   511→              <Button
+   512→                onClick={onSubmit}
+   513→                disabled={!inputValue.trim() || isLoading}
+   514→                className={`bg-gradient-to-r ${isLoading ? 'from-gray-600 to-gray-700' : 'from-cyan-500 to-violet-600'} ${isLoading ? '' : 'hover:from-cyan-400 hover:to-violet-500'} text-white px-5 h-11 rounded-xl shadow-lg ${isLoading ? '' : 'shadow-cyan-500/25 hover:shadow-cyan-500/40'} transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+   515→              >
+   516→                {isLoading ? (
+   517→                  <RefreshCw className="w-5 h-5 animate-spin" />
+   518→                ) : (
+   519→                  <Send className="w-5 h-5" />
+   520→                )}
+   521→              </Button>
+   522→            </div>
+   523→          </div>
+   524→
+   525→          {/* Helper Text */}
+   526→          <div className="flex items-center justify-between mt-3 px-2">
+   527→            <p className="text-xs text-gray-500">
+   528→              Press <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Enter</kbd> to send • <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Shift+Enter</kbd> for new line
+   529→            </p>
+   530→            <div className="flex items-center gap-2 text-xs text-gray-500">
+   531→              <Sparkles className="w-3 h-3 text-cyan-400" />
+   532→              <span>Llama 3.1</span>
+   533→            </div>
+   534→          </div>
+   535→        </div>
+   536→      </div>
+   537→
+   538→      {/* Custom Styles */}
+   539→      <style jsx>{`
+   540→        @keyframes fadeIn {
+   541→          from { opacity: 0; transform: translateY(10px); }
+   542→          to { opacity: 1; transform: translateY(0); }
+   543→        }
+   544→        
+   545→        .animate-fadeIn {
+   546→          animation: fadeIn 0.3s ease-out forwards;
+   547→        }
+   548→
+   549→        @keyframes pulse-slow {
+   550→          0%, 100% { opacity: 1; transform: scale(1); }
+   551→          50% { opacity: 0.8; transform: scale(1.05); }
+   552→        }
+   553→
+   554→        .animate-pulse-slow {
+   555→          animation: pulse-slow 3s ease-in-out infinite;
+   556→        }
+   557→
+   558→        /* Custom scrollbar */
+   559→        .custom-scrollbar::-webkit-scrollbar {
+   560→          width: 6px;
+   561→        }
+   562→        
+   563→        .custom-scrollbar::-webkit-scrollbar-track {
+   564→          background: transparent;
+   565→        }
+   566→        
+   567→        .custom-scrollbar::-webkit-scrollbar-thumb {
+   568→          background: rgba(100, 116, 139, 0.3);
+   569→          border-radius: 3px;
+   570→        }
+   571→        
+   572→        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+   573→          background: rgba(100, 116, 139, 0.5);
+   574→        }
+   575→      `}</style>
+   576→    </div>
+   577→  )
+   578→}
+   579→
+   580→// Render markdown-like content
+   581→function renderMessageContent(
+   582→  content: string, 
+   583→  onCopy: (text: string) => void, 
+   584→  copiedCode: boolean
+   585→): React.ReactNode {
+   586→  const lines = content.split('\n')
+   587→  const elements: React.ReactNode[] = []
+   588→  let currentParagraph = ''
+   589→  let inCodeBlock = false
+   590→  let codeContent = ''
+   591→
+   592→  const flushParagraph = () => {
+   593→    if (currentParagraph.trim()) {
+   594→      elements.push(
+   595→        <p key={`p-${elements.length}`} className="text-gray-200 my-2 whitespace-pre-wrap leading-relaxed">
+   596→          {formatInlineMarkdown(currentParagraph.trim())}
+   597→        </p>
+   598→      )
+   599→      currentParagraph = ''
+   600→    }
+   601→  }
+   602→
+   603→  lines.forEach((line, lineIndex) => {
+   604→    // Code block handling
+   605→    if (line.trim().startsWith('```')) {
+   606→      if (inCodeBlock) {
+   607→        elements.push(
+   608→          <div key={`code-${elements.length}`} className="my-4 relative group/code">
+   609→            {/* Code header */}
+   610→            <div className="flex items-center justify-between bg-gray-900 rounded-t-lg px-4 py-2 border-b border-gray-700">
+   611→              <span className="text-xs text-gray-400 font-mono">code</span>
+   612→              <button
+   613→                onClick={() => onCopy(codeContent)}
+   614→                className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-800 hover:bg-gray-700 rounded-md text-xs text-gray-300 transition-colors opacity-0 group-hover/code:opacity-100"
+   615→              >
+   616→                {copiedCode ? (
+   617→                  <>
+   618→                    <Check className="w-3 h-3 text-green-400" />
+   619→                    Copied!
+   620→                  </>
+   621→                ) : (
+   622→                  <>
+   623→                    <Copy className="w-3 h-3" />
+   624→                    Copy
+   625→                  </>
+   626→                )}
+   627→              </button>
+   628→            </div>
+   629→            <pre className="bg-gray-900/80 rounded-b-lg p-4 overflow-x-auto text-sm border border-gray-800 border-t-0">
+   630→              <code className="text-emerald-400 font-mono leading-relaxed">{codeContent}</code>
+   631→            </pre>
+   632→          </div>
+   633→        )
+   634→        codeContent = ''
+   635→        inCodeBlock = false
+   636→      } else {
+   637→        flushParagraph()
+   638→        inCodeBlock = true
+   639→      }
+   640→      return
+   641→    }
+   642→
+   643→    if (inCodeBlock) {
+   644→      codeContent += line + '\n'
+   645→      return
+   646→    }
+   647→
+   648→    // Headers
+   649→    if (line.startsWith('# ')) {
+   650→      flushParagraph()
+   651→      elements.push(<h1 key={lineIndex} className="text-2xl font-bold text-white mt-6 mb-3 text-gradient">{line.slice(2)}</h1>)
+   652→      return
+   653→    }
+   654→    if (line.startsWith('## ')) {
+   655→      flushParagraph()
+   656→      elements.push(<h2 key={lineIndex} className="text-xl font-semibold text-white mt-5 mb-2.5">{line.slice(3)}</h2>)
+   657→      return
+   658→    }
+   659→    if (line.startsWith('### ')) {
+   660→      flushParagraph()
+   661→      elements.push(<h3 key={lineIndex} className="text-lg font-medium text-cyan-400 mt-4 mb-2">{line.slice(4)}</h3>)
+   662→      return
+   663→    }
+   664→
+   665→    // Lists
+   666→    if (line.match(/^\s*[-*]\s+/)) {
+   667→      flushParagraph()
+   668→      elements.push(
+   669→        <li key={lineIndex} className="ml-4 text-gray-200 list-disc mb-1 marker:text-cyan-500">
+   670→          {formatInlineMarkdown(line.replace(/^\s*[-*]\s+/, ''))}
+   671→        </li>
+   672→      )
+   673→      return
+   674→    }
+   675→    if (line.match(/^\d+\.\s+/)) {
+   676→      flushParagraph()
+   677→      elements.push(
+   678→        <li key={lineIndex} className="ml-4 text-gray-200 list-decimal mb-1 marker:text-violet-400">
+   679→          {formatInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}
+   680→        </li>
+   681→      )
+   682→      return
+   683→    }
+   684→
+   685→    // Horizontal rule
+   686→    if (line.trim() === '---') {
+   687→      flushParagraph()
+   688→      elements.push(<hr key={lineIndex} className="my-4 border-gray-700/50" />)
+   689→      return
+   690→    }
+   691→
+   692→    // Regular paragraph
+   693→    if (line.trim()) {
+   694→      currentParagraph += (currentParagraph ? ' ' : '') + line
+   695→    } else {
+   696→      flushParagraph()
+   697→    }
+   698→  })
+   699→
+   700→  flushParagraph()
+   701→
+   702→  return elements.length > 0 ? elements : content
+   703→}
+   704→
+   705→// Format inline markdown
+   706→function formatInlineMarkdown(text: string): React.ReactNode {
+   707→  const parts: React.ReactNode[] = []
+   708→  const regex = /\*\*(.*?)\*\*|`(.*?)`|\*(.*?)\*/g
+   709→  let lastIndex = 0
+   710→  let match
+   711→  
+   712→  while ((match = regex.exec(text)) !== null) {
+   713→    if (match.index > lastIndex) {
+   714→      parts.push(text.slice(lastIndex, match.index))
+   715→    }
+   716→    
+   717→    if (match[1]) {
+   718→      parts.push(<strong key={match.index} className="font-semibold text-white">{match[1]}</strong>)
+   719→    } else if (match[2]) {
+   720→      parts.push(<code key={match.index} className="px-2 py-0.5 bg-gray-800/80 rounded-md text-cyan-300 text-sm font-mono border border-gray-700/50">{match[2]}</code>)
+   721→    } else if (match[3]) {
+   722→      parts.push(<em key={match.index} className="italic text-gray-300">{match[3]}</em>)
+   723→    }
+   724→    
+   725→    lastIndex = regex.lastIndex
+   726→  }
+   727→  
+   728→  if (lastIndex < text.length) {
+   729→    parts.push(text.slice(lastIndex))
+   730→  }
+   731→  
+   732→  return parts.length > 0 ? parts : text
+   733→}
+   734→

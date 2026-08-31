@@ -1,0 +1,338 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { 
+  MessageSquare, Home, Layers, TrendingUp, Settings,
+  Plus, Trash2, Moon, Sun,
+  ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut,
+  UserCircle
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+
+interface ChatSession {
+  id: string
+  title: string
+  date: Date
+  messages: any[]
+}
+
+interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
+  onToggle: () => void
+  onNewChat: () => void
+  sessions: ChatSession[]
+  activeSessionId: string | null
+  onSelectSession: (id: string) => void
+  onDeleteSession: (id: string) => void
+  onViewChange: (view: string) => void
+  currentView: string
+  isDarkMode: boolean
+  onToggleTheme: () => void
+  isLoggedIn?: boolean
+  user?: User | null
+  onLoginClick?: () => void
+  onSignupClick?: () => void
+  onLogoutClick?: () => void
+  chatCount?: number
+  maxChats?: number
+}
+
+interface User {
+  name: string
+  email: string
+}
+
+export default function Sidebar({
+  isOpen,
+  onClose,
+  onToggle,
+  onNewChat,
+  sessions,
+  activeSessionId,
+  onSelectSession,
+  onDeleteSession,
+  onViewChange,
+  currentView,
+  isDarkMode,
+  onToggleTheme,
+  isLoggedIn = false,
+  user = null,
+  onLoginClick,
+  onSignupClick,
+  onLogoutClick,
+  chatCount = 0,
+  maxChats = 6
+}: SidebarProps) {
+  const router = useRouter()
+  
+  // ESC key handler to close sidebar
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [isOpen, onClose])
+
+  return (
+    <>
+      {/* Overlay - Works on ALL screen sizes when sidebar is open */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar - Always overlay, never pushes content */}
+      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 ease-out shadow-2xl shadow-cyan-500/10 flex flex-col ${
+        isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+      }`}>
+        {/* Content */}
+        <div className={`h-full flex flex-col ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200`}>
+          {/* Header - Fixed, No Scroll */}
+          <div className="flex-shrink-0 p-4 border-b border-gray-800/50 bg-gray-900/50">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <span className="text-lg font-bold font-[family-name:var(--font-orbitron)] bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                    NEXUS AI
+                  </span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest">Powered by Llama</p>
+                </div>
+              </div>
+              <button 
+                onClick={onClose}
+                className="p-2 hover:bg-red-500/20 rounded-xl transition-all duration-200 group"
+                title="Close sidebar (ESC)"
+              >
+                <X className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
+              </button>
+            </div>
+            
+            {/* New Chat Button */}
+            <Button 
+              onClick={() => { onNewChat(); onClose(); }}
+              className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-11 font-medium"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Chat
+            </Button>
+          </div>
+
+          {/* Navigation - SCROLLABLE AREA */}
+          <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 custom-scrollbar sidebar-scroll">
+            {/* Main Views - No Scroll */}
+            <div className="mb-6">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Main Menu</p>
+              
+              <SidebarButton
+                icon={<MessageSquare className="w-4 h-4" />}
+                label="AI Chat"
+                active={currentView === 'chat'}
+                onClick={() => { onViewChange('chat'); onClose(); }}
+              />
+              
+              <SidebarButton
+                icon={<Home className="w-4 h-4" />}
+                label="Home"
+                active={currentView === 'home'}
+                onClick={() => { onViewChange('home'); onClose(); }}
+              />
+
+              <SidebarButton
+                icon={<Layers className="w-4 h-4" />}
+                label="Features"
+                active={currentView === 'features'}
+                onClick={() => { onViewChange('features'); onClose(); }}
+              />
+
+              <SidebarButton
+                icon={<TrendingUp className="w-4 h-4" />}
+                label="Statistics"
+                active={currentView === 'stats'}
+                onClick={() => { onViewChange('stats'); onClose(); }}
+              />
+
+              <SidebarButton
+                icon={<Settings className="w-4 h-4" />}
+                label="Settings"
+                active={currentView === 'settings'}
+                onClick={() => { onViewChange('settings'); onClose(); }}
+              />
+
+              {/* Profile Button - Only show when logged in */}
+              {isLoggedIn && (
+                <SidebarButton
+                  icon={<UserCircle className="w-4 h-4" />}
+                  label="My Profile"
+                  active={false}
+                  onClick={() => { router.push('/profile'); onClose(); }}
+                />
+              )}
+            </div>
+
+            {/* Chat History - No Individual Scroll (uses main nav scroll) */}
+            {sessions.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between px-3 mb-2">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Recent Chats</p>
+                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full">{sessions.length}</span>
+                </div>
+                <div className="space-y-1">
+                  {sessions.slice(0, 8).map((session) => (
+                    <div
+                      key={session.id}
+                      className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
+                        activeSessionId === session.id
+                          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
+                          : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent'
+                      }`}
+                      onClick={() => { onSelectSession(session.id); onClose(); }}
+                    >
+                      <History className="w-4 h-4 flex-shrink-0 opacity-60" />
+                      <span className="text-sm truncate flex-1">{session.title}</span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onDeleteSession(session.id); }}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                      >
+                        <Trash2 className="w-3 h-3 text-red-400" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </nav>
+
+          {/* Footer / User Profile - Fixed, No Scroll */}
+          <div className="flex-shrink-0 p-3 border-t border-gray-800/50 bg-gray-900/30">
+            {isLoggedIn && user ? (
+              <div className="space-y-2">
+                <button
+                  onClick={() => { router.push('/profile'); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-800/50 rounded-xl transition-all duration-200 group cursor-pointer"
+                >
+                  <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20 overflow-hidden">
+                    {user.avatar ? (
+                      <img 
+                        src={user.avatar} 
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
+                    {/* Online indicator */}
+                    <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-gray-900" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm text-white font-medium truncate group-hover:text-cyan-400 transition-colors">{user.name}</p>
+                    <p className="text-xs text-green-400">✓ Unlimited Chats</p>
+                  </div>
+                  <svg className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                {onLogoutClick && (
+                  <button
+                    onClick={() => { onLogoutClick(); onClose(); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 text-sm"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {/* Chat Count Indicator */}
+                <div className="px-3 py-2 bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-gray-400">Free Chats</span>
+                    <span className={`font-medium ${chatCount >= maxChats ? 'text-red-400' : 'text-cyan-400'}`}>
+                      {chatCount}/{maxChats}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        chatCount >= maxChats 
+                          ? 'bg-red-500' 
+                          : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                      }`}
+                      style={{ width: `${Math.min((chatCount / maxChats) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Separate Login & Signup Buttons */}
+                <button
+                  onClick={() => { onLoginClick?.(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl hover:from-cyan-500/20 hover:to-violet-500/20 transition-all duration-200 group"
+                >
+                  <LogIn className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-white">Login</p>
+                    <p className="text-xs text-gray-500">Already have account</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { onSignupClick?.(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/30 rounded-xl hover:from-violet-500/20 hover:to-pink-500/20 transition-all duration-200 group"
+                >
+                  <LogIn className="w-5 h-5 text-violet-400 group-hover:text-violet-300" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-white">Create Account</p>
+                    <p className="text-xs text-gray-500">Save history - Free</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+    </>
+  )
+}
+
+// Helper Components for Sidebar
+function SidebarButton({ 
+  icon, 
+  label, 
+  active, 
+  onClick 
+}: { 
+  icon: React.ReactNode
+  label: string
+  active: boolean
+  onClick: () => void 
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+        active 
+          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/5' 
+          : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent hover:border-gray-700/50'
+      }`}
+    >
+      <div className={`${active ? 'text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'} transition-colors`}>
+        {icon}
+      </div>
+      <span className="text-sm font-medium">{label}</span>
+      {active && (
+        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+      )}
+    </button>
+  )
+}

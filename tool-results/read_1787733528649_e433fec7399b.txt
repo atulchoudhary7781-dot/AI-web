@@ -1,0 +1,711 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import { Send, RefreshCw, Copy, Check, Sparkles, User, Bot, ThumbsUp, ThumbsDown, RotateCcw, Square, Paperclip, X } from 'lucide-react'
+     5→import { Button } from '@/components/ui/button'
+     6→import { Textarea } from '@/components/ui/textarea'
+     7→
+     8→interface ChatMessage {
+     9→  id: string
+    10→  role: 'user' | 'assistant'
+    11→  content: string
+    12→  timestamp: Date
+    13→  image?: string // Base64 image data
+    14→  imageMimeType?: string
+    15→  // Document support (PDF, DOC, TXT, etc.)
+    16→  fileName?: string
+    17→  fileType?: string
+    18→  fileSize?: number
+    19→}
+    20→
+    21→interface FullScreenChatProps {
+    22→  messages: ChatMessage[]
+    23→  inputValue: string
+    24→  setInputValue: (value: string) => void
+    25→  isLoading: boolean
+    26→  onSubmit: () => void
+    27→  onStop?: () => void
+    28→  copiedCode: boolean
+    29→  onCopy: (text: string) => void
+    30→  onFileAttach?: (file: File) => void
+    31→  onClearAttachment?: () => void // Callback to clear attachment after send
+    32→}
+    33→
+    34→export default function FullScreenChat({
+    35→  messages,
+    36→  inputValue,
+    37→  setInputValue,
+    38→  isLoading,
+    39→  onSubmit,
+    40→  onStop,
+    41→  copiedCode,
+    42→  onCopy,
+    43→  onFileAttach,
+    44→  onClearAttachment
+    45→}: FullScreenChatProps) {
+    46→  const chatEndRef = useRef<HTMLDivElement>(null)
+    47→  const textareaRef = useRef<HTMLTextAreaElement>(null)
+    48→  const fileInputRef = useRef<HTMLInputElement>(null)
+    49→  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+    50→  const [filePreview, setFilePreview] = useState<string | null>(null)
+    51→
+    52→  // Sync with parent - clear file when parent sends
+    53→  useEffect(() => {
+    54→    if (!isLoading && attachedFile && onClearAttachment) {
+    55→      // File will be cleared by parent after submit
+    56→    }
+    57→  }, [isLoading])
+    58→
+    59→  // Auto-scroll chat to bottom
+    60→  useEffect(() => {
+    61→    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    62→  }, [messages])
+    63→
+    64→  // Handle key press
+    65→  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    66→    if (e.key === 'Enter' && !e.shiftKey) {
+    67→      e.preventDefault()
+    68→      e.stopPropagation()
+    69→      onSubmit()
+    70→    }
+    71→  }
+    72→
+    73→  // Handle file selection
+    74→  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    75→    const file = e.target.files?.[0]
+    76→    if (file) {
+    77→      setAttachedFile(file)
+    78→      
+    79→      // Create preview for images
+    80→      if (file.type.startsWith('image/')) {
+    81→        const reader = new FileReader()
+    82→        reader.onloadend = () => {
+    83→          setFilePreview(reader.result as string)
+    84→        }
+    85→        reader.readAsDataURL(file)
+    86→      } else {
+    87→        setFilePreview(null)
+    88→      }
+    89→      
+    90→      if (onFileAttach) {
+    91→        onFileAttach(file)
+    92→      }
+    93→    }
+    94→  }
+    95→
+    96→  // Handle file attachment click
+    97→  const handleAttachClick = () => {
+    98→    fileInputRef.current?.click()
+    99→  }
+   100→
+   101→  // Remove attached file
+   102→  const handleRemoveFile = () => {
+   103→    setAttachedFile(null)
+   104→    setFilePreview(null)
+   105→    if (fileInputRef.current) {
+   106→      fileInputRef.current.value = ''
+   107→    }
+   108→  }
+   109→
+   110→  // Track if we just sent a message (to clear attachment only after send)
+   111→  const wasSendingRef = useRef(false)
+   112→
+   113→  // Update ref when isLoading changes
+   114→  useEffect(() => {
+   115→    if (isLoading) {
+   116→      wasSendingRef.current = true
+   117→    }
+   118→  }, [isLoading])
+   119→
+   120→  // Clear file ONLY after successful send (when loading stops AND we were sending)
+   121→  useEffect(() => {
+   122→    if (!isLoading && wasSendingRef.current && attachedFile) {
+   123→      wasSendingRef.current = false
+   124→      // Clear after a small delay to ensure message was processed
+   125→      const timer = setTimeout(() => {
+   126→        handleRemoveFile()
+   127→      }, 500) // Longer delay to ensure send completed
+   128→      return () => clearTimeout(timer)
+   129→    }
+   130→  }, [isLoading, attachedFile])
+   131→
+   132→  return (
+   133→    <div className="flex flex-col h-full bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+   134→      {/* Welcome Header - Only show when no messages or first load */}
+   135→      {messages.length <= 1 && (
+   136→        <div className="flex-1 flex items-center justify-center px-4 overflow-y-auto custom-scrollbar sidebar-scroll">
+   137→          <div className="text-center max-w-2xl py-8">
+   138→            {/* Logo */}
+   139→            <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-2xl shadow-cyan-500/25 animate-pulse-slow">
+   140→              <Sparkles className="w-8 h-8 text-white" />
+   141→            </div>
+   142→            
+   143→            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 font-[family-name:var(--font-orbitron)]">
+   144→              Welcome to{' '}
+   145→              <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+   146→                NEXUS AI
+   147→              </span>
+   148→            </h2>
+   149→            
+   150→            <p className="text-gray-400 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+   151→              Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
+   152→            </p>
+   153→
+   154→            {/* Quick action buttons */}
+   155→            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-lg mx-auto">
+   156→              {[
+   157→                { icon: '💡', text: 'Explain', prompt: 'Explain quantum computing' },
+   158→                { icon: '💻', text: 'Code', prompt: 'Write Python code' },
+   159→                { icon: '📝', text: 'Write', prompt: 'Help me write an email' },
+   160→                { icon: '🎯', text: 'Ideas', prompt: 'Creative business ideas' }
+   161→              ].map((action, i) => (
+   162→                <button
+   163→                  key={i}
+   164→                  onClick={() => setInputValue(action.prompt)}
+   165→                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-cyan-500/30 hover:bg-gray-800 transition-all duration-200 group"
+   166→                >
+   167→                  <span className="text-lg">{action.icon}</span>
+   168→                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">{action.text}</span>
+   169→                </button>
+   170→              ))}
+   171→            </div>
+   172→          </div>
+   173→        </div>
+   174→      )}
+   175→
+   176→      {/* Messages Area - ONLY this scrolls */}
+   177→      <div className={`flex-1 overflow-y-auto min-h-0 custom-scrollbar sidebar-scroll ${messages.length <= 1 ? 'hidden' : ''}`}>
+   178→        <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
+   179→          {/* Skip welcome message when showing chat */}
+   180→          {messages.slice(1).map((message) => {
+   181→            // DEBUG: Log each message to check document data
+   182→            console.log('📨 Rendering message:', {
+   183→              id: message.id,
+   184→              hasFileName: !!message.fileName,
+   185→              hasImage: !!message.image,
+   186→              content: message.content?.substring(0, 50),
+   187→              shouldShowDoc: (message.fileName || (message.content && message.content.includes('📎'))) && !message.image
+   188→            })
+   189→            
+   190→            return (
+   191→            <div
+   192→              key={message.id}
+   193→              className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''} animate-fadeIn`}
+   194→            >
+   195→              {message.role === 'assistant' && (
+   196→                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20">
+   197→                  <Sparkles className="w-5 h-5 text-white" />
+   198→                </div>
+   199→              )}
+   200→              
+   201→              <div className={`relative group ${message.role === 'user' ? 'order-1 max-w-[85%] md:max-w-[75%]' : 'max-w-[85%] md:max-width-[80%]'}`}>
+   202→                {/* Message Bubble */}
+   203→                <div className={`rounded-2xl px-5 py-3.5 relative overflow-hidden ${
+   204→                  message.role === 'user'
+   205→                    ? 'bg-gradient-to-br from-cyan-500 to-violet-600 text-white shadow-xl shadow-cyan-500/25'
+   206→                    : 'bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-lg'
+   207→                }`}>
+   208→                  {/* Gradient overlay for user messages */}
+   209→                  {message.role === 'user' && (
+   210→                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+   211→                  )}
+   212→                  
+   213→                  {/* Image Display - Show attached image in message */}
+   214→                  {message.image && (
+   215→                    <div className="mb-3 rounded-xl overflow-hidden border border-white/20 shadow-lg cursor-pointer hover:opacity-90 transition-opacity">
+   216→                      <img 
+   217→                        src={`data:${message.imageMimeType || 'image/png'};base64,${message.image}`}
+   218→                        alt="Attached image"
+   219→                        className="w-full max-w-[300px] rounded-lg"
+   220→                        onClick={() => {
+   221→                          // Open image in new tab for full view
+   222→                          const win = window.open('')
+   223→                          if (win) {
+   224→                            win.document.write(`<html><head><title>Image View</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;}img{max-width:100%;height:auto;}</style></head><body><img src="data:${message.imageMimeType};base64,${message.image}" /></body></html>`)
+   225→                            win.document.close()
+   226→                          }
+   227→                        }}
+   228→                      />
+   229→                    </div>
+   230→                  )}
+   231→
+   232→                  {/* Document Display - Show attached document (PDF, DOC, etc.) */}
+   233→                  {(message.fileName || (message.content && message.content.includes('📎'))) && !message.image && (
+   234→                    <div className={`mb-3 p-4 rounded-xl border-2 ${
+   235→                      message.role === 'user' 
+   236→                        ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border-cyan-400/40' 
+   237→                        : 'bg-gray-700/60 border-gray-500/40'
+   238→                    } shadow-lg`}>
+   239→                      <div className="flex items-center gap-4">
+   240→                        {/* File Icon based on type */}
+   241→                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md ${
+   242→                          message.fileType?.includes('pdf') || message.fileName?.endsWith('.pdf') ? 'bg-red-500/30' :
+   243→                          message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? 'bg-blue-500/30' :
+   244→                          message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') || message.fileName?.endsWith('.xls') ? 'bg-green-500/30' :
+   245→                          message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? 'bg-yellow-500/30' :
+   246→                          message.fileName?.endsWith('.json') ? 'bg-purple-500/30' :
+   247→                          message.fileName?.endsWith('.csv') ? 'bg-emerald-500/30' :
+   248→                          'bg-cyan-500/30'
+   249→                        }`}>
+   250→                          {message.fileType?.includes('pdf') || message.fileName?.endsWith('.pdf') ? (
+   251→                            <span className="text-red-400 font-bold text-sm">PDF</span>
+   252→                          ) : message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? (
+   253→                            <span className="text-blue-400 font-bold text-sm">DOC</span>
+   254→                          ) : message.fileType?.includes('sheet') || message.fileName?.endsWith('.xlsx') || message.fileName?.endsWith('.xls') ? (
+   255→                            <span className="text-green-400 font-bold text-sm">XLS</span>
+   256→                          ) : message.fileType?.includes('text') || message.fileName?.endsWith('.txt') ? (
+   257→                            <span className="text-yellow-400 font-bold text-sm">TXT</span>
+   258→                          ) : message.fileName?.endsWith('.json') ? (
+   259→                            <span className="text-purple-400 font-bold text-sm">JSON</span>
+   260→                          ) : message.fileName?.endsWith('.csv') ? (
+   261→                            <span className="text-emerald-400 font-bold text-sm">CSV</span>
+   262→                          ) : (
+   263→                            <Paperclip className="w-7 h-7 text-cyan-400" />
+   264→                          )}
+   265→                        </div>
+   266→                        
+   267→                        {/* File Info */}
+   268→                        <div className="flex-1 min-w-0">
+   269→                          <p className="text-base font-semibold truncate text-white">
+   270→                            📎 {message.fileName || message.content.replace('📎 ', '')}
+   271→                          </p>
+   272→                          <p className="text-sm opacity-80 mt-1">
+   273→                            {message.fileType ? message.fileType.split('/')[1]?.toUpperCase() || 'Document' : 'Document'}
+   274→                            {message.fileSize && ` • ${(message.fileSize / 1024).toFixed(1)} KB`}
+   275→                          </p>
+   276→                          <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+   277→                            ✅ Document attached successfully
+   278→                          </p>
+   279→                        </div>
+   280→
+   281→                        {/* Download/View indicator */}
+   282→                        <div className="flex-shrink-0">
+   283→                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+   284→                            <Paperclip className="w-4 h-4 text-cyan-400" />
+   285→                          </div>
+   286→                        </div>
+   287→                      </div>
+   288→                    </div>
+   289→                  )}
+   290→                  
+   291→                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
+   292→                    {renderMessageContent(message.content, onCopy, copiedCode)}
+   293→                  </div>
+   294→                </div>
+   295→
+   296→                {/* Message Actions */}
+   297→                <div className={`flex items-center gap-2 mt-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+   298→                  message.role === 'user' ? 'justify-end' : ''
+   299→                }`}>
+   300→                  <p className="text-xs text-gray-500">
+   301→                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+   302→                  </p>
+   303→                  
+   304→                  {message.role === 'assistant' && (
+   305→                    <>
+   306→                      <button 
+   307→                        onClick={() => onCopy(message.content)}
+   308→                        className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+   309→                        title="Copy response"
+   310→                      >
+   311→                        {copiedCode ? (
+   312→                          <Check className="w-3.5 h-3.5 text-green-400" />
+   313→                        ) : (
+   314→                          <Copy className="w-3.5 h-3.5 text-gray-400 hover:text-white" />
+   315→                        )}
+   316→                      </button>
+   317→                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Good response">
+   318→                        <ThumbsUp className="w-3.5 h-3.5 text-gray-400 hover:text-green-400" />
+   319→                      </button>
+   320→                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Bad response">
+   321→                        <ThumbsDown className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
+   322→                      </button>
+   323→                      <button className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="Regenerate">
+   324→                        <RotateCcw className="w-3.5 h-3.5 text-gray-400 hover:text-cyan-400" />
+   325→                      </button>
+   326→                    </>
+   327→                  )}
+   328→                </div>
+   329→              </div>
+   330→
+   331→              {message.role === 'user' && (
+   332→                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center flex-shrink-0 order-2 shadow-lg">
+   333→                  <User className="w-5 h-5 text-gray-200" />
+   334→                </div>
+   335→              )}
+   336→            </div>
+   337→            )
+   338→          })}
+   339→
+   340→          {/* Loading Indicator - Enhanced */}
+   341→          {isLoading && (
+   342→            <div className="flex gap-4 animate-fadeIn">
+   343→              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+   344→                <Bot className="w-5 h-5 text-white animate-bounce" />
+   345→              </div>
+   346→              <div className="bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-lg">
+   347→                <div className="flex items-center gap-3">
+   348→                  <div className="flex gap-1.5">
+   349→                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-cyan-400 to-cyan-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+   350→                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-violet-400 to-violet-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+   351→                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-pink-400 to-pink-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+   352→                  </div>
+   353→                  <div className="flex flex-col">
+   354→                    <span className="text-sm text-gray-300 font-medium">NEXUS is thinking</span>
+   355→                    <span className="text-xs text-gray-500">Generating response...</span>
+   356→                  </div>
+   357→                </div>
+   358→              </div>
+   359→            </div>
+   360→          )}
+   361→
+   362→          <div ref={chatEndRef} />
+   363→        </div>
+   364→      </div>
+   365→
+   366→      {/* Input Area - Fixed at bottom */}
+   367→      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/80 backdrop-blur-xl">
+   368→        <div className="max-w-4xl mx-auto p-3">
+   369→          {/* Attached File Preview - Shows ABOVE input box when file is attached */}
+   370→          {attachedFile && !isLoading && (
+   371→            <div className="mb-2 p-3 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
+   372→              <div className="flex items-start gap-3">
+   373→                {/* File Preview/Thumbnail - LEFT SIDE */}
+   374→                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-gray-800/80 border border-gray-600/30 overflow-hidden flex items-center justify-center">
+   375→                  {filePreview ? (
+   376→                    /* Image Preview */
+   377→                    <img 
+   378→                      src={filePreview} 
+   379→                      alt={attachedFile.name}
+   380→                      className="w-full h-full object-cover"
+   381→                    />
+   382→                  ) : (
+   383→                    /* Document Icon based on type */
+   384→                    <div className={`p-2 rounded-lg ${
+   385→                      attachedFile.type.includes('pdf') ? 'bg-red-500/20' :
+   386→                      attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? 'bg-blue-500/20' :
+   387→                      attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? 'bg-green-500/20' :
+   388→                      attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? 'bg-yellow-500/20' :
+   389→                      'bg-cyan-500/20'
+   390→                    }`}>
+   391→                      {attachedFile.type.includes('pdf') ? (
+   392→                        <span className="text-red-400 font-bold text-xs">PDF</span>
+   393→                      ) : attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? (
+   394→                        <span className="text-blue-400 font-bold text-xs">DOC</span>
+   395→                      ) : attachedFile.type.includes('sheet') || attachedFile.name.endsWith('.xlsx') ? (
+   396→                        <span className="text-green-400 font-bold text-xs">XLS</span>
+   397→                      ) : attachedFile.type.includes('text') || attachedFile.name.endsWith('.txt') ? (
+   398→                        <span className="text-yellow-400 font-bold text-xs">TXT</span>
+   399→                      ) : (
+   400→                        <Paperclip className="w-6 h-6 text-cyan-400" />
+   401→                      )}
+   402→                    </div>
+   403→                  )}
+   404→                </div>
+   405→                
+   406→                {/* File Info - MIDDLE */}
+   407→                <div className="min-w-0 flex-1 py-1">
+   408→                  <p className="text-sm font-medium text-white truncate">
+   409→                    {attachedFile.name}
+   410→                  </p>
+   411→                  <p className="text-xs text-gray-400 mt-0.5">
+   412→                    {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.type || 'Unknown type'}
+   413→                  </p>
+   414→                  {filePreview && (
+   415→                    <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+   416→                      <Sparkles className="w-3 h-3" />
+   417→                      Image ready to send
+   418→                    </p>
+   419→                  )}
+   420→                </div>
+   421→                
+   422→                {/* Remove Button - RIGHT */}
+   423→                <button
+   424→                  onClick={handleRemoveFile}
+   425→                  className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 mt-1"
+   426→                  title="Remove file"
+   427→                >
+   428→                  <X className="w-4 h-4" />
+   429→                </button>
+   430→              </div>
+   431→            </div>
+   432→          )}
+   433→
+   434→          {/* Input Container */}
+   435→          <div className="relative bg-gray-800/50 border border-gray-700/50 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-300 overflow-hidden">
+   436→            {/* Gradient border effect on focus */}
+   437→            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-violet-500/0 to-pink-500/0 focus-within:from-cyan-500/10 focus-within:via-violet-500/10 focus-within:to-pink-500/10 opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
+   438→            
+   439→            <div className="relative flex gap-3 items-end p-2">
+   440→              {/* File Attachment Button - Left Side */}
+   441→              <div className="flex items-center gap-1">
+   442→                <input
+   443→                  ref={fileInputRef}
+   444→                  type="file"
+   445→                  onChange={handleFileSelect}
+   446→                  className="hidden"
+   447→                  accept="image/*,.pdf,.txt,.doc,.docx,.md,.json,.csv"
+   448→                />
+   449→                <button
+   450→                  type="button"
+   451→                  onClick={handleAttachClick}
+   452→                  disabled={isLoading}
+   453→                  className={`p-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border ${
+   454→                    attachedFile 
+   455→                      ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+   456→                      : 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-400 hover:text-cyan-400 border-gray-600/30 hover:border-cyan-500/30'
+   457→                  }`}
+   458→                  title="Attach file"
+   459→                >
+   460→                  <Paperclip className="w-5 h-5" />
+   461→                </button>
+   462→              </div>
+   463→              
+   464→              <Textarea
+   465→                ref={textareaRef}
+   466→                value={inputValue}
+   467→                onChange={(e) => setInputValue(e.target.value)}
+   468→                onKeyDown={handleKeyDown}
+   469→                placeholder="Ask NEXUS AI anything..."
+   470→                className="flex-1 min-h-[52px] max-h-[200px] resize-none bg-transparent border-none text-white placeholder:text-gray-500 focus:ring-0 focus:outline-none text-base px-2"
+   471→                disabled={isLoading}
+   472→                rows={1}
+   473→              />
+   474→
+   475→              {/* Stop Button - Shows when loading */}
+   476→              {isLoading && onStop && (
+   477→                <Button
+   478→                  onClick={onStop}
+   479→                  className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white px-4 h-11 rounded-xl shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300 animate-pulse"
+   480→                  title="Stop generating"
+   481→                >
+   482→                  <Square className="w-4 h-4 fill-current" />
+   483→                  <span className="ml-1.5 text-sm font-medium hidden sm:inline">Stop</span>
+   484→                </Button>
+   485→              )}
+   486→              
+   487→              {/* Send Button */}
+   488→              <Button
+   489→                onClick={onSubmit}
+   490→                disabled={!inputValue.trim() || isLoading}
+   491→                className={`bg-gradient-to-r ${isLoading ? 'from-gray-600 to-gray-700' : 'from-cyan-500 to-violet-600'} ${isLoading ? '' : 'hover:from-cyan-400 hover:to-violet-500'} text-white px-5 h-11 rounded-xl shadow-lg ${isLoading ? '' : 'shadow-cyan-500/25 hover:shadow-cyan-500/40'} transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+   492→              >
+   493→                {isLoading ? (
+   494→                  <RefreshCw className="w-5 h-5 animate-spin" />
+   495→                ) : (
+   496→                  <Send className="w-5 h-5" />
+   497→                )}
+   498→              </Button>
+   499→            </div>
+   500→          </div>
+   501→
+   502→          {/* Helper Text */}
+   503→          <div className="flex items-center justify-between mt-3 px-2">
+   504→            <p className="text-xs text-gray-500">
+   505→              Press <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Enter</kbd> to send • <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400 text-[10px] font-mono">Shift+Enter</kbd> for new line
+   506→            </p>
+   507→            <div className="flex items-center gap-2 text-xs text-gray-500">
+   508→              <Sparkles className="w-3 h-3 text-cyan-400" />
+   509→              <span>Llama 3.1</span>
+   510→            </div>
+   511→          </div>
+   512→        </div>
+   513→      </div>
+   514→
+   515→      {/* Custom Styles */}
+   516→      <style jsx>{`
+   517→        @keyframes fadeIn {
+   518→          from { opacity: 0; transform: translateY(10px); }
+   519→          to { opacity: 1; transform: translateY(0); }
+   520→        }
+   521→        
+   522→        .animate-fadeIn {
+   523→          animation: fadeIn 0.3s ease-out forwards;
+   524→        }
+   525→
+   526→        @keyframes pulse-slow {
+   527→          0%, 100% { opacity: 1; transform: scale(1); }
+   528→          50% { opacity: 0.8; transform: scale(1.05); }
+   529→        }
+   530→
+   531→        .animate-pulse-slow {
+   532→          animation: pulse-slow 3s ease-in-out infinite;
+   533→        }
+   534→
+   535→        /* Custom scrollbar */
+   536→        .custom-scrollbar::-webkit-scrollbar {
+   537→          width: 6px;
+   538→        }
+   539→        
+   540→        .custom-scrollbar::-webkit-scrollbar-track {
+   541→          background: transparent;
+   542→        }
+   543→        
+   544→        .custom-scrollbar::-webkit-scrollbar-thumb {
+   545→          background: rgba(100, 116, 139, 0.3);
+   546→          border-radius: 3px;
+   547→        }
+   548→        
+   549→        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+   550→          background: rgba(100, 116, 139, 0.5);
+   551→        }
+   552→      `}</style>
+   553→    </div>
+   554→  )
+   555→}
+   556→
+   557→// Render markdown-like content
+   558→function renderMessageContent(
+   559→  content: string, 
+   560→  onCopy: (text: string) => void, 
+   561→  copiedCode: boolean
+   562→): React.ReactNode {
+   563→  const lines = content.split('\n')
+   564→  const elements: React.ReactNode[] = []
+   565→  let currentParagraph = ''
+   566→  let inCodeBlock = false
+   567→  let codeContent = ''
+   568→
+   569→  const flushParagraph = () => {
+   570→    if (currentParagraph.trim()) {
+   571→      elements.push(
+   572→        <p key={`p-${elements.length}`} className="text-gray-200 my-2 whitespace-pre-wrap leading-relaxed">
+   573→          {formatInlineMarkdown(currentParagraph.trim())}
+   574→        </p>
+   575→      )
+   576→      currentParagraph = ''
+   577→    }
+   578→  }
+   579→
+   580→  lines.forEach((line, lineIndex) => {
+   581→    // Code block handling
+   582→    if (line.trim().startsWith('```')) {
+   583→      if (inCodeBlock) {
+   584→        elements.push(
+   585→          <div key={`code-${elements.length}`} className="my-4 relative group/code">
+   586→            {/* Code header */}
+   587→            <div className="flex items-center justify-between bg-gray-900 rounded-t-lg px-4 py-2 border-b border-gray-700">
+   588→              <span className="text-xs text-gray-400 font-mono">code</span>
+   589→              <button
+   590→                onClick={() => onCopy(codeContent)}
+   591→                className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-800 hover:bg-gray-700 rounded-md text-xs text-gray-300 transition-colors opacity-0 group-hover/code:opacity-100"
+   592→              >
+   593→                {copiedCode ? (
+   594→                  <>
+   595→                    <Check className="w-3 h-3 text-green-400" />
+   596→                    Copied!
+   597→                  </>
+   598→                ) : (
+   599→                  <>
+   600→                    <Copy className="w-3 h-3" />
+   601→                    Copy
+   602→                  </>
+   603→                )}
+   604→              </button>
+   605→            </div>
+   606→            <pre className="bg-gray-900/80 rounded-b-lg p-4 overflow-x-auto text-sm border border-gray-800 border-t-0">
+   607→              <code className="text-emerald-400 font-mono leading-relaxed">{codeContent}</code>
+   608→            </pre>
+   609→          </div>
+   610→        )
+   611→        codeContent = ''
+   612→        inCodeBlock = false
+   613→      } else {
+   614→        flushParagraph()
+   615→        inCodeBlock = true
+   616→      }
+   617→      return
+   618→    }
+   619→
+   620→    if (inCodeBlock) {
+   621→      codeContent += line + '\n'
+   622→      return
+   623→    }
+   624→
+   625→    // Headers
+   626→    if (line.startsWith('# ')) {
+   627→      flushParagraph()
+   628→      elements.push(<h1 key={lineIndex} className="text-2xl font-bold text-white mt-6 mb-3 text-gradient">{line.slice(2)}</h1>)
+   629→      return
+   630→    }
+   631→    if (line.startsWith('## ')) {
+   632→      flushParagraph()
+   633→      elements.push(<h2 key={lineIndex} className="text-xl font-semibold text-white mt-5 mb-2.5">{line.slice(3)}</h2>)
+   634→      return
+   635→    }
+   636→    if (line.startsWith('### ')) {
+   637→      flushParagraph()
+   638→      elements.push(<h3 key={lineIndex} className="text-lg font-medium text-cyan-400 mt-4 mb-2">{line.slice(4)}</h3>)
+   639→      return
+   640→    }
+   641→
+   642→    // Lists
+   643→    if (line.match(/^\s*[-*]\s+/)) {
+   644→      flushParagraph()
+   645→      elements.push(
+   646→        <li key={lineIndex} className="ml-4 text-gray-200 list-disc mb-1 marker:text-cyan-500">
+   647→          {formatInlineMarkdown(line.replace(/^\s*[-*]\s+/, ''))}
+   648→        </li>
+   649→      )
+   650→      return
+   651→    }
+   652→    if (line.match(/^\d+\.\s+/)) {
+   653→      flushParagraph()
+   654→      elements.push(
+   655→        <li key={lineIndex} className="ml-4 text-gray-200 list-decimal mb-1 marker:text-violet-400">
+   656→          {formatInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}
+   657→        </li>
+   658→      )
+   659→      return
+   660→    }
+   661→
+   662→    // Horizontal rule
+   663→    if (line.trim() === '---') {
+   664→      flushParagraph()
+   665→      elements.push(<hr key={lineIndex} className="my-4 border-gray-700/50" />)
+   666→      return
+   667→    }
+   668→
+   669→    // Regular paragraph
+   670→    if (line.trim()) {
+   671→      currentParagraph += (currentParagraph ? ' ' : '') + line
+   672→    } else {
+   673→      flushParagraph()
+   674→    }
+   675→  })
+   676→
+   677→  flushParagraph()
+   678→
+   679→  return elements.length > 0 ? elements : content
+   680→}
+   681→
+   682→// Format inline markdown
+   683→function formatInlineMarkdown(text: string): React.ReactNode {
+   684→  const parts: React.ReactNode[] = []
+   685→  const regex = /\*\*(.*?)\*\*|`(.*?)`|\*(.*?)\*/g
+   686→  let lastIndex = 0
+   687→  let match
+   688→  
+   689→  while ((match = regex.exec(text)) !== null) {
+   690→    if (match.index > lastIndex) {
+   691→      parts.push(text.slice(lastIndex, match.index))
+   692→    }
+   693→    
+   694→    if (match[1]) {
+   695→      parts.push(<strong key={match.index} className="font-semibold text-white">{match[1]}</strong>)
+   696→    } else if (match[2]) {
+   697→      parts.push(<code key={match.index} className="px-2 py-0.5 bg-gray-800/80 rounded-md text-cyan-300 text-sm font-mono border border-gray-700/50">{match[2]}</code>)
+   698→    } else if (match[3]) {
+   699→      parts.push(<em key={match.index} className="italic text-gray-300">{match[3]}</em>)
+   700→    }
+   701→    
+   702→    lastIndex = regex.lastIndex
+   703→  }
+   704→  
+   705→  if (lastIndex < text.length) {
+   706→    parts.push(text.slice(lastIndex))
+   707→  }
+   708→  
+   709→  return parts.length > 0 ? parts : text
+   710→}
+   711→

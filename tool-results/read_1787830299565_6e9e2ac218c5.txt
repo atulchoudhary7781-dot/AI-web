@@ -1,0 +1,1154 @@
+     1→<!DOCTYPE html>
+     2→<html lang="en" class="dark scroll-smooth">
+     3→<head>
+     4→    <meta charset="UTF-8">
+     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→    <title>Atul | Full Stack Developer & AI Enthusiast</title>
+     7→    <meta name="description" content="Portfolio of Atul - A passionate Full Stack Developer and AI enthusiast building intelligent digital experiences with modern web technologies.">
+     8→    
+     9→    <!-- Fonts -->
+    10→    <link rel="preconnect" href="https://fonts.googleapis.com">
+    11→    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    12→    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    13→    
+    14→    <!-- Tailwind CSS -->
+    15→    <script src="https://cdn.tailwindcss.com"></script>
+    16→    
+    17→    <!-- Lucide Icons -->
+    18→    <script src="https://unpkg.com/lucide@latest"></script>
+    19→    
+    20→    <!-- AOS Animation Library -->
+    21→    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    22→    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    23→    
+    24→    <style>
+    25→        * {
+    26→            margin: 0;
+    27→            padding: 0;
+    28→            box-sizing: border-box;
+    29→        }
+    30→        
+    31→        html {
+    32→            scroll-behavior: smooth;
+    33→        }
+    34→        
+    35→        body {
+    36→            font-family: 'Inter', sans-serif;
+    37→            background-color: #000000;
+    38→            color: #ffffff;
+    39→            overflow-x: hidden;
+    40→        }
+    41→        
+    42→        /* Custom Scrollbar */
+    43→        ::-webkit-scrollbar {
+    44→            width: 8px;
+    45→        }
+    46→        
+    47→        ::-webkit-scrollbar-track {
+    48→            background: #0a0a0a;
+    49→        }
+    50→        
+    51→        ::-webkit-scrollbar-thumb {
+    52→            background: linear-gradient(180deg, #8b5cf6, #3b82f6);
+    53→            border-radius: 4px;
+    54→        }
+    55→        
+    56→        /* Particle Animation */
+    57→        .particle {
+    58→            position: absolute;
+    59→            width: 4px;
+    60→            height: 4px;
+    61→            background: rgba(255, 255, 255, 0.3);
+    62→            border-radius: 50%;
+    63→            animation: float 15s infinite ease-in-out;
+    64→        }
+    65→        
+    66→        @keyframes float {
+    67→            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+    68→            25% { transform: translateY(-100px) translateX(50px); opacity: 0.8; }
+    69→            50% { transform: translateY(-50px) translateX(-30px); opacity: 0.5; }
+    70→            75% { transform: translateY(-150px) translateX(20px); opacity: 0.7; }
+    71→        }
+    72→        
+    73→        /* Gradient Text */
+    74→        .gradient-text {
+    75→            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 50%, #f472b6 100%);
+    76→            -webkit-background-clip: text;
+    77→            -webkit-text-fill-color: transparent;
+    78→            background-clip: text;
+    79→        }
+    80→        
+    81→        .gradient-text-blue {
+    82→            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    83→            -webkit-background-clip: text;
+    84→            -webkit-text-fill-color: transparent;
+    85→            background-clip: text;
+    86→        }
+    87→        
+    88→        /* Glow Effects */
+    89→        .glow-violet {
+    90→            box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+    91→        }
+    92→        
+    93→        .glow-blue {
+    94→            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+    95→        }
+    96→        
+    97→        /* Animated Border */
+    98→        .animated-border {
+    99→            position: relative;
+   100→            overflow: hidden;
+   101→        }
+   102→        
+   103→        .animated-border::before {
+   104→            content: '';
+   105→            position: absolute;
+   106→            top: 0;
+   107→            left: -100%;
+   108→            width: 100%;
+   109→            height: 2px;
+   110→            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+   111→            animation: slide 3s infinite;
+   112→        }
+   113→        
+   114→        @keyframes slide {
+   115→            0% { left: -100%; }
+   116→            50% { left: 100%; }
+   117→            100% { left: 100%; }
+   118→        }
+   119→        
+   120→        /* Pulse Animation */
+   121→        @keyframes pulse-glow {
+   122→            0%, 100% { opacity: 0.5; transform: scale(1); }
+   123→            50% { opacity: 1; transform: scale(1.05); }
+   124→        }
+   125→        
+   126→        .pulse-glow {
+   127→            animation: pulse-glow 2s ease-in-out infinite;
+   128→        }
+   129→        
+   130→        /* Ping Animation */
+   131→        @keyframes ping {
+   132→            75%, 100% { transform: scale(2); opacity: 0; }
+   133→        }
+   134→        
+   135→        .animate-ping-slow {
+   136→            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+   137→        }
+   138→        
+   139→        /* Card Hover Effect */
+   140→        .card-hover {
+   141→            transition: all 0.3s ease;
+   142→        }
+   143→        
+   144→        .card-hover:hover {
+   145→            transform: translateY(-10px) scale(1.02);
+   146→            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+   147→        }
+   148→        
+   149→        /* Skill Bar Animation */
+   150→        .skill-bar {
+   151→            transition: width 1.5s ease-out;
+   152→        }
+   153→        
+   154→        /* Mouse Follower Gradient */
+   155→        .mouse-gradient {
+   156→            position: fixed;
+   157→            width: 600px;
+   158→            height: 600px;
+   159→            border-radius: 50%;
+   160→            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+   161→            pointer-events: none;
+   162→            z-index: 0;
+   163→            transition: transform 0.3s ease-out;
+   164→            filter: blur(80px);
+   165→        }
+   166→        
+   167→        /* Nav Active State */
+   168→        .nav-link {
+   169→            position: relative;
+   170→            transition: color 0.3s ease;
+   171→        }
+   172→        
+   173→        .nav-link.active::after {
+   174→            content: '';
+   175→            position: absolute;
+   176→            bottom: -4px;
+   177→            left: 0;
+   178→            right: 0;
+   179→            height: 2px;
+   180→            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+   181→            border-radius: 1px;
+   182→        }
+   183→        
+   184→        /* Button Shine Effect */
+   185→        .btn-shine {
+   186→            position: relative;
+   187→            overflow: hidden;
+   188→        }
+   189→        
+   190→        .btn-shine::after {
+   191→            content: '';
+   192→            position: absolute;
+   193→            top: 0;
+   194→            left: -100%;
+   195→            width: 100%;
+   196→            height: 100%;
+   197→            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+   198→            transition: left 0.5s ease;
+   199→        }
+   200→        
+   201→        .btn-shine:hover::after {
+   202→            left: 100%;
+   203→        }
+   204→        
+   205→        /* Grid Background */
+   206→        .grid-bg {
+   207→            background-image: 
+   208→                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+   209→                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+   210→            background-size: 50px 50px;
+   211→        }
+   212→        
+   213→        /* Rotating Ring Animation */
+   214→        @keyframes rotate-ring {
+   215→            from { transform: rotate(0deg); }
+   216→            to { transform: rotate(360deg); }
+   217→        }
+   218→        
+   219→        .rotate-ring {
+   220→            animation: rotate-ring 20s linear infinite;
+   221→        }
+   222→        
+   223→        .rotate-ring-reverse {
+   224→            animation: rotate-ring 15s linear infinite reverse;
+   225→        }
+   226→        
+   227→        /* Heart Beat */
+   228→        @keyframes heartbeat {
+   229→            0%, 100% { transform: scale(1); }
+   230→            14% { transform: scale(1.1); }
+   231→            28% { transform: scale(1); }
+   232→            42% { transform: scale(1.1); }
+   233→            70% { transform: scale(1); }
+   234→        }
+   235→        
+   236→        .heartbeat {
+   237→            animation: heartbeat 2s ease-in-out infinite;
+   238→        }
+   239→
+   240→        /* Social Card Photo Styling */
+   241→        .social-photo {
+   242→            width: 80px;
+   243→            height: 80px;
+   244→            border-radius: 50%;
+   245→            object-fit: cover;
+   246→            border: 3px solid;
+   247→            box-shadow: 0 0 30px currentColor;
+   248→        }
+   249→
+   250→        .github-photo {
+   251→            border-color: #8b5cf6;
+   252→            color: rgba(139, 92, 246, 0.5);
+   253→        }
+   254→
+   255→        .linkedin-photo {
+   256→            border-color: #3b82f6;
+   257→            color: rgba(59, 130, 246, 0.5);
+   258→        }
+   259→
+   260→        /* Live Badge */
+   261→        .live-badge {
+   262→            animation: pulse-glow 1.5s ease-in-out infinite;
+   263→        }
+   264→    </style>
+   265→</head>
+   266→<body class="antialiased">
+   267→    <!-- Mouse Gradient Follower -->
+   268→    <div id="mouseGradient" class="mouse-gradient"></div>
+   269→    
+   270→    <!-- Particle Background -->
+   271→    <div id="particles" class="fixed inset-0 pointer-events-none z-0 grid-bg"></div>
+   272→
+   273→    <!-- Navigation -->
+   274→    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-transparent">
+   275→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   276→            <div class="flex items-center justify-between h-16 md:h-20">
+   277→                <!-- Logo -->
+   278→                <a href="#home" class="flex items-center gap-2 group">
+   279→                    <div class="relative pulse-glow">
+   280→                        <i data-lucide="sparkles" class="w-8 h-8 text-violet-400"></i>
+   281→                    </div>
+   282→                    <span class="text-xl md:text-2xl font-bold gradient-text">Atul</span>
+   283→                </a>
+   284→
+   285→                <!-- Desktop Navigation -->
+   286→                <div class="hidden md:flex items-center gap-1">
+   287→                    <a href="#home" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-white hover:text-gray-300 transition-all">Home</a>
+   288→                    <a href="#about" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">About</a>
+   289→                    <a href="#projects" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">Projects</a>
+   290→                    <a href="#skills" class="nav-link px-4 py-2 text-sm font-medium rounded-full text-gray-400 hover:text-white transition-all">Skills</a>
+   291→                    
+   292→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+   293→                       class="ml-4 px-5 py-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white text-sm font-medium rounded-full hover:shadow-lg hover:shadow-violet-500/25 transition-all btn-shine">
+   294→                        <i data-lucide="github" class="w-4 h-4 inline mr-2"></i>GitHub
+   295→                    </a>
+   296→                </div>
+   297→
+   298→                <!-- Mobile Menu Button -->
+   299→                <button id="menuBtn" class="md:hidden p-2 text-white">
+   300→                    <i data-lucide="menu" class="w-6 h-6 menu-icon"></i>
+   301→                    <i data-lucide="x" class="w-6 h-6 close-icon hidden"></i>
+   302→                </button>
+   303→            </div>
+   304→
+   305→            <!-- Mobile Navigation -->
+   306→            <div id="mobileMenu" class="md:hidden hidden pb-4 border-t border-white/10">
+   307→                <div class="pt-4 space-y-2">
+   308→                    <a href="#home" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">Home</a>
+   309→                    <a href="#about" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">About</a>
+   310→                    <a href="#projects" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">Projects</a>
+   311→                    <a href="#skills" class="mobile-nav-link block px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white">Skills</a>
+   312→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+   313→                       class="block w-full text-center px-4 py-3 mt-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium rounded-lg">View GitHub</a>
+   314→                </div>
+   315→            </div>
+   316→        </div>
+   317→    </nav>
+   318→
+   319→    <!-- Main Content -->
+   320→    <main class="relative z-10">
+   321→        
+   322→        <!-- Hero Section -->
+   323→        <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+   324→            <div class="max-w-5xl mx-auto px-4 text-center space-y-8">
+   325→                
+   326→                <!-- Status Badge -->
+   327→                <div data-aos="fade-down" data-aos-delay="200"
+   328→                     class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 backdrop-blur-sm">
+   329→                    <span class="relative flex h-2 w-2">
+   330→                        <span class="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+   331→                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+   332→                    </span>
+   333→                    <span class="text-green-400 text-sm font-medium">Available for opportunities</span>
+   334→                </div>
+   335→
+   336→                <!-- Main Heading -->
+   337→                <div data-aos="fade-up" data-aos-delay="300" class="space-y-4">
+   338→                    <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
+   339→                        <span class="block text-white">Hi, I'm</span>
+   340→                        <span class="block gradient-text relative inline-block">
+   341→                            Atul
+   342→                            <svg class="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none">
+   343→                                <path d="M2 10C50 2 150 2 198 10" stroke="url(#heroGradient)" stroke-width="3" stroke-linecap="round"/>
+   344→                                <defs>
+   345→                                    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+   346→                                        <stop offset="0%" stopColor="#a78bfa"/>
+   347→                                        <stop offset="50%" stopColor="#c084fc"/>
+   348→                                        <stop offset="100%" stopColor="#f472b6"/>
+   349→                                    </linearGradient>
+   350→                                </defs>
+   351→                            </svg>
+   352→                        </span>
+   353→                    </h1>
+   354→                </div>
+   355→
+   356→                <!-- Subtitle -->
+   357→                <p data-aos="fade-up" data-aos-delay="400" 
+   358→                   class="text-lg sm:text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+   359→                    <span class="text-white font-semibold">Full Stack Developer</span> &amp; 
+   360→                    <span class="text-white font-semibold">AI Enthusiast</span><br>
+   361→                    Building intelligent digital experiences that make a difference
+   362→                </p>
+   363→
+   364→                <!-- CTA Buttons -->
+   365→                <div data-aos="fade-up" data-aos-delay="500" 
+   366→                     class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+   367→                    <a href="#projects" 
+   368→                       class="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-semibold rounded-full overflow-hidden btn-shine hover:shadow-xl hover:shadow-violet-500/30 transition-all">
+   369→                        <span class="relative z-10 flex items-center gap-2">
+   370→                            <i data-lucide="rocket" class="w-5 h-5"></i>View My Work
+   371→                        </span>
+   372→                    </a>
+   373→                    
+   374→                    <a href="#social" 
+   375→                       class="px-8 py-4 border border-white/20 text-white font-semibold rounded-full backdrop-blur-sm hover:bg-white/10 transition-all">
+   376→                        <span class="flex items-center gap-2">
+   377→                            <i data-lucide="user" class="w-5 h-5"></i>Connect With Me
+   378→                        </span>
+   379→                    </a>
+   380→                </div>
+   381→
+   382→                <!-- Social Links -->
+   383→                <div data-aos="fade-up" data-aos-delay="600" 
+   384→                     class="flex items-center justify-center gap-4 pt-8">
+   385→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+   386→                       class="p-3 rounded-full border border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all hover:scale-110">
+   387→                        <i data-lucide="github" class="w-5 h-5"></i>
+   388→                    </a>
+   389→                    <a href="https://www.linkedin.com/in/atul-choudhary-018037301/" target="_blank" 
+   390→                       class="p-3 rounded-full border border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all hover:scale-110">
+   391→                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+   392→                    </a>
+   393→                    <a href="mailto:atulchoudhary7781@gmail.com" 
+   394→                       class="p-3 rounded-full border border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all hover:scale-110">
+   395→                        <i data-lucide="mail" class="w-5 h-5"></i>
+   396→                    </a>
+   397→                </div>
+   398→            </div>
+   399→
+   400→            <!-- Scroll Indicator -->
+   401→            <div class="absolute bottom-8 left-1/2 -translate-x-1/2" data-aos="fade-up" data-aos-delay="800">
+   402→                <a href="#about" class="flex flex-col items-center gap-2 text-gray-500 hover:text-white transition-colors animate-bounce">
+   403→                    <span class="text-xs uppercase tracking-widest">Scroll</span>
+   404→                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
+   405→                </a>
+   406→            </div>
+   407→        </section>
+   408→
+   409→        <!-- About Section -->
+   410→        <section id="about" class="relative py-32 overflow-hidden">
+   411→            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   412→                <div class="grid lg:grid-cols-2 gap-16 items-center">
+   413→                    
+   414→                    <!-- Left - Visual Element -->
+   415→                    <div data-aos="fade-right" data-aos-duration="800" class="relative">
+   416→                        <div class="relative aspect-square max-w-md mx-auto">
+   417→                            <!-- Animated Rings -->
+   418→                            <div class="absolute inset-0 rounded-full border border-violet-500/20 rotate-ring"></div>
+   419→                            <div class="absolute inset-4 rounded-full border border-purple-500/20 rotate-ring-reverse"></div>
+   420→                            <div class="absolute inset-8 rounded-full border border-blue-500/20 rotate-ring" style="animation-duration: 25s;"></div>
+   421→                            
+   422→                            <!-- Main Circle -->
+   423→                            <div class="absolute inset-12 rounded-full bg-gradient-to-br from-violet-600/20 to-blue-600/20 backdrop-blur-sm border border-white/10 flex items-center justify-center overflow-hidden card-hover">
+   424→                                <div class="text-center">
+   425→                                    <div class="text-8xl md:text-9xl font-bold gradient-text">A</div>
+   426→                                    <p class="text-gray-400 mt-2 text-sm">@atul.dev</p>
+   427→                                </div>
+   428→                                
+   429→                                <!-- Floating Elements -->
+   430→                                <div class="absolute top-4 right-4 p-2 rounded-lg bg-blue-500/20 backdrop-blur-sm border border-blue-500/30 animate-bounce" style="animation-duration: 3s;">
+   431→                                    <i data-lucide="code-2" class="w-5 h-5 text-blue-400"></i>
+   432→                                </div>
+   433→                                <div class="absolute bottom-4 left-4 p-2 rounded-lg bg-purple-500/20 backdrop-blur-sm border border-purple-500/30 animate-bounce" style="animation-duration: 4s;">
+   434→                                    <i data-lucide="brain" class="w-5 h-5 text-purple-400"></i>
+   435→                                </div>
+   436→                                <div class="absolute top-1/2 -left-2 p-2 rounded-lg bg-pink-500/20 backdrop-blur-sm border border-pink-500/30 animate-bounce" style="animation-duration: 3.5s;">
+   437→                                    <i data-lucide="zap" class="w-5 h-5 text-pink-400"></i>
+   438→                                </div>
+   439→                            </div>
+   440→                        </div>
+   441→                    </div>
+   442→
+   443→                    <!-- Right - Content -->
+   444→                    <div data-aos="fade-left" data-aos-duration="800" data-aos-delay="200" class="space-y-8">
+   445→                        <div class="space-y-4">
+   446→                            <div class="h-1 w-16 bg-gradient-to-r from-violet-500 to-blue-500 rounded-full"></div>
+   447→                            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+   448→                                About <span class="gradient-text-blue">Me</span>
+   449→                            </h2>
+   450→                        </div>
+   451→
+   452→                        <div class="space-y-6 text-gray-400 text-lg leading-relaxed">
+   453→                            <p>
+   454→                                I'm <span class="text-white font-semibold">Atul</span>, a passionate Full Stack Developer and AI enthusiast who loves turning complex problems into elegant solutions. With expertise in modern web technologies and artificial intelligence, I create digital experiences that are both beautiful and functional.
+   455→                            </p>
+   456→                            <p>
+   457→                                My journey in tech started with curiosity about how things work under the hood. Today, I specialize in building scalable applications with <span class="text-violet-400">Next.js</span>, <span class="text-blue-400">React</span>, and integrating <span class="text-purple-400">AI capabilities</span> into everyday applications.
+   458→                            </p>
+   459→                            <p>
+   460→                                When I'm not coding, you'll find me exploring the latest advancements in machine learning, contributing to open-source projects, or sharing knowledge with the developer community.
+   461→                            </p>
+   462→                        </div>
+   463→
+   464→                        <!-- Stats Grid -->
+   465→                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+   466→                            <div class="text-center p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all card-hover cursor-default">
+   467→                                <i data-lucide="code-2" class="w-6 h-6 mx-auto mb-2 text-violet-400"></i>
+   468→                                <div class="text-2xl font-bold text-white">10+</div>
+   469→                                <div class="text-xs text-gray-500">Projects Built</div>
+   470→                            </div>
+   471→                            <div class="text-center p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all card-hover cursor-default">
+   472→                                <i data-lucide="brain" class="w-6 h-6 mx-auto mb-2 text-violet-400"></i>
+   473→                                <div class="text-2xl font-bold text-white">5+</div>
+   474→                                <div class="text-xs text-gray-500">AI Models</div>
+   475→                            </div>
+   476→                            <div class="text-center p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all card-hover cursor-default">
+   477→                                <i data-lucide="zap" class="w-6 h-6 mx-auto mb-2 text-violet-400"></i>
+   478→                                <div class="text-2xl font-bold text-white">99%</div>
+   479→                                <div class="text-xs text-gray-500">Satisfaction</div>
+   480→                            </div>
+   481→                            <div class="text-center p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all card-hover cursor-default">
+   482→                                <i data-lucide="star" class="w-6 h-6 mx-auto mb-2 text-violet-400"></i>
+   483→                                <div class="text-2xl font-bold text-white">∞</div>
+   484→                                <div class="text-xs text-gray-500">Coffee Cups</div>
+   485→                            </div>
+   486→                        </div>
+   487→                    </div>
+   488→                </div>
+   489→            </div>
+   490→        </section>
+   491→
+   492→        <!-- Projects Section -->
+   493→        <section id="projects" class="relative py-32 overflow-hidden">
+   494→            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/10 to-transparent"></div>
+   495→            
+   496→            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   497→                <!-- Section Header -->
+   498→                <div class="text-center mb-16">
+   499→                    <span data-aos="fade-down" 
+   500→                          class="inline-block px-4 py-2 mb-4 text-sm font-medium text-violet-400 bg-violet-500/10 rounded-full border border-violet-500/20">
+   501→                        My Work
+   502→                    </span>
+   503→                    <h2 data-aos="fade-up" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   504→                        Featured <span class="gradient-text-blue">Projects</span>
+   505→                    </h2>
+   506→                    <p data-aos="fade-up" data-aos-delay="100" 
+   507→                       class="text-gray-400 text-lg max-w-2xl mx-auto">
+   508→                        Here are some of my recent projects that showcase my skills and passion for building innovative solutions.
+   509→                    </p>
+   510→                </div>
+   511→
+   512→                <!-- Projects Grid -->
+   513→                <div class="grid md:grid-cols-2 gap-8">
+   514→                    
+   515→                    <!-- Project 1: AI Web (NEXUS AI) -->
+   516→                    <div data-aos="fade-up" data-aos-delay="100" 
+   517→                         class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-white/20 transition-all duration-500 card-hover">
+   518→                        
+   519→                        <div class="relative z-10">
+   520→                            <div class="flex items-start justify-between mb-6">
+   521→                                <div class="p-4 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 group-hover:scale-110 transition-transform">
+   522→                                    <i data-lucide="brain" class="w-8 h-8 text-white"></i>
+   523→                                </div>
+   524→                                
+   525→                                <div class="flex items-center gap-2">
+   526→                                    <!-- Live Badge -->
+   527→                                    <span class="live-badge px-2 py-1 text-xs font-bold text-green-400 bg-green-500/10 rounded-full border border-green-500/30">
+   528→                                        ● LIVE
+   529→                                    </span>
+   530→                                    
+   531→                                    <div class="flex gap-3">
+   532→                                        <a href="https://github.com/atulchoudhary7781-dot/AI-web" target="_blank" 
+   533→                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+   534→                                            <i data-lucide="github" class="w-5 h-5"></i>
+   535→                                        </a>
+   536→                                        <a href="https://ai-web-rho-fawn.vercel.app/" target="_blank" 
+   537→                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+   538→                                            <i data-lucide="external-link" class="w-5 h-5"></i>
+   539→                                        </a>
+   540→                                    </div>
+   541→                                </div>
+   542→                            </div>
+   543→
+   544→                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:gradient-text transition-all">NEXUS AI (AI Web)</h3>
+   545→                            
+   546→                            <p class="text-gray-400 mb-6 leading-relaxed">
+   547→                                An advanced AI-powered web application featuring real-time chat, vision capabilities, file analysis, and intelligent responses. Built with Next.js, OpenRouter API, and modern UI/UX patterns.
+   548→                            </p>
+   549→
+   550→                            <div class="mb-6">
+   551→                                <h4 class="text-sm font-semibold text-white mb-3">Key Features</h4>
+   552→                                <div class="flex flex-wrap gap-2">
+   553→                                    <span class="px-3 py-1 text-xs font-medium text-violet-300 bg-violet-500/10 rounded-full border border-violet-500/20">Real-time AI Chat</span>
+   554→                                    <span class="px-3 py-1 text-xs font-medium text-violet-300 bg-violet-500/10 rounded-full border border-violet-500/20">Vision Analysis</span>
+   555→                                    <span class="px-3 py-1 text-xs font-medium text-violet-300 bg-violet-500/10 rounded-full border border-violet-500/20">File Processing</span>
+   556→                                    <span class="px-3 py-1 text-xs font-medium text-violet-300 bg-violet-500/10 rounded-full border border-violet-500/20">Smart Responses</span>
+   557→                                </div>
+   558→                            </div>
+   559→
+   560→                            <div class="pt-6 border-t border-white/10">
+   561→                                <div class="flex flex-wrap gap-2">
+   562→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Next.js</span>
+   563→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">TypeScript</span>
+   564→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">AI/ML</span>
+   565→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Tailwind</span>
+   566→                                </div>
+   567→                                
+   568→                                <!-- Live Link -->
+   569→                                <a href="https://ai-web-rho-fawn.vercel.app/" target="_blank" 
+   570→                                   class="mt-4 inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors">
+   571→                                    <i data-lucide="globe" class="w-4 h-4"></i>
+   572→                                    ai-web-rho-fawn.vercel.app
+   573→                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+   574→                                </a>
+   575→                            </div>
+   576→                        </div>
+   577→
+   578→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-purple-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   579→                    </div>
+   580→
+   581→                    <!-- Project 2: Jarvis AI -->
+   582→                    <div data-aos="fade-up" data-aos-delay="200" 
+   583→                         class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-white/20 transition-all duration-500 card-hover">
+   584→                        
+   585→                        <div class="relative z-10">
+   586→                            <div class="flex items-start justify-between mb-6">
+   587→                                <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 group-hover:scale-110 transition-transform">
+   588→                                    <i data-lucide="cpu" class="w-8 h-8 text-white"></i>
+   589→                                </div>
+   590→                                
+   591→                                <div class="flex items-center gap-2">
+   592→                                    <!-- Live Badge -->
+   593→                                    <span class="live-badge px-2 py-1 text-xs font-bold text-green-400 bg-green-500/10 rounded-full border border-green-500/30">
+   594→                                        ● LIVE
+   595→                                    </span>
+   596→                                    
+   597→                                    <div class="flex gap-3">
+   598→                                        <a href="https://github.com/atulchoudhary7781-dot/Jarvis-AI" target="_blank" 
+   599→                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+   600→                                            <i data-lucide="github" class="w-5 h-5"></i>
+   601→                                        </a>
+   602→                                        <a href="https://i9fm8n3pz2wn67bkro5y2q.streamlit.app/" target="_blank" 
+   603→                                           class="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all hover:scale-110">
+   604→                                            <i data-lucide="external-link" class="w-5 h-5"></i>
+   605→                                        </a>
+   606→                                    </div>
+   607→                                </div>
+   608→                            </div>
+   609→
+   610→                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:gradient-text transition-all">Jarvis AI</h3>
+   611→                            
+   612→                            <p class="text-gray-400 mb-6 leading-relaxed">
+   613→                                Your personal AI assistant inspired by Iron Man's Jarvis. Features voice interaction, task automation, smart home integration, and contextual awareness for a truly intelligent experience.
+   614→                            </p>
+   615→
+   616→                            <div class="mb-6">
+   617→                                <h4 class="text-sm font-semibold text-white mb-3">Key Features</h4>
+   618→                                <div class="flex flex-wrap gap-2">
+   619→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Voice Commands</span>
+   620→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Task Automation</span>
+   621→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Context Aware</span>
+   622→                                    <span class="px-3 py-1 text-xs font-medium text-blue-300 bg-blue-500/10 rounded-full border border-blue-500/20">Multi-platform</span>
+   623→                                </div>
+   624→                            </div>
+   625→
+   626→                            <div class="pt-6 border-t border-white/10">
+   627→                                <div class="flex flex-wrap gap-2">
+   628→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Python</span>
+   629→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">AI/ML</span>
+   630→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Streamlit</span>
+   631→                                    <span class="px-3 py-1 text-sm text-gray-400 bg-white/5 rounded-lg">Automation</span>
+   632→                                </div>
+   633→                                
+   634→                                <!-- Live Link -->
+   635→                                <a href="https://i9fm8n3pz2wn67bkro5y2q.streamlit.app/" target="_blank" 
+   636→                                   class="mt-4 inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors">
+   637→                                    <i data-lucide="globe" class="w-4 h-4"></i>
+   638→                                    i9fm8n3pz2wn67bkro5y2q.streamlit.app
+   639→                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+   640→                                </a>
+   641→                            </div>
+   642→                        </div>
+   643→
+   644→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   645→                    </div>
+   646→                </div>
+   647→
+   648→                <!-- View More CTA -->
+   649→                <div data-aos="fade-up" data-aos-delay="300" class="text-center mt-12">
+   650→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio?tab=repositories" target="_blank" 
+   651→                       class="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-medium rounded-full hover:bg-white/5 transition-all hover:border-white/40 btn-shine">
+   652→                        <i data-lucide="github" class="w-5 h-5"></i>
+   653→                        View All Projects on GitHub
+   654→                        <i data-lucide="external-link" class="w-4 h-4"></i>
+   655→                    </a>
+   656→                </div>
+   657→            </div>
+   658→        </section>
+   659→
+   660→        <!-- Skills Section -->
+   661→        <section id="skills" class="relative py-32 overflow-hidden">
+   662→            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   663→                <!-- Section Header -->
+   664→                <div class="text-center mb-16">
+   665→                    <span data-aos="fade-down" 
+   666→                          class="inline-block px-4 py-2 mb-4 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-full border border-blue-500/20">
+   667→                        Expertise
+   668→                    </span>
+   669→                    <h2 data-aos="fade-up" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   670→                        Skills & <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Technologies</span>
+   671→                    </h2>
+   672→                    <p data-aos="fade-up" data-aos-delay="100" 
+   673→                       class="text-gray-400 text-lg max-w-2xl mx-auto">
+   674→                        A comprehensive toolkit built through years of hands-on experience and continuous learning.
+   675→                    </p>
+   676→                </div>
+   677→
+   678→                <!-- Skills Grid -->
+   679→                <div class="grid md:grid-cols-3 gap-8">
+   680→                    
+   681→                    <!-- Frontend Skills -->
+   682→                    <div data-aos="fade-right" data-aos-delay="100" 
+   683→                         class="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all card-hover">
+   684→                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   685→                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center">
+   686→                                <i data-lucide="code-2" class="w-5 h-5 text-white"></i>
+   687→                            </div>
+   688→                            Frontend
+   689→                        </h3>
+   690→
+   691→                        <div class="space-y-5">
+   692→                            <div class="space-y-2">
+   693→                                <div class="flex justify-between items-center">
+   694→                                    <span class="text-gray-300 font-medium">React / Next.js</span>
+   695→                                    <span class="text-sm text-violet-400 font-mono">95%</span>
+   696→                                </div>
+   697→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   698→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 95%;"></div>
+   699→                                </div>
+   700→                            </div>
+   701→                            <div class="space-y-2">
+   702→                                <div class="flex justify-between items-center">
+   703→                                    <span class="text-gray-300 font-medium">TypeScript</span>
+   704→                                    <span class="text-sm text-violet-400 font-mono">90%</span>
+   705→                                </div>
+   706→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   707→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 90%;"></div>
+   708→                                </div>
+   709→                            </div>
+   710→                            <div class="space-y-2">
+   711→                                <div class="flex justify-between items-center">
+   712→                                    <span class="text-gray-300 font-medium">Tailwind CSS</span>
+   713→                                    <span class="text-sm text-violet-400 font-mono">95%</span>
+   714→                                </div>
+   715→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   716→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 95%;"></div>
+   717→                                </div>
+   718→                            </div>
+   719→                            <div class="space-y-2">
+   720→                                <div class="flex justify-between items-center">
+   721→                                    <span class="text-gray-300 font-medium">Framer Motion</span>
+   722→                                    <span class="text-sm text-violet-400 font-mono">85%</span>
+   723→                                </div>
+   724→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   725→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 85%;"></div>
+   726→                                </div>
+   727→                            </div>
+   728→                        </div>
+   729→                    </div>
+   730→
+   731→                    <!-- Backend & AI Skills -->
+   732→                    <div data-aos="fade-up" data-aos-delay="200" 
+   733→                         class="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all card-hover">
+   734→                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   735→                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
+   736→                                <i data-lucide="brain" class="w-5 h-5 text-white"></i>
+   737→                            </div>
+   738→                            Backend & AI
+   739→                        </h3>
+   740→
+   741→                        <div class="space-y-5">
+   742→                            <div class="space-y-2">
+   743→                                <div class="flex justify-between items-center">
+   744→                                    <span class="text-gray-300 font-medium">Node.js / Bun</span>
+   745→                                    <span class="text-sm text-violet-400 font-mono">88%</span>
+   746→                                </div>
+   747→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   748→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 88%;"></div>
+   749→                                </div>
+   750→                            </div>
+   751→                            <div class="space-y-2">
+   752→                                <div class="flex justify-between items-center">
+   753→                                    <span class="text-gray-300 font-medium">Python</span>
+   754→                                    <span class="text-sm text-violet-400 font-mono">85%</span>
+   755→                                </div>
+   756→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   757→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 85%;"></div>
+   758→                                </div>
+   759→                            </div>
+   760→                            <div class="space-y-2">
+   761→                                <div class="flex justify-between items-center">
+   762→                                    <span class="text-gray-300 font-medium">AI/ML Integration</span>
+   763→                                    <span class="text-sm text-violet-400 font-mono">90%</span>
+   764→                                </div>
+   765→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   766→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 90%;"></div>
+   767→                                </div>
+   768→                            </div>
+   769→                            <div class="space-y-2">
+   770→                                <div class="flex justify-between items-center">
+   771→                                    <span class="text-gray-300 font-medium">API Development</span>
+   772→                                    <span class="text-sm text-violet-400 font-mono">92%</span>
+   773→                                </div>
+   774→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   775→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 92%;"></div>
+   776→                                </div>
+   777→                            </div>
+   778→                        </div>
+   779→                    </div>
+   780→
+   781→                    <!-- Tools & Others -->
+   782→                    <div data-aos="fade-left" data-aos-delay="300" 
+   783→                         class="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm hover:bg-white/[0.06] transition-all card-hover">
+   784→                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+   785→                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
+   786→                                <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
+   787→                            </div>
+   788→                            Tools & Others
+   789→                        </h3>
+   790→
+   791→                        <div class="space-y-5">
+   792→                            <div class="space-y-2">
+   793→                                <div class="flex justify-between items-center">
+   794→                                    <span class="text-gray-300 font-medium">Git & GitHub</span>
+   795→                                    <span class="text-sm text-violet-400 font-mono">93%</span>
+   796→                                </div>
+   797→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   798→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 93%;"></div>
+   799→                                </div>
+   800→                            </div>
+   801→                            <div class="space-y-2">
+   802→                                <div class="flex justify-between items-center">
+   803→                                    <span class="text-gray-300 font-medium">Vercel Deployment</span>
+   804→                                    <span class="text-sm text-violet-400 font-mono">90%</span>
+   805→                                </div>
+   806→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   807→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 90%;"></div>
+   808→                                </div>
+   809→                            </div>
+   810→                            <div class="space-y-2">
+   811→                                <div class="flex justify-between items-center">
+   812→                                    <span class="text-gray-300 font-medium">Database (Prisma)</span>
+   813→                                    <span class="text-sm text-violet-400 font-mono">85%</span>
+   814→                                </div>
+   815→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   816→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 85%;"></div>
+   817→                                </div>
+   818→                            </div>
+   819→                            <div class="space-y-2">
+   820→                                <div class="flex justify-between items-center">
+   821→                                    <span class="text-gray-300 font-medium">UI/UX Design</span>
+   822→                                    <span class="text-sm text-violet-400 font-mono">80%</span>
+   823→                                </div>
+   824→                                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+   825→                                    <div class="skill-bar h-full bg-gradient-to-r from-violet-600 to-blue-600 rounded-full" style="width: 80%;"></div>
+   826→                                </div>
+   827→                            </div>
+   828→                        </div>
+   829→                    </div>
+   830→                </div>
+   831→
+   832→                <!-- Additional Tech Icons -->
+   833→                <div data-aos="fade-up" data-aos-delay="400" class="mt-16 text-center">
+   834→                    <p class="text-gray-500 mb-6">And many more technologies I work with...</p>
+   835→                    <div class="flex flex-wrap justify-center gap-4">
+   836→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">JavaScript</span>
+   837→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">HTML/CSS</span>
+   838→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">REST APIs</span>
+   839→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">GraphQL</span>
+   840→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">MongoDB</span>
+   841→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">PostgreSQL</span>
+   842→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">Docker</span>
+   843→                        <span class="px-4 py-2 text-sm text-gray-400 bg-white/5 rounded-lg border border-white/10 hover:border-violet-500/30 hover:text-violet-300 transition-all cursor-default">AWS</span>
+   844→                    </div>
+   845→                </div>
+   846→            </div>
+   847→        </section>
+   848→
+   849→        <!-- Social Connect Section (GitHub & LinkedIn with Photos) -->
+   850→        <section id="social" class="relative py-32 overflow-hidden">
+   851→            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-t from-violet-900/20 to-transparent rounded-full blur-3xl"></div>
+   852→
+   853→            <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+   854→                <!-- Section Header -->
+   855→                <div class="text-center mb-16">
+   856→                    <span data-aos="fade-down" 
+   857→                          class="inline-block px-4 py-2 mb-4 text-sm font-medium text-pink-400 bg-pink-500/10 rounded-full border border-pink-500/20">
+   858→                        Let's Connect
+   859→                    </span>
+   860→                    <h2 data-aos="fade-up" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+   861→                        Find Me <span class="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">Online</span>
+   862→                    </h2>
+   863→                    <p data-aos="fade-up" data-aos-delay="100" 
+   864→                       class="text-gray-400 text-lg max-w-2xl mx-auto">
+   865→                        Let's build something amazing together! Connect with me on social platforms.
+   866→                    </p>
+   867→                </div>
+   868→
+   869→                <!-- Social Cards Grid -->
+   870→                <div class="grid md:grid-cols-2 gap-8">
+   871→                    
+   872→                    <!-- GitHub Card with Photo -->
+   873→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+   874→                       data-aos="fade-right" data-aos-delay="200"
+   875→                       class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-violet-500/50 transition-all duration-500 card-hover block">
+   876→                        
+   877→                        <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+   878→                            <!-- GitHub Photo/Avatar -->
+   879→                            <div class="relative">
+   880→                                <img src="https://avatars.githubusercontent.com/u/your-github-id?v=4" 
+   881→                                     alt="Atul's GitHub Avatar"
+   882→                                     class="social-photo github-photo group-hover:scale-110 transition-transform duration-300"
+   883→                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%238b5cf6%22 width=%22100%22 height=%22100%22 rx=%2250%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>'">
+   884→                                
+   885→                                <!-- Online indicator -->
+   886→                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black"></span>
+   887→                            </div>
+   888→
+   889→                            <!-- Info -->
+   890→                            <div class="space-y-2">
+   891→                                <div class="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 inline-block group-hover:scale-110 transition-transform">
+   892→                                    <i data-lucide="github" class="w-8 h-8 text-white"></i>
+   893→                                </div>
+   894→                                <h3 class="text-2xl font-bold text-white group-hover:gradient-text transition-all">GitHub</h3>
+   895→                                <p class="text-gray-400">@atulchoudhary7781-dot</p>
+   896→                                <p class="text-sm text-violet-400">Check out my code & projects</p>
+   897→                            </div>
+   898→
+   899→                            <!-- Stats -->
+   900→                            <div class="flex gap-6 text-center">
+   901→                                <div>
+   902→                                    <div class="text-2xl font-bold text-white">10+</div>
+   903→                                    <div class="text-xs text-gray-500">Repositories</div>
+   904→                                </div>
+   905→                                <div>
+   906→                                    <div class="text-2xl font-bold text-white">∞</div>
+   907→                                    <div class="text-xs text-gray-500">Commits</div>
+   908→                                </div>
+   909→                            </div>
+   910→
+   911→                            <!-- CTA -->
+   912→                            <div class="pt-4 border-t border-white/10 w-full">
+   913→                                <span class="inline-flex items-center gap-2 text-violet-400 font-medium group-hover:text-violet-300 transition-colors">
+   914→                                    View Profile on GitHub
+   915→                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+   916→                                </span>
+   917→                            </div>
+   918→                        </div>
+   919→
+   920→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-blue-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   921→                    </a>
+   922→
+   923→                    <!-- LinkedIn Card with Photo -->
+   924→                    <a href="https://www.linkedin.com/in/atul-choudhary-018037301/" target="_blank" 
+   925→                       data-aos="fade-left" data-aos-delay="300"
+   926→                       class="group relative p-8 rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm overflow-hidden hover:border-blue-500/50 transition-all duration-500 card-hover block">
+   927→                        
+   928→                        <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+   929→                            <!-- LinkedIn Photo/Avatar -->
+   930→                            <div class="relative">
+   931→                                <img src="https://media.licdn.com/dms/image/v2/D4D03AQE-xxx/photo-shrink_800_800/0/xxx/profile-displayphoto-image.jpg" 
+   932→                                     alt="Atul's LinkedIn Photo"
+   933→                                     class="social-photo linkedin-photo group-hover:scale-110 transition-transform duration-300"
+   934→                                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233b82f6%22 width=%22100%22 height=%22100%22 rx=%2250%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>'">
+   935→                                
+   936→                                <!-- Online indicator -->
+   937→                                <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-black"></span>
+   938→                            </div>
+   939→
+   940→                            <!-- Info -->
+   941→                            <div class="space-y-2">
+   942→                                <div class="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 inline-block group-hover:scale-110 transition-transform">
+   943→                                    <i data-lucide="linkedin" class="w-8 h-8 text-white"></i>
+   944→                                </div>
+   945→                                <h3 class="text-2xl font-bold text-white group-hover:text-blue-400 transition-all">LinkedIn</h3>
+   946→                                <p class="text-gray-400">Atul</p>
+   947→                                <p class="text-sm text-blue-400">Let's connect professionally</p>
+   948→                            </div>
+   949→
+   950→                            <!-- Stats -->
+   951→                            <div class="flex gap-6 text-center">
+   952→                                <div>
+   953→                                    <div class="text-2xl font-bold text-white">500+</div>
+   954→                                    <div class="text-xs text-gray-500">Connections</div>
+   955→                                </div>
+   956→                                <div>
+   957→                                    <div class="text-2xl font-bold text-white">∞</div>
+   958→                                    <div class="text-xs text-gray-500">Opportunities</div>
+   959→                                </div>
+   960→                            </div>
+   961→
+   962→                            <!-- CTA -->
+   963→                            <div class="pt-4 border-t border-white/10 w-full">
+   964→                                <span class="inline-flex items-center gap-2 text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+   965→                                    View Profile on LinkedIn
+   966→                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+   967→                                </span>
+   968→                            </div>
+   969→                        </div>
+   970→
+   971→                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+   972→                    </a>
+   973→                </div>
+   974→
+   975→                <!-- Email CTA -->
+   976→                <div data-aos="fade-up" data-aos-delay="400" class="text-center mt-12">
+   977→                    <a href="mailto:atulchoudhary7781@gmail.com" 
+   978→                       class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-pink-600 to-violet-600 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-pink-500/25 transition-all btn-shine">
+   979→                        <i data-lucide="mail" class="w-5 h-5"></i>
+   980→                        Email Me Directly
+   981→                        <span class="text-sm opacity-75">atulchoudhary7781@gmail.com</span>
+   982→                    </a>
+   983→                </div>
+   984→            </div>
+   985→        </section>
+   986→    </main>
+   987→
+   988→    <!-- Footer -->
+   989→    <footer class="relative py-12 border-t border-white/10">
+   990→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   991→            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+   992→                <!-- Logo & Copyright -->
+   993→                <div class="flex items-center gap-3">
+   994→                    <i data-lucide="sparkles" class="w-6 h-6 text-violet-400"></i>
+   995→                    <span class="text-lg font-bold gradient-text">Atul</span>
+   996→                    <span class="text-gray-500">|</span>
+   997→                    <span class="text-gray-500 text-sm" id="copyrightYear">© 2024 All rights reserved.</span>
+   998→                </div>
+   999→
+  1000→                <!-- Social Links -->
+  1001→                <div class="flex items-center gap-4">
+  1002→                    <a href="https://github.com/atulchoudhary7781-dot/my-portfolio" target="_blank" 
+  1003→                       class="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all hover:scale-110">
+  1004→                        <i data-lucide="github" class="w-5 h-5"></i>
+  1005→                    </a>
+  1006→                    <a href="https://www.linkedin.com/in/atul-choudhary-018037301/" target="_blank" 
+  1007→                       class="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all hover:scale-110">
+  1008→                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+  1009→                    </a>
+  1010→                    <a href="mailto:atulchoudhary7781@gmail.com" 
+  1011→                       class="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all hover:scale-110">
+  1012→                        <i data-lucide="mail" class="w-5 h-5"></i>
+  1013→                    </a>
+  1014→                </div>
+  1015→
+  1016→                <!-- Made with love -->
+  1017→                <div class="flex items-center gap-2 text-gray-500 text-sm">
+  1018→                    <span>Made with</span>
+  1019→                    <i data-lucide="heart" class="w-4 h-4 text-red-500 fill-red-500 heartbeat"></i>
+  1020→                    <span>by Atul</span>
+  1021→                </div>
+  1022→            </div>
+  1023→        </div>
+  1024→    </footer>
+  1025→
+  1026→    <script>
+  1027→        // Initialize Lucide icons
+  1028→        lucide.createIcons();
+  1029→        
+  1030→        // Initialize AOS animations
+  1031→        AOS.init({
+  1032→            duration: 800,
+  1033→            easing: 'ease-out-cubic',
+  1034→            once: true,
+  1035→            offset: 50
+  1036→        });
+  1037→        
+  1038→        // Mouse gradient follower
+  1039→        const mouseGradient = document.getElementById('mouseGradient');
+  1040→        document.addEventListener('mousemove', (e) => {
+  1041→            mouseGradient.style.transform = `translate(${e.clientX - 300}px, ${e.clientY - 300}px)`;
+  1042→        });
+  1043→        
+  1044→        // Create particles
+  1045→        const particlesContainer = document.getElementById('particles');
+  1046→        for (let i = 0; i < 50; i++) {
+  1047→            const particle = document.createElement('div');
+  1048→            particle.className = 'particle';
+  1049→            particle.style.left = Math.random() * 100 + '%';
+  1050→            particle.style.top = Math.random() * 100 + '%';
+  1051→            particle.style.animationDelay = Math.random() * 5 + 's';
+  1052→            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+  1053→            particlesContainer.appendChild(particle);
+  1054→        }
+  1055→        
+  1056→        // Navbar scroll effect
+  1057→        const navbar = document.getElementById('navbar');
+  1058→        window.addEventListener('scroll', () => {
+  1059→            if (window.scrollY > 50) {
+  1060→                navbar.classList.add('bg-black/80', 'backdrop-blur-xl', 'border-b', 'border-white/10', 'shadow-2xl');
+  1061→                navbar.classList.remove('bg-transparent');
+  1062→            } else {
+  1063→                navbar.classList.remove('bg-black/80', 'backdrop-blur-xl', 'border-b', 'border-white/10', 'shadow-2xl');
+  1064→                navbar.classList.add('bg-transparent');
+  1065→            }
+  1066→            
+  1067→            // Update active nav link
+  1068→            const sections = ['home', 'about', 'projects', 'skills'];
+  1069→            const navLinks = document.querySelectorAll('.nav-link');
+  1070→            
+  1071→            let currentSection = '';
+  1072→            sections.forEach(section => {
+  1073→                const element = document.getElementById(section);
+  1074→                if (element && element.getBoundingClientRect().top <= 150) {
+  1075→                    currentSection = section;
+  1076→                }
+  1077→            });
+  1078→            
+  1079→            navLinks.forEach(link => {
+  1080→                link.classList.remove('active', 'text-white');
+  1081→                if (link.getAttribute('href') === `#${currentSection}`) {
+  1082→                    link.classList.add('active', 'text-white');
+  1083→                } else {
+  1084→                    link.classList.add('text-gray-400');
+  1085→                }
+  1086→            });
+  1087→        });
+  1088→        
+  1089→        // Mobile menu toggle
+  1090→        const menuBtn = document.getElementById('menuBtn');
+  1091→        const mobileMenu = document.getElementById('mobileMenu');
+  1092→        const menuIcon = menuBtn.querySelector('.menu-icon');
+  1093→        const closeIcon = menuBtn.querySelector('.close-icon');
+  1094→        
+  1095→        menuBtn.addEventListener('click', () => {
+  1096→            mobileMenu.classList.toggle('hidden');
+  1097→            menuIcon.classList.toggle('hidden');
+  1098→            closeIcon.classList.toggle('hidden');
+  1099→        });
+  1100→        
+  1101→        // Close mobile menu on link click
+  1102→        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  1103→        mobileNavLinks.forEach(link => {
+  1104→            link.addEventListener('click', () => {
+  1105→                mobileMenu.classList.add('hidden');
+  1106→                menuIcon.classList.remove('hidden');
+  1107→                closeIcon.classList.add('hidden');
+  1108→            });
+  1109→        });
+  1110→        
+  1111→        // Skill bar animation on scroll
+  1112→        const skillBars = document.querySelectorAll('.skill-bar');
+  1113→        const observerOptions = {
+  1114→            threshold: 0.5
+  1115→        };
+  1116→        
+  1117→        const skillObserver = new IntersectionObserver((entries) => {
+  1118→            entries.forEach(entry => {
+  1119→                if (entry.isIntersecting) {
+  1120→                    entry.target.style.width = entry.target.style.width;
+  1121→                }
+  1122→            });
+  1123→        }, observerOptions);
+  1124→        
+  1125→        skillBars.forEach(bar => {
+  1126→            const width = bar.style.width;
+  1127→            bar.style.width = '0';
+  1128→            setTimeout(() => {
+  1129→                bar.style.width = width;
+  1130→            }, 500);
+  1131→            skillObserver.observe(bar);
+  1132→        });
+  1133→        
+  1134→        // Update copyright year
+  1135→        document.getElementById('copyrightYear').textContent = `© ${new Date().getFullYear()} All rights reserved.`;
+  1136→        
+  1137→        // Smooth scroll for anchor links
+  1138→        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  1139→            anchor.addEventListener('click', function(e) {
+  1140→                e.preventDefault();
+  1141→                const targetId = this.getAttribute('href');
+  1142→                const targetElement = document.querySelector(targetId);
+  1143→                if (targetElement) {
+  1144→                    targetElement.scrollIntoView({
+  1145→                        behavior: 'smooth',
+  1146→                        block: 'start'
+  1147→                    });
+  1148→                }
+  1149→            });
+  1150→        });
+  1151→    </script>
+  1152→</body>
+  1153→</html>
+  1154→

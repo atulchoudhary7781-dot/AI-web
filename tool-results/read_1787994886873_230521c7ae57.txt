@@ -1,0 +1,736 @@
+     1→'use client'
+     2→
+     3→import { useState, useRef, useEffect } from 'react'
+     4→import { 
+     5→  Search, Image, Mic, Code2, FileText, Languages, 
+     6→  X, Send, Loader2, Copy, Check, Download,
+     7→  Play, Square, Volume2, VolumeX, Upload,
+     8→  ExternalLink, ChevronDown, ChevronUp, Sparkles
+     9→} from 'lucide-react'
+    10→import { Button } from '@/components/ui/button'
+    11→
+    12→interface ToolsPanelProps {
+    13→  isOpen: boolean
+    14→  onClose: () => void
+    15→  onInsertToChat: (text: string) => void
+    16→}
+    17→
+    18→type ToolType = 'web-search' | 'image-gen' | 'voice-chat' | 'code-executor' | 'file-analyzer' | 'translator' | null
+    19→
+    20→export default function ToolsPanel({ isOpen, onClose, onInsertToChat }: ToolsPanelProps) {
+    21→  const [activeTool, setActiveTool] = useState<ToolType>(null)
+    22→  
+    23→  // Tool states
+    24→  const [searchQuery, setSearchQuery] = useState('')
+    25→  const [searchResults, setSearchResults] = useState<any[]>([])
+    26→  const [isSearching, setIsSearching] = useState(false)
+    27→  
+    28→  const [imagePrompt, setImagePrompt] = useState('')
+    29→  const [imageSize, setImageSize] = useState('1024x1024')
+    30→  const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+    31→  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+    32→  
+    33→  const [voiceText, setVoiceText] = useState('')
+    34→  const [isRecording, setIsRecording] = useState(false)
+    35→  const [isSpeaking, setIsSpeaking] = useState(false)
+    36→  const [selectedVoice, setSelectedVoice] = useState('alloy')
+    37→  
+    38→  const [code, setCode] = useState('')
+    39→  const [codeLanguage, setCodeLanguage] = useState('javascript')
+    40→  const [codeOutput, setCodeOutput] = useState<string>('')
+    41→  const [codeError, setCodeError] = useState<string>('')
+    42→  const [isRunningCode, setIsRunningCode] = useState(false)
+    43→  
+    44→  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    45→  const [analysisResult, setAnalysisResult] = useState<any>(null)
+    46→  const [isAnalyzing, setIsAnalyzing] = useState(false)
+    47→  
+    48→  const [translateText, setTranslateText] = useState('')
+    49→  const [sourceLang, setSourceLang] = useState('auto')
+    50→  const [targetLang, setTargetLang] = useState('hi')
+    51→  const [translatedText, setTranslatedText] = useState<string>('')
+    52→  const [isTranslating, setIsTranslating] = useState(false)
+    53→
+    54→  const fileInputRef = useRef<HTMLInputElement>(null)
+    55→  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+    56→
+    57→  // Reset states when tool changes
+    58→  useEffect(() => {
+    59→    setActiveTool(null)
+    60→    setSearchResults([])
+    61→    setGeneratedImage(null)
+    62→    setCodeOutput('')
+    63→    setCodeError('')
+    64→    setAnalysisResult(null)
+    65→    setTranslatedText('')
+    66→  }, [])
+    67→
+    68→  if (!isOpen) return null
+    69→
+    70→  // Tool handlers
+    71→  const handleWebSearch = async () => {
+    72→    if (!searchQuery.trim()) return
+    73→    
+    74→    setIsSearching(true)
+    75→    try {
+    76→      const response = await fetch('/api/tools/web-search', {
+    77→        method: 'POST',
+    78→        headers: { 'Content-Type': 'application/json' },
+    79→        body: JSON.stringify({ query: searchQuery, numResults: 5 })
+    80→      })
+    81→      const data = await response.json()
+    82→      
+    83→      if (data.success) {
+    84→        setSearchResults(data.results)
+    85→      }
+    86→    } catch (error) {
+    87→      console.error('Search error:', error)
+    88→    }
+    89→    setIsSearching(false)
+    90→  }
+    91→
+    92→  const handleGenerateImage = async () => {
+    93→    if (!imagePrompt.trim()) return
+    94→    
+    95→    setIsGeneratingImage(true)
+    96→    try {
+    97→      const response = await fetch('/api/tools/generate-image', {
+    98→        method: 'POST',
+    99→        headers: { 'Content-Type': 'application/json' },
+   100→        body: JSON.stringify({ prompt: imagePrompt, size: imageSize })
+   101→      })
+   102→      const data = await response.json()
+   103→      
+   104→      if (data.success && data.image) {
+   105→        setGeneratedImage(data.image.base64 || data.image.url)
+   106→      }
+   107→    } catch (error) {
+   108→      console.error('Image generation error:', error)
+   109→    }
+   110→    setIsGeneratingImage(false)
+   111→  }
+   112→
+   113→  const toggleRecording = async () => {
+   114→    if (!isRecording) {
+   115→      try {
+   116→        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+   117→        mediaRecorderRef.current = new MediaRecorder(stream)
+   118→        const chunks: Blob[] = []
+   119→        
+   120→        mediaRecorderRef.current.ondataavailable = (e) => chunks.push(e.data)
+   121→        mediaRecorderRef.current.onstop = async () => {
+   122→          const blob = new Blob(chunks, { type: 'audio/webm' })
+   123→          
+   124→          // Send to STT API
+   125→          try {
+   126→            const formData = new FormData()
+   127→            formData.append('audioData', blob)
+   128→            
+   129→            const response = await fetch('/api/tools/voice-chat', {
+   130→              method: 'POST',
+   131→              body: JSON.stringify({ action: 'stt', audioData: await blob.arrayBuffer() }),
+   132→              headers: { 'Content-Type': 'application/json' }
+   133→            })
+   134→            const data = await response.json()
+   135→            
+   136→            if (data.success && data.text) {
+   137→              setVoiceText(prev => prev + (prev ? ' ' : '') + data.text.replace(/\[.*?\]/g, '').trim())
+   138→            }
+   139→          } catch (error) {
+   140→            console.error('STT error:', error)
+   141→          }
+   142→          
+   143→          stream.getTracks().forEach(track => track.stop())
+   144→        }
+   145→        
+   146→        mediaRecorderRef.current.start()
+   147→        setIsRecording(true)
+   148→      } catch (error) {
+   149→        console.error('Microphone access denied:', error)
+   150→        alert('Microphone access is required for voice input.')
+   151→      }
+   152→    } else {
+   153→      mediaRecorderRef.current?.stop()
+   154→      setIsRecording(false)
+   155→    }
+   156→  }
+   157→
+   158→  const handleSpeak = async () => {
+   159→    if (!voiceText.trim() || isSpeaking) return
+   160→    
+   161→    setIsSpeaking(true)
+   162→    try {
+   163→      const response = await fetch('/api/tools/voice-chat', {
+   164→        method: 'POST',
+   165→        headers: { 'Content-Type': 'application/json' },
+   166→        body: JSON.stringify({ action: 'tts', text: voiceText, voice: selectedVoice })
+   167→      })
+   168→      const data = await response.json()
+   169→      
+   170→      if (data.success && data.audioUrl) {
+   171→        // Play audio
+   172→        const audio = new Audio(data.audioUrl)
+   173→        audio.onended = () => setIsSpeaking(false)
+   174→        audio.play()
+   175→      } else {
+   176→        setTimeout(() => setIsSpeaking(false), 2000)
+   177→      }
+   178→    } catch (error) {
+   179→      console.error('TTS error:', error)
+   180→      setIsSpeaking(false)
+   181→    }
+   182→  }
+   183→
+   184→  const handleRunCode = async () => {
+   185→    if (!code.trim()) return
+   186→    
+   187→    setIsRunningCode(true)
+   188→    setCodeOutput('')
+   189→    setCodeError('')
+   190→    
+   191→    try {
+   192→      const response = await fetch('/api/tools/run-code', {
+   193→        method: 'POST',
+   194→        headers: { 'Content-Type': 'application/json' },
+   195→        body: JSON.stringify({ code, language: codeLanguage })
+   196→      })
+   197→      const data = await response.json()
+   198→      
+   199→      if (data.success) {
+   200→        setCodeOutput(data.output || '')
+   201→        setCodeError(data.error || '')
+   202→      } else {
+   203→        setCodeError(data.error || 'Execution failed')
+   204→      }
+   205→    } catch (error) {
+   206→      setCodeError('Failed to execute code')
+   207→    }
+   208→    
+   209→    setIsRunningCode(false)
+   210→  }
+   211→
+   212→  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+   213→    const file = e.target.files?.[0]
+   214→    if (file) setSelectedFile(file)
+   215→  }
+   216→
+   217→  const handleAnalyzeFile = async () => {
+   218→    if (!selectedFile) return
+   219→    
+   220→    setIsAnalyzing(true)
+   221→    try {
+   222→      const formData = new FormData()
+   223→      formData.append('file', selectedFile)
+   224→      formData.append('analysisType', 'summary')
+   225→      
+   226→      const response = await fetch('/api/tools/analyze-file', {
+   227→        method: 'POST',
+   228→        body: formData
+   229→      })
+   230→      const data = await response.json()
+   231→      
+   232→      if (data.success) {
+   233→        setAnalysisResult(data.analysis)
+   234→      }
+   235→    } catch (error) {
+   236→      console.error('Analysis error:', error)
+   237→    }
+   238→    setIsAnalyzing(false)
+   239→  }
+   240→
+   241→  const handleTranslate = async () => {
+   242→    if (!translateText.trim()) return
+   243→    
+   244→    setIsTranslating(true)
+   245→    try {
+   246→      const response = await fetch('/api/tools/translate', {
+   247→        method: 'POST',
+   248→        headers: { 'Content-Type': 'application/json' },
+   249→        body: JSON.stringify({ text: translateText, sourceLang, targetLang })
+   250→      })
+   251→      const data = await response.json()
+   252→      
+   253→      if (data.success) {
+   254→        setTranslatedText(data.translatedText)
+   255→      }
+   256→    } catch (error) {
+   257→      console.error('Translation error:', error)
+   258→    }
+   259→    setIsTranslating(false)
+   260→  }
+   261→
+   262→  const tools = [
+   263→    { id: 'web-search', icon: Search, label: 'Web Search', color: 'from-blue-500 to-cyan-500', description: 'Search the internet' },
+   264→    { id: 'image-gen', icon: Image, label: 'AI Images', color: 'from-purple-500 to-pink-500', description: 'Generate images' },
+   265→    { id: 'voice-chat', icon: Mic, label: 'Voice Chat', color: 'from-green-500 to-emerald-500', description: 'Speak & listen' },
+   266→    { id: 'code-executor', icon: Code2, label: 'Code Runner', color: 'from-orange-500 to-yellow-500', description: 'Execute code' },
+   267→    { id: 'file-analyzer', icon: FileText, label: 'File Analyzer', color: 'from-red-500 to-rose-500', description: 'Analyze files' },
+   268→    { id: 'translator', icon: Languages, label: 'Translator', color: 'from-indigo-500 to-violet-500', description: 'Translate text' }
+   269→  ]
+   270→
+   271→  return (
+   272→    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+   273→      <div className="bg-gray-900 border border-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+   274→        {/* Header */}
+   275→        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900/95">
+   276→          <div className="flex items-center gap-3">
+   277→            <Sparkles className="w-5 h-5 text-cyan-400" />
+   278→            <h2 className="text-lg font-semibold text-white">AI Tools</h2>
+   279→          </div>
+   280→          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-800 transition-colors">
+   281→            <X className="w-5 h-5 text-gray-400" />
+   282→          </button>
+   283→        </div>
+   284→
+   285→        {!activeTool ? (
+   286→          /* Tool Selection Grid */
+   287→          <div className="p-4 overflow-y-auto">
+   288→            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+   289→              {tools.map((tool) => (
+   290→                <button
+   291→                  key={tool.id}
+   292→                  onClick={() => setActiveTool(tool.id as ToolType)}
+   293→                  className="group p-4 rounded-xl bg-gray-800/50 hover:bg-gray-800 border border-gray-700/50 hover:border-cyan-500/30 transition-all duration-200 text-left"
+   294→                >
+   295→                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${tool.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+   296→                    <tool.icon className="w-5 h-5 text-white" />
+   297→                  </div>
+   298→                  <h3 className="text-sm font-semibold text-white mb-1">{tool.label}</h3>
+   299→                  <p className="text-xs text-gray-400">{tool.description}</p>
+   300→                </button>
+   301→              ))}
+   302→            </div>
+   303→          </div>
+   304→        ) : (
+   305→          /* Active Tool Panel */
+   306→          <div className="flex-1 overflow-y-auto">
+   307→            {/* Back Button */}
+   308→            <button
+   309→              onClick={() => setActiveTool(null)}
+   310→              className="mx-4 mt-3 mb-2 flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+   311→            >
+   312→              ← Back to tools
+   313→            </button>
+   314→
+   315→            {/* Web Search */}
+   316→            {activeTool === 'web-search' && (
+   317→              <div className="px-4 pb-4 space-y-4">
+   318→                <div className="relative">
+   319→                  <input
+   320→                    type="text"
+   321→                    value={searchQuery}
+   322→                    onChange={(e) => setSearchQuery(e.target.value)}
+   323→                    onKeyDown={(e) => e.key === 'Enter' && handleWebSearch()}
+   324→                    placeholder="Search the web..."
+   325→                    className="w-full px-4 py-3 pl-11 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20 outline-none"
+   326→                  />
+   327→                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+   328→                  <Button
+   329→                    onClick={handleWebSearch}
+   330→                    disabled={isSearching || !searchQuery.trim()}
+   331→                    size="sm"
+   332→                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400"
+   333→                  >
+   334→                    {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
+   335→                  </Button>
+   336→                </div>
+   337→
+   338→                {searchResults.length > 0 && (
+   339→                  <div className="space-y-2">
+   340→                    <p className="text-sm text-gray-400">{searchResults.length} results found</p>
+   341→                    {searchResults.map((result, i) => (
+   342→                      <a
+   343→                        key={i}
+   344→                        href={result.url}
+   345→                        target="_blank"
+   346→                        rel="noopener noreferrer"
+   347→                        className="block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 border border-gray-700/50 hover:border-cyan-500/30 transition-all group"
+   348→                      >
+   349→                        <div className="flex items-start justify-between gap-2">
+   350→                          <div className="flex-1 min-w-0">
+   351→                            <h4 className="text-sm font-medium text-white group-hover:text-cyan-400 truncate">{result.title}</h4>
+   352→                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{result.snippet}</p>
+   353→                            <span className="text-xs text-cyan-500/70 mt-1 inline-block">{result.source}</span>
+   354→                          </div>
+   355→                          <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-cyan-400 flex-shrink-0 mt-1" />
+   356→                        </div>
+   357→                      </a>
+   358→                    ))}
+   359→                  </div>
+   360→                )}
+   361→              </div>
+   362→            )}
+   363→
+   364→            {/* Image Generation */}
+   365→            {activeTool === 'image-gen' && (
+   366→              <div className="px-4 pb-4 space-y-4">
+   367→                <textarea
+   368→                  value={imagePrompt}
+   369→                  onChange={(e) => setImagePrompt(e.target.value)}
+   370→                  placeholder="Describe the image you want to generate..."
+   371→                  rows={3}
+   372→                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 outline-none resize-none"
+   373→                />
+   374→                
+   375→                <div className="flex gap-2">
+   376→                  {['512x512', '1024x1024', '1024x1792'].map(size => (
+   377→                    <button
+   378→                      key={size}
+   379→                      onClick={() => setImageSize(size)}
+   380→                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+   381→                        imageSize === size
+   382→                          ? 'bg-purple-500 text-white'
+   383→                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+   384→                      }`}
+   385→                    >
+   386→                      {size.split('x')[0]}
+   387→                    </button>
+   388→                  ))}
+   389→                </div>
+   390→
+   391→                <Button
+   392→                  onClick={handleGenerateImage}
+   393→                  disabled={isGeneratingImage || !imagePrompt.trim()}
+   394→                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400"
+   395→                >
+   396→                  {isGeneratingImage ? (
+   397→                    <>
+   398→                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   399→                      Generating...
+   400→                    </>
+   401→                  ) : (
+   402→                    <>
+   403→                      <Image className="w-4 h-4 mr-2" />
+   404→                      Generate Image
+   405→                    </>
+   406→                  )}
+   407→                </Button>
+   408→
+   409→                {generatedImage && (
+   410→                  <div className="mt-4">
+   411→                    <img src={generatedImage} alt="Generated" className="w-full rounded-xl" />
+   412→                    <div className="flex gap-2 mt-3">
+   413→                      <Button variant="outline" size="sm" className="flex-1">
+   414→                        <Download className="w-4 h-4 mr-2" /> Download
+   415→                      </Button>
+   416→                      <Button 
+   417→                        size="sm" 
+   418→                        className="flex-1 bg-gradient-to-r from-cyan-500 to-violet-500"
+   419→                        onClick={() => onInsertToChat(`[Generated Image: ${imagePrompt}]`)}
+   420→                      >
+   421→                        <Send className="w-4 h-4 mr-2" /> Insert to Chat
+   422→                      </Button>
+   423→                    </div>
+   424→                  </div>
+   425→                )}
+   426→              </div>
+   427→            )}
+   428→
+   429→            {/* Voice Chat */}
+   430→            {activeTool === 'voice-chat' && (
+   431→              <div className="px-4 pb-4 space-y-4">
+   432→                <textarea
+   433→                  value={voiceText}
+   434→                  onChange={(e) => setVoiceText(e.target.value)}
+   435→                  placeholder="Type or speak your message..."
+   436→                  rows={3}
+   437→                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 outline-none resize-none"
+   438→                />
+   439→
+   440→                <div className="flex gap-2">
+   441→                  <Button
+   442→                    onClick={toggleRecording}
+   443→                    variant={isRecording ? "destructive" : "outline"}
+   444→                    className={`flex-1 ${isRecording ? 'animate-pulse' : ''}`}
+   445→                  >
+   446→                    {isRecording ? (
+   447→                      <>
+   448→                        <Square className="w-4 h-4 mr-2" /> Stop Recording
+   449→                      </>
+   450→                    ) : (
+   451→                      <>
+   452→                        <Mic className="w-4 h-4 mr-2" /> Start Speaking
+   453→                      </>
+   454→                    )}
+   455→                  </Button>
+   456→                  
+   457→                  <Button
+   458→                    onClick={handleSpeak}
+   459→                    disabled={!voiceText.trim() || isSpeaking}
+   460→                    variant="outline"
+   461→                    className="flex-1"
+   462→                  >
+   463→                    {isSpeaking ? (
+   464→                      <>
+   465→                        <VolumeX className="w-4 h-4 mr-2" /> Stop
+   466→                      </>
+   467→                    ) : (
+   468→                      <>
+   469→                        <Volume2 className="w-4 h-4 mr-2" /> Speak Aloud
+   470→                      </>
+   471→                    )}
+   472→                  </Button>
+   473→                </div>
+   474→
+   475→                <div className="p-3 rounded-lg bg-gray-800/50 border border-gray-700/50">
+   476→                  <label className="text-xs text-gray-400 block mb-2">Select Voice:</label>
+   477→                  <select
+   478→                    value={selectedVoice}
+   479→                    onChange={(e) => setSelectedVoice(e.target.value)}
+   480→                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+   481→                  >
+   482→                    <option value="alloy">Alloy (Neutral)</option>
+   483→                    <option value="echo">Echo (Male)</option>
+   484→                    <option value="fable">Fable (Warm)</option>
+   485→                    <option value="nova">Nova (Female)</option>
+   486→                    <option value="shimmer">Shimmer (Soft)</option>
+   487→                  </select>
+   488→                </div>
+   489→
+   490→                <Button 
+   491→                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+   492→                  onClick={() => onInsertToChat(voiceText)}
+   493→                  disabled={!voiceText.trim()}
+   494→                >
+   495→                  <Send className="w-4 h-4 mr-2" /> Send to Chat
+   496→                </Button>
+   497→              </div>
+   498→            )}
+   499→
+   500→            {/* Code Executor */}
+   501→            {activeTool === 'code-executor' && (
+   502→              <div className="px-4 pb-4 space-y-4">
+   503→                <div className="flex gap-2">
+   504→                  {['javascript', 'python', 'html', 'json'].map(lang => (
+   505→                    <button
+   506→                      key={lang}
+   507→                      onClick={() => setCodeLanguage(lang)}
+   508→                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+   509→                        codeLanguage === lang
+   510→                          ? 'bg-orange-500 text-white'
+   511→                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+   512→                      }`}
+   513→                    >
+   514→                      {lang.toUpperCase().slice(0, 3)}
+   515→                    </button>
+   516→                  ))}
+   517→                </div>
+   518→
+   519→                <textarea
+   520→                  value={code}
+   521→                  onChange={(e) => setCode(e.target.value)}
+   522→                  placeholder={`// Write your ${codeLanguage} code here...\nconsole.log("Hello, World!");`}
+   523→                  rows={8}
+   524→                  className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-green-400 placeholder:text-gray-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none resize-none font-mono text-sm"
+   525→                />
+   526→
+   527→                <Button
+   528→                  onClick={handleRunCode}
+   529→                  disabled={isRunningCode || !code.trim()}
+   530→                  className="w-full bg-gradient-to-r from-orange-500 to-yellow-500"
+   531→                >
+   532→                  {isRunningCode ? (
+   533→                    <>
+   534→                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   535→                      Running...
+   536→                    </>
+   537→                  ) : (
+   538→                    <>
+   539→                      <Play className="w-4 h-4 mr-2" /> Run Code
+   540→                    </>
+   541→                  )}
+   542→                </Button>
+   543→
+   544→                {(codeOutput || codeError) && (
+   545→                  <div className={`rounded-lg p-3 ${codeError ? 'bg-red-500/10 border border-red-500/30' : 'bg-gray-800/50 border border-gray-700/50'}`}>
+   546→                    <div className="flex items-center justify-between mb-2">
+   547→                      <span className={`text-xs font-medium ${codeError ? 'text-red-400' : 'text-green-400'}`}>
+   548→                        {codeError ? '⚠ Error' : '✓ Output'}
+   549→                      </span>
+   550→                      <Copy className="w-4 h-4 text-gray-400 cursor-pointer hover:text-white" />
+   551→                    </div>
+   552→                    <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono max-h-40 overflow-auto">
+   553→                      {codeError || codeOutput}
+   554→                    </pre>
+   555→                  </div>
+   556→                )}
+   557→              </div>
+   558→            )}
+   559→
+   560→            {/* File Analyzer */}
+   561→            {activeTool === 'file-analyzer' && (
+   562→              <div className="px-4 pb-4 space-y-4">
+   563→                <div
+   564→                  onClick={() => fileInputRef.current?.click()}
+   565→                  className="border-2 border-dashed border-gray-700 hover:border-red-500/50 rounded-xl p-8 text-center cursor-pointer transition-colors"
+   566→                >
+   567→                  <Upload className="w-10 h-10 mx-auto mb-3 text-gray-500" />
+   568→                  <p className="text-sm text-gray-400">Click to upload or drag & drop</p>
+   569→                  <p className="text-xs text-gray-500 mt-1">PDF, Excel, Word, Text, Code, Images (max 10MB)</p>
+   570→                  <input
+   571→                    ref={fileInputRef}
+   572→                    type="file"
+   573→                    onChange={handleFileSelect}
+   574→                    accept=".pdf,.xlsx,.xls,.doc,.docx,.txt,.md,.json,.xml,.js,.ts,.py,.png,.jpg,.jpeg,.gif,.csv"
+   575→                    className="hidden"
+   576→                  />
+   577→                </div>
+   578→
+   579→                {selectedFile && (
+   580→                  <div className="p-3 rounded-lg bg-gray-800/50 border border-gray-700/50">
+   581→                    <div className="flex items-center justify-between">
+   582→                      <div className="flex items-center gap-2">
+   583→                        <FileText className="w-5 h-5 text-red-400" />
+   584→                        <span className="text-sm text-white">{selectedFile.name}</span>
+   585→                        <span className="text-xs text-gray-500">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
+   586→                      </div>
+   587→                      <button onClick={() => setSelectedFile(null)} className="text-gray-400 hover:text-red-400">
+   588→                        <X className="w-4 h-4" />
+   589→                      </button>
+   590→                    </div>
+   591→                    
+   592→                    <Button
+   593→                      onClick={handleAnalyzeFile}
+   594→                      disabled={isAnalyzing}
+   595→                      className="w-full mt-3 bg-gradient-to-r from-red-500 to-rose-500"
+   596→                    >
+   597→                      {isAnalyzing ? (
+   598→                        <>
+   599→                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   600→                          Analyzing...
+   601→                        </>
+   602→                      ) : (
+   603→                        <>
+   604→                          <Search className="w-4 h-4 mr-2" /> Analyze File
+   605→                        </>
+   606→                      )}
+   607→                    </Button>
+   608→                  </div>
+   609→                )}
+   610→
+   611→                {analysisResult && (
+   612→                  <div className="rounded-lg bg-gray-800/50 border border-gray-700/50 p-4 space-y-3">
+   613→                    <h4 className="font-medium text-white">{analysisResult.type}</h4>
+   614→                    <p className="text-sm text-gray-300">{analysisResult.summary}</p>
+   615→                    
+   616→                    {analysisResult.details && (
+   617→                      <div className="text-xs text-gray-400 space-y-1">
+   618→                        {Object.entries(analysisResult.details).map(([key, val]) => (
+   619→                          <div key={key} className="flex justify-between">
+   620→                            <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>
+   621→                            <span>{typeof val === 'object' ? JSON.stringify(val) : String(val)}</span>
+   622→                          </div>
+   623→                        ))}
+   624→                      </div>
+   625→                    )}
+   626→
+   627→                    {analysisResult.suggestions && (
+   628→                      <div className="pt-2 border-t border-gray-700">
+   629→                        <p className="text-xs text-gray-400 mb-2">Suggestions:</p>
+   630→                        <ul className="list-disc list-inside text-xs text-cyan-400 space-y-1">
+   631→                          {analysisResult.suggestions.map((suggestion: string, i: number) => (
+   632→                            <li key={i}>{suggestion}</li>
+   633→                          ))}
+   634→                        </ul>
+   635→                      </div>
+   636→                    )}
+   637→                  </div>
+   638→                )}
+   639→              </div>
+   640→            )}
+   641→
+   642→            {/* Translator */}
+   643→            {activeTool === 'translator' && (
+   644→              <div className="px-4 pb-4 space-y-4">
+   645→                <div className="grid grid-cols-2 gap-3">
+   646→                  <select
+   647→                    value={sourceLang}
+   648→                    onChange={(e) => setSourceLang(e.target.value)}
+   649→                    className="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+   650→                  >
+   651→                    <option value="auto">Auto Detect</option>
+   652→                    <option value="en">English</option>
+   653→                    <option value="es">Spanish</option>
+   654→                    <option value="fr">French</option>
+   655→                    <option value="de">German</option>
+   656→                    <option value="it">Italian</option>
+   657→                    <option value="pt">Portuguese</option>
+   658→                    <option value="ru">Russian</option>
+   659→                    <option value="ja">Japanese</option>
+   660→                    <option value="ko">Korean</option>
+   661→                    <option value="zh">Chinese</option>
+   662→                    <option value="ar">Arabic</option>
+   663→                    <option value="hi">Hindi</option>
+   664→                  </select>
+   665→                  
+   666→                  <select
+   667→                    value={targetLang}
+   668→                    onChange={(e) => setTargetLang(e.target.value)}
+   669→                    className="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+   670→                  >
+   671→                    <option value="en">English</option>
+   672→                    <option value="es">Spanish</option>
+   673→                    <option value="fr">French</option>
+   674→                    <option value="de">German</option>
+   675→                    <option value="it">Italian</option>
+   676→                    <option value="pt">Portuguese</option>
+   677→                    <option value="ru">Russian</option>
+   678→                    <option value="ja">Japanese</option>
+   679→                    <option value="ko">Korean</option>
+   680→                    <option value="zh">Chinese</option>
+   681→                    <option value="ar">Arabic</option>
+   682→                    <option value="hi">Hindi</option>
+   683→                  </select>
+   684→                </div>
+   685→
+   686→                <textarea
+   687→                  value={translateText}
+   688→                  onChange={(e) => setTranslateText(e.target.value)}
+   689→                  placeholder="Enter text to translate..."
+   690→                  rows={4}
+   691→                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 outline-none resize-none"
+   692→                />
+   693→
+   694→                <Button
+   695→                  onClick={handleTranslate}
+   696→                  disabled={isTranslating || !translateText.trim()}
+   697→                  className="w-full bg-gradient-to-r from-indigo-500 to-violet-500"
+   698→                >
+   699→                  {isTranslating ? (
+   700→                    <>
+   701→                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   702→                      Translating...
+   703→                    </>
+   704→                  ) : (
+   705→                    <>
+   706→                      <Languages className="w-4 h-4 mr-2" /> Translate
+   707→                    </>
+   708→                  )}
+   709→                </Button>
+   710→
+   711→                {translatedText && (
+   712→                  <div className="rounded-lg bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 p-4">
+   713→                    <div className="flex items-center justify-between mb-2">
+   714→                      <span className="text-xs font-medium text-indigo-400">Translation</span>
+   715→                      <div className="flex gap-2">
+   716→                        <Copy className="w-4 h-4 text-gray-400 cursor-pointer hover:text-white" />
+   717→                        <button 
+   718→                          onClick={() => onInsertToChat(translatedText)}
+   719→                          className="text-xs text-indigo-400 hover:text-indigo-300"
+   720→                        >
+   721→                          Insert
+   722→                        </button>
+   723→                      </div>
+   724→                    </div>
+   725→                    <p className="text-sm text-white">{translatedText}</p>
+   726→                  </div>
+   727→                )}
+   728→              </div>
+   729→            )}
+   730→          </div>
+   731→        )}
+   732→      </div>
+   733→    </div>
+   734→  )
+   735→}
+   736→
