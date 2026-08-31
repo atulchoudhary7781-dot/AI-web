@@ -8,7 +8,7 @@ import {
   Copy, Check, RefreshCw, Maximize2, Minimize2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, NeonCard } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 
@@ -88,7 +88,7 @@ function NeuralNetworkBackground() {
     }
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 10, 0.1)'
+      ctx.fillStyle = 'rgba(10, 10, 15, 0.15)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       // Update and draw nodes
@@ -119,7 +119,7 @@ function NeuralNetworkBackground() {
           if (distance < 150) {
             const opacity = (1 - distance / 150) * 0.3
             ctx.beginPath()
-            ctx.strokeStyle = `rgba(0, 245, 255, ${opacity})`
+            ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`
             ctx.lineWidth = 0.5
             ctx.moveTo(node.x, node.y)
             ctx.lineTo(otherNode.x, otherNode.y)
@@ -133,8 +133,8 @@ function NeuralNetworkBackground() {
           node.x, node.y, 0,
           node.x, node.y, node.radius * 2
         )
-        gradient.addColorStop(0, `rgba(0, 245, 255, ${node.opacity})`)
-        gradient.addColorStop(1, 'rgba(124, 58, 237, 0)')
+        gradient.addColorStop(0, `rgba(0, 255, 255, ${node.opacity})`)
+        gradient.addColorStop(1, 'rgba(139, 92, 246, 0)')
         ctx.fillStyle = gradient
         ctx.arc(node.x, node.y, node.radius * 2, 0, Math.PI * 2)
         ctx.fill()
@@ -156,7 +156,7 @@ function NeuralNetworkBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: '#00000a' }}
+      style={{ background: '#0a0a0f' }}
     />
   )
 }
@@ -180,10 +180,10 @@ function GlitchText({ text, className = '' }: { text: string; className?: string
       </span>
       {glitchActive && (
         <>
-          <span className="absolute top-0 left-0.5 text-[#ff00aa] opacity-80 clip-text-glitch-1" aria-hidden="true">
+          <span className="absolute top-0 left-0.5 text-neon-purple opacity-80" aria-hidden="true">
             {text}
           </span>
-          <span className="absolute top-0 -left-0.5 text-[#00f5ff] opacity-80 clip-text-glitch-2" aria-hidden="true">
+          <span className="absolute top-0 -left-0.5 text-neon-cyan opacity-80" aria-hidden="true">
             {text}
           </span>
         </>
@@ -234,43 +234,37 @@ function AnimatedCounter({ target, suffix = '', duration = 2000 }: { target: num
   return <div ref={ref}>{count.toLocaleString()}{suffix}</div>
 }
 
-// Feature Card Component
+// Feature Card Component with NEXUS AI Theme
 function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
-    <Card 
-      className="group relative bg-black/40 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 overflow-hidden"
+    <NeonCard 
+      glowColor={index % 3 === 0 ? "cyan" : index % 3 === 1 ? "purple" : "blue"}
+      className="group relative overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{
-        transform: isHovered ? 'translateY(-10px) rotateX(5deg)' : 'translateY(0)',
-        transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
-        transformStyle: 'preserve-3d',
-        perspective: '1000px'
-      }}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       <CardContent className="p-6 relative z-10">
         <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 transform transition-transform duration-500 ${isHovered ? 'scale-110 rotate-3' : ''}`}>
           {feature.icon}
         </div>
         
-        <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
+        <h3 className="text-xl font-bold text-white mb-2 font-display">
           {feature.title}
         </h3>
-        <p className="text-gray-400 text-sm leading-relaxed">
+        <p className="text-muted-foreground text-sm leading-relaxed">
           {feature.description}
         </p>
 
-        <div className="mt-4 flex items-center gap-2 text-cyan-400 text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+        <div className="mt-4 flex items-center gap-2 text-neon-cyan text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
           <span>Explore</span>
           <ArrowRight className="w-4 h-4" />
         </div>
       </CardContent>
-    </Card>
+    </NeonCard>
   )
 }
 
@@ -290,43 +284,43 @@ export default function Home() {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const [copiedCode, setCopiedCode] = useState(false)
 
-  // Features data
+  // Features data with NEXUS AI theme gradients
   const features: Feature[] = [
     {
       icon: <Brain className="w-7 h-7 text-white" />,
       title: 'Neural Processing',
       description: 'Advanced deep learning algorithms that understand context, nuance, and intent like never before.',
-      gradient: 'from-violet-600 to-purple-600'
+      gradient: 'from-neon-purple to-purple-600'
     },
     {
       icon: <Code2 className="w-7 h-7 text-white" />,
       title: 'Code Generation',
       description: 'Generate production-ready code in 50+ languages with intelligent auto-completion and optimization.',
-      gradient: 'from-cyan-600 to-blue-600'
+      gradient: 'from-neon-cyan to-electric-blue'
     },
     {
       icon: <MessageSquare className="w-7 h-7 text-white" />,
       title: 'Natural Conversations',
       description: 'Human-like dialogue capabilities with emotional intelligence and contextual awareness.',
-      gradient: 'from-pink-600 to-rose-600'
+      gradient: 'from-pink-500 to-rose-500'
     },
     {
       icon: <Terminal className="w-7 h-7 text-white" />,
       title: 'Command Center',
       description: 'Powerful terminal interface for developers with real-time execution and debugging tools.',
-      gradient: 'from-amber-600 to-orange-600'
+      gradient: 'from-amber-500 to-orange-500'
     },
     {
       icon: <Shield className="w-7 h-7 text-white" />,
       title: 'Quantum Security',
       description: 'Military-grade encryption with quantum-resistant protocols protecting your data.',
-      gradient: 'from-emerald-600 to-green-600'
+      gradient: 'from-emerald-500 to-green-500'
     },
     {
       icon: <Globe className="w-7 h-7 text-white" />,
       title: 'Global Network',
       description: 'Distributed computing across 200+ edge locations for lightning-fast responses worldwide.',
-      gradient: 'from-indigo-600 to-violet-600'
+      gradient: 'from-indigo-500 to-violet-500'
     }
   ]
 
@@ -505,15 +499,13 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
     }
   }, [inputValue, isLoading])
 
-  // Handle key press - FIXED: Enter now sends message instead of scrolling
+  // Handle key press
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // If user presses Enter WITHOUT Shift, send the message
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault() // Prevent new line / scroll
-      e.stopPropagation() // Stop event bubbling
+      e.preventDefault()
+      e.stopPropagation()
       handleSubmit()
     }
-    // If Shift+Enter, allow new line (default behavior)
   }
 
   // Copy code handler
@@ -525,7 +517,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
   // Render markdown-like content
   const renderMessageContent = (content: string) => {
-    // Simple line-by-line parsing approach
     const lines = content.split('\n')
     const elements: React.ReactNode[] = []
     let currentParagraph = ''
@@ -536,7 +527,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
     const flushParagraph = () => {
       if (currentParagraph.trim()) {
         elements.push(
-          <p key={`p-${elements.length}`} className="text-gray-300 my-2 whitespace-pre-wrap">
+          <p key={`p-${elements.length}`} className="text-foreground/90 my-2 whitespace-pre-wrap">
             {formatInlineMarkdown(currentParagraph.trim())}
           </p>
         )
@@ -545,7 +536,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
     }
 
     lines.forEach((line, lineIndex) => {
-      // Check for code block start/end
       if (line.startsWith('```')) {
         if (!inCodeBlock) {
           flushParagraph()
@@ -553,23 +543,22 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           codeLanguage = line.slice(3).trim()
           codeContent = ''
         } else {
-          // End of code block
           elements.push(
             <div key={`code-${elements.length}`} className="my-3 relative group">
-              <div className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg border-b border-gray-700">
-                <span className="text-xs text-gray-400 font-mono">{codeLanguage || 'code'}</span>
+              <div className="flex items-center justify-between bg-dark-surface px-4 py-2 rounded-t-lg border-b border-white/10">
+                <span className="text-xs text-muted-foreground font-mono">{codeLanguage || 'code'}</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => copyToClipboard(codeContent)}
-                  className="h-6 px-2 text-xs text-gray-400 hover:text-white"
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-neon-cyan"
                 >
                   {copiedCode ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
                   {copiedCode ? 'Copied!' : 'Copy'}
                 </Button>
               </div>
-              <pre className="bg-gray-900 p-4 rounded-b-lg overflow-x-auto">
-                <code className="text-sm font-mono text-green-400 whitespace-pre">{codeContent}</code>
+              <pre className="bg-deep-black p-4 rounded-b-lg overflow-x-auto border border-white/5">
+                <code className="text-sm font-mono text-electric-blue whitespace-pre">{codeContent}</code>
               </pre>
             </div>
           )
@@ -580,17 +569,15 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         return
       }
 
-      // If inside code block, accumulate code
       if (inCodeBlock) {
         codeContent += (codeContent ? '\n' : '') + line
         return
       }
 
-      // Handle headings
       if (line.startsWith('## ')) {
         flushParagraph()
         elements.push(
-          <h3 key={`h3-${lineIndex}`} className="text-lg font-bold text-white mt-4 mb-2">
+          <h3 key={`h3-${lineIndex}`} className="text-lg font-bold text-white mt-4 mb-2 font-display">
             {formatInlineMarkdown(line.slice(3))}
           </h3>
         )
@@ -600,36 +587,33 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       if (line.startsWith('### ')) {
         flushParagraph()
         elements.push(
-          <h4 key={`h4-${lineIndex}`} className="text-base font-semibold text-cyan-300 mt-3 mb-1">
+          <h4 key={`h4-${lineIndex}`} className="text-base font-semibold text-neon-cyan mt-3 mb-1">
             {formatInlineMarkdown(line.slice(4))}
           </h4>
         )
         return
       }
 
-      // Handle list items
       if (line.startsWith('- ') || line.startsWith('* ')) {
         flushParagraph()
         elements.push(
-          <li key={`li-${lineIndex}`} className="ml-4 text-gray-300 list-disc">
+          <li key={`li-${lineIndex}`} className="ml-4 text-foreground/80 list-disc">
             {formatInlineMarkdown(line.slice(2))}
           </li>
         )
         return
       }
 
-      // Handle table rows
       if (line.startsWith('|')) {
         flushParagraph()
         elements.push(
-          <div key={`table-${lineIndex}`} className="text-gray-300 font-mono text-sm py-1">
+          <div key={`table-${lineIndex}`} className="text-foreground/70 font-mono text-sm py-1">
             {line}
           </div>
         )
         return
       }
 
-      // Regular paragraph content
       if (line.trim()) {
         currentParagraph += (currentParagraph ? '\n' : '') + line
       } else {
@@ -637,10 +621,9 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       }
     })
 
-    // Flush any remaining paragraph
     flushParagraph()
 
-    return elements.length > 0 ? elements : <p className="text-gray-300">{content}</p>
+    return elements.length > 0 ? elements : <p className="text-foreground/80">{content}</p>
   }
 
   // Format inline markdown (bold, italic)
@@ -649,142 +632,46 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
     
     return parts.map((part, index) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={index} className="text-cyan-400 font-semibold">{part.slice(2, -2)}</strong>
+        return <strong key={index} className="text-neon-cyan font-semibold">{part.slice(2, -2)}</strong>
       }
       return part
     })
   }
 
   return (
-    <div className="min-h-screen bg-[#00000a] text-white overflow-x-hidden relative">
-      {/* Custom CSS for animations */}
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap');
-        
-        :root {
-          --cyan: #00f5ff;
-          --pink: #ff00aa;
-          --gold: #ffd700;
-          --violet: #7c3aed;
-        }
-        
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .font-syne { font-family: 'Syne', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Scanline effect */
-        .scanlines::after {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.15),
-            rgba(0, 0, 0, 0.15) 1px,
-            transparent 1px,
-            transparent 2px
-          );
-          pointer-events: none;
-          z-index: 9999;
-          opacity: 0.3;
-        }
-        
-        /* Glow effects */
-        .glow-cyan {
-          box-shadow: 0 0 20px rgba(0, 245, 255, 0.5),
-                      0 0 40px rgba(0, 245, 255, 0.3),
-                      0 0 60px rgba(0, 245, 255, 0.1);
-        }
-        
-        .glow-text {
-          text-shadow: 0 0 10px rgba(0, 245, 255, 0.8),
-                       0 0 20px rgba(0, 245, 255, 0.5),
-                       0 0 30px rgba(0, 245, 255, 0.3);
-        }
-        
-        /* Glitch effect */
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
-        }
-        
-        .clip-text-glitch-1 {
-          animation: glitch 0.3s infinite;
-          clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-        }
-        
-        .clip-text-glitch-2 {
-          animation: glitch 0.3s infinite reverse;
-          clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-        }
-        
-        /* Marquee animation */
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        
-        /* Pulse ring animation */
-        @keyframes pulse-ring {
-          0% { transform: scale(0.8); opacity: 1; }
-          100% { transform: scale(2); opacity: 0; }
-        }
-        
-        .animate-pulse-ring {
-          animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
-        
-        /* Float animation */
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--pink); }
-      `}</style>
-
+    <div className="min-h-screen bg-deep-black text-white overflow-x-hidden relative">
       {/* Neural Network Background */}
       <NeuralNetworkBackground />
       
-      {/* Scanline Overlay */}
-      <div className="scanlines fixed inset-0 pointer-events-none z-50" />
+      {/* Grid pattern overlay */}
+      <div className="fixed inset-0 bg-grid-pattern opacity-30 pointer-events-none z-[1]" />
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-40 bg-black/60 backdrop-blur-xl border-b border-cyan-500/20">
+      {/* Navigation - NEXUS AI Styled */}
+      <nav className="navbar-glass fixed top-0 left-0 right-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 md:h-20">
             <div className="flex items-center gap-3">
-              <span className="text-xl font-bold font-[family-name:var(--font-orbitron)] glow-text">NEXUS AI</span>
-              <Badge variant="secondary" className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">
+              <div className="relative logo-glow">
+                <Sparkles className="w-7 h-7 text-neon-cyan" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold font-display tracking-wider gradient-text-nexus">NEXUS</span>
+                <span className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase -mt-0.5">AI Platform</span>
+              </div>
+              <Badge variant="neonPurple" className="ml-2">
                 v4.0
               </Badge>
             </div>
             
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-1">
               {['Home', 'Features', 'Chat', 'Stats'].map((item) => (
                 <button
                   key={item}
                   onClick={() => setActiveSection(item.toLowerCase())}
-                  className={`text-sm font-medium transition-colors hover:text-cyan-400 ${
-                    activeSection === item.toLowerCase() ? 'text-cyan-400' : 'text-gray-400'
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    activeSection === item.toLowerCase() 
+                      ? 'text-neon-cyan bg-neon-cyan/10 shadow-[inset_0_0_20px_rgba(0,255,255,0.05)]' 
+                      : 'text-muted-foreground hover:text-neon-cyan hover:bg-neon-cyan/5'
                   }`}
                 >
                   {item}
@@ -793,7 +680,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
 
             <Button 
-              className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white border-0 glow-cyan"
+              variant="neon"
+              size="sm"
               onClick={() => {
                 setActiveSection('chat');
                 setTimeout(() => {
@@ -808,53 +696,56 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center pt-16">
+      {/* Hero Section - NEXUS AI Styled */}
+      <section id="home" className="hero-background relative min-h-screen flex items-center justify-center pt-20">
+        {/* Radial glow effects */}
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-neon-cyan/10 rounded-full blur-[150px] animate-pulse-ring" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-neon-purple/10 rounded-full blur-[120px] animate-pulse-ring" style={{ animationDelay: '1s' }} />
+
         <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
           {/* Floating elements */}
-          <div className="absolute top-20 left-10 w-20 h-20 bg-violet-500/20 rounded-full blur-xl animate-float" />
-          <div className="absolute bottom-20 right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-20 left-10 w-20 h-20 bg-neon-purple/20 rounded-full blur-xl animate-float" />
+          <div className="absolute bottom-20 right-10 w-32 h-32 bg-neon-cyan/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
           <div className="absolute top-40 right-20 w-16 h-16 bg-pink-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '4s' }} />
 
-
-
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-8">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm text-cyan-300">Next-Generation AI Platform</span>
+          <div className="inline-flex items-center gap-2 mb-8 animate-fade-in">
+            <Badge variant="neonCyan">
+              <Sparkles className="w-3 h-3" />
+              Next-Generation AI Platform
+            </Badge>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black mb-6 font-[family-name:var(--font-orbitron)] leading-tight">
-            <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 glow-text" />
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-6 font-display leading-tight animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <GlitchText text="NEXUS" className="gradient-text-nexus text-glow-cyan" />
             <br />
             <span className="text-white">AI</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl sm:text-2xl text-gray-400 mb-4 font-light max-w-3xl mx-auto">
+          <p className="text-xl sm:text-2xl text-foreground/60 mb-4 font-light max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
             The Future Thinks.
-            <span className="text-cyan-400 font-semibold"> Now.</span>
+            <span className="text-neon-cyan font-semibold"> Now.</span>
           </p>
-          <p className="text-base text-gray-500 mb-12 max-w-2xl mx-auto">
+          <p className="text-base text-muted-foreground mb-12 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.25s' }}>
             Experience intelligence redefined. Neural networks meet intuitive design in the most advanced AI platform ever created.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <Button 
-              size="lg"
+              variant="neon"
+              size="xl"
               onClick={() => setActiveSection('chat')}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-8 py-6 text-lg glow-cyan h-auto"
             >
               <Zap className="w-5 h-5 mr-2" />
               Try NEXUS AI Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button 
-              size="lg" 
-              variant="outline"
-              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg h-auto"
+              variant="glass"
+              size="xl"
               onClick={() => {
                 setActiveSection('features');
                 setTimeout(() => {
@@ -868,13 +759,13 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           </div>
 
           {/* Tech Stack Marquee */}
-          <div className="relative overflow-hidden py-4 border-y border-cyan-500/20 bg-black/30 backdrop-blur-sm">
+          <div className="relative overflow-hidden py-4 border-y border-white/10 glass-subtle animate-slide-up" style={{ animationDelay: '0.4s' }}>
             <div className="flex animate-marquee">
               {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex items-center gap-8 px-4 shrink-0">
                   {['PyTorch', 'TensorFlow', 'GPT-4', 'Transformers', 'Neural Networks', 'NLP', 'Computer Vision', 'Reinforcement Learning', 'Diffusion Models', 'Multi-modal AI'].map((tech) => (
-                    <span key={tech} className="text-sm text-gray-500 whitespace-nowrap flex items-center gap-2">
-                      <Star className="w-3 h-3 text-cyan-500" />
+                    <span key={tech} className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-2">
+                      <Star className="w-3 h-3 text-neon-cyan" />
                       {tech}
                     </span>
                   ))}
@@ -885,28 +776,28 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-cyan-500/50 flex justify-center pt-2">
-            <div className="w-1 h-3 bg-cyan-400 rounded-full animate-pulse" />
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
+          <div className="w-6 h-10 rounded-full border-2 border-neon-cyan/30 flex justify-center pt-2">
+            <div className="w-1.5 h-3 bg-neon-cyan rounded-full animate-pulse shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - NEXUS AI Styled */}
       <section id="features" className="relative py-24 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+            <Badge variant="neonPurple" className="mb-4">
               <Layers className="w-3 h-3 mr-1" />
               Core Capabilities
             </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)] mb-4">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">
+            <h2 className="text-4xl sm:text-5xl font-bold font-display mb-4">
+              <span className="gradient-text-cyan">
                 Powered by Innovation
               </span>
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Six pillars of next-generation artificial intelligence, working in harmony to deliver unprecedented capabilities.
             </p>
           </div>
@@ -920,58 +811,62 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         </div>
       </section>
 
-      {/* AI Chat Section */}
+      {/* AI Chat Section - NEXUS AI Styled */}
       <section id="chat" className="relative py-24 px-4">
         <div className="max-w-5xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-4">
+            <Badge variant="neonCyan" className="mb-4">
               <MessageSquare className="w-3 h-3 mr-1" />
               Interactive AI
             </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)] mb-4">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-400">
+            <h2 className="text-4xl sm:text-5xl font-bold font-display mb-4">
+              <span className="gradient-text-nexus">
                 Experience NEXUS AI
               </span>
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Interact with our advanced AI. Ask questions, generate code, explore ideas â€” no limits.
             </p>
           </div>
 
-          {/* Chat Interface */}
-          <Card className="bg-black/60 backdrop-blur-xl border border-cyan-500/30 overflow-hidden">
+          {/* Chat Interface - NEXUS AI Styled */}
+          <Card className="overflow-hidden border-neon-cyan/20 shadow-[0_0_40px_rgba(0,255,255,0.1)]">
             {/* Chat Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 to-violet-500/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 glass-strong">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Brain className="w-6 h-6 text-cyan-400" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-black animate-pulse" />
+                  <Brain className="w-6 h-6 text-neon-cyan" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-deep-black animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">NEXUS AI Assistant</h3>
-                  <p className="text-xs text-gray-400">Online â€¢ Ready to assist</p>
+                  <h3 className="font-semibold text-white font-display">NEXUS AI Assistant</h3>
+                  <p className="text-xs text-muted-foreground">Online â€¢ Ready to assist</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                  Llama 3.1
-                </Badge>
+                <Badge variant="cyberpunk">GPT-4</Badge>
               </div>
             </div>
 
             {/* Messages Area */}
-            <div className="h-[450px] overflow-y-auto p-6 space-y-4">
+            <div className="h-[450px] overflow-y-auto p-6 space-y-4 scrollbar-thin">
               {chatMessages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} chat-message-enter`}
                 >
+                  {message.role === 'assistant' && (
+                    <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-neon-purple to-purple-500 text-white flex items-center justify-center shadow-lg">
+                      <BotIcon />
+                    </div>
+                  )}
+                  
                   <div
                     className={`max-w-[85%] rounded-2xl px-5 py-3 ${
                       message.role === 'user'
-                        ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white'
-                        : 'bg-gray-900/80 border border-gray-800 text-gray-200'
+                        ? 'message-user'
+                        : 'message-ai'
                     }`}
                   >
                     {message.role === 'assistant' ? (
@@ -981,24 +876,33 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                     ) : (
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     )}
-                    <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-cyan-200' : 'text-gray-500'}`}>
+                    <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-neon-cyan/60' : 'text-muted-foreground'}`}>
                       {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
+
+                  {message.role === 'user' && (
+                    <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-neon-cyan to-electric-blue text-deep-black flex items-center justify-center shadow-lg">
+                      <UserIcon />
+                    </div>
+                  )}
                 </div>
               ))}
 
               {/* Loading indicator */}
               {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-900/80 border border-gray-800 rounded-2xl px-5 py-3">
+                <div className="flex justify-start gap-4 chat-message-enter">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-neon-purple to-purple-500 text-white flex items-center justify-center shadow-lg">
+                    <BotIcon />
+                  </div>
+                  <div className="message-ai rounded-2xl px-5 py-3">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <div className="w-2 h-2 bg-neon-purple rounded-full animate-typing" />
+                        <div className="w-2 h-2 bg-neon-purple rounded-full animate-typing" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-2 h-2 bg-neon-purple rounded-full animate-typing" style={{ animationDelay: '0.4s' }} />
                       </div>
-                      <span className="text-sm text-gray-400">NEXUS is thinking...</span>
+                      <span className="text-sm text-muted-foreground">NEXUS is thinking...</span>
                     </div>
                   </div>
                 </div>
@@ -1008,20 +912,22 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
 
             {/* Input Area */}
-            <div className="px-6 py-4 border-t border-cyan-500/20 bg-black/40">
+            <div className="px-6 py-4 border-t border-white/10 glass-strong">
               <div className="flex gap-3">
                 <Textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask NEXUS AI anything..."
-                  className="flex-1 min-h-[50px] max-h-[120px] resize-none bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                  className="flex-1 min-h-[52px] max-h-[120px] resize-none"
                   disabled={isLoading}
                 />
                 <Button
+                  variant="neon"
+                  size="icon"
                   onClick={handleSubmit}
                   disabled={!inputValue.trim() || isLoading}
-                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-6 self-end glow-cyan"
+                  className="self-end"
                 >
                   {isLoading ? (
                     <RefreshCw className="w-5 h-5 animate-spin" />
@@ -1030,7 +936,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 Press Enter to send â€¢ Shift+Enter for new line
               </p>
             </div>
@@ -1038,17 +944,17 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section - NEXUS AI Styled */}
       <section id="stats" className="relative py-24 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+            <Badge variant="outline" className="border-neon-purple/50 text-neon-purple mb-4">
               <TrendingUp className="w-3 h-3 mr-1" />
               By The Numbers
             </Badge>
-            <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+            <h2 className="text-4xl sm:text-5xl font-bold font-display">
+              <span className="gradient-text-purple">
                 Impact at Scale
               </span>
             </h2>
@@ -1057,82 +963,87 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+              <NeonCard 
+                key={index} 
+                glowColor={['cyan', 'purple', 'blue', 'cyan'][index] as "cyan" | "purple" | "blue"}
+                className="text-center"
+              >
+                <CardContent className="p-6">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-neon-cyan/10 mb-4 group-hover:scale-110 transition-transform">
                     {stat.icon}
                   </div>
-                  <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+                  <div className="text-3xl sm:text-4xl font-bold gradient-text-cyan font-display">
                     <AnimatedCounter target={stat.value} suffix={stat.suffix} />
                   </div>
-                  <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+                  <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
                 </CardContent>
-              </Card>
+              </NeonCard>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative mt-auto border-t border-cyan-500/20 bg-black/60 backdrop-blur-xl">
+      {/* Footer - NEXUS AI Styled */}
+      <footer className="relative mt-auto border-t border-white/10 navbar-glass">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-xl font-bold font-[family-name:var(--font-orbitron)]">NEXUS AI</span>
+                <Sparkles className="w-6 h-6 text-neon-cyan logo-glow" />
+                <span className="text-xl font-bold font-display gradient-text-nexus">NEXUS AI</span>
               </div>
-              <p className="text-gray-400 text-sm max-w-md">
+              <p className="text-muted-foreground text-sm max-w-md">
                 Pioneering the future of artificial intelligence. Building systems that understand, reason, and create at superhuman levels.
               </p>
             </div>
 
             {/* Links */}
             <div>
-              <h4 className="font-semibold text-white mb-4">Platform</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <h4 className="font-semibold text-white mb-4 font-display">Platform</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => {
                     setActiveSection('features');
                     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >Features</button></li>
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => {
                     setActiveSection('chat');
                     document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >Try AI Chat</button></li>
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => window.open('https://github.com/atulchoudhary7781-dot/AI-web', '_blank')}
                 >GitHub</button></li>
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => window.open('https://openrouter.ai/models', '_blank')}
                 >AI Models</button></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <h4 className="font-semibold text-white mb-4 font-display">Resources</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => window.open('https://openrouter.ai/docs', '_blank')}
                 >OpenRouter Docs</button></li>
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => window.open('https://nextjs.org/docs', '_blank')}
                 >Next.js Docs</button></li>
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => window.open('https://vercel.com/docs', '_blank')}
                 >Vercel Docs</button></li>
                 <li><button 
-                  className="hover:text-cyan-400 transition-colors cursor-pointer"
+                  className="hover:text-neon-cyan transition-colors cursor-pointer"
                   onClick={() => {
                     setActiveSection('stats');
                     document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' });
@@ -1142,16 +1053,16 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-500">
+          <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
               Â© 2024 NEXUS AI. Built for the future.
             </p>
             <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 text-xs">
+              <Badge variant="neonCyan">
                 <Shield className="w-3 h-3 mr-1" />
                 SOC 2 Compliant
               </Badge>
-              <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/20 text-xs">
+              <Badge variant="neonPurple">
                 <Heart className="w-3 h-3 mr-1" />
                 Made with Intelligence
               </Badge>
@@ -1160,5 +1071,28 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         </div>
       </footer>
     </div>
+  )
+}
+
+// Icon components for chat avatars
+function BotIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 8V4H8" />
+      <rect width="16" height="12" x="4" y="8" rx="2" />
+      <path d="M2 14h2" />
+      <path d="M20 14h2" />
+      <path d="M15 13v2" />
+      <path d="M9 13v2" />
+    </svg>
+  )
+}
+
+function UserIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
   )
 }

@@ -7,7 +7,14 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        // Base glass morphism styling
+        "glass text-card-foreground flex flex-col rounded-xl transition-all duration-300",
+        // Hover effects
+        "hover-lift hover:border-neon-cyan/30",
+        // Shadow and border
+        "shadow-glass",
+        // Padding
+        "py-6",
         className
       )}
       {...props}
@@ -32,7 +39,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn("leading-none font-semibold font-display tracking-tight", className)}
       {...props}
     />
   )
@@ -81,6 +88,64 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// NEXUS AI Custom Card Variants
+function NeonCard({ 
+  className, 
+  glowColor = "cyan",
+  ...props 
+}: React.ComponentProps<"div"> & { glowColor?: "cyan" | "purple" | "blue" }) {
+  const glowClasses = {
+    cyan: "hover:shadow-glow-cyan hover:border-neon-cyan/40",
+    purple: "hover:shadow-glow-purple hover:border-neon-purple/40",
+    blue: "hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:border-electric-blue/40",
+  }
+
+  return (
+    <div
+      data-slot="neon-card"
+      className={cn(
+        "glass-strong text-card-foreground flex flex-col rounded-xl py-6",
+        "transition-all duration-500 ease-out",
+        "hover-lift",
+        "feature-card",
+        glowClasses[glowColor],
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function GradientCard({ 
+  className,
+  gradient = "cyan-purple",
+  ...props 
+}: React.ComponentProps<"div"> & { 
+  gradient?: "cyan-purple" | "purple-blue" | "custom" 
+}) {
+  const gradients = {
+    "cyan-purple": "border-transparent bg-gradient-to-br from-neon-cyan/10 via-transparent to-neon-purple/10",
+    "purple-blue": "border-transparent bg-gradient-to-br from-neon-purple/10 via-transparent to-electric-blue/10",
+    "custom": "",
+  }
+
+  return (
+    <div
+      data-slot="gradient-card"
+      className={cn(
+        "text-card-foreground flex flex-col rounded-xl py-6 backdrop-blur-xl",
+        "border border-white/10",
+        "transition-all duration-500 ease-out",
+        "hover-lift hover:scale-[1.02]",
+        "shadow-glass",
+        gradients[gradient],
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
 export {
   Card,
   CardHeader,
@@ -89,4 +154,6 @@ export {
   CardAction,
   CardDescription,
   CardContent,
+  NeonCard,
+  GradientCard,
 }

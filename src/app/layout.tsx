@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Futuristic display font for headings
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Clean modern font for body text
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -39,11 +45,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased bg-deep-black text-foreground min-h-screen`}
       >
-        {children}
+        {/* Background effects */}
+        <div className="fixed inset-0 bg-grid-pattern opacity-50 pointer-events-none" />
+        <div className="fixed inset-0 bg-mesh-gradient pointer-events-none" />
+        
+        {/* Main content */}
+        <div className="relative z-10">
+          {children}
+        </div>
+        
         <Toaster />
       </body>
     </html>

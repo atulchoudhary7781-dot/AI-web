@@ -8,9 +8,27 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        // Base styling - dark cyberpunk theme
+        "file:text-foreground placeholder:text-muted-foreground",
+        "selection:bg-neon-cyan selection:text-deep-black",
+        // Background and border
+        "bg-dark-surface/50 border border-white/10 backdrop-blur-sm",
+        // Sizing
+        "flex h-11 w-full min-w-0 rounded-lg px-4 py-2 text-base",
+        // Font
+        "text-foreground font-medium",
+        // Transitions
+        "transition-all duration-300 ease-out",
+        // Focus states - neon glow effect
+        "focus:border-neon-cyan/60 focus:outline-none",
+        "focus:shadow-[0_0_0_3px_rgba(0,255,255,0.1),0_0_20px_rgba(0,255,255,0.2),inset_0_0_10px_rgba(0,255,255,0.05)]",
+        "focus:bg-dark-surface/80",
+        // Disabled state
+        "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        // Size variants
+        "md:text-sm",
+        // Invalid state
+        "aria-invalid:border-red-500 aria-invalid:focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1),0_0_20px_rgba(239,68,68,0.2)]",
         className
       )}
       {...props}
