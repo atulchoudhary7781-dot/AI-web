@@ -1,0 +1,252 @@
+     1→/home/z/my-project/existing-project/src/app/login/page.tsx:        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-[128px]" />
+     2→/home/z/my-project/existing-project/src/app/login/page.tsx:        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[128px]" />
+     3→/home/z/my-project/existing-project/src/app/login/page.tsx:                  className="text-sm text-neon-cyan hover:underline"
+     4→/home/z/my-project/existing-project/src/app/login/page.tsx:              className="font-medium text-neon-cyan hover:underline"
+     5→/home/z/my-project/existing-project/src/app/login/page.tsx:          <Link href="/terms" className="hover:text-neon-cyan">Terms of Service</Link>{' '}
+     6→/home/z/my-project/existing-project/src/app/login/page.tsx:          <Link href="/privacy" className="hover:text-neon-cyan">Privacy Policy</Link>.
+     7→/home/z/my-project/existing-project/src/app/api/chat/route.ts:    docx: { icon: '📘', color: 'blue', type: 'Word Document' },
+     8→/home/z/my-project/existing-project/src/app/api/chat/route.ts:    doc: { icon: '📘', color: 'blue', type: 'Word Document' },
+     9→/home/z/my-project/existing-project/src/app/api/chat/route.ts:    json: { icon: '📋', color: 'purple', type: 'JSON Data' },
+    10→/home/z/my-project/existing-project/src/app/api/chat/route.ts:    color: 'cyan', 
+    11→/home/z/my-project/existing-project/src/app/admin/page.tsx:      case 'pro': return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+    12→/home/z/my-project/existing-project/src/app/admin/page.tsx:      case 'normal': return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+    13→/home/z/my-project/existing-project/src/app/admin/page.tsx:                <Shield className="w-5 h-5 text-purple-500" />
+    14→/home/z/my-project/existing-project/src/app/admin/page.tsx:            <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/30">
+    15→/home/z/my-project/existing-project/src/app/admin/page.tsx:                    ? 'border-purple-500 text-purple-400'
+    16→/home/z/my-project/existing-project/src/app/admin/page.tsx:                    <div className="p-3 rounded-xl bg-blue-500/10">
+    17→/home/z/my-project/existing-project/src/app/admin/page.tsx:                      <Users className="w-6 h-6 text-blue-400" />
+    18→/home/z/my-project/existing-project/src/app/admin/page.tsx:                      <p className="text-xs text-blue-400 mt-2 flex items-center gap-1">
+    19→/home/z/my-project/existing-project/src/app/admin/page.tsx:                    <div className="p-3 rounded-xl bg-purple-500/10">
+    20→/home/z/my-project/existing-project/src/app/admin/page.tsx:                      <MessageSquare className="w-6 h-6 text-purple-400" />
+    21→/home/z/my-project/existing-project/src/app/admin/page.tsx:                    <Crown className="w-5 h-5 text-purple-400" />
+    22→/home/z/my-project/existing-project/src/app/admin/page.tsx:                      { plan: 'Normal ($10/mo)', count: stats.subscriptions.normal, color: 'bg-blue-500', percentage: (stats.subscriptions.normal / stats.users.total * 100).toFixed(1) },
+    23→/home/z/my-project/existing-project/src/app/admin/page.tsx:                      { plan: 'Pro ($20/mo)', count: stats.subscriptions.pro, color: 'bg-purple-500', percentage: (stats.subscriptions.pro / stats.users.total * 100).toFixed(1) },
+    24→/home/z/my-project/existing-project/src/app/admin/page.tsx:                  <Users className="w-5 h-5 text-blue-400" />
+    25→/home/z/my-project/existing-project/src/app/admin/page.tsx:                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+    26→/home/z/my-project/existing-project/src/app/admin/page.tsx:                    className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+    27→/home/z/my-project/existing-project/src/app/admin/page.tsx:                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-medium">
+    28→/home/z/my-project/existing-project/src/app/admin/page.tsx:                                  className="text-blue-400 hover:bg-blue-500/10"
+    29→/home/z/my-project/existing-project/src/app/admin/page.tsx:                  <p className="text-2xl font-bold text-purple-400 mt-1">
+    30→/home/z/my-project/existing-project/src/app/profile/page.tsx:          <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto" />
+    31→/home/z/my-project/existing-project/src/app/profile/page.tsx:            className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+    32→/home/z/my-project/existing-project/src/app/pricing/page.tsx:    color: 'cyan',
+    33→/home/z/my-project/existing-project/src/app/pricing/page.tsx:    color: 'purple',
+    34→/home/z/my-project/existing-project/src/app/pricing/page.tsx:          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-6">
+    35→/home/z/my-project/existing-project/src/app/pricing/page.tsx:            <Star className="w-4 h-4 text-neon-cyan" />
+    36→/home/z/my-project/existing-project/src/app/pricing/page.tsx:            <span className="text-sm font-medium text-neon-cyan">Simple, transparent pricing</span>
+    37→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                billingPeriod === 'yearly' ? "bg-neon-cyan" : "bg-white/20"
+    38→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                plan.popular && "ring-2 ring-neon-cyan shadow-lg shadow-neon-cyan/20"
+    39→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                  <div className="px-4 py-1 bg-gradient-to-r from-neon-cyan to-electric-blue rounded-full text-xs font-bold text-deep-black">
+    40→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                  plan.color === 'cyan' && "bg-neon-cyan/10",
+    41→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                  plan.color === 'purple' && "bg-neon-purple/10",
+    42→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                    plan.color === 'cyan' && "text-neon-cyan",
+    43→/home/z/my-project/existing-project/src/app/pricing/page.tsx:                    plan.color === 'purple' && "text-neon-purple",
+    44→/home/z/my-project/existing-project/src/app/pricing/page.tsx:          <Zap className="w-12 h-12 text-neon-cyan mx-auto mb-6" />
+    45→/home/z/my-project/existing-project/src/app/page.tsx:      className="group relative bg-black/40 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 overflow-hidden"
+    46→/home/z/my-project/existing-project/src/app/page.tsx:        <div className="mt-4 flex items-center gap-2 text-cyan-400 text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+    47→/home/z/my-project/existing-project/src/app/page.tsx:      gradient: 'from-violet-600 to-purple-600'
+    48→/home/z/my-project/existing-project/src/app/page.tsx:      gradient: 'from-cyan-600 to-blue-600'
+    49→/home/z/my-project/existing-project/src/app/page.tsx:                <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-6">
+    50→/home/z/my-project/existing-project/src/app/page.tsx:                  <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400" />
+    51→/home/z/my-project/existing-project/src/app/page.tsx:                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 py-6 text-lg glow-cyan"
+    52→/home/z/my-project/existing-project/src/app/page.tsx:                    className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg"
+    53→/home/z/my-project/existing-project/src/app/page.tsx:                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+    54→/home/z/my-project/existing-project/src/app/page.tsx:                    <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+    55→/home/z/my-project/existing-project/src/app/page.tsx:                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+    56→/home/z/my-project/existing-project/src/app/page.tsx:                        <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+    57→/home/z/my-project/existing-project/src/app/page.tsx:                <Card className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 backdrop-blur-xl">
+    58→/home/z/my-project/existing-project/src/app/page.tsx:                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 glow-cyan"
+    59→/home/z/my-project/existing-project/src/app/page.tsx:                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+    60→/home/z/my-project/existing-project/src/app/page.tsx:                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white glow-cyan"
+    61→/home/z/my-project/existing-project/src/app/page.tsx:                  <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+    62→/home/z/my-project/existing-project/src/app/page.tsx:                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+    63→/home/z/my-project/existing-project/src/app/page.tsx:                      <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+    64→/home/z/my-project/existing-project/src/app/page.tsx:                    : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
+    65→/home/z/my-project/existing-project/src/app/page.tsx:                  <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
+    66→/home/z/my-project/existing-project/src/app/page.tsx:                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+    67→/home/z/my-project/existing-project/src/app/page.tsx:                    <Sparkles className="w-4 h-4 text-cyan-400" />
+    68→/home/z/my-project/existing-project/src/app/settings/page.tsx:                <User className="w-5 h-5 text-neon-cyan" />
+    69→/home/z/my-project/existing-project/src/app/settings/page.tsx:                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-2xl font-bold text-white">
+    70→/home/z/my-project/existing-project/src/app/settings/page.tsx:                <Palette className="w-5 h-5 text-neon-purple" />
+    71→/home/z/my-project/existing-project/src/app/settings/page.tsx:                <Shield className="w-5 h-5 text-electric-blue" />
+    72→/home/z/my-project/existing-project/src/app/settings/page.tsx:            <Card variant="neon" glowColor="cyan" className="p-6">
+    73→/home/z/my-project/existing-project/src/app/settings/page.tsx:                <CreditCard className="w-5 h-5 text-neon-cyan" />
+    74→/home/z/my-project/existing-project/src/app/settings/page.tsx:        isChecked ? "bg-neon-cyan" : "bg-white/20"
+    75→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                      ? "bg-neon-cyan/20 text-neon-cyan"
+    76→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:          <Card variant="neon" glowColor="cyan" className="p-6">
+    77→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:              <div className="p-3 rounded-xl bg-neon-cyan/10">
+    78→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                <MessageSquare className="w-6 h-6 text-neon-cyan" />
+    79→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:          <Card variant="neon" glowColor="purple" className="p-6">
+    80→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:              <div className="p-3 rounded-xl bg-neon-purple/10">
+    81→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                <Activity className="w-6 h-6 text-neon-purple" />
+    82→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:          <Card variant="neon" glowColor="blue" className="p-6">
+    83→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:              <div className="p-3 rounded-xl bg-electric-blue/10">
+    84→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                <Users className="w-6 h-6 text-electric-blue" />
+    85→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                      index === weeklyData.length - 1 ? "bg-gradient-to-t from-neon-cyan to-electric-blue" : "bg-white/20"
+    86→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:              <Zap className="w-5 h-5 text-neon-cyan" />
+    87→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-xs font-bold text-white">
+    88→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                        activity.type === 'signup' && "bg-blue-500/20 text-blue-400",
+    89→/home/z/my-project/existing-project/src/app/dashboard/page.tsx:                        activity.type === 'chat' && "bg-purple-500/20 text-purple-400",
+    90→/home/z/my-project/existing-project/src/components/LanguageSwitcher.tsx:          "focus:outline-none focus:ring-2 focus:ring-neon-cyan/50"
+    91→/home/z/my-project/existing-project/src/components/LanguageSwitcher.tsx:        <Globe className="w-4 h-4 text-neon-cyan" />
+    92→/home/z/my-project/existing-project/src/components/LanguageSwitcher.tsx:                  "hover:bg-neon-cyan/10 focus:bg-neon-cyan/10 focus:outline-none",
+    93→/home/z/my-project/existing-project/src/components/LanguageSwitcher.tsx:                  locale === lang.code && "bg-neon-cyan/5"
+    94→/home/z/my-project/existing-project/src/components/LanguageSwitcher.tsx:                  <Check className="w-4 h-4 text-neon-cyan" />
+    95→/home/z/my-project/existing-project/src/app/signup/page.tsx:    if (score === 3) return { score, label: 'Good', color: 'text-blue-400' }
+    96→/home/z/my-project/existing-project/src/app/signup/page.tsx:        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-neon-purple/10 rounded-full blur-[128px]" />
+    97→/home/z/my-project/existing-project/src/app/signup/page.tsx:        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-electric-blue/10 rounded-full blur-[128px]" />
+    98→/home/z/my-project/existing-project/src/app/signup/page.tsx:                    ? "bg-neon-cyan border-neon-cyan"
+    99→/home/z/my-project/existing-project/src/app/signup/page.tsx:                <Link href="/terms" className="text-neon-cyan hover:underline">Terms of Service</Link>{' '}
+   100→/home/z/my-project/existing-project/src/app/signup/page.tsx:                <Link href="/privacy" className="text-neon-cyan hover:underline">Privacy Policy</Link>
+   101→/home/z/my-project/existing-project/src/app/signup/page.tsx:              className="font-medium text-neon-cyan hover:underline"
+   102→/home/z/my-project/existing-project/src/app/signup/page.tsx:          <Link href="/login" className="hover:text-neon-cyan">Sign in here</Link>.
+   103→/home/z/my-project/existing-project/src/components/theme/Toggle.tsx:        "focus:outline-none focus:ring-2 focus:ring-neon-cyan/50"
+   104→/home/z/my-project/existing-project/src/components/theme/Toggle.tsx:            ? "rotate-0 scale-100 text-neon-purple"
+   105→/home/z/my-project/existing-project/src/components/theme/Toggle.tsx:            ? "bg-neon-purple/20 opacity-0 hover:opacity-100"
+   106→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 ease-out shadow-2xl shadow-cyan-500/10 flex flex-col ${
+   107→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+   108→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                  <span className="text-lg font-bold font-[family-name:var(--font-orbitron)] bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+   109→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:              className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-11 font-medium"
+   110→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full">{sessions.length}</span>
+   111→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
+   112→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                  <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20 overflow-hidden">
+   113→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                    <p className="text-sm text-white font-medium truncate group-hover:text-cyan-400 transition-colors">{user.name}</p>
+   114→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                    <span className={`font-medium ${chatCount >= maxChats ? 'text-red-400' : 'text-cyan-400'}`}>
+   115→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                          : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+   116→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl hover:from-cyan-500/20 hover:to-violet-500/20 transition-all duration-200 group"
+   117→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:                  <LogIn className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
+   118→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/5' 
+   119→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:      <div className={`${active ? 'text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'} transition-colors`}>
+   120→/home/z/my-project/existing-project/src/components/chat/Sidebar.tsx:        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+   121→/home/z/my-project/existing-project/src/components/chat/ChatInterface.tsx:                      className="p-2 rounded-lg hover:bg-blue-500/15 active:scale-95 transition-all cursor-pointer"
+   122→/home/z/my-project/existing-project/src/components/chat/ChatInterface.tsx:                      <Share2 className="w-4 h-4 text-gray-400 hover:text-blue-400" />
+   123→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:      <div className="relative w-full sm:w-auto sm:min-w-[440px] sm:max-w-lg bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800/60 sm:border-cyan-500/30 rounded-b-none sm:rounded-2xl shadow-2xl shadow-black/50 sm:shadow-cyan-500/20 animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-200 max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+   124→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:        <div className="bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border-b border-gray-800 px-5 sm:px-6 py-5 sm:py-6 text-center flex-shrink-0">
+   125→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:          <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+   126→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                        ? 'bg-gradient-to-r from-cyan-400 to-violet-400' 
+   127→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
+   128→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
+   129→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+   130→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
+   131→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                    className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-[11px] sm:text-xs"
+   132→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+   133→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                  className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pl-9 sm:pl-11 text-sm sm:text-base text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+   134→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:              <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+   135→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pl-9 sm:pl-11 text-sm sm:text-base text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+   136→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+   137→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 pl-9 sm:pl-11 pr-9 sm:pr-11 text-sm sm:text-base text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+   138→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                        ? 'border-cyan-500 bg-cyan-500/10'
+   139→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:                        selectedPlan === plan.id ? 'text-cyan-400' : 'text-white'
+   140→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:            className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-10 sm:h-12 font-medium text-sm sm:text-base"
+   141→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:          <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-lg sm:rounded-xl p-3 sm:p-4">
+   142→/home/z/my-project/existing-project/src/components/chat/AuthModal.tsx:            <p className="text-[11px] sm:text-xs font-semibold text-cyan-400 mb-1.5 sm:mb-2">✨ Why Join NEXUS AI?</p>
+   143→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:          <div className="relative px-5 sm:px-7 py-6 sm:py-8 text-center bg-gradient-to-b from-cyan-500/10 via-purple-500/10 to-transparent flex-shrink-0">
+   144→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 animate-pulse" />
+   145→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-cyan-400" />
+   146→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-colors flex-shrink-0">
+   147→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                  <feature.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-cyan-400 transition-colors" />
+   148→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:              className="w-full flex items-center justify-center gap-2 sm:gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-sm sm:text-base"
+   149→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:      color: 'from-blue-500 to-cyan-500', 
+   150→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:      color: 'from-purple-500 to-pink-500', 
+   151→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+   152→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                  className="group relative p-4 rounded-xl bg-gray-800/40 hover:bg-gray-800/80 border border-gray-700/50 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 text-left overflow-hidden"
+   153→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                    <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-cyan-500/20 text-cyan-400 rounded">
+   154→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:              className="mx-4 sm:mx-5 mt-3 sm:mt-4 mb-1 flex items-center gap-2 text-xs sm:text-sm text-gray-400 hover:text-cyan-400 transition-colors group"
+   155→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                    className="w-full pl-11 pr-24 py-3.5 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+   156→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white border-0"
+   157→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                          className="block p-3.5 rounded-xl bg-gray-800/40 hover:bg-gray-800/80 border border-gray-700/30 hover:border-cyan-500/30 transition-all group"
+   158→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                              <h4 className="text-sm font-medium text-white group-hover:text-cyan-400 line-clamp-1 transition-colors">
+   159→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                                <span className="px-1.5 py-0.5 text-[10px] bg-cyan-500/10 text-cyan-400 rounded">
+   160→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                            <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-cyan-400 flex-shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+   161→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                  className="w-full px-4 py-3 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none resize-none transition-all"
+   162→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                            ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
+   163→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:opacity-90 text-white border-0 h-11"
+   164→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                        className="flex-1 bg-gradient-to-r from-cyan-500 to-violet-500"
+   165→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                          <span className="px-2 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded-full">
+   166→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+   167→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                          <p className="text-xs text-purple-300 font-medium mb-1">AI Insights:</p>
+   168→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                              <span key={i} className="px-2 py-1 text-[10px] bg-cyan-500/10 text-cyan-400 rounded">
+   169→/home/z/my-project/existing-project/src/components/chat/ToolsPanel.tsx:                  className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500 hover:opacity-90 text-white border-0 h-11"
+   170→/home/z/my-project/existing-project/src/components/chat/VoiceInput.tsx:            <span className="w-1 h-3 bg-neon-cyan rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+   171→/home/z/my-project/existing-project/src/components/chat/VoiceInput.tsx:            <span className="w-1 h-4 bg-neon-purple rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+   172→/home/z/my-project/existing-project/src/components/chat/VoiceInput.tsx:            <span className="w-1 h-2 bg-electric-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+   173→/home/z/my-project/existing-project/src/components/chat/VoiceInput.tsx:          "focus:outline-none focus:ring-2 focus:ring-neon-cyan/50",
+   174→/home/z/my-project/existing-project/src/components/chat/VoiceInput.tsx:            : "hover:bg-white/10 hover:text-neon-cyan hover:scale-105 text-foreground/70",
+   175→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:          <div className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-2xl p-8 backdrop-blur-xl text-center">
+   176→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:              You are logged in as <span className="text-cyan-400 font-medium">{user.name}</span>
+   177→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+   178→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:              <div className="flex items-center gap-2 text-sm text-gray-400 bg-cyan-500/5 rounded-lg p-2">
+   179→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
+   180→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-lg shadow-cyan-500/25 mb-4">
+   181→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400">
+   182→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
+   183→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg' 
+   184→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                  <User className="w-4 h-4 text-cyan-400" />
+   185→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                    className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+   186→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                <Mail className="w-4 h-4 text-cyan-400" />
+   187→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                  className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+   188→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                <Lock className="w-4 h-4 text-cyan-400" />
+   189→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                  className="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 pl-11 pr-11 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all duration-200"
+   190→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:              className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 h-12 font-medium text-base"
+   191→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:          <div className="mt-6 bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4">
+   192→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:              <Brain className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+   193→/home/z/my-project/existing-project/src/components/chat/LoginView.tsx:                <p className="font-medium text-cyan-400 mb-1">Why create an account?</p>
+   194→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:              <div className="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-xl shadow-cyan-500/20">
+   195→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+   196→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20">
+   197→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                    ? 'bg-gradient-to-br from-cyan-500 to-violet-600 text-white shadow-xl shadow-cyan-500/25'
+   198→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                        ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border-cyan-400/40' 
+   199→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                          message.fileType?.includes('word') || message.fileName?.endsWith('.docx') || message.fileName?.endsWith('.doc') ? 'bg-blue-500/30' :
+   200→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                          message.fileName?.endsWith('.json') ? 'bg-purple-500/30' :
+   201→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                          'bg-cyan-500/30'
+   202→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                            <span className="text-blue-400 font-bold text-sm">DOC</span>
+   203→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                            <span className="text-purple-400 font-bold text-sm">JSON</span>
+   204→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                            <Paperclip className="w-7 h-7 text-cyan-400" />
+   205→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                          <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1">
+   206→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                          <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+   207→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                            <Paperclip className="w-4 h-4 text-cyan-400" />
+   208→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                        <RotateCcw className="w-3.5 h-3.5 text-gray-400 hover:text-cyan-400" />
+   209→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+   210→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                    <div className="w-2.5 h-2.5 bg-gradient-to-t from-cyan-400 to-cyan-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+   211→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:            <div className="mb-2 p-2.5 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 rounded-xl animate-fadeIn">
+   212→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                      attachedFile.type.includes('word') || attachedFile.name.endsWith('.docx') ? 'bg-blue-500/20' :
+   213→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                      'bg-cyan-500/20'
+   214→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                        <span className="text-blue-400 font-bold text-[10px]">DOC</span>
+   215→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                        <Paperclip className="w-5 h-5 text-cyan-400" />
+   216→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:          <div className="relative bg-gray-800/70 border border-gray-700/60 rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-lg focus-within:shadow-cyan-500/10 transition-all duration-200 overflow-hidden">
+   217→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                      ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' 
+   218→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                      : 'bg-transparent text-gray-400 hover:text-cyan-400 hover:bg-gray-700/50'
+   219→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:                  className={`bg-gradient-to-r ${isLoading ? 'from-gray-600 to-gray-700' : 'from-cyan-500 to-violet-600'} ${isLoading ? '' : 'hover:from-cyan-400 hover:to-violet-500'} text-white px-3.5 h-9 rounded-lg shadow-md ${isLoading ? '' : 'shadow-cyan-500/25 hover:shadow-cyan-500/35'} transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+   220→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:              <Sparkles className="w-3 h-3 text-cyan-400" />
+   221→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:      elements.push(<h3 key={lineIndex} className="text-lg font-medium text-cyan-400 mt-4 mb-2">{line.slice(4)}</h3>)
+   222→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:        <li key={lineIndex} className="ml-4 text-gray-200 list-disc mb-1 marker:text-cyan-500">
+   223→/home/z/my-project/existing-project/src/components/chat/FullScreenChat.tsx:      parts.push(<code key={match.index} className="px-2 py-0.5 bg-gray-800/80 rounded-md text-cyan-300 text-sm font-mono border border-gray-700/50">{match[2]}</code>)
+   224→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+   225→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+   226→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+   227→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500 font-mono text-xs"
+   228→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+   229→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500"
+   230→/home/z/my-project/existing-project/src/components/chat/PasswordResetForm.tsx:                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+   231→/home/z/my-project/existing-project/src/components/chat/ChatHistory.tsx:            className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-neon-cyan transition-colors"
+   232→/home/z/my-project/existing-project/src/components/chat/ChatHistory.tsx:            className="h-8 w-8 text-neon-cyan hover:bg-neon-cyan/10"
+   233→/home/z/my-project/existing-project/src/components/chat/ChatHistory.tsx:                    ? "bg-neon-cyan/10 border border-neon-cyan/20"
+   234→/home/z/my-project/existing-project/src/components/chat/ChatHistory.tsx:                  currentChatId === conv.id ? "text-neon-cyan" : "text-muted-foreground"
+   235→/home/z/my-project/existing-project/src/components/chat/ChatHistory.tsx:                        currentChatId === conv.id ? "text-neon-cyan" : "text-foreground"
+   236→/home/z/my-project/existing-project/src/components/ui/badge.tsx:  "inline-flex items-center justify-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all duration-200 overflow-hidden uppercase tracking-wider",
+   237→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "border-transparent bg-gradient-to-r from-neon-cyan to-electric-blue text-deep-black shadow-[0_0_10px_rgba(0,255,255,0.3)]",
+   238→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "border-neon-cyan/40 text-neon-cyan bg-transparent hover:bg-neon-cyan/10 hover:border-neon-cyan/60",
+   239→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "border-transparent bg-gradient-to-r from-neon-cyan via-electric-blue to-neon-purple text-deep-black font-bold animate-gradient-shift bg-[length:200%_auto] shadow-glow-cyan",
+   240→/home/z/my-project/existing-project/src/components/ui/badge.tsx:        neonCyan:
+   241→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "border-neon-cyan/50 bg-neon-cyan/10 text-neon-cyan shadow-[0_0_10px_rgba(0,255,255,0.2)] backdrop-blur-sm",
+   242→/home/z/my-project/existing-project/src/components/ui/badge.tsx:        neonPurple:
+   243→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "border-neon-purple/50 bg-neon-purple/10 text-neon-purple shadow-[0_0_10px_rgba(139,92,246,0.2)] backdrop-blur-sm",
+   244→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "glass text-foreground/90 border-white/20 hover:border-neon-cyan/40 transition-colors",
+   245→/home/z/my-project/existing-project/src/components/ui/badge.tsx:          "border-l-2 border-l-neon-cyan bg-dark-surface/80 text-neon-cyan font-mono text-[10px] tracking-widest pl-3",
+   246→/home/z/my-project/existing-project/src/components/chat/IntroAnimation.tsx:    // Gemini-inspired colors (blue, purple, cyan, soft pink)
+   247→/home/z/my-project/existing-project/src/components/chat/IntroAnimation.tsx:      '#4285F4', // Google Blue
+   248→/home/z/my-project/existing-project/src/components/chat/IntroAnimation.tsx:      '#9B72CB', // Purple  
+   249→/home/z/my-project/existing-project/src/components/chat/IntroAnimation.tsx:      '#00BCD4', // Cyan
+   250→/home/z/my-project/existing-project/src/components/chat/IntroAnimation.tsx:            className="text-5xl md:text-6xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-violet-400 via-cyan-400 to-pink-400"
+   251→
+   252→[Showing results with pagination = limit: 250]
