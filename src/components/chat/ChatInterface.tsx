@@ -52,6 +52,7 @@ export function ChatInterface() {
   // Post-response action states
   const [reactions, setReactions] = useState<MessageReactions>({})
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
+  const [completedMessageIds, setCompletedMessageIds] = useState<Set<string>>(new Set(['1'])) // Initial message is already complete
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -95,14 +96,19 @@ export function ChatInterface() {
 
     // Simulate AI response
     setTimeout(() => {
+      const newAiMessageId = (Date.now() + 1).toString()
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: newAiMessageId,
         role: 'assistant',
         content: `I've analyzed your query about "${input.slice(0, 30)}...". Based on my neural processing capabilities, I can provide you with comprehensive insights. The data suggests multiple pathways for exploration. Would you like me to elaborate on any specific aspect?`,
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, aiMessage])
       setIsTyping(false)
+      // Mark this message as completed so buttons appear
+      setTimeout(() => {
+        setCompletedMessageIds(prev => new Set([...prev, newAiMessageId]))
+      }, 100) // Small delay for animation
     }, 1500 + Math.random() * 1000)
   }
 
@@ -151,8 +157,9 @@ export function ChatInterface() {
     
     // Simulate new AI response (in production, this would call the API again)
     setTimeout(() => {
+      const regeneratedMessageId = Date.now().toString()
       const newAiMessage: Message = {
-        id: Date.now().toString(),
+        id: regeneratedMessageId,
         role: 'assistant',
         content: `🔄 [Regenerated] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach or refined answer based on deeper processing. The neural pathways have been recalibrated for optimal output. Does this response better address your needs?`,
         timestamp: new Date(),
@@ -160,6 +167,10 @@ export function ChatInterface() {
       setMessages(prev => [...prev, newAiMessage])
       setIsTyping(false)
       setRegeneratingId(null)
+      // Mark as completed so buttons appear
+      setTimeout(() => {
+        setCompletedMessageIds(prev => new Set([...prev, regeneratedMessageId]))
+      }, 100)
     }, 1500 + Math.random() * 1000)
   }
 
@@ -332,64 +343,81 @@ export function ChatInterface() {
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
                 
-                {/* Post-Response Action Buttons - Show for ALL AI messages (always visible after response) */}
-                {message.role === 'assistant' && (
-                  <div className="flex items-center gap-1 mt-3 pt-3 border-t border-white/5">
+                {/* ✅ POST-RESPONSE ACTION BUTTONS - ONLY SHOW AFTER AI COMPLETES ANSWER */}
+                {message.role === 'assistant' && completedMessageIds.has(message.id) && (
+                  <div 
+                    className="flex items-center gap-1 mt-3 pt-3 border-t border-white/10 animate-fadeIn"
+                    style={{ animationDuration: '0.3s' }}
+                  >
                     {/* Timestamp */}
                     <span className="text-xs text-muted-foreground mr-2">
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     
-                    {/* Copy Button */}
+                    {/* 📋 Copy Button - Copies text to clipboard */}
                     <button
-                      onClick={() => handleCopy(message.content, message.id)}
-                      className="p-1.5 rounded-lg hover:bg-white/10 transition-all duration-200 group"
-                      title={t('chat.copy') || 'Copy'}
-                      aria-label={t('chat.copy') || 'Copy'}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleCopy(message.content, message.id)
+                      }}
+                      className="p-2 rounded-lg hover:bg-neon-cyan/20 transition-all duration-200 group tooltip-container"
+                      title="Copy to clipboard"
+                      aria-label="Copy response"
                     >
                       {copiedId === message.id ? (
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-4 h-4 text-green-400 animate-bounce" />
                       ) : (
-                        <Copy className="w-4 h-4 text-muted-foreground group-hover:text-neon-cyan transition-colors" />
+                        <Copy className="w-4 h-4 text-gray-400 group-hover:text-neon-cyan transition-colors" />
                       )}
                     </button>
                     
-                    {/* Like Button */}
+                    {/* 👍 Like Button - Marks response as good */}
                     <button
-                      onClick={() => handleReaction(message.id, 'liked')}
-                      className={`p-1.5 rounded-lg transition-all duration-200 ${
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleReaction(message.id, 'liked')
+                      }}
+                      className={`p-2 rounded-lg transition-all duration-200 ${
                         reactions[message.id] === 'liked'
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'hover:bg-white/10 text-muted-foreground group-hover:text-green-400'
+                          ? 'bg-green-500/25 text-green-400 scale-110'
+                          : 'hover:bg-green-500/15 text-gray-400 hover:text-green-400'
                       }`}
                       title="Good response"
                       aria-label="Like this response"
                     >
-                      <ThumbsUp className={`w-4 h-4 ${reactions[message.id] === 'liked' ? 'fill-current' : ''}`} />
+                      <ThumbsUp className={`w-4 h-4 transition-transform ${reactions[message.id] === 'liked' ? 'fill-current scale-110' : ''}`} />
                     </button>
                     
-                    {/* Dislike Button */}
+                    {/* 👎 Dislike Button - Marks response as bad */}
                     <button
-                      onClick={() => handleReaction(message.id, 'disliked')}
-                      className={`p-1.5 rounded-lg transition-all duration-200 ${
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleReaction(message.id, 'disliked')
+                      }}
+                      className={`p-2 rounded-lg transition-all duration-200 ${
                         reactions[message.id] === 'disliked'
-                          ? 'bg-red-500/20 text-red-400'
-                          : 'hover:bg-white/10 text-muted-foreground group-hover:text-red-400'
+                          ? 'bg-red-500/25 text-red-400 scale-110'
+                          : 'hover:bg-red-500/15 text-gray-400 hover:text-red-400'
                       }`}
                       title="Bad response"
                       aria-label="Dislike this response"
                     >
-                      <ThumbsDown className={`w-4 h-4 ${reactions[message.id] === 'disliked' ? 'fill-current' : ''}`} />
+                      <ThumbsDown className={`w-4 h-4 transition-transform ${reactions[message.id] === 'disliked' ? 'fill-current scale-110' : ''}`} />
                     </button>
                     
-                    {/* Regenerate Button */}
+                    {/* 🔄 Regenerate Button - Gets new AI response */}
                     <button
-                      onClick={() => handleRegenerate(message.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (!isTyping && regeneratingId !== message.id) {
+                          handleRegenerate(message.id)
+                        }
+                      }}
                       disabled={regeneratingId === message.id || isTyping}
-                      className={`p-1.5 rounded-lg transition-all duration-200 ${
+                      className={`p-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                         regeneratingId === message.id
-                          ? 'animate-spin text-neon-purple'
-                          : 'hover:bg-white/10 text-muted-foreground group-hover:text-neon-purple'
+                          ? 'animate-spin bg-neon-purple/20 text-neon-purple'
+                          : 'hover:bg-purple-500/15 text-gray-400 hover:text-purple-400'
                       }`}
                       title="Regenerate response"
                       aria-label="Regenerate this response"
@@ -397,14 +425,17 @@ export function ChatInterface() {
                       <RefreshCw className="w-4 h-4" />
                     </button>
                     
-                    {/* Share Button */}
+                    {/* ↗️ Share Button - Share via Web Share API */}
                     <button
-                      onClick={() => handleShare(message.content)}
-                      className="p-1.5 rounded-lg hover:bg-white/10 transition-all duration-200 group"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleShare(message.content)
+                      }}
+                      className="p-2 rounded-lg hover:bg-blue-500/15 transition-all duration-200 group"
                       title="Share response"
                       aria-label="Share this response"
                     >
-                      <Share2 className="w-4 h-4 text-muted-foreground group-hover:text-neon-cyan transition-colors" />
+                      <Share2 className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
                     </button>
                   </div>
                 )}
