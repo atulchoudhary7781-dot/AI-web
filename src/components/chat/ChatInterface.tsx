@@ -20,11 +20,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
-}
-
-// Track reaction state for messages
-interface MessageReactions {
-  [messageId: string]: 'liked' | 'disliked' | null
+  showButtons?: boolean // New flag to show buttons
 }
 
 // Sample messages for demo
@@ -34,6 +30,7 @@ const initialMessages: Message[] = [
     role: 'assistant',
     content: "Greetings, human. I am NEXUS AI, your advanced neural companion. I'm designed to assist with complex reasoning, creative tasks, and deep analysis. How may I serve you today?",
     timestamp: new Date(),
+    showButtons: true, // Initial message shows buttons
   },
 ]
 
@@ -49,10 +46,10 @@ export function ChatInterface() {
   const [showHistory, setShowHistory] = useState(false)
   const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null)
   
-  // Post-response action states
-  const [reactions, setReactions] = useState<MessageReactions>({})
+  // Reaction states - using simple object
+  const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set())
+  const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set())
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
-  const [completedMessageIds, setCompletedMessageIds] = useState<Set<string>>(new Set(['1'])) // Initial message is already complete
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -77,7 +74,7 @@ export function ChatInterface() {
     if (!input.trim()) return
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: 'user-' + Date.now(),
       role: 'user',
       content: input.trim(),
       timestamp: new Date(),
@@ -85,30 +82,21 @@ export function ChatInterface() {
 
     setMessages((prev) => [...prev, userMessage])
     
-    // Save to chat history if we have a conversation
-    if (currentConversation) {
-      // This would be handled by a proper state management system
-      // For now, just update local messages
-    }
-    
     setInput('')
     setIsTyping(true)
 
     // Simulate AI response
     setTimeout(() => {
-      const newAiMessageId = (Date.now() + 1).toString()
+      const aiMessageId = 'ai-' + Date.now()
       const aiMessage: Message = {
-        id: newAiMessageId,
+        id: aiMessageId,
         role: 'assistant',
         content: `I've analyzed your query about "${input.slice(0, 30)}...". Based on my neural processing capabilities, I can provide you with comprehensive insights. The data suggests multiple pathways for exploration. Would you like me to elaborate on any specific aspect?`,
         timestamp: new Date(),
+        showButtons: true, // Show buttons immediately when message appears
       }
       setMessages((prev) => [...prev, aiMessage])
       setIsTyping(false)
-      // Mark this message as completed so buttons appear
-      setTimeout(() => {
-        setCompletedMessageIds(prev => new Set([...prev, newAiMessageId]))
-      }, 100) // Small delay for animation
     }, 1500 + Math.random() * 1000)
   }
 
@@ -132,89 +120,109 @@ export function ChatInterface() {
     }
   }
 
-  // Handle like/dislike reactions - SIMPLE WORKING VERSION
-  const handleReaction = (messageId: string, reaction: 'liked' | 'disliked') => {
-    console.log('Reaction clicked:', messageId, reaction) // Debug
+  // 👍 HANDLE LIKE - Simple and direct
+  const handleLike = (messageId: string) => {
+    console.log('👍 LIKE clicked for:', messageId)
     
-    // If already has this reaction, remove it (toggle off)
-    if (reactions[messageId] === reaction) {
-      const newReactions = { ...reactions }
-      delete newReactions[messageId]
-      setReactions(newReactions)
+    // Create new sets to trigger re-render
+    const newLiked = new Set(likedMessages)
+    const newDisliked = new Set(dislikedMessages)
+    
+    if (newLiked.has(messageId)) {
+      // Already liked - unlike it
+      newLiked.delete(messageId)
+      console.log('❌ Unliked')
     } else {
-      // Set new reaction (this will override any existing different reaction)
-      setReactions({
-        ...reactions,
-        [messageId]: reaction
-      })
+      // Like it (and remove dislike if exists)
+      newLiked.add(messageId)
+      newDisliked.delete(messageId)
+      console.log('✅ Liked!')
     }
+    
+    setLikedMessages(newLiked)
+    setDislikedMessages(newDisliked)
   }
 
-  // Handle regenerate response - SIMPLE WORKING VERSION
-  const handleRegenerate = async (messageId: string) => {
-    console.log('Regenerate clicked:', messageId) // Debug
+  // 👎 HANDLE DISLIKE - Simple and direct
+  const handleDislike = (messageId: string) => {
+    console.log('👎 DISLIKE clicked for:', messageId)
     
-    // Prevent double-click or regenerating while typing
+    // Create new sets to trigger re-render
+    const newLiked = new Set(likedMessages)
+    const newDisliked = new Set(dislikedMessages)
+    
+    if (newDisliked.has(messageId)) {
+      // Already disliked - undislike it
+      newDisliked.delete(messageId)
+      console.log('❌ Undisliked')
+    } else {
+      // Dislike it (and remove like if exists)
+      newDisliked.add(messageId)
+      newLiked.delete(messageId)
+      console.log('✅ Disliked!')
+    }
+    
+    setLikedMessages(newLiked)
+    setDislikedMessages(newDisliked)
+  }
+
+  // 🔄 HANDLE REGENERATE - Simple and direct
+  const handleRegenerate = (messageId: string) => {
+    console.log('🔄 REGENERATE clicked for:', messageId)
+    
+    // Prevent if already regenerating or typing
     if (isTyping || regeneratingId) {
-      console.log('Already typing or regenerating, ignoring')
+      console.log('⚠️ Already busy, ignoring')
       return
     }
     
-    // Find this AI message in the list
-    const messageIndex = messages.findIndex(m => m.id === messageId)
-    console.log('Message index:', messageIndex, 'Total messages:', messages.length)
+    // Find the AI message index
+    const aiIndex = messages.findIndex(m => m.id === messageId)
+    console.log('AI Message index:', aiIndex)
     
-    if (messageIndex <= 0) {
-      console.log('Cannot find message or its the first message')
+    if (aiIndex <= 0) {
+      console.log('❌ Invalid message or first message')
       return
     }
     
-    // Get the user message before this AI response
-    const userMessage = messages[messageIndex - 1]
+    // Get user message before this AI response
+    const userMessage = messages[aiIndex - 1]
     if (!userMessage || userMessage.role !== 'user') {
-      console.log('No user message found before this AI message')
+      console.log('❌ No user message found before')
       return
     }
     
-    console.log('Regenerating for user message:', userMessage.content.slice(0, 50))
+    console.log('📝 Regenerating for:', userMessage.content.slice(0, 50))
     
-    // Set regenerating state
+    // Start regeneration
     setRegeneratingId(messageId)
     setIsTyping(true)
     
-    // Remove old AI response from display
+    // Remove old AI message
     setMessages(prev => prev.filter(m => m.id !== messageId))
     
     // Generate new response after delay
     setTimeout(() => {
-      const newMessageId = 'regen-' + Date.now()
+      const newAiId = 'regen-' + Date.now()
       const newAiMessage: Message = {
-        id: newMessageId,
+        id: newAiId,
         role: 'assistant',
-        content: `🔄 [Regenerated] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach based on deeper processing. Does this better address your needs?`,
+        content: `🔄 [REGENERATED] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach based on deeper processing. Does this better address your needs?`,
         timestamp: new Date(),
+        showButtons: true,
       }
       
-      // Add new message and clear states
       setMessages(prev => [...prev, newAiMessage])
       setIsTyping(false)
       setRegeneratingId(null)
       
-      // Mark as completed so buttons show up
-      setTimeout(() => {
-        setCompletedMessageIds(prev => {
-          const newSet = new Set(prev)
-          newSet.add(newMessageId)
-          return newSet
-        })
-      }, 150)
-      
-      console.log('Regeneration complete:', newMessageId)
-    }, 2000) // 2 second delay to simulate AI thinking
+      console.log('✅ Regeneration complete:', newAiId)
+    }, 2000)
   }
 
-  // Handle share response
+  // ↗️ HANDLE SHARE
   const handleShare = async (content: string) => {
+    console.log('↗️ SHARE clicked')
     if (navigator.share) {
       try {
         await navigator.share({
@@ -223,11 +231,9 @@ export function ChatInterface() {
           url: window.location.href
         })
       } catch (err) {
-        // User cancelled or error
         console.log('Share cancelled or failed')
       }
     } else {
-      // Fallback: copy to clipboard
       handleCopy(content, 'share-' + Date.now())
     }
   }
@@ -235,6 +241,8 @@ export function ChatInterface() {
   // Handle clear chat
   const handleClear = () => {
     setMessages([])
+    setLikedMessages(new Set())
+    setDislikedMessages(new Set())
   }
 
   // Handle key press
@@ -251,7 +259,8 @@ export function ChatInterface() {
     if (conversation && conversation.messages.length > 0) {
       setMessages(conversation.messages.map(msg => ({
         ...msg,
-        timestamp: new Date(msg.timestamp)
+        timestamp: new Date(msg.timestamp),
+        showButtons: msg.role === 'assistant', // Show buttons for AI messages
       })))
     }
     setShowHistory(false)
@@ -382,91 +391,114 @@ export function ChatInterface() {
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
                 
-                {/* ✅ POST-RESPONSE ACTION BUTTONS - ONLY SHOW AFTER AI COMPLETES ANSWER */}
-                {message.role === 'assistant' && completedMessageIds.has(message.id) && (
+                {/* ✅ ACTION BUTTONS - Show only for AI messages with showButtons=true */}
+                {message.role === 'assistant' && message.showButtons && (
                   <div 
                     className="flex items-center gap-1 mt-3 pt-3 border-t border-white/10 animate-fadeIn"
-                    style={{ animationDuration: '0.3s' }}
                   >
                     {/* Timestamp */}
                     <span className="text-xs text-muted-foreground mr-2">
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     
-                    {/* 📋 Copy Button - Copies text to clipboard */}
+                    {/* 📋 COPY BUTTON */}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation()
+                        e.preventDefault()
                         handleCopy(message.content, message.id)
                       }}
-                      className="p-2 rounded-lg hover:bg-neon-cyan/20 transition-all duration-200 group tooltip-container"
+                      className="p-2 rounded-lg hover:bg-cyan-500/20 active:scale-95 transition-all cursor-pointer"
                       title="Copy to clipboard"
-                      aria-label="Copy response"
+                      type="button"
                     >
                       {copiedId === message.id ? (
-                        <Check className="w-4 h-4 text-green-400 animate-bounce" />
+                        <Check className="w-4 h-4 text-green-400" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-400 group-hover:text-neon-cyan transition-colors" />
+                        <Copy className="w-4 h-4 text-gray-400 hover:text-cyan-400" />
                       )}
                     </button>
                     
-                    {/* 👍 Like Button - WORKING VERSION */}
-                    <button
-                      onClick={() => handleReaction(message.id, 'liked')}
-                      className={`p-2 rounded-lg transition-all duration-200 cursor-pointer ${
-                        reactions[message.id] === 'liked'
-                          ? 'bg-green-500/25 text-green-400 scale-110'
-                          : 'bg-transparent text-gray-400 hover:bg-green-500/15 hover:text-green-400 hover:scale-105'
-                      } active:scale-95`
-                      title="Good response"
-                      aria-label="Like this response"
-                      type="button"
-                    >
-                      <ThumbsUp className={`w-4 h-4 transition-all ${reactions[message.id] === 'liked' ? 'fill-green-400' : ''}`} />
-                    </button>
-                    
-                    {/* 👎 Dislike Button - WORKING VERSION */}
-                    <button
-                      onClick={() => handleReaction(message.id, 'disliked')}
-                      className={`p-2 rounded-lg transition-all duration-200 cursor-pointer ${
-                        reactions[message.id] === 'disliked'
-                          ? 'bg-red-500/25 text-red-400 scale-110'
-                          : 'bg-transparent text-gray-400 hover:bg-red-500/15 hover:text-red-400 hover:scale-105'
-                      } active:scale-95`
-                      title="Bad response"
-                      aria-label="Dislike this response"
-                      type="button"
-                    >
-                      <ThumbsDown className={`w-4 h-4 transition-all ${reactions[message.id] === 'disliked' ? 'fill-red-400' : ''}`} />
-                    </button>
-                    
-                    {/* 🔄 Regenerate Button - WORKING VERSION */}
-                    <button
-                      onClick={() => handleRegenerate(message.id)}
-                      disabled={regeneratingId === message.id || isTyping}
-                      className={`p-2 rounded-lg transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                        regeneratingId === message.id
-                          ? 'animate-spin bg-purple-500/20 text-purple-400'
-                          : 'bg-transparent text-gray-400 hover:bg-purple-500/15 hover:text-purple-400 hover:scale-105'
-                      } active:scale-95`
-                      title="Regenerate response"
-                      aria-label="Regenerate this response"
-                      type="button"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </button>
-                    
-                    {/* ↗️ Share Button - Share via Web Share API */}
+                    {/* 👍 LIKE BUTTON */}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation()
+                        e.preventDefault()
+                        handleLike(message.id)
+                      }}
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
+                        likedMessages.has(message.id)
+                          ? 'bg-green-500/25'
+                          : 'hover:bg-green-500/15'
+                      }`}
+                      title="Good response"
+                      type="button"
+                    >
+                      <ThumbsUp 
+                        className={`w-4 h-4 transition-colors ${
+                          likedMessages.has(message.id) 
+                            ? 'text-green-400 fill-green-400' 
+                            : 'text-gray-400 hover:text-green-400'
+                        }`} 
+                      />
+                    </button>
+                    
+                    {/* 👎 DISLIKE BUTTON */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleDislike(message.id)
+                      }}
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
+                        dislikedMessages.has(message.id)
+                          ? 'bg-red-500/25'
+                          : 'hover:bg-red-500/15'
+                      }`}
+                      title="Bad response"
+                      type="button"
+                    >
+                      <ThumbsDown 
+                        className={`w-4 h-4 transition-colors ${
+                          dislikedMessages.has(message.id) 
+                            ? 'text-red-400 fill-red-400' 
+                            : 'text-gray-400 hover:text-red-400'
+                        }`} 
+                      />
+                    </button>
+                    
+                    {/* 🔄 REGENERATE BUTTON */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleRegenerate(message.id)
+                      }}
+                      disabled={regeneratingId === message.id || isTyping}
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                        regeneratingId === message.id
+                          ? 'bg-purple-500/20 animate-spin'
+                          : 'hover:bg-purple-500/15'
+                      }`}
+                      title="Regenerate response"
+                      type="button"
+                    >
+                      <RefreshCw 
+                        className={`w-4 h-4 ${
+                          regeneratingId === message.id 
+                            ? 'text-purple-400' 
+                            : 'text-gray-400 hover:text-purple-400'
+                        }`} 
+                      />
+                    </button>
+                    
+                    {/* ↗️ SHARE BUTTON */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
                         handleShare(message.content)
                       }}
-                      className="p-2 rounded-lg hover:bg-blue-500/15 transition-all duration-200 group"
+                      className="p-2 rounded-lg hover:bg-blue-500/15 active:scale-95 transition-all cursor-pointer"
                       title="Share response"
-                      aria-label="Share this response"
+                      type="button"
                     >
-                      <Share2 className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition-colors" />
+                      <Share2 className="w-4 h-4 text-gray-400 hover:text-blue-400" />
                     </button>
                   </div>
                 )}
@@ -479,8 +511,9 @@ export function ChatInterface() {
                     </span>
                     <button
                       onClick={() => handleCopy(message.content, message.id)}
-                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan"
+                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan cursor-pointer"
                       aria-label={t('chat.copy') || 'Copy'}
+                      type="button"
                     >
                       {copiedId === message.id ? (
                         <Check className="w-3.5 h-3.5 text-green-400" />
