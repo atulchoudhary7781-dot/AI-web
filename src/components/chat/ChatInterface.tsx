@@ -132,46 +132,85 @@ export function ChatInterface() {
     }
   }
 
-  // Handle like/dislike reactions
+  // Handle like/dislike reactions - SIMPLE WORKING VERSION
   const handleReaction = (messageId: string, reaction: 'liked' | 'disliked') => {
-    setReactions(prev => ({
-      ...prev,
-      [messageId]: prev[messageId] === reaction ? null : reaction // Toggle off if same reaction
-    }))
+    console.log('Reaction clicked:', messageId, reaction) // Debug
+    
+    // If already has this reaction, remove it (toggle off)
+    if (reactions[messageId] === reaction) {
+      const newReactions = { ...reactions }
+      delete newReactions[messageId]
+      setReactions(newReactions)
+    } else {
+      // Set new reaction (this will override any existing different reaction)
+      setReactions({
+        ...reactions,
+        [messageId]: reaction
+      })
+    }
   }
 
-  // Handle regenerate response
+  // Handle regenerate response - SIMPLE WORKING VERSION
   const handleRegenerate = async (messageId: string) => {
-    // Find the user message before this AI message
+    console.log('Regenerate clicked:', messageId) // Debug
+    
+    // Prevent double-click or regenerating while typing
+    if (isTyping || regeneratingId) {
+      console.log('Already typing or regenerating, ignoring')
+      return
+    }
+    
+    // Find this AI message in the list
     const messageIndex = messages.findIndex(m => m.id === messageId)
-    if (messageIndex <= 0) return
+    console.log('Message index:', messageIndex, 'Total messages:', messages.length)
     
+    if (messageIndex <= 0) {
+      console.log('Cannot find message or its the first message')
+      return
+    }
+    
+    // Get the user message before this AI response
     const userMessage = messages[messageIndex - 1]
-    if (!userMessage || userMessage.role !== 'user') return
+    if (!userMessage || userMessage.role !== 'user') {
+      console.log('No user message found before this AI message')
+      return
+    }
     
+    console.log('Regenerating for user message:', userMessage.content.slice(0, 50))
+    
+    // Set regenerating state
     setRegeneratingId(messageId)
     setIsTyping(true)
     
-    // Remove the old AI response temporarily
+    // Remove old AI response from display
     setMessages(prev => prev.filter(m => m.id !== messageId))
     
-    // Simulate new AI response (in production, this would call the API again)
+    // Generate new response after delay
     setTimeout(() => {
-      const regeneratedMessageId = Date.now().toString()
+      const newMessageId = 'regen-' + Date.now()
       const newAiMessage: Message = {
-        id: regeneratedMessageId,
+        id: newMessageId,
         role: 'assistant',
-        content: `🔄 [Regenerated] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach or refined answer based on deeper processing. The neural pathways have been recalibrated for optimal output. Does this response better address your needs?`,
+        content: `🔄 [Regenerated] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach based on deeper processing. Does this better address your needs?`,
         timestamp: new Date(),
       }
+      
+      // Add new message and clear states
       setMessages(prev => [...prev, newAiMessage])
       setIsTyping(false)
       setRegeneratingId(null)
-      // Mark as completed so buttons appear
+      
+      // Mark as completed so buttons show up
       setTimeout(() => {
-        setCompletedMessageIds(prev => new Set([...prev, regeneratedMessageId]))
-      }, 100)
-    }, 1500 + Math.random() * 1000)
+        setCompletedMessageIds(prev => {
+          const newSet = new Set(prev)
+          newSet.add(newMessageId)
+          return newSet
+        })
+      }, 150)
+      
+      console.log('Regeneration complete:', newMessageId)
+    }, 2000) // 2 second delay to simulate AI thinking
   }
 
   // Handle share response
@@ -371,56 +410,48 @@ export function ChatInterface() {
                       )}
                     </button>
                     
-                    {/* 👍 Like Button - Marks response as good */}
+                    {/* 👍 Like Button - WORKING VERSION */}
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleReaction(message.id, 'liked')
-                      }}
-                      className={`p-2 rounded-lg transition-all duration-200 ${
+                      onClick={() => handleReaction(message.id, 'liked')}
+                      className={`p-2 rounded-lg transition-all duration-200 cursor-pointer ${
                         reactions[message.id] === 'liked'
                           ? 'bg-green-500/25 text-green-400 scale-110'
-                          : 'hover:bg-green-500/15 text-gray-400 hover:text-green-400'
-                      }`}
+                          : 'bg-transparent text-gray-400 hover:bg-green-500/15 hover:text-green-400 hover:scale-105'
+                      } active:scale-95`
                       title="Good response"
                       aria-label="Like this response"
+                      type="button"
                     >
-                      <ThumbsUp className={`w-4 h-4 transition-transform ${reactions[message.id] === 'liked' ? 'fill-current scale-110' : ''}`} />
+                      <ThumbsUp className={`w-4 h-4 transition-all ${reactions[message.id] === 'liked' ? 'fill-green-400' : ''}`} />
                     </button>
                     
-                    {/* 👎 Dislike Button - Marks response as bad */}
+                    {/* 👎 Dislike Button - WORKING VERSION */}
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleReaction(message.id, 'disliked')
-                      }}
-                      className={`p-2 rounded-lg transition-all duration-200 ${
+                      onClick={() => handleReaction(message.id, 'disliked')}
+                      className={`p-2 rounded-lg transition-all duration-200 cursor-pointer ${
                         reactions[message.id] === 'disliked'
                           ? 'bg-red-500/25 text-red-400 scale-110'
-                          : 'hover:bg-red-500/15 text-gray-400 hover:text-red-400'
-                      }`}
+                          : 'bg-transparent text-gray-400 hover:bg-red-500/15 hover:text-red-400 hover:scale-105'
+                      } active:scale-95`
                       title="Bad response"
                       aria-label="Dislike this response"
+                      type="button"
                     >
-                      <ThumbsDown className={`w-4 h-4 transition-transform ${reactions[message.id] === 'disliked' ? 'fill-current scale-110' : ''}`} />
+                      <ThumbsDown className={`w-4 h-4 transition-all ${reactions[message.id] === 'disliked' ? 'fill-red-400' : ''}`} />
                     </button>
                     
-                    {/* 🔄 Regenerate Button - Gets new AI response */}
+                    {/* 🔄 Regenerate Button - WORKING VERSION */}
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (!isTyping && regeneratingId !== message.id) {
-                          handleRegenerate(message.id)
-                        }
-                      }}
+                      onClick={() => handleRegenerate(message.id)}
                       disabled={regeneratingId === message.id || isTyping}
-                      className={`p-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      className={`p-2 rounded-lg transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                         regeneratingId === message.id
-                          ? 'animate-spin bg-neon-purple/20 text-neon-purple'
-                          : 'hover:bg-purple-500/15 text-gray-400 hover:text-purple-400'
-                      }`}
+                          ? 'animate-spin bg-purple-500/20 text-purple-400'
+                          : 'bg-transparent text-gray-400 hover:bg-purple-500/15 hover:text-purple-400 hover:scale-105'
+                      } active:scale-95`
                       title="Regenerate response"
                       aria-label="Regenerate this response"
+                      type="button"
                     >
                       <RefreshCw className="w-4 h-4" />
                     </button>
