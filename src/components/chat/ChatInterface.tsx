@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { 
   Send, Bot, User, Copy, Check, RefreshCw, 
   Sparkles, Trash2, Maximize2, Minimize2,
-  History, Plus
+  History, Plus, ThumbsUp, ThumbsDown, Share2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,6 +20,11 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+}
+
+// Track reaction state for messages
+interface MessageReactions {
+  [messageId: string]: 'liked' | 'disliked' | null
 }
 
 // Sample messages for demo
@@ -43,6 +48,10 @@ export function ChatInterface() {
   // Feature C: Chat History state
   const [showHistory, setShowHistory] = useState(false)
   const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null)
+  
+  // Post-response action states
+  const [reactions, setReactions] = useState<MessageReactions>({})
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -98,10 +107,79 @@ export function ChatInterface() {
   }
 
   // Handle copy message
-  const handleCopy = (content: string, id: string) => {
-    navigator.clipboard.writeText(content)
-    setCopiedId(id)
-    setTimeout(() => setCopiedId(null), 2000)
+  const handleCopy = async (content: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(content)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = content
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
+    }
+  }
+
+  // Handle like/dislike reactions
+  const handleReaction = (messageId: string, reaction: 'liked' | 'disliked') => {
+    setReactions(prev => ({
+      ...prev,
+      [messageId]: prev[messageId] === reaction ? null : reaction // Toggle off if same reaction
+    }))
+  }
+
+  // Handle regenerate response
+  const handleRegenerate = async (messageId: string) => {
+    // Find the user message before this AI message
+    const messageIndex = messages.findIndex(m => m.id === messageId)
+    if (messageIndex <= 0) return
+    
+    const userMessage = messages[messageIndex - 1]
+    if (!userMessage || userMessage.role !== 'user') return
+    
+    setRegeneratingId(messageId)
+    setIsTyping(true)
+    
+    // Remove the old AI response temporarily
+    setMessages(prev => prev.filter(m => m.id !== messageId))
+    
+    // Simulate new AI response (in production, this would call the API again)
+    setTimeout(() => {
+      const newAiMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `🔄 [Regenerated] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach or refined answer based on deeper processing. The neural pathways have been recalibrated for optimal output. Does this response better address your needs?`,
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, newAiMessage])
+      setIsTyping(false)
+      setRegeneratingId(null)
+    }, 1500 + Math.random() * 1000)
+  }
+
+  // Handle share response
+  const handleShare = async (content: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'NEXUS AI Response',
+          text: content,
+          url: window.location.href
+        })
+      } catch (err) {
+        // User cancelled or error
+        console.log('Share cancelled or failed')
+      }
+    } else {
+      // Fallback: copy to clipboard
+      handleCopy(content, 'share-' + Date.now())
+    }
   }
 
   // Handle clear chat
@@ -254,33 +332,102 @@ export function ChatInterface() {
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
                 
-                {/* Message actions */}
-                <div
-                  className={cn(
-                    "flex items-center gap-2 mt-3 pt-2 border-t border-white/5",
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  )}
-                >
-                  <span className="text-xs text-muted-foreground">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  <button
-                    onClick={() => handleCopy(message.content, message.id)}
-                    className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan"
-                    aria-label={t('chat.copy')}
-                  >
-                    {copiedId === message.id ? (
-                      <Check className="w-3.5 h-3.5 text-green-400" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                  {message.role === 'assistant' && (
-                    <button className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-purple">
-                      <RefreshCw className="w-3.5 h-3.5" />
+                {/* Post-Response Action Buttons - Show for ALL AI messages (always visible after response) */}
+                {message.role === 'assistant' && (
+                  <div className="flex items-center gap-1 mt-3 pt-3 border-t border-white/5">
+                    {/* Timestamp */}
+                    <span className="text-xs text-muted-foreground mr-2">
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    
+                    {/* Copy Button */}
+                    <button
+                      onClick={() => handleCopy(message.content, message.id)}
+                      className="p-1.5 rounded-lg hover:bg-white/10 transition-all duration-200 group"
+                      title={t('chat.copy') || 'Copy'}
+                      aria-label={t('chat.copy') || 'Copy'}
+                    >
+                      {copiedId === message.id ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-muted-foreground group-hover:text-neon-cyan transition-colors" />
+                      )}
                     </button>
-                  )}
-                </div>
+                    
+                    {/* Like Button */}
+                    <button
+                      onClick={() => handleReaction(message.id, 'liked')}
+                      className={`p-1.5 rounded-lg transition-all duration-200 ${
+                        reactions[message.id] === 'liked'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'hover:bg-white/10 text-muted-foreground group-hover:text-green-400'
+                      }`}
+                      title="Good response"
+                      aria-label="Like this response"
+                    >
+                      <ThumbsUp className={`w-4 h-4 ${reactions[message.id] === 'liked' ? 'fill-current' : ''}`} />
+                    </button>
+                    
+                    {/* Dislike Button */}
+                    <button
+                      onClick={() => handleReaction(message.id, 'disliked')}
+                      className={`p-1.5 rounded-lg transition-all duration-200 ${
+                        reactions[message.id] === 'disliked'
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'hover:bg-white/10 text-muted-foreground group-hover:text-red-400'
+                      }`}
+                      title="Bad response"
+                      aria-label="Dislike this response"
+                    >
+                      <ThumbsDown className={`w-4 h-4 ${reactions[message.id] === 'disliked' ? 'fill-current' : ''}`} />
+                    </button>
+                    
+                    {/* Regenerate Button */}
+                    <button
+                      onClick={() => handleRegenerate(message.id)}
+                      disabled={regeneratingId === message.id || isTyping}
+                      className={`p-1.5 rounded-lg transition-all duration-200 ${
+                        regeneratingId === message.id
+                          ? 'animate-spin text-neon-purple'
+                          : 'hover:bg-white/10 text-muted-foreground group-hover:text-neon-purple'
+                      }`}
+                      title="Regenerate response"
+                      aria-label="Regenerate this response"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Share Button */}
+                    <button
+                      onClick={() => handleShare(message.content)}
+                      className="p-1.5 rounded-lg hover:bg-white/10 transition-all duration-200 group"
+                      title="Share response"
+                      aria-label="Share this response"
+                    >
+                      <Share2 className="w-4 h-4 text-muted-foreground group-hover:text-neon-cyan transition-colors" />
+                    </button>
+                  </div>
+                )}
+                
+                {/* User message: Show only timestamp and copy */}
+                {message.role === 'user' && (
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/5 justify-end">
+                    <span className="text-xs text-muted-foreground">
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <button
+                      onClick={() => handleCopy(message.content, message.id)}
+                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan"
+                      aria-label={t('chat.copy') || 'Copy'}
+                    >
+                      {copiedId === message.id ? (
+                        <Check className="w-3.5 h-3.5 text-green-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
