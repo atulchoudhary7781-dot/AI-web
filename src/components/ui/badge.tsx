@@ -5,29 +5,29 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-orange/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all duration-200 overflow-hidden uppercase tracking-wider",
+  "inline-flex items-center justify-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all duration-200 overflow-hidden uppercase tracking-wider",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-gradient-to-r from-neon-orange to-neon-orange text-deep-black shadow-[0_0_10px_rgba(0,255,255,0.3)]",
+          "border-transparent bg-gradient-to-r from-neon-cyan to-neon-cyan text-deep-black shadow-[0_0_10px_rgba(0,255,255,0.3)]",
         secondary:
           "border-transparent bg-dark-surface text-foreground/80 border border-white/10",
         destructive:
           "border-transparent bg-gradient-to-r from-red-500 to-red-600 text-white shadow-[0_0_10px_rgba(239,68,68,0.3)]",
         outline:
-          "border-neon-orange/40 text-neon-orange bg-transparent hover:bg-neon-orange/10 hover:border-neon-orange/60",
+          "border-neon-cyan/40 text-neon-cyan bg-transparent hover:bg-neon-cyan/10 hover:border-neon-cyan/60",
         // NEXUS AI Custom Variants
         neon:
-          "border-transparent bg-gradient-to-r from-neon-orange via-neon-orange to-neon-amber text-deep-black font-bold animate-gradient-shift bg-[length:200%_auto] shadow-glow-cyan",
+          "border-transparent bg-gradient-to-r from-neon-cyan via-neon-cyan to-neon-purple text-deep-black font-bold animate-gradient-shift bg-[length:200%_auto] shadow-glow-cyan",
         neonCyan:
-          "border-neon-orange/50 bg-neon-orange/10 text-neon-orange shadow-[0_0_10px_rgba(0,255,255,0.2)] backdrop-blur-sm",
+          "border-neon-cyan/50 bg-neon-cyan/10 text-neon-cyan shadow-[0_0_10px_rgba(0,255,255,0.2)] backdrop-blur-sm",
         neonPurple:
-          "border-neon-amber/50 bg-neon-amber/10 text-neon-amber shadow-[0_0_10px_rgba(139,92,246,0.2)] backdrop-blur-sm",
+          "border-neon-purple/50 bg-neon-purple/10 text-neon-purple shadow-[0_0_10px_rgba(139,92,246,0.2)] backdrop-blur-sm",
         glass:
-          "glass text-foreground/90 border-white/20 hover:border-neon-orange/40 transition-colors",
+          "glass text-foreground/90 border-white/20 hover:border-neon-cyan/40 transition-colors",
         cyberpunk:
-          "border-l-2 border-l-neon-orange bg-dark-surface/80 text-neon-orange font-mono text-[10px] tracking-widest pl-3",
+          "border-l-2 border-l-neon-cyan bg-dark-surface/80 text-neon-cyan font-mono text-[10px] tracking-widest pl-3",
       },
     },
     defaultVariants: {

@@ -103,8 +103,8 @@ function AnimatedCounter({
 
 // Feature highlights
 const features = [
-  { icon: Brain, label: 'Neural Processing', color: 'text-neon-orange' },
-  { icon: Zap, label: 'Lightning Fast', color: 'text-neon-amber' },
+  { icon: Brain, label: 'Neural Processing', color: 'text-neon-cyan' },
+  { icon: Zap, label: 'Lightning Fast', color: 'text-neon-purple' },
   { icon: Shield, label: 'Secure by Design', color: 'text-orange-400' },
 ]
 
@@ -116,8 +116,8 @@ export function Hero() {
       <Particles count={35} />
       
       {/* Radial glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-neon-orange/10 rounded-full blur-[150px] animate-pulse-ring" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-neon-amber/10 rounded-full blur-[120px] animate-pulse-ring" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-neon-cyan/10 rounded-full blur-[150px] animate-pulse-ring" />
+      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-neon-purple/10 rounded-full blur-[120px] animate-pulse-ring" style={{ animationDelay: '1s' }} />
       
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -175,7 +175,7 @@ export function Hero() {
               key={feature.label}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full",
-                "glass-subtle hover:border-neon-orange/40 transition-all duration-300",
+                "glass-subtle hover:border-neon-cyan/40 transition-all duration-300",
                 "hover:-translate-y-1 cursor-default"
               )}
             >
@@ -198,7 +198,7 @@ export function Hero() {
           ].map((stat) => (
             <div key={stat.label} className="group">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <stat.icon className="w-5 h-5 text-neon-orange group-hover:scale-110 transition-transform" />
+                <stat.icon className="w-5 h-5 text-neon-cyan group-hover:scale-110 transition-transform" />
                 <span className="text-3xl md:text-4xl font-bold font-display gradient-text-orange">
                   <AnimatedCounter target={stat.value} suffix={stat.suffix} />
                 </span>
@@ -211,7 +211,7 @@ export function Hero() {
         {/* Scroll indicator */}
         <div className="mt-16 animate-bounce">
           <div className="w-6 h-10 border-2 border-white/20 rounded-full flex items-start justify-center p-2 mx-auto">
-            <div className="w-1.5 h-3 bg-neon-orange rounded-full animate-pulse" />
+            <div className="w-1.5 h-3 bg-neon-cyan rounded-full animate-pulse" />
           </div>
         </div>
       </div>

@@ -206,7 +206,7 @@ export function EmailVerificationForm({
             <strong>Note:</strong> If you don't receive the email within a few minutes, check your spam folder or{' '}
             <button 
               onClick={() => window.location.reload()} 
-              className="text-neon-orange hover:underline"
+              className="text-neon-cyan hover:underline"
             >
               try again
             </button>.

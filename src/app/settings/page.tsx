@@ -102,14 +102,14 @@ export default function SettingsPage() {
             {/* Profile Section */}
             <Card variant="glass" className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <User className="w-5 h-5 text-neon-orange" />
+                <User className="w-5 h-5 text-neon-cyan" />
                 <h2 className="text-lg font-semibold text-foreground">Profile</h2>
               </div>
 
               <div className="space-y-4">
                 {/* Avatar */}
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-orange to-neon-amber flex items-center justify-center text-2xl font-bold text-white">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-2xl font-bold text-white">
                     {mockUser.name.charAt(0)}
                   </div>
                   <div>
@@ -200,7 +200,7 @@ export default function SettingsPage() {
             {/* Preferences Section */}
             <Card variant="glass" className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <Palette className="w-5 h-5 text-neon-amber" />
+                <Palette className="w-5 h-5 text-neon-purple" />
                 <h2 className="text-lg font-semibold text-foreground">Preferences</h2>
               </div>
 
@@ -250,7 +250,7 @@ export default function SettingsPage() {
             {/* Security Section */}
             <Card variant="glass" className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <Shield className="w-5 h-5 text-neon-orange" />
+                <Shield className="w-5 h-5 text-neon-cyan" />
                 <h2 className="text-lg font-semibold text-foreground">Security</h2>
               </div>
 
@@ -289,7 +289,7 @@ export default function SettingsPage() {
             {/* Current Plan Card */}
             <Card variant="neon" glowColor="cyan" className="p-6">
               <div className="flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-neon-orange" />
+                <CreditCard className="w-5 h-5 text-neon-cyan" />
                 <h3 className="font-semibold text-foreground">Current Plan</h3>
               </div>
               
@@ -357,7 +357,7 @@ function ToggleSwitch({ defaultChecked = false }: { defaultChecked?: boolean }) 
       onClick={() => setIsChecked(!isChecked)}
       className={cn(
         "relative w-12 h-6 rounded-full transition-colors duration-200",
-        isChecked ? "bg-neon-orange" : "bg-white/20"
+        isChecked ? "bg-neon-cyan" : "bg-white/20"
       )}
       aria-label="Toggle switch"
     >

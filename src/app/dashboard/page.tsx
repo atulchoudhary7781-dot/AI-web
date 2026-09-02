@@ -84,7 +84,7 @@ export default function DashboardPage() {
                   className={cn(
                     "px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
                     selectedPeriod === period
-                      ? "bg-neon-orange/20 text-neon-orange"
+                      ? "bg-neon-cyan/20 text-neon-cyan"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -115,8 +115,8 @@ export default function DashboardPage() {
                   <span>+12% this week</span>
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-neon-orange/10">
-                <MessageSquare className="w-6 h-6 text-neon-orange" />
+              <div className="p-3 rounded-xl bg-neon-cyan/10">
+                <MessageSquare className="w-6 h-6 text-neon-cyan" />
               </div>
             </div>
           </Card>
@@ -132,8 +132,8 @@ export default function DashboardPage() {
                   <span>+8% vs yesterday</span>
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-neon-amber/10">
-                <Activity className="w-6 h-6 text-neon-amber" />
+              <div className="p-3 rounded-xl bg-neon-purple/10">
+                <Activity className="w-6 h-6 text-neon-purple" />
               </div>
             </div>
           </Card>
@@ -149,8 +149,8 @@ export default function DashboardPage() {
                   <span>+24 new today</span>
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-neon-orange/10">
-                <Users className="w-6 h-6 text-neon-orange" />
+              <div className="p-3 rounded-xl bg-neon-cyan/10">
+                <Users className="w-6 h-6 text-neon-cyan" />
               </div>
             </div>
           </Card>
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                   <div 
                     className={cn(
                       "w-full rounded-t-lg transition-all duration-500 hover:opacity-80",
-                      index === weeklyData.length - 1 ? "bg-gradient-to-t from-neon-orange to-neon-orange" : "bg-white/20"
+                      index === weeklyData.length - 1 ? "bg-gradient-to-t from-neon-cyan to-neon-cyan" : "bg-white/20"
                     )}
                     style={{ height: `${(data.chats / maxChats) * 100}%` }}
                   >
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-semibold text-foreground">Quick Actions</h3>
-              <Zap className="w-5 h-5 text-neon-orange" />
+              <Zap className="w-5 h-5 text-neon-cyan" />
             </div>
             
             <div className="space-y-3">
@@ -266,7 +266,7 @@ export default function DashboardPage() {
                   <tr key={activity.id} className="hover:bg-white/5 transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-orange to-neon-amber flex items-center justify-center text-xs font-bold text-white">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-xs font-bold text-white">
                           {activity.user.charAt(0)}
                         </div>
                         <span className="font-medium text-foreground">{activity.user}</span>

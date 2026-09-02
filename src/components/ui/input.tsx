@@ -10,7 +10,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       className={cn(
         // Base styling - dark cyberpunk theme
         "file:text-foreground placeholder:text-muted-foreground",
-        "selection:bg-neon-orange selection:text-deep-black",
+        "selection:bg-neon-cyan selection:text-deep-black",
         // Background and border
         "bg-dark-surface/50 border border-white/10 backdrop-blur-sm",
         // Sizing
@@ -20,7 +20,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         // Transitions
         "transition-all duration-300 ease-out",
         // Focus states - neon glow effect
-        "focus:border-neon-orange/60 focus:outline-none",
+        "focus:border-neon-cyan/60 focus:outline-none",
         "focus:shadow-[0_0_0_3px_rgba(0,255,255,0.1),0_0_20px_rgba(0,255,255,0.2),inset_0_0_10px_rgba(0,255,255,0.05)]",
         "focus:bg-dark-surface/80",
         // Disabled state

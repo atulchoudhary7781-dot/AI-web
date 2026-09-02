@@ -66,13 +66,13 @@ export function LanguageSwitcher() {
         className={cn(
           "flex items-center gap-2 px-3 py-1.5 rounded-lg",
           "hover:bg-white/10 transition-all duration-200",
-          "focus:outline-none focus:ring-2 focus:ring-neon-orange/50"
+          "focus:outline-none focus:ring-2 focus:ring-neon-cyan/50"
         )}
         aria-label={t('language.select')}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <Globe className="w-4 h-4 text-neon-orange" />
+        <Globe className="w-4 h-4 text-neon-cyan" />
         <span className="text-sm font-medium hidden sm:inline">
           {currentLanguage.nativeLabel}
         </span>
@@ -114,8 +114,8 @@ export function LanguageSwitcher() {
                 }}
                 className={cn(
                   "w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors duration-150",
-                  "hover:bg-neon-orange/10 focus:bg-neon-orange/10 focus:outline-none",
-                  locale === lang.code && "bg-neon-orange/5"
+                  "hover:bg-neon-cyan/10 focus:bg-neon-cyan/10 focus:outline-none",
+                  locale === lang.code && "bg-neon-cyan/5"
                 )}
                 role="option"
                 aria-selected={locale === lang.code}
@@ -132,7 +132,7 @@ export function LanguageSwitcher() {
                   </div>
                 </div>
                 {locale === lang.code && (
-                  <Check className="w-4 h-4 text-neon-orange" />
+                  <Check className="w-4 h-4 text-neon-cyan" />
                 )}
               </button>
             ))}

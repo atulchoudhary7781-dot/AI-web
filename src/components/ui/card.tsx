@@ -10,7 +10,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
         // Base glass morphism styling
         "glass text-card-foreground flex flex-col rounded-xl transition-all duration-300",
         // Hover effects
-        "hover-lift hover:border-neon-orange/30",
+        "hover-lift hover:border-neon-cyan/30",
         // Shadow and border
         "shadow-glass",
         // Padding
@@ -95,9 +95,9 @@ function NeonCard({
   ...props 
 }: React.ComponentProps<"div"> & { glowColor?: "cyan" | "purple" | "blue" }) {
   const glowClasses = {
-    cyan: "hover:shadow-glow-cyan hover:border-neon-orange/40",
-    purple: "hover:shadow-glow-purple hover:border-neon-amber/40",
-    blue: "hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:border-neon-orange/40",
+    cyan: "hover:shadow-glow-cyan hover:border-neon-cyan/40",
+    purple: "hover:shadow-glow-purple hover:border-neon-purple/40",
+    blue: "hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:border-neon-cyan/40",
   }
 
   return (
@@ -124,8 +124,8 @@ function GradientCard({
   gradient?: "cyan-purple" | "purple-blue" | "custom" 
 }) {
   const gradients = {
-    "cyan-purple": "border-transparent bg-gradient-to-br from-neon-orange/10 via-transparent to-neon-amber/10",
-    "purple-blue": "border-transparent bg-gradient-to-br from-neon-amber/10 via-transparent to-neon-orange/10",
+    "cyan-purple": "border-transparent bg-gradient-to-br from-neon-cyan/10 via-transparent to-neon-purple/10",
+    "purple-blue": "border-transparent bg-gradient-to-br from-neon-purple/10 via-transparent to-neon-cyan/10",
     "custom": "",
   }
 

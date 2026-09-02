@@ -325,8 +325,8 @@ export function ChatInterface() {
               size="icon-sm"
               onClick={() => setShowHistory(!showHistory)}
               className={cn(
-                "text-muted-foreground hover:text-neon-orange",
-                showHistory && "text-neon-orange bg-neon-orange/10"
+                "text-muted-foreground hover:text-neon-cyan",
+                showHistory && "text-neon-cyan bg-neon-cyan/10"
               )}
               aria-label={t('chat.history')}
             >
@@ -335,13 +335,13 @@ export function ChatInterface() {
             
             {/* Status indicator */}
             <div className="relative">
-              <div className="w-3 h-3 rounded-full bg-neon-orange animate-pulse shadow-[0_0_10px_rgba(255,107,53,0.6)]" />
-              <div className="absolute inset-0 w-3 h-3 rounded-full bg-neon-orange animate-ping opacity-30" />
+              <div className="w-3 h-3 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_rgba(255,107,53,0.6)]" />
+              <div className="absolute inset-0 w-3 h-3 rounded-full bg-neon-cyan animate-ping opacity-30" />
             </div>
             
             <div>
               <h3 className="font-display font-semibold text-foreground flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-neon-orange" />
+                <Sparkles className="w-4 h-4 text-neon-cyan" />
                 {t('chat.title')}
               </h3>
               <p className="text-xs text-muted-foreground">{t('chat.subtitle')}</p>
@@ -362,7 +362,7 @@ export function ChatInterface() {
               variant="ghost"
               size="icon-sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-muted-foreground hover:text-neon-orange"
+              className="text-muted-foreground hover:text-neon-cyan"
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
@@ -385,7 +385,7 @@ export function ChatInterface() {
                 className={cn(
                   "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center",
                   message.role === 'user'
-                    ? "bg-gradient-to-br from-neon-orange to-amber-500 text-black"
+                    ? "bg-gradient-to-br from-neon-cyan to-amber-500 text-black"
                     : "bg-gradient-to-br from-gray-800 to-gray-900 text-white",
                   "shadow-lg"
                 )}
@@ -424,14 +424,14 @@ export function ChatInterface() {
                         e.preventDefault()
                         handleCopy(message.content, message.id)
                       }}
-                      className="p-2 rounded-lg hover:bg-neon-orange/20 active:scale-95 transition-all cursor-pointer"
+                      className="p-2 rounded-lg hover:bg-neon-cyan/20 active:scale-95 transition-all cursor-pointer"
                       title="Copy to clipboard"
                       type="button"
                     >
                       {copiedId === message.id ? (
-                        <Check className="w-4 h-4 text-neon-orange" />
+                        <Check className="w-4 h-4 text-neon-cyan" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-400 hover:text-neon-orange" />
+                        <Copy className="w-4 h-4 text-gray-400 hover:text-neon-cyan" />
                       )}
                     </button>
                     
@@ -442,8 +442,8 @@ export function ChatInterface() {
                       }}
                       className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
                         likedMessages.has(message.id)
-                          ? 'bg-neon-orange/25'
-                          : 'hover:bg-neon-orange/15'
+                          ? 'bg-neon-cyan/25'
+                          : 'hover:bg-neon-cyan/15'
                       }`}
                       title="Good response"
                       type="button"
@@ -451,8 +451,8 @@ export function ChatInterface() {
                       <ThumbsUp 
                         className={`w-4 h-4 transition-colors ${
                           likedMessages.has(message.id) 
-                            ? 'text-neon-orange fill-neon-orange' 
-                            : 'text-gray-400 hover:text-neon-orange'
+                            ? 'text-neon-cyan fill-neon-cyan' 
+                            : 'text-gray-400 hover:text-neon-cyan'
                         }`} 
                       />
                     </button>
@@ -489,8 +489,8 @@ export function ChatInterface() {
                       disabled={regeneratingId === message.id || isTyping}
                       className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                         regeneratingId === message.id
-                          ? 'bg-neon-amber/20 animate-spin'
-                          : 'hover:bg-neon-amber/15'
+                          ? 'bg-neon-purple/20 animate-spin'
+                          : 'hover:bg-neon-purple/15'
                       }`}
                       title="Regenerate response"
                       type="button"
@@ -498,8 +498,8 @@ export function ChatInterface() {
                       <RefreshCw 
                         className={`w-4 h-4 ${
                           regeneratingId === message.id 
-                            ? 'text-neon-amber' 
-                            : 'text-gray-400 hover:text-neon-amber'
+                            ? 'text-neon-purple' 
+                            : 'text-gray-400 hover:text-neon-purple'
                         }`} 
                       />
                     </button>
@@ -527,7 +527,7 @@ export function ChatInterface() {
                     </span>
                     <button
                       onClick={() => handleCopy(message.content, message.id)}
-                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-orange cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan cursor-pointer"
                       aria-label={t('chat.copy') || 'Copy'}
                       type="button"
                     >
@@ -551,9 +551,9 @@ export function ChatInterface() {
               </div>
               <div className="message-ai px-5 py-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-neon-orange animate-typing" />
-                  <span className="w-2 h-2 rounded-full bg-neon-orange animate-typing" style={{ animationDelay: '0.2s' }} />
-                  <span className="w-2 h-2 rounded-full bg-neon-orange animate-typing" style={{ animationDelay: '0.4s' }} />
+                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" />
+                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" style={{ animationDelay: '0.2s' }} />
+                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" style={{ animationDelay: '0.4s' }} />
                 </div>
               </div>
             </div>
