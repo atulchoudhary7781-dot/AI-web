@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { I18nProvider } from "@/lib/i18n";
 
 // Futuristic display font for headings
 const orbitron = Orbitron({
@@ -25,7 +27,7 @@ export const metadata: Metadata = {
   keywords: ["NEXUS AI", "AI", "Chatbot", "Machine Learning", "Neural Network", "Next.js"],
   authors: [{ name: "NEXUS AI Team" }],
   icons: {
-    icon: "/logo.jpg",
+    icon: "/nexus-logo.png",
   },
   openGraph: {
     title: "NEXUS AI - Future of AI",
@@ -45,20 +47,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased bg-deep-black text-foreground min-h-screen`}
       >
-        {/* Background effects */}
-        <div className="fixed inset-0 bg-grid-pattern opacity-50 pointer-events-none" />
-        <div className="fixed inset-0 bg-mesh-gradient pointer-events-none" />
-        
-        {/* Main content */}
-        <div className="relative z-10">
-          {children}
-        </div>
-        
-        <Toaster />
+        {/* Feature E & J: Providers for theme and i18n */}
+        <ThemeProvider>
+          <I18nProvider>
+            {/* Background effects */}
+            <div className="fixed inset-0 bg-grid-pattern opacity-50 pointer-events-none" />
+            <div className="fixed inset-0 bg-mesh-gradient pointer-events-none" />
+            
+            {/* Main content */}
+            <div className="relative z-10">
+              {children}
+            </div>
+            
+            <Toaster />
+          </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
