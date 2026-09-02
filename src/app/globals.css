@@ -2,8 +2,8 @@
 @import "tw-animate-css";
 
 /* ============================================
-   NEXUS AI - CYBERPUNK/FUTURISTIC THEME
-   Next-Generation AI Platform Design System
+   NEXUS AI - BLACK HOLE THEME 🕳️
+   Pure Dark Mode - Black Hole Aesthetic
    ============================================ */
 
 @custom-variant dark (&:is(.dark *));
@@ -48,362 +48,154 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* NEXUS AI Custom Colors */
-  --color-neon-cyan: #00ffff;
-  --color-neon-purple: #8b5cf6;
-  --color-electric-blue: #06b6d4;
-  --color-deep-black: #0a0a0f;
-  --color-dark-surface: #13131a;
-  --color-glass-bg: rgba(20, 20, 30, 0.8);
-  --color-glow-cyan: rgba(0, 255, 255, 0.3);
-  --color-glow-purple: rgba(139, 92, 246, 0.3);
+  /* BLACK HOLE THEME COLORS */
+  --color-neon-orange: #ff6b35;
+  --color-neon-amber: #f59e0b;
+  --color-black-hole: #000000;
+  --color-deep-space: #050508;
+  --color-dark-surface: #0a0a0a;
+  --color-dark-card: #111111;
+  --color-glass-bg: rgba(0, 0, 0, 0.85);
+  --color-glow-orange: rgba(255, 107, 53, 0.4);
+  --color-glow-amber: rgba(245, 158, 11, 0.3);
 }
 
 /* ============================================
-   DARK MODE PRIMARY THEME (NEXUS AI Default)
+   PURE BLACK MODE - BLACK HOLE THEME (Default)
+   Everything is BLACK with Orange/Amber accents
    ============================================ */
 :root {
   --radius: 0.75rem;
   
-  /* Background - Deep space black */
-  --background: #0a0a0f;
+  /* Background - Pure Black */
+  --background: #000000;
   --foreground: #ffffff;
   
-  /* Card - Glass morphism */
-  --card: rgba(20, 20, 30, 0.8);
+  /* Card - Deep Black */
+  --card: rgba(10, 10, 10, 0.95);
   --card-foreground: #ffffff;
   
   /* Popover */
-  --popover: rgba(15, 15, 25, 0.95);
+  --popover: rgba(5, 5, 8, 0.98);
   --popover-foreground: #ffffff;
   
-  /* Primary - Neon Cyan */
-  --primary: #00ffff;
-  --primary-foreground: #0a0a0f;
+  /* Primary - Orange (Black hole glow) */
+  --primary: #ff6b35;
+  --primary-foreground: #000000;
   
-  /* Secondary - Deep surface */
-  --secondary: #13131a;
+  /* Secondary - Dark Black */
+  --secondary: #111111;
   --secondary-foreground: #ffffff;
   
   /* Muted */
-  --muted: rgba(30, 30, 45, 0.8);
-  --muted-foreground: #94a3b8;
+  --muted: rgba(30, 30, 30, 0.9);
+  --muted-foreground: #9ca3af;
   
-  /* Accent - Electric Purple */
-  --accent: #8b5cf6;
-  --accent-foreground: #ffffff;
+  /* Accent - Amber */
+  --accent: #f59e0b;
+  --accent-foreground: #000000;
   
   /* Destructive */
   --destructive: #ef4444;
   
-  /* Borders - Subtle glow */
-  --border: rgba(0, 255, 255, 0.15);
-  --input: rgba(0, 255, 255, 0.1);
-  --ring: #00ffff;
+  /* Borders - Subtle orange */
+  --border: rgba(255, 107, 53, 0.2);
+  --input: rgba(255, 107, 53, 0.15);
+  --ring: #ff6b35;
   
-  /* Chart colors */
-  --chart-1: #00ffff;
-  --chart-2: #8b5cf6;
-  --chart-3: #06b6d4;
-  --chart-4: #a855f7;
-  --chart-5: #22d3ee;
+  /* Chart colors - Orange palette */
+  --chart-1: #ff6b35;
+  --chart-2: #f59e0b;
+  --chart-3: #fb923c;
+  --chart-4: #fdba74;
+  --chart-5: #fed7aa;
   
   /* Sidebar */
-  --sidebar: rgba(15, 15, 25, 0.95);
+  --sidebar: rgba(5, 5, 8, 0.98);
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #00ffff;
-  --sidebar-primary-foreground: #0a0a0f;
-  --sidebar-accent: rgba(139, 92, 246, 0.2);
+  --sidebar-primary: #ff6b35;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: rgba(245, 158, 11, 0.15);
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(0, 255, 255, 0.15);
-  --sidebar-ring: #00ffff;
+  --sidebar-border: rgba(255, 107, 53, 0.2);
+  --sidebar-ring: #ff6b35;
 
-  /* NEXUS AI Custom Properties */
-  --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.4);
-  --glow-purple: 0 0 20px rgba(139, 92, 246, 0.4);
-  --glow-cyan-intense: 0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 255, 255, 0.3);
-  --glass-bg: rgba(20, 20, 30, 0.7);
-  --glass-border: rgba(0, 255, 255, 0.2);
-  --gradient-cyan-purple: linear-gradient(135deg, #00ffff 0%, #8b5cf6 100%);
-  --gradient-purple-blue: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+  /* Black Hole Theme Properties */
+  --glow-orange: 0 0 20px rgba(255, 107, 53, 0.5);
+  --glow-amber: 0 0 20px rgba(245, 158, 11, 0.4);
+  --glow-intense: 0 0 30px rgba(255, 107, 53, 0.7), 0 0 60px rgba(255, 107, 53, 0.4);
+  --glass-bg: rgba(0, 0, 0, 0.85);
+  --glass-border: rgba(255, 107, 53, 0.25);
+  --gradient-orange: linear-gradient(135deg, #ff6b35 0%, #f59e0b 100%);
+  --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
 }
 
 /* ============================================
-   LIGHT MODE THEME (Feature E)
-   Clean, modern light theme with blue/indigo accents
+   GLOBAL BODY STYLES - BLACK HOLE BACKGROUND
    ============================================ */
-.light {
-  /* Background - Light gray-blue */
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  
-  /* Card - White with subtle shadow */
-  --card: rgba(255, 255, 255, 0.9);
-  --card-foreground: #0f172a;
-  
-  /* Popover */
-  --popover: rgba(255, 255, 255, 0.98);
-  --popover-foreground: #0f172a;
-  
-  /* Primary - Blue */
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  
-  /* Secondary - Light surface */
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  
-  /* Muted */
-  --muted: #e2e8f0;
-  --muted-foreground: #64748b;
-  
-  /* Accent - Indigo */
-  --accent: #6366f1;
-  --accent-foreground: #ffffff;
-  
-  /* Destructive */
-  --destructive: #ef4444;
-  
-  /* Borders - Subtle blue-gray */
-  --border: rgba(59, 130, 246, 0.2);
-  --input: rgba(59, 130, 246, 0.15);
-  --ring: #3b82f6;
-  
-  /* Chart colors - Blue palette */
-  --chart-1: #3b82f6;
-  --chart-2: #6366f1;
-  --chart-3: #06b6d4;
-  --chart-4: #8b5cf6;
-  --chart-5: #22d3ee;
-  
-  /* Sidebar */
-  --sidebar: rgba(248, 250, 252, 0.98);
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #3b82f6;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(99, 102, 241, 0.1);
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: rgba(59, 130, 246, 0.15);
-  --sidebar-ring: #3b82f6;
-
-  /* NEXUS AI Custom Properties for Light Mode */
-  --glow-cyan: 0 0 20px rgba(59, 130, 246, 0.3);
-  --glow-purple: 0 0 20px rgba(99, 102, 241, 0.3);
-  --glow-cyan-intense: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.25);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(59, 130, 246, 0.2);
-  --gradient-cyan-purple: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-  --gradient-purple-blue: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+body {
+  background: #000000 !important;
+  color: #ffffff;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background-image: url('/black-hole-bg.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
 }
 
-/* Light mode body styles */
-.light body,
-.light {
-  background-color: #f8fafc !important;
-  background-image: 
-    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.04) 0%, transparent 50%) !important;
+/* Overlay to darken the black hole image */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7) !important;
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Light mode glass effects */
-.light .glass,
-.light .glass-strong,
-.light .glass-subtle {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-color: rgba(59, 130, 246, 0.15) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+/* Make sure content is above overlay */
+#__next, div[data-rk] {
+  position: relative;
+  z-index: 1;
 }
 
-/* Light mode navbar */
-.light .navbar-glass {
-  background: rgba(248, 250, 252, 0.9) !important;
-  border-bottom-color: rgba(59, 130, 246, 0.15) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+/* Custom scrollbar - Black theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* Light mode scrollbar */
-.light ::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.8);
+::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 4px;
 }
 
-.light ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.4), rgba(99, 102, 241, 0.4));
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff6b35, #f59e0b);
+  border-radius: 4px;
 }
 
-/* Smooth transition between themes */
-html {
-  transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff8c5a, #fbbf24);
 }
 
-/* ============================================
-   BASE STYLES
-   ============================================ */
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-space-grotesk), system-ui, sans-serif;
-    background-color: #0a0a0f;
-    background-image: 
-      radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.03) 0%, transparent 50%);
-    background-attachment: fixed;
-    min-height: 100vh;
-  }
-
-  /* Noise texture overlay for depth */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    opacity: 0.015;
-    z-index: 9999;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  }
-
-  /* Custom scrollbar - Cyberpunk style */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(10, 10, 15, 0.8);
-    border-radius: 4px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgba(0, 255, 255, 0.4), rgba(139, 92, 246, 0.4));
-    border-radius: 4px;
-    transition: background 0.3s ease;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(0, 255, 255, 0.6), rgba(139, 92, 246, 0.6));
-  }
-
-  /* Selection styling */
-  ::selection {
-    background: rgba(0, 255, 255, 0.3);
-    color: #ffffff;
-  }
+/* Selection styling */
+::selection {
+  background: rgba(255, 107, 53, 0.4);
+  color: #ffffff;
 }
 
 /* ============================================
    ANIMATIONS
    ============================================ */
 @layer utilities {
-  /* Glow pulse animation */
-  .animate-glow-pulse {
-    animation: glow-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes glow-pulse {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 35px rgba(0, 255, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.2);
-    }
-  }
-
-  /* Gradient shift animation */
-  .animate-gradient-shift {
-    background-size: 200% 200%;
-    animation: gradient-shift 3s ease infinite;
-  }
-
-  @keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  /* Float animation */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-
-  /* Shimmer effect */
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(0, 255, 255, 0.1) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  /* Border glow rotate */
-  .animate-border-glow {
-    animation: border-glow 3s linear infinite;
-  }
-
-  @keyframes border-glow {
-    0%, 100% { 
-      border-color: rgba(0, 255, 255, 0.3);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-    }
-    33% { 
-      border-color: rgba(139, 92, 246, 0.3);
-      box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
-    }
-    66% { 
-      border-color: rgba(6, 182, 212, 0.3);
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
-    }
-  }
-
-  /* Slide up fade in */
-  .animate-slide-up {
-    animation: slide-up 0.5s ease-out forwards;
-  }
-
-  @keyframes slide-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Fade in */
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-  }
-
-  /* FadeIn for action buttons - smooth slide up + fade */
+  /* FadeIn for action buttons */
   .animate-fadeIn {
     animation: fadeInSlide 0.3s ease-out forwards;
-  }
-
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
   }
 
   @keyframes fadeInSlide {
@@ -427,460 +219,387 @@ html {
     30% { opacity: 1; }
   }
 
-  /* Spin slow */
-  .animate-spin-slow {
-    animation: spin 3s linear infinite;
-  }
-
+  /* Spin animation */
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
 
   /* Pulse ring */
-  .animate-pulse-ring {
-    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
-  }
-
   @keyframes pulse-ring {
-    0% {
-      transform: scale(0.9);
-      opacity: 0.7;
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+
+  /* Chat message enter animation */
+  @keyframes chat-message-enter {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    50% {
-      transform: scale(1);
-      opacity: 0.4;
-    }
-    100% {
-      transform: scale(0.9);
-      opacity: 0.7;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
-  /* ============================================
-     GLASSMORPHISM UTILITIES
-     ============================================ */
-  .glass {
-    background: rgba(20, 20, 30, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 255, 255, 0.15);
+  .chat-message-enter {
+    animation: chat-message-enter 0.4s ease-out forwards;
   }
 
-  .glass-strong {
-    background: rgba(20, 20, 30, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 255, 255, 0.2);
+  /* Glow pulse animation */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.6); }
   }
 
-  .glass-subtle {
-    background: rgba(20, 20, 30, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 255, 255, 0.1);
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
   }
 
-  /* ============================================
-     NEON GLOW UTILITIES
-     ============================================ */
-  .glow-cyan {
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4),
-                0 0 40px rgba(0, 255, 255, 0.2),
-                inset 0 0 20px rgba(0, 255, 255, 0.05);
+  /* Gradient shift */
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
-  .glow-purple {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4),
-                0 0 40px rgba(139, 92, 246, 0.2),
-                inset 0 0 20px rgba(139, 92, 246, 0.05);
-  }
-
-  .glow-cyan-hover:hover {
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5),
-                0 0 50px rgba(0, 255, 255, 0.3),
-                inset 0 0 25px rgba(0, 255, 255, 0.08);
-  }
-
-  .glow-purple-hover:hover {
-    box-shadow: 0 0 25px rgba(139, 92, 246, 0.5),
-                0 0 50px rgba(139, 92, 246, 0.3),
-                inset 0 0 25px rgba(139, 92, 246, 0.08);
-  }
-
-  /* Text glow effects */
-  .text-glow-cyan {
-    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8),
-                 0 0 20px rgba(0, 255, 255, 0.5),
-                 0 0 40px rgba(0, 255, 255, 0.3);
-  }
-
-  .text-glow-purple {
-    text-shadow: 0 0 10px rgba(139, 92, 246, 0.8),
-                 0 0 20px rgba(139, 92, 246, 0.5),
-                 0 0 40px rgba(139, 92, 246, 0.3);
-  }
-
-  /* ============================================
-     GRADIENT UTILITIES
-     ============================================ */
-  .gradient-text-cyan {
-    background: linear-gradient(135deg, #00ffff 0%, #06b6d4 50%, #22d3ee 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gradient-text-purple {
-    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gradient-text-nexus {
-    background: linear-gradient(135deg, #00ffff 0%, #8b5cf6 50%, #06b6d4 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .animate-gradient {
+    background-size: 200% 200%;
     animation: gradient-shift 3s ease infinite;
   }
 
-  .gradient-border {
-    position: relative;
-    background: var(--glass-bg);
-    border-radius: var(--radius);
+  /* Float animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: calc(var(--radius) + 1px);
-    padding: 1px;
-    background: linear-gradient(135deg, #00ffff, #8b5cf6, #06b6d4);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
   }
 
-  /* ============================================
-     HOVER EFFECTS
-     ============================================ */
-  .hover-lift {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 
-  .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
-                0 0 30px rgba(0, 255, 255, 0.15);
-  }
-
-  .hover-scale {
-    transition: transform 0.3s ease;
-  }
-
-  .hover-scale:hover {
-    transform: scale(1.02);
-  }
-
-  .hover-glow {
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-
-  .hover-glow:hover {
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.3),
-                0 0 50px rgba(0, 255, 255, 0.15);
-    border-color: rgba(0, 255, 255, 0.4);
-  }
-
-  /* ============================================
-     BACKGROUND EFFECTS
-     ============================================ */
-  .bg-grid-pattern {
-    background-image: 
-      linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-  }
-
-  .bg-radial-glow {
-    background: radial-gradient(
-      ellipse at center,
-      rgba(0, 255, 255, 0.1) 0%,
-      rgba(139, 92, 246, 0.05) 40%,
-      transparent 70%
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 107, 53, 0.1),
+      transparent
     );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
   }
 
-  .bg-mesh-gradient {
-    background: 
-      radial-gradient(at 40% 20%, rgba(0, 255, 255, 0.1) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgba(168, 85, 247, 0.08) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(34, 211, 238, 0.1) 0px, transparent 50%);
+  /* Border glow animation */
+  @keyframes border-glow {
+    0%, 100% { border-color: rgba(255, 107, 53, 0.3); }
+    50% { border-color: rgba(255, 107, 53, 0.6); }
+  }
+
+  .animate-border-glow {
+    animation: border-glow 2s ease-in-out infinite;
+  }
+
+  /* Slide up animation */
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+  }
+
+  /* Fade in */
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Spin slow */
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  /* Pulse ring */
+  .animate-pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
   }
 }
 
 /* ============================================
-   COMPONENT-SPECIFIC STYLES
+   GLASSMORPHISM UTILITIES - BLACK EDITION
    ============================================ */
-
-/* Chat message animations */
-.chat-message-enter {
-  animation: chat-message-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.glass-strong {
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 107, 53, 0.2);
 }
 
-@keyframes chat-message-enter {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.glass-light {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 107, 53, 0.15);
 }
+
+.glass-subtle {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 107, 53, 0.1);
+}
+
+/* ============================================
+   MESSAGE BUBBLES - BLACK HOLE STYLE
+   ============================================ */
 
 /* User message bubble */
 .message-user {
-  background: linear-gradient(135deg, rgba(0, 255, 255, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(245, 158, 11, 0.15) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.4);
   border-radius: 16px 16px 4px 16px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.1),
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.15);
 }
 
 /* AI message bubble */
 .message-ai {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.25);
   border-radius: 16px 16px 16px 4px;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.1),
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Input focus glow */
-.input-glow:focus {
-  border-color: rgba(0, 255, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1),
-              0 0 20px rgba(0, 255, 255, 0.2),
-              inset 0 0 10px rgba(0, 255, 255, 0.05);
-  outline: none;
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #ff6b35 #000000;
 }
 
-/* Navbar glass effect */
-.navbar-glass {
-  background: rgba(10, 10, 15, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Logo glow effect */
-.logo-glow {
-  filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.6))
-          drop-shadow(0 0 20px rgba(0, 255, 255, 0.4));
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 3px;
 }
 
-/* Feature card hover effect */
-.feature-card {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff6b35, #f59e0b);
+  border-radius: 3px;
 }
 
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 255, 255, 0.05),
-    transparent
-  );
-  transition: left 0.6s ease;
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff8c5a, #fbbf24);
 }
 
-.feature-card:hover::before {
-  left: 100%;
+/* ============================================
+   BADGE & BUTTON STYLES
+   ============================================ */
+
+/* Cyberpunk badge - now Orange edition */
+.badge-cyberpunk, [data-slot="badge"].badge-cyberpunk {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(245, 158, 11, 0.2));
+  border: 1px solid rgba(255, 107, 53, 0.4);
+  color: #ff6b35;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+  border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
 }
 
-.feature-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(0, 255, 255, 0.4);
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 30px rgba(0, 255, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Loading spinner cyberpunk */
-.spinner-cyberpunk {
-  width: 40px;
-  height: 40px;
-  border: 2px solid transparent;
-  border-top: 2px solid #00ffff;
-  border-right: 2px solid #8b5cf6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3),
-              inset 0 0 10px rgba(0, 255, 255, 0.1);
-}
-
-/* Button neon effect */
-.btn-neon {
-  position: relative;
-  overflow: hidden;
+/* Neon button variant - Orange */
+.button-neon, [data-slot="button"].variant-neon {
+  background: linear-gradient(135deg, #ff6b35 0%, #f59e0b 100%) !important;
+  color: #000000 !important;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
 
-.btn-neon::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.btn-neon:hover::before {
-  left: 100%;
-}
-
-.btn-neon:hover {
-  box-shadow: 
-    0 0 20px rgba(0, 255, 255, 0.4),
-    0 0 40px rgba(0, 255, 255, 0.2),
-    inset 0 0 20px rgba(0, 255, 255, 0.1);
+.button-neon:hover, [data-slot="button"].variant-neon:hover {
+  box-shadow: 0 0 30px rgba(255, 107, 53, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
-/* Hero section gradient background */
-.hero-background {
+/* Ghost button - visible on black */
+[data-slot="button"].variant-ghost {
+  color: #9ca3af;
+}
+
+[data-slot="button"].variant-ghost:hover {
+  color: #ff6b35;
+  background: rgba(255, 107, 53, 0.1);
+}
+
+/* ============================================
+   INPUT & TEXTAREA STYLES
+   ============================================ */
+textarea, input[type="text"], input[type="email"], input[type="password"] {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid rgba(255, 107, 53, 0.3) !important;
+  color: #ffffff !important;
+}
+
+textarea:focus, input:focus {
+  border-color: #ff6b35 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2) !important;
+}
+
+textarea::placeholder, input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* ============================================
+   CARD & CONTAINER STYLES
+   ============================================ */
+.card, [data-slot="card"] {
+  background: rgba(10, 10, 10, 0.95) !important;
+  border: 1px solid rgba(255, 107, 53, 0.2) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ============================================
+   NAVBAR & HEADER STYLES
+   ============================================ */
+header, nav, [role="navigation"] {
+  background: rgba(0, 0, 0, 0.95) !important;
+  border-bottom: 1px solid rgba(255, 107, 53, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ============================================
+   HERO SECTION - BLACK HOLE EFFECT
+   ============================================ */
+.hero-section {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95)),
+              url('/black-hole-bg.jpg') center/cover no-repeat fixed !important;
+  min-height: 100vh;
   position: relative;
   overflow: hidden;
 }
 
-.hero-background::before {
+.hero-section::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: 
-    radial-gradient(circle at 30% 40%, rgba(0, 255, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
-  animation: hero-bg-move 20s ease-in-out infinite;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  pointer-events: none;
 }
 
-@keyframes hero-bg-move {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(2%, 2%) rotate(1deg); }
-  50% { transform: translate(0, 4%) rotate(0deg); }
-  75% { transform: translate(-2%, 2%) rotate(-1deg); }
+/* ============================================
+   SPECIAL EFFECTS
+   ============================================ */
+
+/* Text glow effect */
+.text-glow-orange {
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.5),
+               0 0 20px rgba(255, 107, 53, 0.3),
+               0 0 40px rgba(255, 107, 53, 0.2);
 }
 
-/* Particle effect container */
+.text-glow-amber {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5),
+               0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* Box glow effect */
+.box-glow-orange {
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.4),
+              0 0 40px rgba(255, 107, 53, 0.2),
+              inset 0 0 20px rgba(255, 107, 53, 0.1);
+}
+
+/* Border glow animation */
+.border-glow-animated {
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(255, 107, 53, 0.3);
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+  }
+  50% {
+    border-color: rgba(255, 107, 53, 0.6);
+    box-shadow: 0 0 25px rgba(255, 107, 53, 0.4);
+  }
+}
+
+/* Particle container for hero */
 .particles-container {
   position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   pointer-events: none;
+  z-index: 0;
 }
 
 .particle {
   position: absolute;
   width: 2px;
   height: 2px;
-  background: #00ffff;
+  background: #ff6b35;
   border-radius: 50%;
-  box-shadow: 0 0 6px #00ffff, 0 0 12px rgba(0, 255, 255, 0.5);
-  animation: particle-float 15s infinite linear;
+  box-shadow: 0 0 6px #ff6b35;
+  animation: particleFloat 15s infinite linear;
 }
 
-.particle:nth-child(odd) {
-  background: #8b5cf6;
-  box-shadow: 0 0 6px #8b5cf6, 0 0 12px rgba(139, 92, 246, 0.5);
-}
-
-@keyframes particle-float {
+@keyframes particleFloat {
   0% {
-    transform: translateY(100vh) translateX(0) scale(0);
+    transform: translateY(100vh) translateX(0);
     opacity: 0;
   }
   10% {
     opacity: 1;
-    transform: translateY(90vh) translateX(10px) scale(1);
   }
   90% {
     opacity: 1;
   }
   100% {
-    transform: translateY(-10vh) translateX(-10px) scale(0);
+    transform: translateY(-100vh) translateX(100px);
     opacity: 0;
   }
 }
 
-/* Responsive adjustments */
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
 @media (max-width: 768px) {
-  .text-glow-cyan,
-  .text-glow-purple {
-    text-shadow: 0 0 8px currentColor;
-  }
-}
-
-/* Custom Scrollbar for Sidebar Menu */
-@layer utilities {
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(6, 182, 212, 0.2) transparent;
+  body {
+    background-size: cover !important;
   }
   
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(6, 182, 212, 0.2);
-    border-radius: 3px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(6, 182, 212, 0.4);
-  }
-  
-  /* Smooth scrolling for sidebar */
-  .sidebar-scroll {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Hide scrollbar when not hovering (optional enhancement) */
-  .custom-scrollbar:hover {
-    scrollbar-color: rgba(6, 182, 212, 0.4) transparent;
+  .glass-strong, .glass-light, .glass-subtle {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }

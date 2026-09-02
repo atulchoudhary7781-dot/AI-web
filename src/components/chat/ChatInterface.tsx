@@ -418,63 +418,90 @@ export function ChatInterface() {
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     
-                    {/* 📋 COPY BUTTON */}
+                    {/* 📋 COPY BUTTON - ORANGE THEME */}
                     <button
                       onClick={(e) => {
                         e.preventDefault()
                         handleCopy(message.content, message.id)
                       }}
-                      className="p-2 rounded-lg hover:bg-cyan-500/20 active:scale-95 transition-all cursor-pointer"
+                      className="p-2 rounded-lg hover:bg-neon-orange/20 active:scale-95 transition-all cursor-pointer"
                       title="Copy to clipboard"
                       type="button"
                     >
                       {copiedId === message.id ? (
-                        <Check className="w-4 h-4 text-green-400" />
+                        <Check className="w-4 h-4 text-neon-orange" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-400 hover:text-cyan-400" />
+                        <Copy className="w-4 h-4 text-gray-400 hover:text-neon-orange" />
                       )}
                     </button>
                     
-                    {/* 👍 LIKE BUTTON - TEST WITH ALERT */}
+                    {/* 👍 LIKE BUTTON - ORANGE THEME */}
                     <button
                       onClick={() => {
-                        alert('👍 LIKE BUTTON WORKS! ID: ' + message.id)
                         handleLike(message.id)
                       }}
-                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer bg-green-500/20 hover:bg-green-400/40 border border-green-500/30`}
-                      title="Good response - TEST"
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
+                        likedMessages.has(message.id)
+                          ? 'bg-neon-orange/25'
+                          : 'hover:bg-neon-orange/15'
+                      }`}
+                      title="Good response"
                       type="button"
                     >
-                      <ThumbsUp className="w-4 h-4 text-green-400 fill-green-400" />
+                      <ThumbsUp 
+                        className={`w-4 h-4 transition-colors ${
+                          likedMessages.has(message.id) 
+                            ? 'text-neon-orange fill-neon-orange' 
+                            : 'text-gray-400 hover:text-neon-orange'
+                        }`} 
+                      />
                     </button>
                     
-                    {/* 👎 DISLIKE BUTTON - TEST WITH ALERT */}
+                    {/* 👎 DISLIKE BUTTON - AMBER THEME */}
                     <button
                       onClick={() => {
-                        alert('👎 DISLIKE BUTTON WORKS! ID: ' + message.id)
                         handleDislike(message.id)
                       }}
-                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer bg-red-500/20 hover:bg-red-400/40 border border-red-500/30`}
-                      title="Bad response - TEST"
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
+                        dislikedMessages.has(message.id)
+                          ? 'bg-red-500/25'
+                          : 'hover:bg-red-500/15'
+                      }`}
+                      title="Bad response"
                       type="button"
                     >
-                      <ThumbsDown className="w-4 h-4 text-red-400 fill-red-400" />
+                      <ThumbsDown 
+                        className={`w-4 h-4 transition-colors ${
+                          dislikedMessages.has(message.id) 
+                            ? 'text-red-400 fill-red-400' 
+                            : 'text-gray-400 hover:text-red-400'
+                        }`} 
+                      />
                     </button>
                     
-                    {/* 🔄 REGENERATE BUTTON - TEST WITH ALERT */}
+                    {/* 🔄 REGENERATE BUTTON - AMBER THEME */}
                     <button
                       onClick={() => {
                         if (!isTyping && !regeneratingId) {
-                          alert('🔄 REGENERATE BUTTON WORKS! ID: ' + message.id)
                           handleRegenerate(message.id)
                         }
                       }}
                       disabled={regeneratingId === message.id || isTyping}
-                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer bg-purple-500/20 hover:bg-purple-400/40 border border-purple-500/30 disabled:opacity-30`}
-                      title="Regenerate response - TEST"
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                        regeneratingId === message.id
+                          ? 'bg-neon-amber/20 animate-spin'
+                          : 'hover:bg-neon-amber/15'
+                      }`}
+                      title="Regenerate response"
                       type="button"
                     >
-                      <RefreshCw className="w-4 h-4 text-purple-400" />
+                      <RefreshCw 
+                        className={`w-4 h-4 ${
+                          regeneratingId === message.id 
+                            ? 'text-neon-amber' 
+                            : 'text-gray-400 hover:text-neon-amber'
+                        }`} 
+                      />
                     </button>
                     
                     {/* ↗️ SHARE BUTTON */}

@@ -49,14 +49,31 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased bg-deep-black text-foreground min-h-screen`}
+        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased bg-black-hole text-foreground min-h-screen`}
+        style={{ background: '#000000' }}
       >
         {/* Feature E & J: Providers for theme and i18n */}
-        <ThemeProvider>
+        <ThemeProvider
+          defaultTheme="dark"
+          attribute="class"
+          enableSystem={false}
+        >
           <I18nProvider>
-            {/* Background effects */}
-            <div className="fixed inset-0 bg-grid-pattern opacity-50 pointer-events-none" />
-            <div className="fixed inset-0 bg-mesh-gradient pointer-events-none" />
+            {/* Black Hole Background Image */}
+            <div 
+              className="fixed inset-0 pointer-events-none z-0"
+              style={{
+                backgroundImage: 'url(/black-hole-bg.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed'
+              }}
+            />
+            {/* Dark overlay */}
+            <div 
+              className="fixed inset-0 pointer-events-none z-0"
+              style={{ background: 'rgba(0, 0, 0, 0.75)' }}
+            />
             
             {/* Main content */}
             <div className="relative z-10">

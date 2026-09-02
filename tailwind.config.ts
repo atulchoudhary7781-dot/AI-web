@@ -7,15 +7,15 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
-  theme: {
+    ],
+    theme: {
         extend: {
                 colors: {
-                        /* NEXUS AI Core Colors */
+                        /* BLACK HOLE THEME - Pure Black */
                         background: 'var(--background)',
                         foreground: 'var(--foreground)',
                         
-                        /* Card with glass effect */
+                        /* Card - Deep Black */
                         card: {
                                 DEFAULT: 'var(--card)',
                                 foreground: 'var(--card-foreground)'
@@ -27,13 +27,13 @@ const config: Config = {
                                 foreground: 'var(--popover-foreground)'
                         },
                         
-                        /* Primary - Neon Cyan */
+                        /* Primary - Orange (Black hole glow) */
                         primary: {
                                 DEFAULT: 'var(--primary)',
                                 foreground: 'var(--primary-foreground)'
                         },
                         
-                        /* Secondary */
+                        /* Secondary - Dark Black */
                         secondary: {
                                 DEFAULT: 'var(--secondary)',
                                 foreground: 'var(--secondary-foreground)'
@@ -45,7 +45,7 @@ const config: Config = {
                                 foreground: 'var(--muted-foreground)'
                         },
                         
-                        /* Accent - Electric Purple */
+                        /* Accent - Amber */
                         accent: {
                                 DEFAULT: 'var(--accent)',
                                 foreground: 'var(--accent-foreground)'
@@ -62,7 +62,7 @@ const config: Config = {
                         input: 'var(--input)',
                         ring: 'var(--ring)',
                         
-                        /* Chart Colors - Cyberpunk palette */
+                        /* Chart Colors - Orange palette */
                         chart: {
                                 '1': 'var(--chart-1)',
                                 '2': 'var(--chart-2)',
@@ -71,15 +71,16 @@ const config: Config = {
                                 '5': 'var(--chart-5)'
                         },
 
-                        /* NEXUS AI Custom Neon Colors */
-                        'neon-cyan': '#00ffff',
-                        'neon-purple': '#8b5cf6',
-                        'electric-blue': '#06b6d4',
-                        'deep-black': '#0a0a0f',
-                        'dark-surface': '#13131a',
-                        'glass-bg': 'rgba(20, 20, 30, 0.8)',
-                        'glow-cyan': 'rgba(0, 255, 255, 0.3)',
-                        'glow-purple': 'rgba(139, 92, 246, 0.3)',
+                        /* BLACK HOLE Custom Colors */
+                        'neon-orange': '#ff6b35',
+                        'neon-amber': '#f59e0b',
+                        'black-hole': '#000000',
+                        'deep-space': '#050508',
+                        'dark-surface': '#0a0a0a',
+                        'dark-card': '#111111',
+                        'glass-bg': 'rgba(0, 0, 0, 0.85)',
+                        'glow-orange': 'rgba(255, 107, 53, 0.4)',
+                        'glow-amber': 'rgba(245, 158, 11, 0.3)',
                 },
                 borderRadius: {
                         lg: 'var(--radius)',
@@ -95,18 +96,19 @@ const config: Config = {
                         display: ['var(--font-orbitron)', 'sans-serif'],
                 },
                 boxShadow: {
-                        'glow-cyan': '0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.2)',
-                        'glow-purple': '0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)',
-                        'glow-cyan-intense': '0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 255, 255, 0.3)',
-                        'glow-purple-intense': '0 0 30px rgba(139, 92, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.3)',
-                        'glass': 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 30px rgba(0, 0, 0, 0.3)',
+                        'glow-orange': '0 0 20px rgba(255, 107, 53, 0.5), 0 0 40px rgba(255, 107, 53, 0.25)',
+                        'glow-amber': '0 0 20px rgba(245, 158, 11, 0.4), 0 0 40px rgba(245, 158, 11, 0.2)',
+                        'glow-orange-intense': '0 0 30px rgba(255, 107, 53, 0.7), 0 0 60px rgba(255, 107, 53, 0.4)',
+                        'glass': 'inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5)',
+                        'black-hole': '0 0 50px rgba(255, 107, 53, 0.3), inset 0 0 100px rgba(0, 0, 0, 0.8)',
                 },
                 backgroundImage: {
                         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-                        'gradient-nexus': 'linear-gradient(135deg, #00ffff 0%, #8b5cf6 50%, #06b6d4 100%)',
-                        'gradient-cyan': 'linear-gradient(135deg, #00ffff 0%, #06b6d4 100%)',
-                        'gradient-purple': 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
+                        'gradient-blackhole': 'linear-gradient(135deg, #ff6b35 0%, #f59e0b 50%, #fb923c 100%)',
+                        'gradient-orange': 'linear-gradient(135deg, #ff6b35 0%, #f59e0b 100%)',
+                        'gradient-amber': 'linear-gradient(135deg, #f59e0b 0%, #fb923c 100%)',
+                        'blackhole-bg': "url('/black-hole-bg.jpg')",
                 },
                 animation: {
                         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
@@ -120,8 +122,8 @@ const config: Config = {
                 },
                 keyframes: {
                         'glow-pulse': {
-                                '0%, 100%': { boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)' },
-                                '50%': { boxShadow: '0 0 35px rgba(0, 255, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.2)' },
+                                '0%, 100%': { boxShadow: '0 0 20px rgba(255, 107, 53, 0.4)' },
+                                '50%': { boxShadow: '0 0 35px rgba(255, 107, 53, 0.6), 0 0 60px rgba(255, 107, 53, 0.3)' },
                         },
                         'gradient-shift': {
                                 '0%, 100%': { backgroundPosition: '0% 50%' },
@@ -148,7 +150,7 @@ const config: Config = {
                         xs: '2px',
                 }
         }
-  },
-  plugins: [tailwindcssAnimate],
+    },
+    plugins: [tailwindcssAnimate],
 };
 export default config;
