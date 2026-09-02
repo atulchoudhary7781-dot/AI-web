@@ -284,14 +284,14 @@ export function ChatInterface() {
   }, [])
 
   return (
-    <div className="flex h-[600px] md:h-[700px] rounded-2xl overflow-hidden transition-all duration-500 glass-strong border border-white/10 shadow-[0_0_40px_rgba(0,255,255,0.1)]">
+    <div className="flex h-[600px] md:h-[700px] rounded-2xl overflow-hidden transition-all duration-500 glass-strong border border-orange-500/20 shadow-[0_0_40px_rgba(255,107,53,0.15)]">
       
       {/* Feature C: Chat History Sidebar */}
       <div 
         className={cn(
           "absolute left-0 top-0 bottom-0 w-80 z-20 transition-transform duration-300 ease-out",
           showHistory ? "translate-x-0" : "-translate-x-full",
-          "glass-strong border-r border-white/10"
+          "glass-strong border-r border-orange-500/20"
         )}
       >
         <ChatHistory
@@ -317,7 +317,7 @@ export function ChatInterface() {
         "min-w-0"
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-dark-surface/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-orange-500/20 bg-black/80">
           <div className="flex items-center gap-3">
             {/* History toggle button */}
             <Button
@@ -325,8 +325,8 @@ export function ChatInterface() {
               size="icon-sm"
               onClick={() => setShowHistory(!showHistory)}
               className={cn(
-                "text-muted-foreground hover:text-neon-cyan",
-                showHistory && "text-neon-cyan bg-neon-cyan/10"
+                "text-muted-foreground hover:text-neon-orange",
+                showHistory && "text-neon-orange bg-neon-orange/10"
               )}
               aria-label={t('chat.history')}
             >
@@ -335,13 +335,13 @@ export function ChatInterface() {
             
             {/* Status indicator */}
             <div className="relative">
-              <div className="w-3 h-3 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
-              <div className="absolute inset-0 w-3 h-3 rounded-full bg-neon-cyan animate-ping opacity-30" />
+              <div className="w-3 h-3 rounded-full bg-neon-orange animate-pulse shadow-[0_0_10px_rgba(255,107,53,0.6)]" />
+              <div className="absolute inset-0 w-3 h-3 rounded-full bg-neon-orange animate-ping opacity-30" />
             </div>
             
             <div>
               <h3 className="font-display font-semibold text-foreground flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-neon-cyan" />
+                <Sparkles className="w-4 h-4 text-neon-orange" />
                 {t('chat.title')}
               </h3>
               <p className="text-xs text-muted-foreground">{t('chat.subtitle')}</p>
@@ -362,7 +362,7 @@ export function ChatInterface() {
               variant="ghost"
               size="icon-sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-muted-foreground hover:text-neon-cyan"
+              className="text-muted-foreground hover:text-neon-orange"
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
@@ -385,8 +385,8 @@ export function ChatInterface() {
                 className={cn(
                   "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center",
                   message.role === 'user'
-                    ? "bg-gradient-to-br from-neon-cyan to-electric-blue text-deep-black"
-                    : "bg-gradient-to-br from-neon-purple to-purple-500 text-white",
+                    ? "bg-gradient-to-br from-neon-orange to-amber-500 text-black"
+                    : "bg-gradient-to-br from-gray-800 to-gray-900 text-white",
                   "shadow-lg"
                 )}
               >
@@ -527,7 +527,7 @@ export function ChatInterface() {
                     </span>
                     <button
                       onClick={() => handleCopy(message.content, message.id)}
-                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-orange cursor-pointer"
                       aria-label={t('chat.copy') || 'Copy'}
                       type="button"
                     >
@@ -546,14 +546,14 @@ export function ChatInterface() {
           {/* Typing indicator */}
           {isTyping && (
             <div className="flex gap-4 chat-message-enter">
-              <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-neon-purple to-purple-500 text-white flex items-center justify-center shadow-lg">
+              <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center shadow-lg border border-orange-500/30">
                 <Bot className="w-4 h-4" />
               </div>
               <div className="message-ai px-5 py-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-neon-purple animate-typing" />
-                  <span className="w-2 h-2 rounded-full bg-neon-purple animate-typing" style={{ animationDelay: '0.2s' }} />
-                  <span className="w-2 h-2 rounded-full bg-neon-purple animate-typing" style={{ animationDelay: '0.4s' }} />
+                  <span className="w-2 h-2 rounded-full bg-neon-orange animate-typing" />
+                  <span className="w-2 h-2 rounded-full bg-neon-orange animate-typing" style={{ animationDelay: '0.2s' }} />
+                  <span className="w-2 h-2 rounded-full bg-neon-orange animate-typing" style={{ animationDelay: '0.4s' }} />
                 </div>
               </div>
             </div>

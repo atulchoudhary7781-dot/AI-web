@@ -85,7 +85,7 @@ export function Navbar() {
             >
               <div className="relative">
                 {/* Logo glow effect on hover */}
-                <div className="absolute inset-0 bg-neon-cyan/30 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-neon-orange/30 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <img 
                   src="/nexus-logo.png" 
                   alt="NEXUS AI Logo" 
@@ -114,8 +114,8 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-lg",
                     "text-sm font-medium text-foreground/70 transition-all duration-200",
-                    "hover:text-neon-cyan hover:bg-neon-cyan/10",
-                    "hover:shadow-[inset_0_0_20px_rgba(0,255,255,0.05)]"
+                    "hover:text-neon-orange hover:bg-neon-orange/10",
+                    "hover:shadow-[inset_0_0_20px_rgba(255,107,53,0.05)]"
                   )}
                 >
                   <item.icon className="w-4 h-4" />
@@ -133,7 +133,7 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-lg",
                     "text-sm font-medium text-foreground/60 transition-all duration-200",
-                    "hover:text-neon-purple hover:bg-neon-purple/10"
+                    "hover:text-neon-orange hover:bg-neon-orange/10"
                   )}
                 >
                   <item.icon className="w-4 h-4" />
@@ -174,7 +174,7 @@ export function Navbar() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className={cn(
                   "lg:hidden p-2 rounded-lg transition-colors",
-                  "text-foreground hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-neon-cyan/50"
+                  "text-foreground hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-neon-orange/50"
                 )}
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
@@ -243,7 +243,7 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-3 rounded-lg",
                     "text-sm font-medium text-foreground/80 transition-all duration-200",
-                    "hover:text-neon-cyan hover:bg-neon-cyan/10 active:bg-neon-cyan/15"
+                    "hover:text-neon-orange hover:bg-neon-orange/10 active:bg-neon-orange/15"
                   )}
                 >
                   <item.icon className="w-5 h-5" />
@@ -265,7 +265,7 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-3 rounded-lg",
                     "text-sm font-medium text-foreground/80 transition-all duration-200",
-                    "hover:text-neon-purple hover:bg-neon-purple/10 active:bg-neon-purple/15"
+                    "hover:text-neon-orange hover:bg-neon-orange/10 active:bg-neon-orange/15"
                   )}
                 >
                   <item.icon className="w-5 h-5" />
