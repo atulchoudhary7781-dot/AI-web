@@ -9,7 +9,7 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
       className={cn(
         // Base styling - dark cyberpunk theme
         "border placeholder:text-muted-foreground",
-        "selection:bg-neon-cyan selection:text-deep-black",
+        "selection:bg-neon-orange selection:text-deep-black",
         // Background and border - glass effect
         "bg-dark-surface/50 border-white/10 backdrop-blur-sm",
         // Sizing and layout
@@ -19,7 +19,7 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
         // Transitions
         "transition-all duration-300 ease-out resize-y",
         // Focus states - neon glow effect
-        "focus:border-neon-cyan/60 focus:outline-none",
+        "focus:border-neon-orange/60 focus:outline-none",
         "focus:shadow-[0_0_0_3px_rgba(0,255,255,0.1),0_0_20px_rgba(0,255,255,0.2),inset_0_0_10px_rgba(0,255,255,0.05)]",
         "focus:bg-dark-surface/80",
         // Disabled state

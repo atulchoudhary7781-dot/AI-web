@@ -50,8 +50,8 @@ export default function SignupPage() {
     if (/[^A-Za-z0-9]/.test(pwd)) score++
 
     if (score === 2) return { score, label: 'Fair', color: 'text-yellow-400' }
-    if (score === 3) return { score, label: 'Good', color: 'text-blue-400' }
-    return { score: 4, label: 'Strong', color: 'text-green-400' }
+    if (score === 3) return { score, label: 'Good', color: 'text-neon-orange' }
+    return { score: 4, label: 'Strong', color: 'text-amber-300' }
   }
 
   const passwordStrength = getPasswordStrength(password)
@@ -101,8 +101,8 @@ export default function SignupPage() {
     <div className="min-h-screen bg-deep-black flex items-center justify-center p-4 relative overflow-hidden py-12">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-neon-purple/10 rounded-full blur-[128px]" />
-        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-electric-blue/10 rounded-full blur-[128px]" />
+        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-neon-orange/10 rounded-full blur-[128px]" />
+        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-neon-amber/10 rounded-full blur-[128px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -285,7 +285,7 @@ export default function SignupPage() {
                 className={cn(
                   "mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
                   agreedToTerms
-                    ? "bg-neon-cyan border-neon-cyan"
+                    ? "bg-neon-orange border-neon-orange"
                     : "border-white/20 hover:border-white/40"
                 )}
               >
@@ -293,9 +293,9 @@ export default function SignupPage() {
               </button>
               <span className="text-sm text-muted-foreground">
                 I agree to the{' '}
-                <Link href="/terms" className="text-neon-cyan hover:underline">Terms of Service</Link>{' '}
+                <Link href="/terms" className="text-neon-orange hover:underline">Terms of Service</Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="text-neon-cyan hover:underline">Privacy Policy</Link>
+                <Link href="/privacy" className="text-neon-orange hover:underline">Privacy Policy</Link>
               </span>
             </div>
 
@@ -324,7 +324,7 @@ export default function SignupPage() {
             {t('auth.hasAccount')}{' '}
             <Link
               href="/login"
-              className="font-medium text-neon-cyan hover:underline"
+              className="font-medium text-neon-orange hover:underline"
             >
               Sign in
             </Link>
@@ -334,7 +334,7 @@ export default function SignupPage() {
         {/* Footer */}
         <p className="mt-8 text-center text-xs text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="hover:text-neon-cyan">Sign in here</Link>.
+          <Link href="/login" className="hover:text-neon-orange">Sign in here</Link>.
         </p>
       </div>
     </div>

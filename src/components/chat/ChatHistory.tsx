@@ -174,7 +174,7 @@ export function ChatHistory({
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-neon-cyan transition-colors"
+            className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-neon-orange transition-colors"
           >
             {isExpanded ? (
               <ChevronDown className="w-4 h-4" />
@@ -192,7 +192,7 @@ export function ChatHistory({
             variant="ghost"
             size="icon"
             onClick={onNewChat}
-            className="h-8 w-8 text-neon-cyan hover:bg-neon-cyan/10"
+            className="h-8 w-8 text-neon-orange hover:bg-neon-orange/10"
             aria-label={t('chat.newChat')}
           >
             <Plus className="w-4 h-4" />
@@ -230,7 +230,7 @@ export function ChatHistory({
                 className={cn(
                   "group flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all duration-200",
                   currentChatId === conv.id
-                    ? "bg-neon-cyan/10 border border-neon-cyan/20"
+                    ? "bg-neon-orange/10 border border-neon-orange/20"
                     : "hover:bg-white/5 border border-transparent"
                 )}
                 onClick={() => !editingId && onLoadConversation(conv)}
@@ -238,7 +238,7 @@ export function ChatHistory({
                 {/* Icon */}
                 <MessageSquare className={cn(
                   "w-4 h-4 shrink-0",
-                  currentChatId === conv.id ? "text-neon-cyan" : "text-muted-foreground"
+                  currentChatId === conv.id ? "text-neon-orange" : "text-muted-foreground"
                 )} />
 
                 {/* Content */}
@@ -267,7 +267,7 @@ export function ChatHistory({
                     <>
                       <p className={cn(
                         "text-sm font-medium truncate",
-                        currentChatId === conv.id ? "text-neon-cyan" : "text-foreground"
+                        currentChatId === conv.id ? "text-neon-orange" : "text-foreground"
                       )}>
                         {conv.title}
                       </p>

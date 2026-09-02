@@ -5,31 +5,31 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-neon-orange/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background relative overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-neon-cyan to-electric-blue text-deep-black font-semibold shadow-glow-cyan hover:shadow-glow-cyan-intense hover:-translate-y-0.5 active:translate-y-0",
+          "bg-gradient-to-r from-neon-orange to-neon-orange text-deep-black font-semibold shadow-glow-cyan hover:shadow-glow-cyan-intense hover:-translate-y-0.5 active:translate-y-0",
         destructive:
           "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:from-red-600 hover:to-red-700 hover:shadow-xl hover:-translate-y-0.5",
         outline:
-          "border border-neon-cyan/30 bg-transparent text-neon-cyan hover:bg-neon-cyan/10 hover:border-neon-cyan/60 hover:shadow-glow-cyan backdrop-blur-sm",
+          "border border-neon-orange/30 bg-transparent text-neon-orange hover:bg-neon-orange/10 hover:border-neon-orange/60 hover:shadow-glow-cyan backdrop-blur-sm",
         secondary:
           "bg-glass-bg border border-white/10 text-white hover:bg-white/10 hover:border-white/20 shadow-lg hover:shadow-xl hover:-translate-y-0.5 backdrop-blur-sm",
         ghost:
-          "text-foreground/80 hover:text-neon-cyan hover:bg-neon-cyan/10 transition-colors duration-200",
+          "text-foreground/80 hover:text-neon-orange hover:bg-neon-orange/10 transition-colors duration-200",
         link:
-          "text-neon-cyan underline-offset-4 hover:underline hover:text-electric-blue transition-colors",
+          "text-neon-orange underline-offset-4 hover:underline hover:text-neon-orange transition-colors",
         // NEXUS AI Custom Variants
         neon: 
-          "bg-gradient-to-r from-neon-cyan via-electric-blue to-neon-purple text-deep-black font-bold shadow-glow-cyan hover:shadow-glow-purple-intense hover:-translate-y-1 animate-gradient-shift bg-[length:200%_auto]",
+          "bg-gradient-to-r from-neon-orange via-neon-orange to-neon-amber text-deep-black font-bold shadow-glow-cyan hover:shadow-glow-purple-intense hover:-translate-y-1 animate-gradient-shift bg-[length:200%_auto]",
         neonOutline:
-          "border border-gradient-nexus bg-transparent text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple hover:bg-neon-cyan/5 shadow-[0_0_15px_rgba(0,255,255,0.2)] hover:shadow-[0_0_25px_rgba(0,255,255,0.3)]",
+          "border border-gradient-nexus bg-transparent text-transparent bg-clip-text bg-gradient-to-r from-neon-orange to-neon-amber hover:bg-neon-orange/5 shadow-[0_0_15px_rgba(0,255,255,0.2)] hover:shadow-[0_0_25px_rgba(0,255,255,0.3)]",
         glass:
-          "glass text-white hover:border-neon-cyan/40 hover:shadow-glow-cyan hover:-translate-y-0.5",
+          "glass text-white hover:border-neon-orange/40 hover:shadow-glow-cyan hover:-translate-y-0.5",
         cyberpunk:
-          "bg-gradient-to-r from-neon-purple to-neon-cyan text-white font-bold tracking-wider uppercase shadow-glow-purple hover:shadow-glow-cyan-intense hover:-translate-y-1 clip-corner-sm",
+          "bg-gradient-to-r from-neon-amber to-neon-orange text-white font-bold tracking-wider uppercase shadow-glow-purple hover:shadow-glow-cyan-intense hover:-translate-y-1 clip-corner-sm",
       },
       size: {
         default: "h-10 px-5 py-2 has-[>svg]:px-4",

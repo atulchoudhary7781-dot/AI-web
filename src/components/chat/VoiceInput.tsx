@@ -184,9 +184,9 @@ export function VoiceInput({ onTranscript, disabled = false, className }: VoiceI
       {isListening && (
         <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 glass-strong rounded-lg px-3 py-2 flex items-center gap-2 animate-pulse">
           <div className="flex gap-1">
-            <span className="w-1 h-3 bg-neon-cyan rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1 h-4 bg-neon-purple rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-1 h-2 bg-electric-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            <span className="w-1 h-3 bg-neon-orange rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-1 h-4 bg-neon-amber rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-1 h-2 bg-neon-orange rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
           <span className="text-xs font-medium text-foreground">Listening...</span>
         </div>
@@ -198,10 +198,10 @@ export function VoiceInput({ onTranscript, disabled = false, className }: VoiceI
         disabled={disabled}
         className={cn(
           "relative p-2 rounded-lg transition-all duration-300",
-          "focus:outline-none focus:ring-2 focus:ring-neon-cyan/50",
+          "focus:outline-none focus:ring-2 focus:ring-neon-orange/50",
           isListening
             ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 scale-110"
-            : "hover:bg-white/10 hover:text-neon-cyan hover:scale-105 text-foreground/70",
+            : "hover:bg-white/10 hover:text-neon-orange hover:scale-105 text-foreground/70",
           disabled && "opacity-50 cursor-not-allowed",
           className
         )}

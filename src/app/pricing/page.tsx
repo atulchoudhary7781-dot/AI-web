@@ -54,7 +54,7 @@ const plans = [
     period: '/month',
     description: 'For power users and professionals',
     icon: Crown,
-    color: 'cyan',
+    color: 'orange',
     features: [
       { text: 'Unlimited messages', included: true },
       { text: 'Advanced AI (GPT-4)', included: true },
@@ -75,7 +75,7 @@ const plans = [
     period: '/month',
     description: 'For teams and businesses',
     icon: Building2,
-    color: 'purple',
+    color: 'amber',
     features: [
       { text: 'Everything in Pro', included: true },
       { text: 'Custom AI models', included: true },
@@ -171,9 +171,9 @@ export default function PricingPage() {
       {/* Hero Section */}
       <div className="pt-32 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-6">
-            <Star className="w-4 h-4 text-neon-cyan" />
-            <span className="text-sm font-medium text-neon-cyan">Simple, transparent pricing</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-orange/10 border border-neon-orange/20 mb-6">
+            <Star className="w-4 h-4 text-neon-orange" />
+            <span className="text-sm font-medium text-neon-orange">Simple, transparent pricing</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display mb-6">
@@ -197,7 +197,7 @@ export default function PricingPage() {
               onClick={() => setBillingPeriod(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
               className={cn(
                 "relative w-14 h-7 rounded-full transition-colors duration-300",
-                billingPeriod === 'yearly' ? "bg-neon-cyan" : "bg-white/20"
+                billingPeriod === 'yearly' ? "bg-neon-orange" : "bg-white/20"
               )}
               aria-label="Toggle billing period"
             >
@@ -232,13 +232,13 @@ export default function PricingPage() {
               glowColor={plan.color as any}
               className={cn(
                 "relative p-8 transition-all duration-300 hover:scale-[1.02]",
-                plan.popular && "ring-2 ring-neon-cyan shadow-lg shadow-neon-cyan/20"
+                plan.popular && "ring-2 ring-neon-orange shadow-lg shadow-neon-orange/20"
               )}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="px-4 py-1 bg-gradient-to-r from-neon-cyan to-electric-blue rounded-full text-xs font-bold text-deep-black">
+                  <div className="px-4 py-1 bg-gradient-to-r from-neon-orange to-neon-amber rounded-full text-xs font-bold text-black">
                     MOST POPULAR ⭐
                   </div>
                 </div>
@@ -248,14 +248,14 @@ export default function PricingPage() {
               <div className="text-center mb-8">
                 <div className={cn(
                   "inline-flex p-3 rounded-xl mb-4",
-                  plan.color === 'cyan' && "bg-neon-cyan/10",
-                  plan.color === 'purple' && "bg-neon-purple/10",
+                  plan.color === 'orange' && "bg-neon-orange/10",
+                  plan.color === 'amber' && "bg-neon-amber/10",
                   plan.color === 'gray' && "bg-white/10"
                 )}>
                   <plan.icon className={cn(
                     "w-8 h-8",
-                    plan.color === 'cyan' && "text-neon-cyan",
-                    plan.color === 'purple' && "text-neon-purple",
+                    plan.color === 'orange' && "text-neon-orange",
+                    plan.color === 'amber' && "text-neon-amber",
                     plan.color === 'gray' && "text-muted-foreground"
                   )} />
                 </div>
@@ -334,7 +334,7 @@ export default function PricingPage() {
       {/* CTA Section */}
       <div className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center glass-strong rounded-3xl p-12">
-          <Zap className="w-12 h-12 text-neon-cyan mx-auto mb-6" />
+          <Zap className="w-12 h-12 text-neon-orange mx-auto mb-6" />
           <h2 className="text-3xl font-bold font-display text-foreground mb-4">
             Ready to get started?
           </h2>

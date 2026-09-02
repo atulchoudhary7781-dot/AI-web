@@ -71,8 +71,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-deep-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-[128px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[128px]" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-orange/10 rounded-full blur-[128px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-amber/10 rounded-full blur-[128px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -163,7 +163,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-neon-cyan hover:underline"
+                  className="text-sm text-neon-orange hover:underline"
                 >
                   {t('auth.forgotPassword')}
                 </Link>
@@ -218,7 +218,7 @@ export default function LoginPage() {
             {t('auth.noAccount')}{' '}
             <Link
               href="/signup"
-              className="font-medium text-neon-cyan hover:underline"
+              className="font-medium text-neon-orange hover:underline"
             >
               Create account
             </Link>
@@ -228,9 +228,9 @@ export default function LoginPage() {
         {/* Footer */}
         <p className="mt-8 text-center text-xs text-muted-foreground">
           By continuing, you agree to NEXUS AI's{' '}
-          <Link href="/terms" className="hover:text-neon-cyan">Terms of Service</Link>{' '}
+          <Link href="/terms" className="hover:text-neon-orange">Terms of Service</Link>{' '}
           and{' '}
-          <Link href="/privacy" className="hover:text-neon-cyan">Privacy Policy</Link>.
+          <Link href="/privacy" className="hover:text-neon-orange">Privacy Policy</Link>.
         </p>
       </div>
     </div>
