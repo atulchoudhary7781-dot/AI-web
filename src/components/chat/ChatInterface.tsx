@@ -93,10 +93,19 @@ export function ChatInterface() {
         role: 'assistant',
         content: `I've analyzed your query about "${input.slice(0, 30)}...". Based on my neural processing capabilities, I can provide you with comprehensive insights. The data suggests multiple pathways for exploration. Would you like me to elaborate on any specific aspect?`,
         timestamp: new Date(),
-        showButtons: true, // Show buttons immediately when message appears
+        showButtons: false, // Initially HIDE buttons
       }
+      
+      // Add message first (without buttons)
       setMessages((prev) => [...prev, aiMessage])
       setIsTyping(false)
+      
+      // Then show buttons after 800ms delay (answer complete effect)
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === aiMessageId ? { ...msg, showButtons: true } : msg
+        ))
+      }, 800)
     }, 1500 + Math.random() * 1000)
   }
 
@@ -209,12 +218,20 @@ export function ChatInterface() {
         role: 'assistant',
         content: `🔄 [REGENERATED] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." with fresh perspective. Here's an alternative approach based on deeper processing. Does this better address your needs?`,
         timestamp: new Date(),
-        showButtons: true,
+        showButtons: false, // Initially HIDE buttons
       }
       
+      // Add message first (without buttons)
       setMessages(prev => [...prev, newAiMessage])
       setIsTyping(false)
       setRegeneratingId(null)
+      
+      // Then show buttons after 800ms delay (answer complete effect)
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === newAiId ? { ...msg, showButtons: true } : msg
+        ))
+      }, 800)
       
       console.log('✅ Regeneration complete:', newAiId)
     }, 2000)
