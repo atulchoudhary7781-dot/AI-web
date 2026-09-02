@@ -135,7 +135,7 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
     return (
       <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${
         isNearLimit 
-          ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' 
+          ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' 
           : 'bg-gray-800/50 text-gray-400 border border-gray-700/50'
       }`}>
         <Clock className="w-3.5 h-3.5 animate-pulse" />
@@ -154,7 +154,7 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
       percentage >= 90 
         ? 'bg-red-500/20 border border-red-500/30' 
         : isNearLimit 
-          ? 'bg-orange-500/15 border border-orange-500/25'
+          ? 'bg-yellow-500/15 border border-yellow-500/25'
           : 'bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/20'
     }`}>
       <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
           {percentage >= 90 ? (
             <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
           ) : isNearLimit ? (
-            <Clock className="w-5 h-5 text-orange-400 animate-pulse" />
+            <Clock className="w-5 h-5 text-yellow-400 animate-pulse" />
           ) : (
             <Zap className="w-5 h-5 text-cyan-400" />
           )}
@@ -172,7 +172,7 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
               percentage >= 90 
                 ? 'text-red-300' 
                 : isNearLimit 
-                  ? 'text-orange-300'
+                  ? 'text-yellow-300'
                   : 'text-white'
             }`}>
               {percentage >= 90 
@@ -206,7 +206,7 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
             percentage >= 90 
               ? 'bg-red-500' 
               : isNearLimit 
-                ? 'bg-orange-500' 
+                ? 'bg-yellow-500' 
                 : 'bg-gradient-to-r from-cyan-500 to-violet-500'
           }`}
           style={{ width: `${Math.min(percentage, 100)}%` }}

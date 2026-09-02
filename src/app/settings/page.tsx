@@ -139,7 +139,7 @@ export default function SettingsPage() {
                         <CheckCircle className="w-3.5 h-3.5" /> Verified
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-orange-400 text-xs">
+                      <span className="flex items-center gap-1 text-neon-cyan text-xs">
                         <Clock className="w-3.5 h-3.5" /> Not Verified
                       </span>
                     )}
@@ -153,8 +153,8 @@ export default function SettingsPage() {
 
                   {/* Email Verification - Feature H */}
                   {!mockUser.emailVerified && (
-                    <div className="mt-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                      <p className="text-sm text-orange-300 mb-2">
+                    <div className="mt-2 p-3 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20">
+                      <p className="text-sm text-neon-cyan mb-2">
                         Verify your email to unlock all features
                       </p>
                       <Button
@@ -162,7 +162,7 @@ export default function SettingsPage() {
                         size="sm"
                         onClick={handleSendVerification}
                         disabled={isSendingVerification}
-                        className="text-orange-400 border-orange-400/30 hover:bg-orange-400/10"
+                        className="text-neon-cyan border-neon-cyan/30 hover:bg-neon-cyan/10"
                       >
                         {isSendingVerification ? (
                           <>

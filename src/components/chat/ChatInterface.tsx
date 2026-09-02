@@ -284,14 +284,14 @@ export function ChatInterface() {
   }, [])
 
   return (
-    <div className="flex h-[600px] md:h-[700px] rounded-2xl overflow-hidden transition-all duration-500 glass-strong border border-orange-500/20 shadow-[0_0_40px_rgba(255,107,53,0.15)]">
+    <div className="flex h-[600px] md:h-[700px] rounded-2xl overflow-hidden transition-all duration-500 glass-strong border border-neon-cyan/20 shadow-[0_0_40px_rgba(0,255,255,0.15)]">
       
       {/* Feature C: Chat History Sidebar */}
       <div 
         className={cn(
           "absolute left-0 top-0 bottom-0 w-80 z-20 transition-transform duration-300 ease-out",
           showHistory ? "translate-x-0" : "-translate-x-full",
-          "glass-strong border-r border-orange-500/20"
+          "glass-strong border-r border-neon-cyan/20"
         )}
       >
         <ChatHistory
@@ -317,7 +317,7 @@ export function ChatInterface() {
         "min-w-0"
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-orange-500/20 bg-black/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neon-cyan/20 bg-black/80">
           <div className="flex items-center gap-3">
             {/* History toggle button */}
             <Button
@@ -335,7 +335,7 @@ export function ChatInterface() {
             
             {/* Status indicator */}
             <div className="relative">
-              <div className="w-3 h-3 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_rgba(255,107,53,0.6)]" />
+              <div className="w-3 h-3 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
               <div className="absolute inset-0 w-3 h-3 rounded-full bg-neon-cyan animate-ping opacity-30" />
             </div>
             
@@ -385,7 +385,7 @@ export function ChatInterface() {
                 className={cn(
                   "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center",
                   message.role === 'user'
-                    ? "bg-gradient-to-br from-neon-cyan to-amber-500 text-black"
+                    ? "bg-gradient-to-br from-neon-cyan to-electric-blue text-black"
                     : "bg-gradient-to-br from-gray-800 to-gray-900 text-white",
                   "shadow-lg"
                 )}
@@ -546,7 +546,7 @@ export function ChatInterface() {
           {/* Typing indicator */}
           {isTyping && (
             <div className="flex gap-4 chat-message-enter">
-              <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center shadow-lg border border-orange-500/30">
+              <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center shadow-lg border border-neon-purple/30">
                 <Bot className="w-4 h-4" />
               </div>
               <div className="message-ai px-5 py-4">

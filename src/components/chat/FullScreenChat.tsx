@@ -472,7 +472,7 @@ export default function FullScreenChat({
                 disabled={isLoading}
                 className={`p-2.5 rounded-xl transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${
                   !isLoggedIn 
-                    ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 border border-orange-500/30' 
+                    ? 'bg-yellow-500/15 text-yellow-400 hover:bg-yellow-500/25 border border-yellow-500/30' 
                     : attachedFile 
                       ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' 
                       : 'bg-transparent text-gray-400 hover:text-cyan-400 hover:bg-gray-700/50'
@@ -516,7 +516,7 @@ export default function FullScreenChat({
                   <Button
                     onClick={onStop}
                     size="sm"
-                    className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white px-3 h-9 rounded-lg shadow-md shadow-red-500/25 hover:shadow-red-500/35 transition-all duration-200"
+                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white px-3 h-9 rounded-lg shadow-md shadow-red-500/25 hover:shadow-red-500/35 transition-all duration-200"
                     title="Stop generating"
                   >
                     <Square className="w-3.5 h-3.5 fill-current" />

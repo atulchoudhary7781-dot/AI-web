@@ -101,7 +101,7 @@ export default function PasswordResetForm({ onBackToLogin }: PasswordResetFormPr
   return (
     <Card className="w-full max-w-md bg-[#12121a] border-white/10 shadow-2xl">
       <CardHeader className="text-center pb-2">
-        <div className="mx-auto w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-4">
+        <div className="mx-auto w-12 h-12 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center mb-4">
           <Lock className="w-6 h-6 text-white" />
         </div>
         <CardTitle className="text-xl text-white">

@@ -238,8 +238,8 @@ export default function AuthModal({
           {/* File attach message */}
           {reason === 'file_attach' && (
             <div className="mt-3 sm:mt-4 flex items-center justify-center gap-2">
-              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
-              <span className="text-xs sm:text-sm text-orange-300 font-medium">File Attach Feature</span>
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-neon-cyan" />
+              <span className="text-xs sm:text-sm text-neon-cyan font-medium">File Attach Feature</span>
             </div>
           )}
           

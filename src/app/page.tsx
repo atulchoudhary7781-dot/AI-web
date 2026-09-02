@@ -433,7 +433,7 @@ export default function NexusAI() {
       icon: <Terminal className="w-7 h-7 text-white" />,
       title: 'Command Center',
       description: 'Powerful terminal interface for developers with real-time execution and debugging tools.',
-      gradient: 'from-amber-600 to-orange-600'
+      gradient: 'from-neon-purple to-electric-blue'
     },
     {
       icon: <Shield className="w-7 h-7 text-white" />,

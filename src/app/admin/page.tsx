@@ -213,8 +213,8 @@ export default function AdminDashboard() {
   // Get plan badge color
   const getPlanBadgeColor = (plan: string) => {
     switch (plan) {
-      case 'pro': return 'bg-orange-500/20 text-orange-400 border-orange-500/30'
-      case 'normal': return 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+      case 'pro': return 'bg-neon-purple/20 text-neon-purple border-neon-purple/30'
+      case 'normal': return 'bg-neon-purple/20 text-neon-purple border-neon-purple/30'
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
     }
   }
@@ -245,12 +245,12 @@ export default function AdminDashboard() {
               </Button>
               
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-orange-500" />
+                <Shield className="w-5 h-5 text-neon-purple" />
                 <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
               </div>
             </div>
 
-            <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/30">
+            <Badge variant="outline" className="bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30">
               Administrator
             </Badge>
           </div>
@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab(id)}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 transition-colors ${
                   activeTab === id
-                    ? 'border-orange-500 text-orange-400'
+                    ? 'border-neon-cyan text-neon-cyan'
                     : 'border-transparent text-gray-400 hover:text-white hover:border-gray-700'
                 }`}
               >
@@ -303,8 +303,8 @@ export default function AdminDashboard() {
                         +{stats.users.newThisMonth} this month
                       </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-orange-500/10">
-                      <Users className="w-6 h-6 text-orange-400" />
+                    <div className="p-3 rounded-xl bg-neon-cyan/10">
+                      <Users className="w-6 h-6 text-neon-cyan" />
                     </div>
                   </div>
                 </CardContent>
@@ -336,13 +336,13 @@ export default function AdminDashboard() {
                     <div>
                       <p className="text-sm text-gray-400">Total Chats</p>
                       <p className="text-3xl font-bold text-white mt-1">{stats.chats.total.toLocaleString()}</p>
-                      <p className="text-xs text-orange-400 mt-2 flex items-center gap-1">
+                      <p className="text-xs text-neon-cyan mt-2 flex items-center gap-1">
                         <MessageSquare className="w-3 h-3" />
                         +{stats.chats.thisMonth} this month
                       </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-orange-500/10">
-                      <MessageSquare className="w-6 h-6 text-orange-400" />
+                    <div className="p-3 rounded-xl bg-neon-cyan/10">
+                      <MessageSquare className="w-6 h-6 text-neon-cyan" />
                     </div>
                   </div>
                 </CardContent>
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
               <Card className="bg-[#12121a] border-white/10">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Crown className="w-5 h-5 text-orange-400" />
+                    <Crown className="w-5 h-5 text-neon-cyan" />
                     Subscription Distribution
                   </CardTitle>
                 </CardHeader>
@@ -382,8 +382,8 @@ export default function AdminDashboard() {
                   <div className="space-y-4">
                     {[
                       { plan: 'Free', count: stats.subscriptions.free, color: 'bg-gray-500', percentage: (stats.subscriptions.free / stats.users.total * 100).toFixed(1) },
-                      { plan: 'Normal ($10/mo)', count: stats.subscriptions.normal, color: 'bg-orange-500', percentage: (stats.subscriptions.normal / stats.users.total * 100).toFixed(1) },
-                      { plan: 'Pro ($20/mo)', count: stats.subscriptions.pro, color: 'bg-orange-500', percentage: (stats.subscriptions.pro / stats.users.total * 100).toFixed(1) },
+                      { plan: 'Normal ($10/mo)', count: stats.subscriptions.normal, color: 'bg-neon-cyan', percentage: (stats.subscriptions.normal / stats.users.total * 100).toFixed(1) },
+                      { plan: 'Pro ($20/mo)', count: stats.subscriptions.pro, color: 'bg-neon-cyan', percentage: (stats.subscriptions.pro / stats.users.total * 100).toFixed(1) },
                     ].map((item) => (
                       <div key={item.plan} className="space-y-2">
                         <div className="flex justify-between text-sm">
@@ -449,7 +449,7 @@ export default function AdminDashboard() {
             <Card className="bg-[#12121a] border-white/10">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Users className="w-5 h-5 text-orange-400" />
+                  <Users className="w-5 h-5 text-neon-cyan" />
                   Recently Registered Users
                 </CardTitle>
               </CardHeader>
@@ -469,7 +469,7 @@ export default function AdminDashboard() {
                         <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-white text-sm font-medium">
                                 {(user.name || user.email[0]).toUpperCase()}
                               </div>
                               <div>
@@ -523,7 +523,7 @@ export default function AdminDashboard() {
                   <select
                     value={planFilter}
                     onChange={(e) => setPlanFilter(e.target.value)}
-                    className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-orange-500"
+                    className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-neon-cyan"
                   >
                     <option value="">All Plans</option>
                     <option value="free">Free</option>
@@ -579,7 +579,7 @@ export default function AdminDashboard() {
                                 {user.avatar ? (
                                   <img src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-medium">
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-white font-medium">
                                     {(user.name || user.email[0]).toUpperCase()}
                                   </div>
                                 )}
@@ -631,7 +631,7 @@ export default function AdminDashboard() {
                                   variant="ghost"
                                   onClick={() => handleUserAction(user.id, 'reset_chats')}
                                   disabled={userActionLoading === user.id}
-                                  className="text-orange-400 hover:bg-orange-500/10"
+                                  className="text-neon-cyan hover:bg-neon-cyan/10"
                                 >
                                   <RefreshCw className="w-4 h-4" />
                                 </Button>
@@ -707,7 +707,7 @@ export default function AdminDashboard() {
               <Card className="bg-[#12121a] border-white/10">
                 <CardContent className="p-6">
                   <p className="text-sm text-gray-400">Paying Customers</p>
-                  <p className="text-2xl font-bold text-orange-400 mt-1">
+                  <p className="text-2xl font-bold text-neon-cyan mt-1">
                     {stats.subscriptions.normal + stats.subscriptions.pro}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">Normal + Pro plans</p>
@@ -768,7 +768,7 @@ export default function AdminDashboard() {
           <Card className="bg-[#12121a] border-white/10">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Database className="w-5 h-5 text-orange-400" />
+                <Database className="w-5 h-5 text-neon-cyan" />
                 Admin Activity Logs
               </CardTitle>
             </CardHeader>

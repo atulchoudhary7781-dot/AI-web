@@ -137,7 +137,7 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn
                 <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-cyan-400" />
               </div>
               {/* Lock Badge */}
-              <div className="absolute -top-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <div className="absolute -top-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-yellow-500/30">
                 <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn
                   <p className="text-xs sm:text-sm font-medium text-white">{feature.label}</p>
                   <p className="text-[11px] sm:text-xs text-gray-500">{feature.desc}</p>
                 </div>
-                <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500/60 flex-shrink-0" />
+                <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-500/60 flex-shrink-0" />
               </div>
             ))}
           </div>
@@ -644,7 +644,7 @@ print(f"Sum of evens: {even_sum}")`,
       id: 'code-executor', 
       icon: Code2, 
       label: 'Code Runner', 
-      color: 'from-orange-500 to-yellow-500', 
+      color: 'from-neon-cyan to-neon-purple', 
       description: 'Execute code instantly',
       badge: '⚡'
     },
@@ -815,7 +815,7 @@ print(f"Sum of evens: {even_sum}")`,
                 </div>
 
                 {searchError && (
-                  <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-lg">
+                  <div className="flex items-center gap-2 text-xs text-yellow-400 bg-yellow-500/10 px-3 py-2 rounded-lg">
                     <AlertCircle className="w-3 h-3" />
                     {searchError}
                   </div>
@@ -951,7 +951,7 @@ print(f"Sum of evens: {even_sum}")`,
                 </Button>
 
                 {imageError && (
-                  <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-lg">
+                  <div className="flex items-center gap-2 text-xs text-yellow-400 bg-yellow-500/10 px-3 py-2 rounded-lg">
                     <AlertCircle className="w-3 h-3" />
                     {imageError}
                   </div>
@@ -1093,7 +1093,7 @@ print(f"Sum of evens: {even_sum}")`,
                       onClick={() => setCodeLanguage(lang.value)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
                         codeLanguage === lang.value
-                          ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
+                          ? 'bg-neon-cyan text-black shadow-lg shadow-neon-cyan/25'
                           : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700 hover:text-white'
                       }`}
                     >
@@ -1110,7 +1110,7 @@ print(f"Sum of evens: {even_sum}")`,
                     onChange={(e) => setCode(e.target.value)}
                     placeholder={`// Write ${codeLanguage} code here...`}
                     rows={10}
-                    className="w-full px-4 py-3 bg-gray-950 border border-gray-700/80 rounded-xl text-emerald-400 placeholder:text-gray-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none resize-none font-mono text-sm leading-relaxed"
+                    className="w-full px-4 py-3 bg-gray-950 border border-gray-700/80 rounded-xl text-emerald-400 placeholder:text-gray-600 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20 outline-none resize-none font-mono text-sm leading-relaxed"
                     spellCheck={false}
                     autoFocus
                   />
@@ -1118,7 +1118,7 @@ print(f"Sum of evens: {even_sum}")`,
                     variant="ghost"
                     size="sm"
                     onClick={loadExample}
-                    className="absolute top-2 right-2 text-xs text-gray-500 hover:text-orange-400 h-7"
+                    className="absolute top-2 right-2 text-xs text-gray-500 hover:text-neon-cyan h-7"
                   >
                     Example
                   </Button>
@@ -1128,7 +1128,7 @@ print(f"Sum of evens: {even_sum}")`,
                   <Button
                     onClick={handleRunCode}
                     disabled={isRunningCode || !code.trim()}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-500 hover:opacity-90 text-white border-0 h-11"
+                    className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-purple hover:opacity-90 text-white border-0 h-11"
                   >
                     {isRunningCode ? (
                       <>

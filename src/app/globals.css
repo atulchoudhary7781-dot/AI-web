@@ -2,8 +2,8 @@
 @import "tw-animate-css";
 
 /* ============================================
-   NEXUS AI - BLACK HOLE THEME 🕳️
-   Pure Dark Mode - Black Hole Aesthetic
+   NEXUS AI - CYBERPUNK THEME ⚡
+   Dark Mode with Cyan/Purple Neon Accents
    ============================================ */
 
 @custom-variant dark (&:is(.dark *));
@@ -233,8 +233,8 @@ body {
 
   /* Glow pulse animation */
   @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
-    50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.6); }
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.6); }
   }
 
   .animate-glow-pulse {
@@ -273,7 +273,7 @@ body {
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 107, 53, 0.1),
+      rgba(0, 255, 255, 0.1),
       transparent
     );
     background-size: 200% 100%;
@@ -282,8 +282,8 @@ body {
 
   /* Border glow animation */
   @keyframes border-glow {
-    0%, 100% { border-color: rgba(255, 107, 53, 0.3); }
-    50% { border-color: rgba(255, 107, 53, 0.6); }
+    0%, 100% { border-color: rgba(0, 255, 255, 0.3); }
+    50% { border-color: rgba(0, 255, 255, 0.6); }
   }
 
   .animate-border-glow {

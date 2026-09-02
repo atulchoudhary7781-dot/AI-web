@@ -86,7 +86,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Dedicated support'
     ],
     color: 'text-yellow-400',
-    gradient: 'from-yellow-500 to-orange-500'
+    gradient: 'from-neon-cyan to-neon-purple'
   }
 ]
 
@@ -556,7 +556,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     { label: 'Total Chats', value: currentPlan === 'free' ? `${chatCountToday}/${maxChatsForPlan}` : '∞', icon: MessageSquare, color: 'from-cyan-500 to-blue-500' },
     { label: 'Days Active', value: '15', icon: Calendar, color: 'from-violet-500 to-purple-500' },
     { label: 'AI Queries', value: '156', icon: Zap, color: 'from-pink-500 to-rose-500' },
-    { label: 'Plan', value: currentPlan.toUpperCase(), icon: currentPlan === 'pro' ? Crown : Star, color: currentPlan === 'pro' ? 'from-yellow-500 to-orange-500' : currentPlan === 'normal' ? 'from-cyan-500 to-blue-500' : 'from-gray-500 to-gray-600' }
+    { label: 'Plan', value: currentPlan.toUpperCase(), icon: currentPlan === 'pro' ? Crown : Star, color: currentPlan === 'pro' ? 'from-neon-cyan to-neon-purple' : currentPlan === 'normal' ? 'from-cyan-500 to-blue-500' : 'from-gray-500 to-gray-600' }
   ]
 
   // Chat limit percentage (for progress bar)
@@ -585,12 +585,12 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
 
         {/* Chat Limit Banner - Only for Free Users */}
         {currentPlan === 'free' && (
-          <div className="relative bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 border-b border-orange-500/30 px-4 py-3">
+          <div className="relative bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-electric-blue/20 border-b border-neon-cyan/30 px-4 py-3">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-orange-400 animate-pulse" />
+                <Clock className="w-5 h-5 text-neon-cyan animate-pulse" />
                 <div>
-                  <p className="text-sm font-medium text-orange-300">
+                  <p className="text-sm font-medium text-neon-cyan">
                     Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used
                   </p>
                   <p className="text-xs text-gray-400">
@@ -1188,7 +1188,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                           window.location.reload()
                         }
                       }}
-                      className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                      className="border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
                     >
                       Clear
                     </Button>
@@ -1255,7 +1255,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                           .catch(() => alert('Failed to send reset email'))
                         }
                       }}
-                      className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                      className="border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
                     >
                       <Key className="w-4 h-4 mr-1" />
                       Reset

@@ -42,7 +42,7 @@ export default function SignupPage() {
   // Password strength checker
   const getPasswordStrength = (pwd: string) => {
     if (pwd.length < 6) return { score: 0, label: 'Too short', color: 'text-red-400' }
-    if (pwd.length < 8) return { score: 1, label: 'Weak', color: 'text-orange-400' }
+    if (pwd.length < 8) return { score: 1, label: 'Weak', color: 'text-yellow-400' }
     
     let score = 1
     if (/[A-Z]/.test(pwd)) score++
@@ -51,7 +51,7 @@ export default function SignupPage() {
 
     if (score === 2) return { score, label: 'Fair', color: 'text-yellow-400' }
     if (score === 3) return { score, label: 'Good', color: 'text-neon-cyan' }
-    return { score: 4, label: 'Strong', color: 'text-amber-300' }
+    return { score: 4, label: 'Strong', color: 'text-neon-purple' }
   }
 
   const passwordStrength = getPasswordStrength(password)

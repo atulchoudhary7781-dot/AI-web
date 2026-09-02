@@ -105,7 +105,7 @@ function AnimatedCounter({
 const features = [
   { icon: Brain, label: 'Neural Processing', color: 'text-neon-cyan' },
   { icon: Zap, label: 'Lightning Fast', color: 'text-neon-purple' },
-  { icon: Shield, label: 'Secure by Design', color: 'text-orange-400' },
+  { icon: Shield, label: 'Secure by Design', color: 'text-electric-blue' },
 ]
 
 export function Hero() {
@@ -123,7 +123,7 @@ export function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <Badge variant="neonOrange" className="animate-pulse">
+          <Badge variant="neonCyan" className="animate-pulse">
             <Sparkles className="w-3 h-3" />
             Next Generation AI
           </Badge>
@@ -135,7 +135,7 @@ export function Hero() {
           style={{ animationDelay: '0.2s' }}
         >
           <span className="block text-foreground">The Future of</span>
-          <span className="gradient-text-nexus text-glow-orange">
+          <span className="gradient-text-nexus text-glow-cyan">
             Artificial Intelligence
           </span>
         </h1>
@@ -199,7 +199,7 @@ export function Hero() {
             <div key={stat.label} className="group">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <stat.icon className="w-5 h-5 text-neon-cyan group-hover:scale-110 transition-transform" />
-                <span className="text-3xl md:text-4xl font-bold font-display gradient-text-orange">
+                <span className="text-3xl md:text-4xl font-bold font-display gradient-text-nexus">
                   <AnimatedCounter target={stat.value} suffix={stat.suffix} />
                 </span>
               </div>
