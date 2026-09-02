@@ -435,74 +435,46 @@ export function ChatInterface() {
                       )}
                     </button>
                     
-                    {/* 👍 LIKE BUTTON */}
+                    {/* 👍 LIKE BUTTON - TEST WITH ALERT */}
                     <button
-                      onClick={(e) => {
-                        e.preventDefault()
+                      onClick={() => {
+                        alert('👍 LIKE BUTTON WORKS! ID: ' + message.id)
                         handleLike(message.id)
                       }}
-                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
-                        likedMessages.has(message.id)
-                          ? 'bg-green-500/25'
-                          : 'hover:bg-green-500/15'
-                      }`}
-                      title="Good response"
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer bg-green-500/20 hover:bg-green-400/40 border border-green-500/30`}
+                      title="Good response - TEST"
                       type="button"
                     >
-                      <ThumbsUp 
-                        className={`w-4 h-4 transition-colors ${
-                          likedMessages.has(message.id) 
-                            ? 'text-green-400 fill-green-400' 
-                            : 'text-gray-400 hover:text-green-400'
-                        }`} 
-                      />
+                      <ThumbsUp className="w-4 h-4 text-green-400 fill-green-400" />
                     </button>
                     
-                    {/* 👎 DISLIKE BUTTON */}
+                    {/* 👎 DISLIKE BUTTON - TEST WITH ALERT */}
                     <button
-                      onClick={(e) => {
-                        e.preventDefault()
+                      onClick={() => {
+                        alert('👎 DISLIKE BUTTON WORKS! ID: ' + message.id)
                         handleDislike(message.id)
                       }}
-                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
-                        dislikedMessages.has(message.id)
-                          ? 'bg-red-500/25'
-                          : 'hover:bg-red-500/15'
-                      }`}
-                      title="Bad response"
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer bg-red-500/20 hover:bg-red-400/40 border border-red-500/30`}
+                      title="Bad response - TEST"
                       type="button"
                     >
-                      <ThumbsDown 
-                        className={`w-4 h-4 transition-colors ${
-                          dislikedMessages.has(message.id) 
-                            ? 'text-red-400 fill-red-400' 
-                            : 'text-gray-400 hover:text-red-400'
-                        }`} 
-                      />
+                      <ThumbsDown className="w-4 h-4 text-red-400 fill-red-400" />
                     </button>
                     
-                    {/* 🔄 REGENERATE BUTTON */}
+                    {/* 🔄 REGENERATE BUTTON - TEST WITH ALERT */}
                     <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handleRegenerate(message.id)
+                      onClick={() => {
+                        if (!isTyping && !regeneratingId) {
+                          alert('🔄 REGENERATE BUTTON WORKS! ID: ' + message.id)
+                          handleRegenerate(message.id)
+                        }
                       }}
                       disabled={regeneratingId === message.id || isTyping}
-                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                        regeneratingId === message.id
-                          ? 'bg-purple-500/20 animate-spin'
-                          : 'hover:bg-purple-500/15'
-                      }`}
-                      title="Regenerate response"
+                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer bg-purple-500/20 hover:bg-purple-400/40 border border-purple-500/30 disabled:opacity-30`}
+                      title="Regenerate response - TEST"
                       type="button"
                     >
-                      <RefreshCw 
-                        className={`w-4 h-4 ${
-                          regeneratingId === message.id 
-                            ? 'text-purple-400' 
-                            : 'text-gray-400 hover:text-purple-400'
-                        }`} 
-                      />
+                      <RefreshCw className="w-4 h-4 text-purple-400" />
                     </button>
                     
                     {/* ↗️ SHARE BUTTON */}
