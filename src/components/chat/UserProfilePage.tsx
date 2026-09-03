@@ -51,7 +51,8 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Chat history (7 days)'
     ],
     color: 'text-gray-400',
-    gradient: 'from-gray-500 to-gray-600'
+    gradient: 'from-gray-500 to-gray-600',
+    locked: false
   },
   {
     id: 'normal',
@@ -68,7 +69,9 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
     popular: true,
     color: 'text-cyan-400',
-    gradient: 'from-cyan-500 to-blue-500'
+    gradient: 'from-cyan-500 to-blue-500',
+    locked: true,
+    lockMessage: 'Coming Soon with Subscription'
   },
   {
     id: 'pro',
@@ -86,7 +89,9 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Dedicated support'
     ],
     color: 'text-yellow-400',
-    gradient: 'from-neon-cyan to-neon-purple'
+    gradient: 'from-neon-cyan to-neon-purple',
+    locked: true,
+    lockMessage: 'Coming Soon with Subscription'
   }
 ]
 
@@ -615,11 +620,12 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => setActiveTab('subscription')}
-                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:shadow-lg hover:shadow-cyan-500/25 text-xs"
+                  variant="locked"
+                  disabled={true}
+                  className="text-xs"
                 >
-                  <Crown className="w-3 h-3 mr-1" />
-                  Upgrade
+                  <Lock className="w-3 h-3 mr-1" />
+                  Coming Soon
                 </Button>
               </div>
             </div>
@@ -1027,12 +1033,22 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                 <Card 
                   key={plan.id}
                   className={`relative bg-gray-900/50 backdrop-blur-xl overflow-hidden transition-all duration-300 ${
-                    currentPlan === plan.id 
-                      ? 'border-2 border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
-                      : 'border-gray-800 hover:border-gray-700'
-                  } ${plan.popular ? 'md:-mt-4 md:mb-[-16px]' : ''}`}
+                    (plan as any).locked 
+                      ? 'opacity-75 cursor-not-allowed border-yellow-500/30' 
+                      : currentPlan === plan.id 
+                        ? 'border-2 border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
+                        : 'border-gray-800 hover:border-gray-700'
+                  } ${(plan as any).popular && !(plan as any).locked ? 'md:-mt-4 md:mb-[-16px]' : ''}`}
                 >
-                  {plan.popular && (
+                  {/* Locked Badge */}
+                  {(plan as any).locked && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      COMING SOON
+                    </div>
+                  )}
+                  
+                  {plan.popular && !(plan as any).locked && (
                     <div className="absolute top-0 right-0 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
                       POPULAR
                     </div>
@@ -1040,7 +1056,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                   
                   <CardContent className="p-6">
                     <div className="text-center mb-6">
-                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3`}>
+                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3 ${
+                        (plan as any).locked ? 'grayscale opacity-60' : ''
+                      }`}>
                         {plan.id === 'pro' ? (
                           <Crown className="w-6 h-6 text-white" />
                         ) : plan.id === 'normal' ? (
@@ -1049,16 +1067,18 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                           <User className="w-6 h-6 text-white" />
                         )}
                       </div>
-                      <h3 className={`text-xl font-bold ${plan.color}`}>{plan.name}</h3>
+                      <h3 className={`text-xl font-bold ${plan.color} ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>{plan.name}</h3>
                       <div className="mt-2">
-                        <span className="text-3xl font-bold text-white">${plan.price}</span>
+                        <span className={`text-3xl font-bold text-white ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>${plan.price}</span>
                         <span className="text-gray-400">/{plan.period}</span>
                       </div>
                     </div>
 
                     <ul className="space-y-3 mb-6">
                       {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm">
+                        <li key={idx} className={`flex items-start gap-2 text-sm ${
+                          (plan as any).locked ? 'opacity-50' : ''
+                        }`}>
                           <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
                             currentPlan === plan.id ? 'text-cyan-400' : 'text-gray-500'
                           }`} />
@@ -1069,29 +1089,46 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                       ))}
                     </ul>
 
-                    <Button
-                      onClick={() => handleSubscriptionChange(plan.id)}
-                      disabled={currentPlan === plan.id || isLoading}
-                      className={`w-full ${
-                        currentPlan === plan.id
-                          ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
-                          : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
-                      } transition-all`}
-                    >
-                      {currentPlan === plan.id ? (
-                        <>
-                          <Check className="w-4 h-4 mr-2" />
-                          Current Plan
-                        </>
-                      ) : plan.price === 0 ? (
-                        'Downgrade to Free'
-                      ) : (
-                        <>
-                          <CreditCard className="w-4 h-4 mr-2" />
-                          Upgrade to {plan.name}
-                        </>
-                      )}
-                    </Button>
+                    {(plan as any).locked ? (
+                      <div className="w-full">
+                        <Button
+                          variant="locked"
+                          disabled={true}
+                          className="w-full"
+                        >
+                          <Lock className="w-4 h-4 mr-2" />
+                          Coming Soon with Subscription
+                        </Button>
+                        <p className="text-xs text-center text-yellow-400 mt-2 flex items-center justify-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Subscription feature coming soon!
+                        </p>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => handleSubscriptionChange(plan.id)}
+                        disabled={currentPlan === plan.id || isLoading}
+                        className={`w-full ${
+                          currentPlan === plan.id
+                            ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
+                            : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
+                        } transition-all`}
+                      >
+                        {currentPlan === plan.id ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            Current Plan
+                          </>
+                        ) : plan.price === 0 ? (
+                          'Downgrade to Free'
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Upgrade to {plan.name}
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ))}

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { 
   Check, X, Zap, Crown, Building2, 
-  ArrowRight, Star, Sparkles
+  ArrowRight, Star, Sparkles, Lock, Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -55,6 +55,8 @@ const plans = [
     description: 'For power users and professionals',
     icon: Crown,
     color: 'orange',
+    locked: true,
+    lockMessage: 'Coming Soon with Subscription',
     features: [
       { text: 'Unlimited messages', included: true },
       { text: 'Advanced AI (GPT-4)', included: true },
@@ -65,7 +67,7 @@ const plans = [
       { text: 'Priority support', included: false },
       { text: 'API access', included: false },
     ],
-    cta: 'Start Pro Trial',
+    cta: 'Coming Soon 🔒',
     popular: true,
   },
   {
@@ -76,6 +78,8 @@ const plans = [
     description: 'For teams and businesses',
     icon: Building2,
     color: 'amber',
+    locked: true,
+    lockMessage: 'Coming Soon with Subscription',
     features: [
       { text: 'Everything in Pro', included: true },
       { text: 'Custom AI models', included: true },
@@ -86,7 +90,7 @@ const plans = [
       { text: 'SLA guarantee', included: true },
       { text: 'Full API access', included: true },
     ],
-    cta: 'Contact Sales',
+    cta: 'Coming Soon 🔒',
     popular: false,
   },
 ]
@@ -228,18 +232,30 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <Card
               key={plan.id}
-              variant={plan.popular ? 'neon' : 'glass'}
+              variant={plan.locked ? 'locked' : (plan.popular ? 'neon' : 'glass')}
               glowColor={plan.color as any}
               className={cn(
-                "relative p-8 transition-all duration-300 hover:scale-[1.02]",
-                plan.popular && "ring-2 ring-neon-cyan shadow-lg shadow-neon-cyan/20"
+                "relative p-8 transition-all duration-300",
+                plan.locked ? "opacity-75 cursor-not-allowed" : "hover:scale-[1.02]",
+                plan.popular && !plan.locked && "ring-2 ring-neon-cyan shadow-lg shadow-neon-cyan/20",
+                plan.locked && "border-yellow-500/30 bg-gray-900/50"
               )}
             >
               {/* Popular Badge */}
-              {plan.popular && (
+              {plan.popular && !plan.locked && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <div className="px-4 py-1 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-full text-xs font-bold text-black">
                     MOST POPULAR ⭐
+                  </div>
+                </div>
+              )}
+
+              {/* Locked Badge */}
+              {plan.locked && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <div className="px-4 py-1 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full text-xs font-bold text-black flex items-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    COMING SOON
                   </div>
                 </div>
               )}
@@ -295,24 +311,41 @@ export default function PricingPage() {
               </ul>
 
               {/* CTA Button */}
-              <Button
-                variant={plan.popular ? 'neon' : plan.id === 'enterprise' ? 'neonOutline' : 'outline'}
-                className="w-full"
-                onClick={() => handleSelectPlan(plan.id)}
-                disabled={isLoading}
-              >
-                {isLoading && selectedPlan === plan.id ? (
-                  <>
-                    <LoadingSpinner />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    {t(plan.cta.toLowerCase() as any)}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
+              {plan.locked ? (
+                <div className="w-full">
+                  <Button
+                    variant="locked"
+                    className="w-full cursor-not-allowed"
+                    disabled={true}
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    Coming Soon with Subscription
+                  </Button>
+                  <p className="text-xs text-center text-yellow-400 mt-2 flex items-center justify-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Subscription feature coming soon!
+                  </p>
+                </div>
+              ) : (
+                <Button
+                  variant={plan.popular ? 'neon' : plan.id === 'enterprise' ? 'neonOutline' : 'outline'}
+                  className="w-full"
+                  onClick={() => handleSelectPlan(plan.id)}
+                  disabled={isLoading}
+                >
+                  {isLoading && selectedPlan === plan.id ? (
+                    <>
+                      <LoadingSpinner />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {t(plan.cta.toLowerCase() as any)}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              )}
             </Card>
           ))}
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Clock, Crown, AlertTriangle, Zap } from 'lucide-react'
+import { Clock, Crown, AlertTriangle, Zap, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface ChatLimitProps {
@@ -191,11 +191,12 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
 
         <Button
           size="sm"
-          onClick={onUpgradeClick}
-          className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:shadow-lg hover:shadow-cyan-500/25 text-xs"
+          variant="locked"
+          disabled={true}
+          className="text-xs"
         >
-          <Crown className="w-3 h-3 mr-1" />
-          Upgrade
+          <Lock className="w-3 h-3 mr-1" />
+          Coming Soon
         </Button>
       </div>
 
@@ -214,9 +215,9 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
       </div>
 
       {percentage >= 90 && (
-        <p className="mt-2 text-xs text-red-400 flex items-center gap-1">
-          <AlertTriangle className="w-3 h-3" />
-          Upgrade to Normal ($10/mo) or Pro ($20/mo) for unlimited chats!
+        <p className="mt-2 text-xs text-yellow-400 flex items-center gap-1">
+          <Lock className="w-3 h-3" />
+          Subscription feature coming soon! Free plan: 10 chats/day
         </p>
       )}
     </div>

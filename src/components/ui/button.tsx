@@ -30,6 +30,9 @@ const buttonVariants = cva(
           "glass text-white hover:border-neon-cyan/40 hover:shadow-glow-cyan hover:-translate-y-0.5",
         cyberpunk:
           "bg-gradient-to-r from-neon-purple to-neon-cyan text-white font-bold tracking-wider uppercase shadow-glow-purple hover:shadow-glow-cyan-intense hover:-translate-y-1 clip-corner-sm",
+        // Locked/Disabled variant for coming soon features
+        locked:
+          "bg-gradient-to-r from-gray-600 to-gray-700 text-gray-300 font-semibold cursor-not-allowed border border-gray-500/30 opacity-80",
       },
       size: {
         default: "h-10 px-5 py-2 has-[>svg]:px-4",
