@@ -1,0 +1,832 @@
+     1→'use client'
+     2→
+     3→import React, { useState, useRef, useEffect, useCallback } from 'react'
+     4→import { 
+     5→  Send, Bot, User, Copy, Check, RefreshCw, 
+     6→  Sparkles, Trash2, Maximize2, Minimize2,
+     7→  History, Plus, ThumbsUp, ThumbsDown, Share2,
+     8→  ChevronDown, Cpu, Zap, Brain, Star, Rocket
+     9→} from 'lucide-react'
+    10→import { Button } from '@/components/ui/button'
+    11→import { Textarea } from '@/components/ui/textarea'
+    12→import { Badge } from '@/components/ui/badge'
+    13→import { VoiceInput } from './VoiceInput'
+    14→import { ChatHistory, type ChatConversation } from './ChatHistory'
+    15→import { useI18n } from '@/lib/i18n'
+    16→import { cn } from '@/lib/utils'
+    17→
+    18→// Types
+    19→interface Message {
+    20→  id: string
+    21→  role: 'user' | 'assistant'
+    22→  content: string
+    23→  timestamp: Date
+    24→  showButtons?: boolean // New flag to show buttons
+    25→}
+    26→
+    27→// AI Model Options
+    28→interface AIModel {
+    29→  id: string
+    30→  name: string
+    31→  provider: string
+    32→  description: string
+    33→  icon: React.ComponentType<{ className?: string }>
+    34→  color: string
+    35→  speed: 'fast' | 'balanced' | 'powerful'
+    36→  isPopular?: boolean
+    37→  isNew?: boolean
+    38→}
+    39→
+    40→const AI_MODELS: AIModel[] = [
+    41→  {
+    42→    id: 'gpt-4o',
+    43→    name: 'GPT-4o',
+    44→    provider: 'OpenAI',
+    45→    description: 'Most capable, best for complex tasks',
+    46→    icon: Brain,
+    47→    color: 'text-green-400',
+    48→    speed: 'powerful',
+    49→    isPopular: true
+    50→  },
+    51→  {
+    52→    id: 'gpt-4o-mini',
+    53→    name: 'GPT-4o Mini',
+    54→    provider: 'OpenAI',
+    55→    description: 'Fast & affordable for everyday tasks',
+    56→    icon: Zap,
+    57→    color: 'text-blue-400',
+    58→    speed: 'fast',
+    59→    isNew: true
+    60→  },
+    61→  {
+    62→    id: 'claude-3.5-sonnet',
+    63→    name: 'Claude 3.5 Sonnet',
+    64→    provider: 'Anthropic',
+    65→    description: 'Great at reasoning & coding',
+    66→    icon: Star,
+    67→    color: 'text-orange-400',
+    68→    speed: 'balanced',
+    69→    isPopular: true
+    70→  },
+    71→  {
+    72→    id: 'claude-3-opus',
+    73→    name: 'Claude 3 Opus',
+    74→    provider: 'Anthropic',
+    75→    description: 'Most intelligent for analysis',
+    76→    icon: Cpu,
+    77→    color: 'text-purple-400',
+    78→    speed: 'powerful'
+    79→  },
+    80→  {
+    81→    id: 'gemini-pro',
+    82→    name: 'Gemini Pro',
+    83→    provider: 'Google',
+    84→    description: 'Multimodal & creative',
+    85→    icon: Sparkles,
+    86→    color: 'text-cyan-400',
+    87→    speed: 'balanced'
+    88→  },
+    89→  {
+    90→    id: 'llama-3.1',
+    91→    name: 'Llama 3.1',
+    92→    provider: 'Meta',
+    93→    description: 'Open source & privacy focused',
+    94→    icon: Rocket,
+    95→    color: 'text-purple-300',
+    96→    speed: 'fast',
+    97→    isNew: true
+    98→  }
+    99→]
+   100→
+   101→// Sample messages for demo
+   102→const initialMessages: Message[] = [
+   103→  {
+   104→    id: '1',
+   105→    role: 'assistant',
+   106→    content: "Greetings, human. I am NEXUS AI, your advanced neural companion. I'm designed to assist with complex reasoning, creative tasks, and deep analysis. How may I serve you today?",
+   107→    timestamp: new Date(),
+   108→    showButtons: true, // Initial message shows buttons
+   109→  },
+   110→]
+   111→
+   112→export function ChatInterface() {
+   113→  const { t } = useI18n()
+   114→  const [messages, setMessages] = useState<Message[]>(initialMessages)
+   115→  const [input, setInput] = useState('')
+   116→  const [isTyping, setIsTyping] = useState(false)
+   117→  const [copiedId, setCopiedId] = useState<string | null>(null)
+   118→  const [isExpanded, setIsExpanded] = useState(false)
+   119→  
+   120→  // Feature C: Chat History state
+   121→  const [showHistory, setShowHistory] = useState(false)
+   122→  const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null)
+   123→  
+   124→  // AI Model Selector State
+   125→  const [selectedModel, setSelectedModel] = useState<AIModel>(AI_MODELS[0])
+   126→  const [showModelSelector, setShowModelSelector] = useState(false)
+   127→  
+   128→  // Reaction states - using simple object
+   129→  const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set())
+   130→  const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set())
+   131→  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
+   132→  
+   133→  const messagesEndRef = useRef<HTMLDivElement>(null)
+   134→  const textareaRef = useRef<HTMLTextAreaElement>(null)
+   135→
+   136→  // Auto-scroll to bottom
+   137→  const scrollToBottom = () => {
+   138→    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+   139→  }
+   140→
+   141→  useEffect(() => {
+   142→    scrollToBottom()
+   143→  }, [messages])
+   144→
+   145→  // Handle voice input transcript - Feature D
+   146→  const handleVoiceTranscript = useCallback((transcript: string) => {
+   147→    setInput(prev => prev ? `${prev} ${transcript}` : transcript)
+   148→    textareaRef.current?.focus()
+   149→  }, [])
+   150→
+   151→  // Handle send message
+   152→  const handleSend = async () => {
+   153→    if (!input.trim()) return
+   154→
+   155→    const userMessage: Message = {
+   156→      id: 'user-' + Date.now(),
+   157→      role: 'user',
+   158→      content: input.trim(),
+   159→      timestamp: new Date(),
+   160→    }
+   161→
+   162→    setMessages((prev) => [...prev, userMessage])
+   163→    
+   164→    setInput('')
+   165→    setIsTyping(true)
+   166→
+   167→    // Simulate AI response
+   168→    setTimeout(() => {
+   169→      const aiMessageId = 'ai-' + Date.now()
+   170→      const aiMessage: Message = {
+   171→        id: aiMessageId,
+   172→        role: 'assistant',
+   173→        content: `🤖 **${selectedModel.name}** (${selectedModel.provider})\n\nI've analyzed your query about "${input.slice(0, 30)}...". Based on my neural processing capabilities using ${selectedModel.name}, I can provide you with comprehensive insights. The data suggests multiple pathways for exploration. Would you like me to elaborate on any specific aspect?`,
+   174→        timestamp: new Date(),
+   175→        showButtons: false, // Initially HIDE buttons
+   176→      }
+   177→      
+   178→      // Add message first (without buttons)
+   179→      setMessages((prev) => [...prev, aiMessage])
+   180→      setIsTyping(false)
+   181→      
+   182→      // Then show buttons after 800ms delay (answer complete effect)
+   183→      setTimeout(() => {
+   184→        setMessages(prev => prev.map(msg => 
+   185→          msg.id === aiMessageId ? { ...msg, showButtons: true } : msg
+   186→        ))
+   187→      }, 800)
+   188→    }, 1500 + Math.random() * 1000)
+   189→  }
+   190→
+   191→  // Handle copy message
+   192→  const handleCopy = async (content: string, id: string) => {
+   193→    try {
+   194→      await navigator.clipboard.writeText(content)
+   195→      setCopiedId(id)
+   196→      setTimeout(() => setCopiedId(null), 2000)
+   197→    } catch (err) {
+   198→      console.error('Failed to copy:', err)
+   199→      // Fallback for older browsers
+   200→      const textArea = document.createElement('textarea')
+   201→      textArea.value = content
+   202→      document.body.appendChild(textArea)
+   203→      textArea.select()
+   204→      document.execCommand('copy')
+   205→      document.body.removeChild(textArea)
+   206→      setCopiedId(id)
+   207→      setTimeout(() => setCopiedId(null), 2000)
+   208→    }
+   209→  }
+   210→
+   211→  // 👍 HANDLE LIKE - Simple and direct
+   212→  const handleLike = (messageId: string) => {
+   213→    console.log('👍 LIKE clicked for:', messageId)
+   214→    
+   215→    // Create new sets to trigger re-render
+   216→    const newLiked = new Set(likedMessages)
+   217→    const newDisliked = new Set(dislikedMessages)
+   218→    
+   219→    if (newLiked.has(messageId)) {
+   220→      // Already liked - unlike it
+   221→      newLiked.delete(messageId)
+   222→      console.log('❌ Unliked')
+   223→    } else {
+   224→      // Like it (and remove dislike if exists)
+   225→      newLiked.add(messageId)
+   226→      newDisliked.delete(messageId)
+   227→      console.log('✅ Liked!')
+   228→    }
+   229→    
+   230→    setLikedMessages(newLiked)
+   231→    setDislikedMessages(newDisliked)
+   232→  }
+   233→
+   234→  // 👎 HANDLE DISLIKE - Simple and direct
+   235→  const handleDislike = (messageId: string) => {
+   236→    console.log('👎 DISLIKE clicked for:', messageId)
+   237→    
+   238→    // Create new sets to trigger re-render
+   239→    const newLiked = new Set(likedMessages)
+   240→    const newDisliked = new Set(dislikedMessages)
+   241→    
+   242→    if (newDisliked.has(messageId)) {
+   243→      // Already disliked - undislike it
+   244→      newDisliked.delete(messageId)
+   245→      console.log('❌ Undisliked')
+   246→    } else {
+   247→      // Dislike it (and remove like if exists)
+   248→      newDisliked.add(messageId)
+   249→      newLiked.delete(messageId)
+   250→      console.log('✅ Disliked!')
+   251→    }
+   252→    
+   253→    setLikedMessages(newLiked)
+   254→    setDislikedMessages(newDisliked)
+   255→  }
+   256→
+   257→  // 🔄 HANDLE REGENERATE - Simple and direct
+   258→  const handleRegenerate = (messageId: string) => {
+   259→    console.log('🔄 REGENERATE clicked for:', messageId)
+   260→    
+   261→    // Prevent if already regenerating or typing
+   262→    if (isTyping || regeneratingId) {
+   263→      console.log('⚠️ Already busy, ignoring')
+   264→      return
+   265→    }
+   266→    
+   267→    // Find the AI message index
+   268→    const aiIndex = messages.findIndex(m => m.id === messageId)
+   269→    console.log('AI Message index:', aiIndex)
+   270→    
+   271→    if (aiIndex <= 0) {
+   272→      console.log('❌ Invalid message or first message')
+   273→      return
+   274→    }
+   275→    
+   276→    // Get user message before this AI response
+   277→    const userMessage = messages[aiIndex - 1]
+   278→    if (!userMessage || userMessage.role !== 'user') {
+   279→      console.log('❌ No user message found before')
+   280→      return
+   281→    }
+   282→    
+   283→    console.log('📝 Regenerating for:', userMessage.content.slice(0, 50))
+   284→    
+   285→    // Start regeneration
+   286→    setRegeneratingId(messageId)
+   287→    setIsTyping(true)
+   288→    
+   289→    // Remove old AI message
+   290→    setMessages(prev => prev.filter(m => m.id !== messageId))
+   291→    
+   292→    // Generate new response after delay
+   293→    setTimeout(() => {
+   294→      const newAiId = 'regen-' + Date.now()
+   295→      const newAiMessage: Message = {
+   296→        id: newAiId,
+   297→        role: 'assistant',
+   298→        content: `🔄 [REGENERATED with ${selectedModel.name}] I've re-analyzed your query about "${userMessage.content.slice(0, 30)}..." using ${selectedModel.name} (${selectedModel.provider}). Here's an alternative approach based on deeper processing. Does this better address your needs?`,
+   299→        timestamp: new Date(),
+   300→        showButtons: false, // Initially HIDE buttons
+   301→      }
+   302→      
+   303→      // Add message first (without buttons)
+   304→      setMessages(prev => [...prev, newAiMessage])
+   305→      setIsTyping(false)
+   306→      setRegeneratingId(null)
+   307→      
+   308→      // Then show buttons after 800ms delay (answer complete effect)
+   309→      setTimeout(() => {
+   310→        setMessages(prev => prev.map(msg => 
+   311→          msg.id === newAiId ? { ...msg, showButtons: true } : msg
+   312→        ))
+   313→      }, 800)
+   314→      
+   315→      console.log('✅ Regeneration complete:', newAiId)
+   316→    }, 2000)
+   317→  }
+   318→
+   319→  // ↗️ HANDLE SHARE
+   320→  const handleShare = async (content: string) => {
+   321→    console.log('↗️ SHARE clicked')
+   322→    if (navigator.share) {
+   323→      try {
+   324→        await navigator.share({
+   325→          title: 'NEXUS AI Response',
+   326→          text: content,
+   327→          url: window.location.href
+   328→        })
+   329→      } catch (err) {
+   330→        console.log('Share cancelled or failed')
+   331→      }
+   332→    } else {
+   333→      handleCopy(content, 'share-' + Date.now())
+   334→    }
+   335→  }
+   336→
+   337→  // Handle clear chat
+   338→  const handleClear = () => {
+   339→    setMessages([])
+   340→    setLikedMessages(new Set())
+   341→    setDislikedMessages(new Set())
+   342→  }
+   343→
+   344→  // Handle key press
+   345→  const handleKeyDown = (e: React.KeyboardEvent) => {
+   346→    if (e.key === 'Enter' && !e.shiftKey) {
+   347→      e.preventDefault()
+   348→      handleSend()
+   349→    }
+   350→  }
+   351→
+   352→  // Handle conversation selection from history
+   353→  const handleSelectConversation = useCallback((conversation: ChatConversation | null) => {
+   354→    setCurrentConversation(conversation)
+   355→    if (conversation && conversation.messages.length > 0) {
+   356→      setMessages(conversation.messages.map(msg => ({
+   357→        ...msg,
+   358→        timestamp: new Date(msg.timestamp),
+   359→        showButtons: msg.role === 'assistant', // Show buttons for AI messages
+   360→      })))
+   361→    }
+   362→    setShowHistory(false)
+   363→  }, [])
+   364→
+   365→  return (
+   366→    <div className="flex h-[600px] md:h-[700px] rounded-2xl overflow-hidden transition-all duration-500 glass-strong border border-neon-cyan/20 shadow-[0_0_40px_rgba(0,255,255,0.15)]">
+   367→      
+   368→      {/* Feature C: Chat History Sidebar */}
+   369→      <div 
+   370→        className={cn(
+   371→          "absolute left-0 top-0 bottom-0 w-80 z-20 transition-transform duration-300 ease-out",
+   372→          showHistory ? "translate-x-0" : "-translate-x-full",
+   373→          "glass-strong border-r border-neon-cyan/20"
+   374→        )}
+   375→      >
+   376→        <ChatHistory
+   377→          onSelectConversation={handleSelectConversation}
+   378→          currentConversationId={currentConversation?.id}
+   379→          className="h-full"
+   380→        />
+   381→        
+   382→        {/* Close button */}
+   383→        <button
+   384→          onClick={() => setShowHistory(false)}
+   385→          className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/10 transition-colors z-30"
+   386→          aria-label="Close history"
+   387→        >
+   388→          ✕
+   389→        </button>
+   390→      </div>
+   391→
+   392→      {/* Main Chat Area */}
+   393→      <div className={cn(
+   394→        "flex flex-col flex-1 transition-all duration-500",
+   395→        isExpanded ? "fixed inset-4 md:inset-8 z-50 rounded-2xl" : "",
+   396→        "min-w-0"
+   397→      )}>
+   398→        {/* Header */}
+   399→        <div className="flex items-center justify-between px-6 py-4 border-b border-neon-cyan/20 bg-black/80">
+   400→          <div className="flex items-center gap-3">
+   401→            {/* History toggle button */}
+   402→            <Button
+   403→              variant="ghost"
+   404→              size="icon-sm"
+   405→              onClick={() => setShowHistory(!showHistory)}
+   406→              className={cn(
+   407→                "text-muted-foreground hover:text-neon-cyan",
+   408→                showHistory && "text-neon-cyan bg-neon-cyan/10"
+   409→              )}
+   410→              aria-label={t('chat.history')}
+   411→            >
+   412→              <History className="w-4 h-4" />
+   413→            </Button>
+   414→            
+   415→            {/* Status indicator */}
+   416→            <div className="relative">
+   417→              <div className="w-3 h-3 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
+   418→              <div className="absolute inset-0 w-3 h-3 rounded-full bg-neon-cyan animate-ping opacity-30" />
+   419→            </div>
+   420→            
+   421→            <div>
+   422→              <h3 className="font-display font-semibold text-foreground flex items-center gap-2">
+   423→                <Sparkles className="w-4 h-4 text-neon-cyan" />
+   424→                {t('chat.title')}
+   425→              </h3>
+   426→              <p className="text-xs text-muted-foreground">{t('chat.subtitle')}</p>
+   427→            </div>
+   428→          </div>
+   429→
+   430→          <div className="flex items-center gap-2">
+   431→            <Button
+   432→              variant="ghost"
+   433→              size="icon-sm"
+   434→              onClick={handleClear}
+   435→              className="text-muted-foreground hover:text-red-400"
+   436→              aria-label={t('chat.clear')}
+   437→            >
+   438→              <Trash2 className="w-4 h-4" />
+   439→            </Button>
+   440→            <Button
+   441→              variant="ghost"
+   442→              size="icon-sm"
+   443→              onClick={() => setIsExpanded(!isExpanded)}
+   444→              className="text-muted-foreground hover:text-neon-cyan"
+   445→            >
+   446→              {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+   447→            </Button>
+   448→          </div>
+   449→        </div>
+   450→
+   451→        {/* Messages area */}
+   452→        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+   453→          {messages.map((message, index) => (
+   454→            <div
+   455→              key={message.id}
+   456→              className={cn(
+   457→                "chat-message-enter flex gap-4",
+   458→                message.role === 'user' ? 'flex-row-reverse' : ''
+   459→              )}
+   460→              style={{ animationDelay: `${index * 0.05}s` }}
+   461→            >
+   462→              {/* Avatar */}
+   463→              <div
+   464→                className={cn(
+   465→                  "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center",
+   466→                  message.role === 'user'
+   467→                    ? "bg-gradient-to-br from-neon-cyan to-electric-blue text-black"
+   468→                    : "bg-gradient-to-br from-gray-800 to-gray-900 text-white",
+   469→                  "shadow-lg"
+   470→                )}
+   471→              >
+   472→                {message.role === 'user' ? (
+   473→                  <User className="w-4 h-4" />
+   474→                ) : (
+   475→                  <Bot className="w-4 h-4" />
+   476→                )}
+   477→              </div>
+   478→
+   479→              {/* Message bubble */}
+   480→              <div
+   481→                className={cn(
+   482→                  "max-w-[80%] md:max-w-[70%] px-5 py-3.5",
+   483→                  message.role === 'user' 
+   484→                    ? "message-user" 
+   485→                    : "message-ai"
+   486→                )}
+   487→              >
+   488→                <p className="text-sm leading-relaxed">{message.content}</p>
+   489→                
+   490→                {/* ✅ ACTION BUTTONS - Show only for AI messages with showButtons=true */}
+   491→                {message.role === 'assistant' && message.showButtons && (
+   492→                  <div 
+   493→                    className="flex items-center gap-1 mt-3 pt-3 border-t border-white/10 animate-fadeIn"
+   494→                  >
+   495→                    {/* Timestamp */}
+   496→                    <span className="text-xs text-muted-foreground mr-2">
+   497→                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+   498→                    </span>
+   499→                    
+   500→                    {/* 📋 COPY BUTTON - ORANGE THEME */}
+   501→                    <button
+   502→                      onClick={(e) => {
+   503→                        e.preventDefault()
+   504→                        handleCopy(message.content, message.id)
+   505→                      }}
+   506→                      className="p-2 rounded-lg hover:bg-neon-cyan/20 active:scale-95 transition-all cursor-pointer"
+   507→                      title="Copy to clipboard"
+   508→                      type="button"
+   509→                    >
+   510→                      {copiedId === message.id ? (
+   511→                        <Check className="w-4 h-4 text-neon-cyan" />
+   512→                      ) : (
+   513→                        <Copy className="w-4 h-4 text-gray-400 hover:text-neon-cyan" />
+   514→                      )}
+   515→                    </button>
+   516→                    
+   517→                    {/* 👍 LIKE BUTTON - ORANGE THEME */}
+   518→                    <button
+   519→                      onClick={() => {
+   520→                        handleLike(message.id)
+   521→                      }}
+   522→                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
+   523→                        likedMessages.has(message.id)
+   524→                          ? 'bg-neon-cyan/25'
+   525→                          : 'hover:bg-neon-cyan/15'
+   526→                      }`}
+   527→                      title="Good response"
+   528→                      type="button"
+   529→                    >
+   530→                      <ThumbsUp 
+   531→                        className={`w-4 h-4 transition-colors ${
+   532→                          likedMessages.has(message.id) 
+   533→                            ? 'text-neon-cyan fill-neon-cyan' 
+   534→                            : 'text-gray-400 hover:text-neon-cyan'
+   535→                        }`} 
+   536→                      />
+   537→                    </button>
+   538→                    
+   539→                    {/* 👎 DISLIKE BUTTON - AMBER THEME */}
+   540→                    <button
+   541→                      onClick={() => {
+   542→                        handleDislike(message.id)
+   543→                      }}
+   544→                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer ${
+   545→                        dislikedMessages.has(message.id)
+   546→                          ? 'bg-red-500/25'
+   547→                          : 'hover:bg-red-500/15'
+   548→                      }`}
+   549→                      title="Bad response"
+   550→                      type="button"
+   551→                    >
+   552→                      <ThumbsDown 
+   553→                        className={`w-4 h-4 transition-colors ${
+   554→                          dislikedMessages.has(message.id) 
+   555→                            ? 'text-red-400 fill-red-400' 
+   556→                            : 'text-gray-400 hover:text-red-400'
+   557→                        }`} 
+   558→                      />
+   559→                    </button>
+   560→                    
+   561→                    {/* 🔄 REGENERATE BUTTON - AMBER THEME */}
+   562→                    <button
+   563→                      onClick={() => {
+   564→                        if (!isTyping && !regeneratingId) {
+   565→                          handleRegenerate(message.id)
+   566→                        }
+   567→                      }}
+   568→                      disabled={regeneratingId === message.id || isTyping}
+   569→                      className={`p-2 rounded-lg active:scale-95 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+   570→                        regeneratingId === message.id
+   571→                          ? 'bg-neon-purple/20 animate-spin'
+   572→                          : 'hover:bg-neon-purple/15'
+   573→                      }`}
+   574→                      title="Regenerate response"
+   575→                      type="button"
+   576→                    >
+   577→                      <RefreshCw 
+   578→                        className={`w-4 h-4 ${
+   579→                          regeneratingId === message.id 
+   580→                            ? 'text-neon-purple' 
+   581→                            : 'text-gray-400 hover:text-neon-purple'
+   582→                        }`} 
+   583→                      />
+   584→                    </button>
+   585→                    
+   586→                    {/* ↗️ SHARE BUTTON */}
+   587→                    <button
+   588→                      onClick={(e) => {
+   589→                        e.preventDefault()
+   590→                        handleShare(message.content)
+   591→                      }}
+   592→                      className="p-2 rounded-lg hover:bg-blue-500/15 active:scale-95 transition-all cursor-pointer"
+   593→                      title="Share response"
+   594→                      type="button"
+   595→                    >
+   596→                      <Share2 className="w-4 h-4 text-gray-400 hover:text-blue-400" />
+   597→                    </button>
+   598→                  </div>
+   599→                )}
+   600→                
+   601→                {/* User message: Show only timestamp and copy */}
+   602→                {message.role === 'user' && (
+   603→                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/5 justify-end">
+   604→                    <span className="text-xs text-muted-foreground">
+   605→                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+   606→                    </span>
+   607→                    <button
+   608→                      onClick={() => handleCopy(message.content, message.id)}
+   609→                      className="p-1 rounded hover:bg-white/10 transition-colors text-muted-foreground hover:text-neon-cyan cursor-pointer"
+   610→                      aria-label={t('chat.copy') || 'Copy'}
+   611→                      type="button"
+   612→                    >
+   613→                      {copiedId === message.id ? (
+   614→                        <Check className="w-3.5 h-3.5 text-green-400" />
+   615→                      ) : (
+   616→                        <Copy className="w-3.5 h-3.5" />
+   617→                      )}
+   618→                    </button>
+   619→                  </div>
+   620→                )}
+   621→              </div>
+   622→            </div>
+   623→          ))}
+   624→
+   625→          {/* Typing indicator */}
+   626→          {isTyping && (
+   627→            <div className="flex gap-4 chat-message-enter">
+   628→              <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center shadow-lg border border-neon-purple/30">
+   629→                <Bot className="w-4 h-4" />
+   630→              </div>
+   631→              <div className="message-ai px-5 py-4">
+   632→                <div className="flex items-center gap-1.5">
+   633→                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" />
+   634→                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" style={{ animationDelay: '0.2s' }} />
+   635→                  <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" style={{ animationDelay: '0.4s' }} />
+   636→                </div>
+   637→              </div>
+   638→            </div>
+   639→          )}
+   640→
+   641→          <div ref={messagesEndRef} />
+   642→        </div>
+   643→
+   644→        {/* Input area with Voice Input - Feature D */}
+   645→        <div className="px-6 py-4 border-t border-white/10 bg-dark-surface/50">
+   646→          {/* AI Model Selector - Above Input Box */}
+   647→          <div className="flex items-center justify-between mb-3">
+   648→            <div className="relative">
+   649→              <button
+   650→                onClick={() => setShowModelSelector(!showModelSelector)}
+   651→                className={cn(
+   652→                  "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium",
+   653→                  "bg-white/5 border border-white/10 hover:border-neon-cyan/40",
+   654→                  "transition-all duration-200 group"
+   655→                )}
+   656→                aria-label="Select AI Model"
+   657→              >
+   658→                <selectedModel.icon className={cn("w-4 h-4", selectedModel.color)} />
+   659→                <span className="text-foreground/80 group-hover:text-foreground">{selectedModel.name}</span>
+   660→                <ChevronDown className={cn(
+   661→                  "w-3 h-3 text-muted-foreground transition-transform duration-200",
+   662→                  showModelSelector && "rotate-180"
+   663→                )} />
+   664→              </button>
+   665→
+   666→              {/* Model Selector Dropdown - Opens Upward from input area */}
+   667→              {showModelSelector && (
+   668→                <>
+   669→                  {/* Backdrop */}
+   670→                  <div 
+   671→                    className="fixed inset-0 z-40" 
+   672→                    onClick={() => setShowModelSelector(false)} 
+   673→                  />
+   674→                  
+   675→                  {/* Dropdown - Positioned above button */}
+   676→                  <div className={cn(
+   677→                    "absolute bottom-full left-0 mb-2 w-72 z-50",
+   678→                    "bg-gray-900/95 backdrop-blur-xl border border-neon-cyan/20",
+   679→                    "rounded-xl shadow-2xl shadow-black/50 overflow-hidden",
+   680→                    "animate-fadeIn"
+   681→                  )}>
+   682→                    {/* Header */}
+   683→                    <div className="px-4 py-3 bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border-b border-white/5">
+   684→                      <p className="text-xs font-semibold text-neon-cyan uppercase tracking-wider">Select AI Model</p>
+   685→                      <p className="text-xs text-muted-foreground mt-0.5">Choose the best model for your task</p>
+   686→                    </div>
+   687→
+   688→                    {/* Models List */}
+   689→                    <div className="p-2 max-h-64 overflow-y-auto scrollbar-thin">
+   690→                      {AI_MODELS.map((model) => (
+   691→                        <button
+   692→                          key={model.id}
+   693→                          onClick={() => {
+   694→                            setSelectedModel(model)
+   695→                            setShowModelSelector(false)
+   696→                          }}
+   697→                          className={cn(
+   698→                            "w-full flex items-start gap-3 p-3 rounded-lg text-left",
+   699→                            "hover:bg-white/5 transition-all duration-150 group/model",
+   700→                            selectedModel.id === model.id && "bg-neon-cyan/10 border border-neon-cyan/30"
+   701→                          )}
+   702→                        >
+   703→                          <div className={cn(
+   704→                            "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center",
+   705→                            "bg-gradient-to-br",
+   706→                            model.speed === 'fast' && "from-blue-500/20 to-cyan-500/20",
+   707→                            model.speed === 'balanced' && "from-purple-500/20 to-pink-500/20",
+   708→                            model.speed === 'powerful' && "from-green-500/20 to-emerald-500/20"
+   709→                          )}>
+   710→                            <model.icon className={cn("w-5 h-5", model.color)} />
+   711→                          </div>
+   712→                          
+   713→                          <div className="flex-1 min-w-0">
+   714→                            <div className="flex items-center gap-2">
+   715→                              <span className="font-medium text-foreground text-sm">{model.name}</span>
+   716→                              {model.isPopular && (
+   717→                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan rounded">POPULAR</span>
+   718→                              )}
+   719→                              {model.isNew && (
+   720→                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded">NEW</span>
+   721→                              )}
+   722→                            </div>
+   723→                            <p className="text-xs text-muted-foreground mt-0.5">{model.provider}</p>
+   724→                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">{model.description}</p>
+   725→                            
+   726→                            {/* Speed indicator */}
+   727→                            <div className="flex items-center gap-1 mt-2">
+   728→                              <span className={cn(
+   729→                                "w-1.5 h-1.5 rounded-full",
+   730→                                model.speed === 'fast' && "bg-blue-400",
+   731→                                model.speed === 'balanced' && "bg-yellow-400",
+   732→                                model.speed === 'powerful' && "bg-red-400"
+   733→                              )} />
+   734→                              <span className="text-[10px] uppercase tracking-wider text-gray-500">
+   735→                                {model.speed}
+   736→                              </span>
+   737→                            </div>
+   738→                          </div>
+   739→
+   740→                          {/* Selected checkmark */}
+   741→                          {selectedModel.id === model.id && (
+   742→                            <Check className="w-4 h-4 text-neon-cyan flex-shrink-0 mt-1" />
+   743→                          )}
+   744→                        </button>
+   745→                      ))}
+   746→                    </div>
+   747→
+   748→                    {/* Footer */}
+   749→                    <div className="px-4 py-2.5 bg-black/30 border-t border-white/5">
+   750→                      <p className="text-[10px] text-gray-500 text-center">
+   751→                        ⚡ Current: <span className="text-neon-cyan font-medium">{selectedModel.name}</span> by {selectedModel.provider}
+   752→                      </p>
+   753→                    </div>
+   754→                  </div>
+   755→                </>
+   756→              )}
+   757→            </div>
+   758→
+   759→            {/* Quick info badges */}
+   760→            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+   761→              <span className="flex items-center gap-1">
+   762→                <span className={cn("w-2 h-2 rounded-full", 
+   763→                  selectedModel.speed === 'fast' && "bg-blue-400",
+   764→                  selectedModel.speed === 'balanced' && "bg-yellow-400",
+   765→                  selectedModel.speed === 'powerful' && "bg-red-400"
+   766→                )} />
+   767→                {selectedModel.speed}
+   768→              </span>
+   769→              <span>•</span>
+   770→              <span>{t('chat.pressEnter')} to send</span>
+   771→            </div>
+   772→          </div>
+   773→
+   774→          <div className="flex items-end gap-3">
+   775→            <div className="flex-1 relative">
+   776→              <Textarea
+   777→                ref={textareaRef}
+   778→                value={input}
+   779→                onChange={(e) => setInput(e.target.value)}
+   780→                onKeyDown={handleKeyDown}
+   781→                placeholder={t('chat.placeholder')}
+   782→                className="min-h-[52px] max-h-[150px] pr-24 resize-none"
+   783→              />
+   784→              
+   785→              {/* Right side buttons inside textarea area */}
+   786→              <div className="absolute right-2 bottom-2 flex items-center gap-1">
+   787→                {/* Character count */}
+   788→                {input.length > 0 && (
+   789→                  <span className="text-xs text-muted-foreground mr-1">
+   790→                    {input.length}
+   791→                  </span>
+   792→                )}
+   793→                
+   794→                {/* Feature D: Voice Input Button */}
+   795→                <VoiceInput
+   796→                  onTranscript={handleVoiceTranscript}
+   797→                  disabled={isTyping}
+   798→                  className="w-8 h-8"
+   799→                />
+   800→              </div>
+   801→            </div>
+   802→
+   803→            <Button
+   804→              variant="neon"
+   805→              size="icon"
+   806→              onClick={handleSend}
+   807→              disabled={!input.trim() || isTyping}
+   808→              className="flex-shrink-0 h-[52px] w-[52px]"
+   809→              aria-label={t('chat.send')}
+   810→            >
+   811→              <Send className="w-5 h-5" />
+   812→            </Button>
+   813→          </div>
+   814→
+   815→          {/* Input hints */}
+   816→          <div className="flex items-center justify-between mt-3">
+   817→            <div className="flex items-center gap-2">
+   818→              <Badge variant="cyberpunk">Secure</Badge>
+   819→              <Badge variant="cyberpunk">Encrypted</Badge>
+   820→            </div>
+   821→            <span className="text-xs text-muted-foreground">
+   822→              {t('chat.pressEnter')} · {t('chat.shiftEnter')} for new line
+   823→            </span>
+   824→          </div>
+   825→        </div>
+   826→      </div>
+   827→    </div>
+   828→  )
+   829→}
+   830→
+   831→export default ChatInterface
+   832→
