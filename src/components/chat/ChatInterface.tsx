@@ -428,118 +428,6 @@ export function ChatInterface() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* AI Model Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setShowModelSelector(!showModelSelector)}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium",
-                  "bg-white/5 border border-white/10 hover:border-neon-cyan/40",
-                  "transition-all duration-200 group"
-                )}
-                aria-label="Select AI Model"
-              >
-                <selectedModel.icon className={cn("w-4 h-4", selectedModel.color)} />
-                <span className="text-foreground/80 group-hover:text-foreground">{selectedModel.name}</span>
-                <ChevronDown className={cn(
-                  "w-3 h-3 text-muted-foreground transition-transform duration-200",
-                  showModelSelector && "rotate-180"
-                )} />
-              </button>
-
-              {/* Model Selector Dropdown */}
-              {showModelSelector && (
-                <>
-                  {/* Backdrop */}
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowModelSelector(false)} 
-                  />
-                  
-                  {/* Dropdown */}
-                  <div className={cn(
-                    "absolute right-0 top-full mt-2 w-72 z-50",
-                    "bg-gray-900/95 backdrop-blur-xl border border-neon-cyan/20",
-                    "rounded-xl shadow-2xl shadow-black/50 overflow-hidden",
-                    "animate-fadeIn"
-                  )}>
-                    {/* Header */}
-                    <div className="px-4 py-3 bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border-b border-white/5">
-                      <p className="text-xs font-semibold text-neon-cyan uppercase tracking-wider">Select AI Model</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Choose the best model for your task</p>
-                    </div>
-
-                    {/* Models List */}
-                    <div className="p-2 max-h-80 overflow-y-auto scrollbar-thin">
-                      {AI_MODELS.map((model) => (
-                        <button
-                          key={model.id}
-                          onClick={() => {
-                            setSelectedModel(model)
-                            setShowModelSelector(false)
-                          }}
-                          className={cn(
-                            "w-full flex items-start gap-3 p-3 rounded-lg text-left",
-                            "hover:bg-white/5 transition-all duration-150 group/model",
-                            selectedModel.id === model.id && "bg-neon-cyan/10 border border-neon-cyan/30"
-                          )}
-                        >
-                          <div className={cn(
-                            "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center",
-                            "bg-gradient-to-br",
-                            model.speed === 'fast' && "from-blue-500/20 to-cyan-500/20",
-                            model.speed === 'balanced' && "from-purple-500/20 to-pink-500/20",
-                            model.speed === 'powerful' && "from-green-500/20 to-emerald-500/20"
-                          )}>
-                            <model.icon className={cn("w-5 h-5", model.color)} />
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground text-sm">{model.name}</span>
-                              {model.isPopular && (
-                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan rounded">POPULAR</span>
-                              )}
-                              {model.isNew && (
-                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded">NEW</span>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-0.5">{model.provider}</p>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">{model.description}</p>
-                            
-                            {/* Speed indicator */}
-                            <div className="flex items-center gap-1 mt-2">
-                              <span className={cn(
-                                "w-1.5 h-1.5 rounded-full",
-                                model.speed === 'fast' && "bg-blue-400",
-                                model.speed === 'balanced' && "bg-yellow-400",
-                                model.speed === 'powerful' && "bg-red-400"
-                              )} />
-                              <span className="text-[10px] uppercase tracking-wider text-gray-500">
-                                {model.speed}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Selected checkmark */}
-                          {selectedModel.id === model.id && (
-                            <Check className="w-4 h-4 text-neon-cyan flex-shrink-0 mt-1" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="px-4 py-2.5 bg-black/30 border-t border-white/5">
-                      <p className="text-[10px] text-gray-500 text-center">
-                        ⚡ Current: <span className="text-neon-cyan font-medium">{selectedModel.name}</span> by {selectedModel.provider}
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
             <Button
               variant="ghost"
               size="icon-sm"
@@ -755,6 +643,134 @@ export function ChatInterface() {
 
         {/* Input area with Voice Input - Feature D */}
         <div className="px-6 py-4 border-t border-white/10 bg-dark-surface/50">
+          {/* AI Model Selector - Above Input Box */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="relative">
+              <button
+                onClick={() => setShowModelSelector(!showModelSelector)}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium",
+                  "bg-white/5 border border-white/10 hover:border-neon-cyan/40",
+                  "transition-all duration-200 group"
+                )}
+                aria-label="Select AI Model"
+              >
+                <selectedModel.icon className={cn("w-4 h-4", selectedModel.color)} />
+                <span className="text-foreground/80 group-hover:text-foreground">{selectedModel.name}</span>
+                <ChevronDown className={cn(
+                  "w-3 h-3 text-muted-foreground transition-transform duration-200",
+                  showModelSelector && "rotate-180"
+                )} />
+              </button>
+
+              {/* Model Selector Dropdown - Opens Upward from input area */}
+              {showModelSelector && (
+                <>
+                  {/* Backdrop */}
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowModelSelector(false)} 
+                  />
+                  
+                  {/* Dropdown - Positioned above button */}
+                  <div className={cn(
+                    "absolute bottom-full left-0 mb-2 w-72 z-50",
+                    "bg-gray-900/95 backdrop-blur-xl border border-neon-cyan/20",
+                    "rounded-xl shadow-2xl shadow-black/50 overflow-hidden",
+                    "animate-fadeIn"
+                  )}>
+                    {/* Header */}
+                    <div className="px-4 py-3 bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border-b border-white/5">
+                      <p className="text-xs font-semibold text-neon-cyan uppercase tracking-wider">Select AI Model</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Choose the best model for your task</p>
+                    </div>
+
+                    {/* Models List */}
+                    <div className="p-2 max-h-64 overflow-y-auto scrollbar-thin">
+                      {AI_MODELS.map((model) => (
+                        <button
+                          key={model.id}
+                          onClick={() => {
+                            setSelectedModel(model)
+                            setShowModelSelector(false)
+                          }}
+                          className={cn(
+                            "w-full flex items-start gap-3 p-3 rounded-lg text-left",
+                            "hover:bg-white/5 transition-all duration-150 group/model",
+                            selectedModel.id === model.id && "bg-neon-cyan/10 border border-neon-cyan/30"
+                          )}
+                        >
+                          <div className={cn(
+                            "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center",
+                            "bg-gradient-to-br",
+                            model.speed === 'fast' && "from-blue-500/20 to-cyan-500/20",
+                            model.speed === 'balanced' && "from-purple-500/20 to-pink-500/20",
+                            model.speed === 'powerful' && "from-green-500/20 to-emerald-500/20"
+                          )}>
+                            <model.icon className={cn("w-5 h-5", model.color)} />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground text-sm">{model.name}</span>
+                              {model.isPopular && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan rounded">POPULAR</span>
+                              )}
+                              {model.isNew && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded">NEW</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">{model.provider}</p>
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">{model.description}</p>
+                            
+                            {/* Speed indicator */}
+                            <div className="flex items-center gap-1 mt-2">
+                              <span className={cn(
+                                "w-1.5 h-1.5 rounded-full",
+                                model.speed === 'fast' && "bg-blue-400",
+                                model.speed === 'balanced' && "bg-yellow-400",
+                                model.speed === 'powerful' && "bg-red-400"
+                              )} />
+                              <span className="text-[10px] uppercase tracking-wider text-gray-500">
+                                {model.speed}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Selected checkmark */}
+                          {selectedModel.id === model.id && (
+                            <Check className="w-4 h-4 text-neon-cyan flex-shrink-0 mt-1" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-4 py-2.5 bg-black/30 border-t border-white/5">
+                      <p className="text-[10px] text-gray-500 text-center">
+                        ⚡ Current: <span className="text-neon-cyan font-medium">{selectedModel.name}</span> by {selectedModel.provider}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Quick info badges */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className={cn("w-2 h-2 rounded-full", 
+                  selectedModel.speed === 'fast' && "bg-blue-400",
+                  selectedModel.speed === 'balanced' && "bg-yellow-400",
+                  selectedModel.speed === 'powerful' && "bg-red-400"
+                )} />
+                {selectedModel.speed}
+              </span>
+              <span>•</span>
+              <span>{t('chat.pressEnter')} to send</span>
+            </div>
+          </div>
+
           <div className="flex items-end gap-3">
             <div className="flex-1 relative">
               <Textarea
@@ -799,14 +815,11 @@ export function ChatInterface() {
           {/* Input hints */}
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-2">
-              <Badge variant="cyberpunk" className="flex items-center gap-1.5">
-                <selectedModel.icon className={cn("w-3 h-3", selectedModel.color)} />
-                {selectedModel.name}
-              </Badge>
               <Badge variant="cyberpunk">Secure</Badge>
+              <Badge variant="cyberpunk">Encrypted</Badge>
             </div>
             <span className="text-xs text-muted-foreground">
-              {t('chat.pressEnter')} · {t('chat.shiftEnter')}
+              {t('chat.pressEnter')} · {t('chat.shiftEnter')} for new line
             </span>
           </div>
         </div>
