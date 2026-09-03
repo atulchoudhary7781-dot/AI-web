@@ -703,9 +703,12 @@ export function ChatInterface() {
                     "animate-fadeIn"
                   )}>
                     {/* Header */}
-                    <div className="px-4 py-3 bg-gradient-to-r from-neon-cyan/10 to-neon-purple/10 border-b border-white/5">
-                      <p className="text-xs font-semibold text-neon-cyan uppercase tracking-wider">Select AI Model</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Choose the best model for your task</p>
+                    <div className="px-4 py-3 bg-gradient-to-r from-red-600 to-orange-500 border-b border-white/5">
+                      <p className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+                        <Lock className="w-3 h-3" />
+                        SELECT AI MODEL - 🔒 LOCKED
+                      </p>
+                      <p className="text-xs text-white/80 mt-0.5">Llama 3.1 is FREE - Others require subscription</p>
                     </div>
 
                     {/* Models List */}
@@ -900,3 +903,4 @@ export function ChatInterface() {
 }
 
 export default ChatInterface
+// Force redeploy - Thu Sep  3 16:02:23 UTC 2026
