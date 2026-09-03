@@ -5,7 +5,7 @@ import {
   Send, Bot, User, Copy, Check, RefreshCw, 
   Sparkles, Trash2, Maximize2, Minimize2,
   History, Plus, ThumbsUp, ThumbsDown, Share2,
-  ChevronDown, Cpu, Zap, Brain, Star, Rocket
+  ChevronDown, Cpu, Zap, Brain, Star, Rocket, Lock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -35,6 +35,7 @@ interface AIModel {
   speed: 'fast' | 'balanced' | 'powerful'
   isPopular?: boolean
   isNew?: boolean
+  isLocked?: boolean
 }
 
 const AI_MODELS: AIModel[] = [
@@ -46,7 +47,8 @@ const AI_MODELS: AIModel[] = [
     icon: Brain,
     color: 'text-green-400',
     speed: 'powerful',
-    isPopular: true
+    isPopular: true,
+    isLocked: true
   },
   {
     id: 'gpt-4o-mini',
@@ -56,7 +58,8 @@ const AI_MODELS: AIModel[] = [
     icon: Zap,
     color: 'text-blue-400',
     speed: 'fast',
-    isNew: true
+    isNew: true,
+    isLocked: true
   },
   {
     id: 'claude-3.5-sonnet',
@@ -66,7 +69,8 @@ const AI_MODELS: AIModel[] = [
     icon: Star,
     color: 'text-orange-400',
     speed: 'balanced',
-    isPopular: true
+    isPopular: true,
+    isLocked: true
   },
   {
     id: 'claude-3-opus',
@@ -75,7 +79,8 @@ const AI_MODELS: AIModel[] = [
     description: 'Most intelligent for analysis',
     icon: Cpu,
     color: 'text-purple-400',
-    speed: 'powerful'
+    speed: 'powerful',
+    isLocked: true
   },
   {
     id: 'gemini-pro',
@@ -84,17 +89,19 @@ const AI_MODELS: AIModel[] = [
     description: 'Multimodal & creative',
     icon: Sparkles,
     color: 'text-cyan-400',
-    speed: 'balanced'
+    speed: 'balanced',
+    isLocked: true
   },
   {
     id: 'llama-3.1',
     name: 'Llama 3.1',
     provider: 'Meta',
-    description: 'Open source & privacy focused',
+    description: 'Open source & privacy focused - FREE',
     icon: Rocket,
     color: 'text-purple-300',
     speed: 'fast',
-    isNew: true
+    isNew: true,
+    isLocked: false
   }
 ]
 
@@ -121,8 +128,8 @@ export function ChatInterface() {
   const [showHistory, setShowHistory] = useState(false)
   const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null)
   
-  // AI Model Selector State
-  const [selectedModel, setSelectedModel] = useState<AIModel>(AI_MODELS[0])
+  // AI Model Selector State - Default to Llama 3.1 (FREE)
+  const [selectedModel, setSelectedModel] = useState<AIModel>(AI_MODELS.find(m => m.id === 'llama-3.1') || AI_MODELS[5])
   const [showModelSelector, setShowModelSelector] = useState(false)
   
   // Reaction states - using simple object
@@ -651,12 +658,19 @@ export function ChatInterface() {
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium",
                   "bg-white/5 border border-white/10 hover:border-neon-cyan/40",
-                  "transition-all duration-200 group"
+                  "transition-all duration-200 group",
+                  selectedModel.isLocked && "border-yellow-500/30 hover:border-yellow-500/50"
                 )}
                 aria-label="Select AI Model"
               >
                 <selectedModel.icon className={cn("w-4 h-4", selectedModel.color)} />
-                <span className="text-foreground/80 group-hover:text-foreground">{selectedModel.name}</span>
+                <span className={cn(
+                  "group-hover:text-foreground",
+                  selectedModel.isLocked ? "text-yellow-500/80" : "text-foreground/80"
+                )}>{selectedModel.name}</span>
+                {selectedModel.isLocked && (
+                  <Lock className="w-3 h-3 text-yellow-500" />
+                )}
                 <ChevronDown className={cn(
                   "w-3 h-3 text-muted-foreground transition-transform duration-200",
                   showModelSelector && "rotate-180"
@@ -691,33 +705,55 @@ export function ChatInterface() {
                         <button
                           key={model.id}
                           onClick={() => {
+                            if (model.isLocked) {
+                              // Show subscription required message for locked models
+                              alert('🔒 Subscription Required!\n\nThis model is only available with a premium subscription.\nComing soon!')
+                              return
+                            }
                             setSelectedModel(model)
                             setShowModelSelector(false)
                           }}
+                          disabled={model.isLocked}
                           className={cn(
                             "w-full flex items-start gap-3 p-3 rounded-lg text-left",
-                            "hover:bg-white/5 transition-all duration-150 group/model",
-                            selectedModel.id === model.id && "bg-neon-cyan/10 border border-neon-cyan/30"
+                            "transition-all duration-150 group/model",
+                            model.isLocked 
+                              ? "opacity-60 cursor-not-allowed hover:bg-white/[0.02]" 
+                              : "hover:bg-white/5 cursor-pointer",
+                            selectedModel.id === model.id && !model.isLocked && "bg-neon-cyan/10 border border-neon-cyan/30",
+                            selectedModel.id === model.id && model.isLocked && "bg-yellow-500/5 border border-yellow-500/20"
                           )}
                         >
                           <div className={cn(
-                            "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center",
+                            "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center relative",
                             "bg-gradient-to-br",
                             model.speed === 'fast' && "from-blue-500/20 to-cyan-500/20",
                             model.speed === 'balanced' && "from-purple-500/20 to-pink-500/20",
                             model.speed === 'powerful' && "from-green-500/20 to-emerald-500/20"
                           )}>
                             <model.icon className={cn("w-5 h-5", model.color)} />
+                            {/* Lock overlay icon */}
+                            {model.isLocked && (
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500/90 rounded-full flex items-center justify-center">
+                                <Lock className="w-2.5 h-2.5 text-white" />
+                              </div>
+                            )}
                           </div>
                           
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium text-foreground text-sm">{model.name}</span>
-                              {model.isPopular && (
+                              {!model.isLocked && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded">FREE</span>
+                              )}
+                              {model.isLocked && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-yellow-500/20 text-yellow-400 rounded">🔒 PRO</span>
+                              )}
+                              {model.isPopular && !model.isLocked && (
                                 <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan rounded">POPULAR</span>
                               )}
                               {model.isNew && (
-                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded">NEW</span>
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-purple-500/20 text-purple-400 rounded">NEW</span>
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground mt-0.5">{model.provider}</p>
@@ -737,9 +773,12 @@ export function ChatInterface() {
                             </div>
                           </div>
 
-                          {/* Selected checkmark */}
-                          {selectedModel.id === model.id && (
+                          {/* Selected checkmark or Lock indicator */}
+                          {selectedModel.id === model.id && !model.isLocked && (
                             <Check className="w-4 h-4 text-neon-cyan flex-shrink-0 mt-1" />
+                          )}
+                          {selectedModel.id === model.id && model.isLocked && (
+                            <Lock className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-1" />
                           )}
                         </button>
                       ))}
@@ -748,7 +787,8 @@ export function ChatInterface() {
                     {/* Footer */}
                     <div className="px-4 py-2.5 bg-black/30 border-t border-white/5">
                       <p className="text-[10px] text-gray-500 text-center">
-                        ⚡ Current: <span className="text-neon-cyan font-medium">{selectedModel.name}</span> by {selectedModel.provider}
+                        ⚡ Current: <span className={cn("font-medium", selectedModel.isLocked ? "text-yellow-500" : "text-neon-cyan")}>{selectedModel.name}</span> by {selectedModel.provider}
+                        {selectedModel.isLocked && " 🔒"}
                       </p>
                     </div>
                   </div>
