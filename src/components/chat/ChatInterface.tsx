@@ -657,19 +657,28 @@ export function ChatInterface() {
                 onClick={() => setShowModelSelector(!showModelSelector)}
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium",
-                  "bg-white/5 border border-white/10 hover:border-neon-cyan/40",
-                  "transition-all duration-200 group",
-                  selectedModel.isLocked && "border-yellow-500/30 hover:border-yellow-500/50"
+                  "border transition-all duration-200 group",
+                  selectedModel.isLocked 
+                    ? "bg-red-500/10 border-red-500/40 hover:border-red-500/60" 
+                    : "bg-green-500/10 border-green-500/30 hover:border-green-500/50"
                 )}
                 aria-label="Select AI Model"
               >
                 <selectedModel.icon className={cn("w-4 h-4", selectedModel.color)} />
                 <span className={cn(
                   "group-hover:text-foreground",
-                  selectedModel.isLocked ? "text-yellow-500/80" : "text-foreground/80"
+                  selectedModel.isLocked ? "text-red-400" : "text-green-400"
                 )}>{selectedModel.name}</span>
-                {selectedModel.isLocked && (
-                  <Lock className="w-3 h-3 text-yellow-500" />
+                {selectedModel.isLocked ? (
+                  <>
+                    <Lock className="w-3 h-3 text-red-400" />
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/30 text-red-300 rounded animate-pulse">PRO</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-3 h-3 text-green-400" />
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold bg-green-500/30 text-green-300 rounded">FREE</span>
+                  </>
                 )}
                 <ChevronDown className={cn(
                   "w-3 h-3 text-muted-foreground transition-transform duration-200",
@@ -715,39 +724,50 @@ export function ChatInterface() {
                           }}
                           disabled={model.isLocked}
                           className={cn(
-                            "w-full flex items-start gap-3 p-3 rounded-lg text-left",
+                            "w-full flex items-start gap-3 p-3 rounded-lg text-left relative overflow-hidden",
                             "transition-all duration-150 group/model",
                             model.isLocked 
-                              ? "opacity-60 cursor-not-allowed hover:bg-white/[0.02]" 
-                              : "hover:bg-white/5 cursor-pointer",
-                            selectedModel.id === model.id && !model.isLocked && "bg-neon-cyan/10 border border-neon-cyan/30",
-                            selectedModel.id === model.id && model.isLocked && "bg-yellow-500/5 border border-yellow-500/20"
+                              ? "opacity-70 cursor-not-allowed bg-red-500/5 border border-red-500/20" 
+                              : "hover:bg-white/5 cursor-pointer border border-transparent",
+                            selectedModel.id === model.id && !model.isLocked && "bg-neon-cyan/10 border-neon-cyan/30",
+                            selectedModel.id === model.id && model.isLocked && "bg-yellow-500/10 border-yellow-500/30"
                           )}
                         >
+                          {/* LOCKED OVERLAY - Full width banner at top */}
+                          {model.isLocked && (
+                            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-red-600 to-orange-500 py-1 px-2 flex items-center justify-center gap-1.5 z-10">
+                              <Lock className="w-3 h-3 text-white" />
+                              <span className="text-[9px] font-bold text-white uppercase tracking-wider">Subscription Required</span>
+                            </div>
+                          )}
+
                           <div className={cn(
-                            "flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center relative",
+                            "flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center relative mt-3",
                             "bg-gradient-to-br",
                             model.speed === 'fast' && "from-blue-500/20 to-cyan-500/20",
                             model.speed === 'balanced' && "from-purple-500/20 to-pink-500/20",
                             model.speed === 'powerful' && "from-green-500/20 to-emerald-500/20"
                           )}>
                             <model.icon className={cn("w-5 h-5", model.color)} />
-                            {/* Lock overlay icon */}
+                            {/* Lock overlay icon - BIGGER */}
                             {model.isLocked && (
-                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500/90 rounded-full flex items-center justify-center">
-                                <Lock className="w-2.5 h-2.5 text-white" />
+                              <div className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                                <Lock className="w-4 h-4 text-red-400" />
                               </div>
                             )}
                           </div>
                           
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 mt-3">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium text-foreground text-sm">{model.name}</span>
+                              <span className={cn(
+                                "font-medium text-sm",
+                                model.isLocked ? "text-gray-300 line-through" : "text-foreground"
+                              )}>{model.name}</span>
                               {!model.isLocked && (
-                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded">FREE</span>
+                                <span className="px-2 py-0.5 text-[10px] font-bold bg-green-500/30 text-green-400 rounded-full border border-green-500/40">✓ FREE</span>
                               )}
                               {model.isLocked && (
-                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-yellow-500/20 text-yellow-400 rounded">🔒 PRO</span>
+                                <span className="px-2 py-0.5 text-[10px] font-bold bg-red-500/30 text-red-400 rounded-full border border-red-500/40 animate-pulse">🔒 PRO</span>
                               )}
                               {model.isPopular && !model.isLocked && (
                                 <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan rounded">POPULAR</span>
@@ -756,7 +776,10 @@ export function ChatInterface() {
                                 <span className="px-1.5 py-0.5 text-[10px] font-bold bg-purple-500/20 text-purple-400 rounded">NEW</span>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-0.5">{model.provider}</p>
+                            <p className={cn(
+                              "text-xs mt-0.5",
+                              model.isLocked ? "text-gray-500" : "text-muted-foreground"
+                            )}>{model.provider}</p>
                             <p className="text-xs text-gray-500 mt-1 line-clamp-1">{model.description}</p>
                             
                             {/* Speed indicator */}
@@ -771,14 +794,21 @@ export function ChatInterface() {
                                 {model.speed}
                               </span>
                             </div>
+
+                            {/* Upgrade CTA for locked models */}
+                            {model.isLocked && (
+                              <p className="text-[10px] text-orange-400 mt-2 font-medium animate-pulse">
+                                → Upgrade to unlock
+                              </p>
+                            )}
                           </div>
 
                           {/* Selected checkmark or Lock indicator */}
                           {selectedModel.id === model.id && !model.isLocked && (
-                            <Check className="w-4 h-4 text-neon-cyan flex-shrink-0 mt-1" />
+                            <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-3" />
                           )}
                           {selectedModel.id === model.id && model.isLocked && (
-                            <Lock className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-1" />
+                            <Lock className="w-5 h-5 text-red-400 flex-shrink-0 mt-3" />
                           )}
                         </button>
                       ))}
@@ -787,8 +817,9 @@ export function ChatInterface() {
                     {/* Footer */}
                     <div className="px-4 py-2.5 bg-black/30 border-t border-white/5">
                       <p className="text-[10px] text-gray-500 text-center">
-                        ⚡ Current: <span className={cn("font-medium", selectedModel.isLocked ? "text-yellow-500" : "text-neon-cyan")}>{selectedModel.name}</span> by {selectedModel.provider}
-                        {selectedModel.isLocked && " 🔒"}
+                        ⚡ Current: <span className={cn("font-medium", selectedModel.isLocked ? "text-red-400" : "text-green-400")}>{selectedModel.name}</span> by {selectedModel.provider}
+                        {selectedModel.isLocked && " 🔒 LOCKED"}
+                        {!selectedModel.isLocked && " ✓ FREE"}
                       </p>
                     </div>
                   </div>
