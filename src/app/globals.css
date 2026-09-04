@@ -692,9 +692,20 @@ body {
   .signup-page-container::-webkit-scrollbar,
   .nexus-main-container::-webkit-scrollbar,
   .subscription-tab-scroll::-webkit-scrollbar,
-  .settings-tab-scroll::-webkit-scrollbar {
+  .settings-tab-scroll::-webkit-scrollbar,
+  .profile-info-tab-scroll::-webkit-scrollbar {
     display: block !important;
     width: 4px !important;
+  }
+
+  /* Profile Info tab - Cyan scrollbar */
+  .profile-info-tab-scroll::-webkit-scrollbar-track {
+    background: rgba(10, 10, 26, 0.8);
+    border-radius: 2px;
+  }
+  .profile-info-tab-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.8), rgba(168, 85, 247, 0.6));
+    border-radius: 2px;
   }
 
   /* Subscription tab - Purple scrollbar */
@@ -707,7 +718,7 @@ body {
     border-radius: 2px;
   }
 
-  /* Settings tab - Cyan scrollbar */
+  /* Settings tab - Cyan-Purple scrollbar */
   .settings-tab-scroll::-webkit-scrollbar-track {
     background: rgba(10, 10, 26, 0.8);
     border-radius: 2px;

@@ -570,7 +570,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
-    <div className="profile-page-container min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent">
+    <div className="profile-page-container min-h-[100vh] bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-y-auto scrollbar-thin">
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
@@ -863,7 +863,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
 
         {/* Tab Content */}
         {activeTab === 'profile' && (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 overflow-y-auto max-h-[calc(100vh-280px)] profile-info-tab-scroll scrollbar-thin">
             {/* Bio Card */}
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-6 space-y-4">
