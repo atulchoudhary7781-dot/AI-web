@@ -1,0 +1,788 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect } from 'react'
+     4→import { useRouter } from 'next/navigation'
+     5→import {
+     6→  Users, DollarSign, MessageSquare, CreditCard,
+     7→  Shield, TrendingUp, UserCheck, Activity,
+     8→  Search, Filter, MoreVertical, Eye, Edit,
+     9→  Trash2, Crown, Mail, Calendar, RefreshCw,
+    10→  AlertCircle, CheckCircle, Clock, BarChart3,
+    11→  Settings, LogOut, ChevronLeft, Database
+    12→} from 'lucide-react'
+    13→import { Button } from '@/components/ui/button'
+    14→import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+    15→import { Badge } from '@/components/ui/badge'
+    16→import { Input } from '@/components/ui/input'
+    17→
+    18→// Types
+    19→interface AdminStats {
+    20→  users: {
+    21→    total: number
+    22→    newThisMonth: number
+    23→    newThisWeek: number
+    24→    activeToday: number
+    25→  }
+    26→  chats: {
+    27→    total: number
+    28→    thisMonth: number
+    29→  }
+    30→  subscriptions: {
+    31→    free: number
+    32→    normal: number
+    33→    pro: number
+    34→  }
+    35→  revenue: {
+    36→    totalRevenue: number
+    37→    totalPayments: number
+    38→    monthlyRevenue: number
+    39→    monthlyPayments: number
+    40→  }
+    41→  recentPayments: any[]
+    42→  recentUsers: any[]
+    43→}
+    44→
+    45→interface UserData {
+    46→  id: string
+    47→  name: string | null
+    48→  email: string
+    49→  avatar: string | null
+    50→  role: string
+    51→  emailVerified: boolean
+    52→  subscriptionPlan: string
+    53→  subscriptionStatus: string
+    54→  chatsToday: number
+    55→  createdAt: string
+    56→  _count: {
+    57→    chats: number
+    58→    subscriptions: number
+    59→  }
+    60→}
+    61→
+    62→export default function AdminDashboard() {
+    63→  const router = useRouter()
+    64→  
+    65→  // State
+    66→  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'payments' | 'logs'>('overview')
+    67→  const [stats, setStats] = useState<AdminStats | null>(null)
+    68→  const [users, setUsers] = useState<UserData[]>([])
+    69→  const [loading, setLoading] = useState(true)
+    70→  const [searchQuery, setSearchQuery] = useState('')
+    71→  const [planFilter, setPlanFilter] = useState('')
+    72→  const [currentPage, setCurrentPage] = useState(1)
+    73→  const [userActionLoading, setUserActionLoading] = useState<string | null>(null)
+    74→
+    75→  // Get user from localStorage
+    76→  const getUser = () => {
+    77→    if (typeof window !== 'undefined') {
+    78→      const userData = localStorage.getItem('user')
+    79→      return userData ? JSON.parse(userData) : null
+    80→    }
+    81→    return null
+    82→  }
+    83→
+    84→  const currentUser = getUser()
+    85→
+    86→  // Fetch stats on mount
+    87→  useEffect(() => {
+    88→    // Check if user is admin (in real app, verify server-side)
+    89→    if (!currentUser) {
+    90→      router.push('/')
+    91→      return
+    92→    }
+    93→    
+    94→    fetchStats()
+    95→    fetchUsers()
+    96→  }, [])
+    97→
+    98→  const fetchStats = async () => {
+    99→    try {
+   100→      const response = await fetch('/api/admin/stats', {
+   101→        headers: {
+   102→          'x-user-email': currentUser?.email || ''
+   103→        }
+   104→      })
+   105→      
+   106→      if (response.ok) {
+   107→        const data = await response.json()
+   108→        setStats(data.data)
+   109→      }
+   110→    } catch (error) {
+   111→      console.error('Failed to fetch stats:', error)
+   112→    }
+   113→  }
+   114→
+   115→  const fetchUsers = async () => {
+   116→    try {
+   117→      setLoading(true)
+   118→      const params = new URLSearchParams({
+   119→        page: currentPage.toString(),
+   120→        limit: '20',
+   121→        ...(searchQuery && { search: searchQuery }),
+   122→        ...(planFilter && { plan: planFilter })
+   123→      })
+   124→
+   125→      const response = await fetch(`/api/admin/users?${params}`, {
+   126→        headers: {
+   127→          'x-user-email': currentUser?.email || ''
+   128→        }
+   129→      })
+   130→      
+   131→      if (response.ok) {
+   132→        const data = await response.json()
+   133→        setUsers(data.data.users)
+   134→      }
+   135→    } catch (error) {
+   136→      console.error('Failed to fetch users:', error)
+   137→    } finally {
+   138→      setLoading(false)
+   139→    }
+   140→  }
+   141→
+   142→  // Refetch when filters change
+   143→  useEffect(() => {
+   144→    if (activeTab === 'users') {
+   145→      fetchUsers()
+   146→    }
+   147→  }, [searchQuery, planFilter, currentPage])
+   148→
+   149→  // Handle user actions
+   150→  const handleUserAction = async (userId: string, action: string, data?: any) => {
+   151→    setUserActionLoading(userId)
+   152→    
+   153→    try {
+   154→      const response = await fetch('/api/admin/users', {
+   155→        method: 'PUT',
+   156→        headers: {
+   157→          'Content-Type': 'application/json',
+   158→          'x-user-email': currentUser?.email || ''
+   159→        },
+   160→        body: JSON.stringify({ userId, action, ...data })
+   161→      })
+   162→
+   163→      if (response.ok) {
+   164→        fetchUsers() // Refresh list
+   165→        fetchStats() // Refresh stats
+   166→      }
+   167→    } catch (error) {
+   168→      console.error('User action failed:', error)
+   169→    } finally {
+   170→      setUserActionLoading(null)
+   171→    }
+   172→  }
+   173→
+   174→  const handleDeleteUser = async (userId: string) => {
+   175→    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+   176→      return
+   177→    }
+   178→
+   179→    try {
+   180→      const response = await fetch(`/api/admin/users?userId=${userId}`, {
+   181→        method: 'DELETE',
+   182→        headers: {
+   183→          'x-user-email': currentUser?.email || ''
+   184→        }
+   185→      })
+   186→
+   187→      if (response.ok) {
+   188→        fetchUsers()
+   189→        fetchStats()
+   190→      }
+   191→    } catch (error) {
+   192→      console.error('Delete user failed:', error)
+   193→    }
+   194→  }
+   195→
+   196→  // Format currency
+   197→  const formatCurrency = (amount: number) => {
+   198→    return new Intl.NumberFormat('en-US', {
+   199→      style: 'currency',
+   200→      currency: 'USD'
+   201→    }).format(amount / 100) // Convert cents to dollars
+   202→  }
+   203→
+   204→  // Format date
+   205→  const formatDate = (dateString: string) => {
+   206→    return new Date(dateString).toLocaleDateString('en-US', {
+   207→      year: 'numeric',
+   208→      month: 'short',
+   209→      day: 'numeric'
+   210→    })
+   211→  }
+   212→
+   213→  // Get plan badge color
+   214→  const getPlanBadgeColor = (plan: string) => {
+   215→    switch (plan) {
+   216→      case 'pro': return 'bg-neon-purple/20 text-neon-purple border-neon-purple/30'
+   217→      case 'normal': return 'bg-neon-purple/20 text-neon-purple border-neon-purple/30'
+   218→      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+   219→    }
+   220→  }
+   221→
+   222→  if (!currentUser) {
+   223→    return (
+   224→      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+   225→        <div className="text-white">Redirecting...</div>
+   226→      </div>
+   227→    )
+   228→  }
+   229→
+   230→  return (
+   231→    <div className="min-h-screen bg-[#0a0a0f]">
+   232→      {/* Header */}
+   233→      <header className="border-b border-white/10 bg-[#12121a]/80 backdrop-blur-xl sticky top-0 z-50">
+   234→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   235→          <div className="flex items-center justify-between h-16">
+   236→            <div className="flex items-center gap-4">
+   237→              <Button
+   238→                variant="ghost"
+   239→                size="sm"
+   240→                onClick={() => router.push('/profile')}
+   241→                className="text-gray-400 hover:text-white"
+   242→              >
+   243→                <ChevronLeft className="w-4 h-4 mr-1" />
+   244→                Back to Profile
+   245→              </Button>
+   246→              
+   247→              <div className="flex items-center gap-2">
+   248→                <Shield className="w-5 h-5 text-neon-purple" />
+   249→                <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
+   250→              </div>
+   251→            </div>
+   252→
+   253→            <Badge variant="outline" className="bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30">
+   254→              Administrator
+   255→            </Badge>
+   256→          </div>
+   257→        </div>
+   258→      </header>
+   259→
+   260→      {/* Navigation Tabs */}
+   261→      <div className="border-b border-white/10 bg-[#12121a]">
+   262→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   263→          <nav className="flex gap-8">
+   264→            {[
+   265→              { id: 'overview' as const, label: 'Overview', icon: BarChart3 },
+   266→              { id: 'users' as const, label: 'Users', icon: Users },
+   267→              { id: 'payments' as const, label: 'Payments', icon: CreditCard },
+   268→              { id: 'logs' as const, label: 'Activity Logs', icon: Database },
+   269→            ].map(({ id, label, icon: Icon }) => (
+   270→              <button
+   271→                key={id}
+   272→                onClick={() => setActiveTab(id)}
+   273→                className={`flex items-center gap-2 py-4 px-1 border-b-2 transition-colors ${
+   274→                  activeTab === id
+   275→                    ? 'border-neon-cyan text-neon-cyan'
+   276→                    : 'border-transparent text-gray-400 hover:text-white hover:border-gray-700'
+   277→                }`}
+   278→              >
+   279→                <Icon className="w-4 h-4" />
+   280→                {label}
+   281→              </button>
+   282→            ))}
+   283→          </nav>
+   284→        </div>
+   285→      </div>
+   286→
+   287→      {/* Main Content */}
+   288→      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   289→        {/* Overview Tab */}
+   290→        {activeTab === 'overview' && stats && (
+   291→          <div className="space-y-8">
+   292→            {/* Stats Grid */}
+   293→            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+   294→              {/* Total Users */}
+   295→              <Card className="bg-[#12121a] border-white/10">
+   296→                <CardContent className="p-6">
+   297→                  <div className="flex items-center justify-between">
+   298→                    <div>
+   299→                      <p className="text-sm text-gray-400">Total Users</p>
+   300→                      <p className="text-3xl font-bold text-white mt-1">{stats.users.total.toLocaleString()}</p>
+   301→                      <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
+   302→                        <TrendingUp className="w-3 h-3" />
+   303→                        +{stats.users.newThisMonth} this month
+   304→                      </p>
+   305→                    </div>
+   306→                    <div className="p-3 rounded-xl bg-neon-cyan/10">
+   307→                      <Users className="w-6 h-6 text-neon-cyan" />
+   308→                    </div>
+   309→                  </div>
+   310→                </CardContent>
+   311→              </Card>
+   312→
+   313→              {/* Active Today */}
+   314→              <Card className="bg-[#12121a] border-white/10">
+   315→                <CardContent className="p-6">
+   316→                  <div className="flex items-center justify-between">
+   317→                    <div>
+   318→                      <p className="text-sm text-gray-400">Active Today</p>
+   319→                      <p className="text-3xl font-bold text-white mt-1">{stats.users.activeToday}</p>
+   320→                      <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
+   321→                        <Activity className="w-3 h-3" />
+   322→                        +{stats.users.newThisWeek} this week
+   323→                      </p>
+   324→                    </div>
+   325→                    <div className="p-3 rounded-xl bg-green-500/10">
+   326→                      <UserCheck className="w-6 h-6 text-green-400" />
+   327→                    </div>
+   328→                  </div>
+   329→                </CardContent>
+   330→              </Card>
+   331→
+   332→              {/* Total Chats */}
+   333→              <Card className="bg-[#12121a] border-white/10">
+   334→                <CardContent className="p-6">
+   335→                  <div className="flex items-center justify-between">
+   336→                    <div>
+   337→                      <p className="text-sm text-gray-400">Total Chats</p>
+   338→                      <p className="text-3xl font-bold text-white mt-1">{stats.chats.total.toLocaleString()}</p>
+   339→                      <p className="text-xs text-neon-cyan mt-2 flex items-center gap-1">
+   340→                        <MessageSquare className="w-3 h-3" />
+   341→                        +{stats.chats.thisMonth} this month
+   342→                      </p>
+   343→                    </div>
+   344→                    <div className="p-3 rounded-xl bg-neon-cyan/10">
+   345→                      <MessageSquare className="w-6 h-6 text-neon-cyan" />
+   346→                    </div>
+   347→                  </div>
+   348→                </CardContent>
+   349→              </Card>
+   350→
+   351→              {/* Revenue */}
+   352→              <Card className="bg-[#12121a] border-white/10">
+   353→                <CardContent className="p-6">
+   354→                  <div className="flex items-center justify-between">
+   355→                    <div>
+   356→                      <p className="text-sm text-gray-400">Monthly Revenue</p>
+   357→                      <p className="text-3xl font-bold text-white mt-1">{formatCurrency(stats.revenue.monthlyRevenue)}</p>
+   358→                      <p className="text-xs text-yellow-400 mt-2 flex items-center gap-1">
+   359→                        <DollarSign className="w-3 h-3" />
+   360→                        {stats.revenue.monthlyPayments} payments
+   361→                      </p>
+   362→                    </div>
+   363→                    <div className="p-3 rounded-xl bg-yellow-500/10">
+   364→                      <DollarSign className="w-6 h-6 text-yellow-400" />
+   365→                    </div>
+   366→                  </div>
+   367→                </CardContent>
+   368→              </Card>
+   369→            </div>
+   370→
+   371→            {/* Subscription Distribution & Recent Activity */}
+   372→            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+   373→              {/* Subscriptions Chart */}
+   374→              <Card className="bg-[#12121a] border-white/10">
+   375→                <CardHeader>
+   376→                  <CardTitle className="text-white flex items-center gap-2">
+   377→                    <Crown className="w-5 h-5 text-neon-cyan" />
+   378→                    Subscription Distribution
+   379→                  </CardTitle>
+   380→                </CardHeader>
+   381→                <CardContent>
+   382→                  <div className="space-y-4">
+   383→                    {[
+   384→                      { plan: 'Free', count: stats.subscriptions.free, color: 'bg-gray-500', percentage: (stats.subscriptions.free / stats.users.total * 100).toFixed(1) },
+   385→                      { plan: 'Normal ($10/mo)', count: stats.subscriptions.normal, color: 'bg-neon-cyan', percentage: (stats.subscriptions.normal / stats.users.total * 100).toFixed(1) },
+   386→                      { plan: 'Pro ($20/mo)', count: stats.subscriptions.pro, color: 'bg-neon-cyan', percentage: (stats.subscriptions.pro / stats.users.total * 100).toFixed(1) },
+   387→                    ].map((item) => (
+   388→                      <div key={item.plan} className="space-y-2">
+   389→                        <div className="flex justify-between text-sm">
+   390→                          <span className="text-gray-300">{item.plan}</span>
+   391→                          <span className="text-gray-400">{item.count} ({item.percentage}%)</span>
+   392→                        </div>
+   393→                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+   394→                          <div 
+   395→                            className={`h-full ${item.color} transition-all duration-500`}
+   396→                            style={{ width: `${item.percentage}%` }}
+   397→                          />
+   398→                        </div>
+   399→                      </div>
+   400→                    ))}
+   401→                    
+   402→                    <div className="pt-4 border-t border-white/10">
+   403→                      <div className="flex justify-between text-sm font-medium">
+   404→                        <span className="text-white">Total Revenue (All Time)</span>
+   405→                        <span className="text-green-400">{formatCurrency(stats.revenue.totalRevenue)}</span>
+   406→                      </div>
+   407→                      <p className="text-xs text-gray-500 mt-1">From {stats.revenue.totalPayments} successful payments</p>
+   408→                    </div>
+   409→                  </div>
+   410→                </CardContent>
+   411→              </Card>
+   412→
+   413→              {/* Recent Payments */}
+   414→              <Card className="bg-[#12121a] border-white/10">
+   415→                <CardHeader>
+   416→                  <CardTitle className="text-white flex items-center gap-2">
+   417→                    <CreditCard className="w-5 h-5 text-green-400" />
+   418→                    Recent Payments
+   419→                  </CardTitle>
+   420→                </CardHeader>
+   421→                <CardContent>
+   422→                  <div className="space-y-3 max-h-80 overflow-y-auto">
+   423→                    {stats.recentPayments.length > 0 ? (
+   424→                      stats.recentPayments.map((payment: any) => (
+   425→                        <div key={payment.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+   426→                          <div className="flex items-center gap-3">
+   427→                            <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+   428→                              <CheckCircle className="w-4 h-4 text-green-400" />
+   429→                            </div>
+   430→                            <div>
+   431→                              <p className="text-sm font-medium text-white">{payment.user?.name || 'Unknown'}</p>
+   432→                              <p className="text-xs text-gray-500">{formatDate(payment.createdAt)}</p>
+   433→                            </div>
+   434→                          </div>
+   435→                          <span className="text-sm font-medium text-green-400">
+   436→                            +{formatCurrency(payment.amount)}
+   437→                          </span>
+   438→                        </div>
+   439→                      ))
+   440→                    ) : (
+   441→                      <p className="text-center text-gray-500 py-8">No payments yet</p>
+   442→                    )}
+   443→                  </div>
+   444→                </CardContent>
+   445→              </Card>
+   446→            </div>
+   447→
+   448→            {/* Recent Users */}
+   449→            <Card className="bg-[#12121a] border-white/10">
+   450→              <CardHeader>
+   451→                <CardTitle className="text-white flex items-center gap-2">
+   452→                  <Users className="w-5 h-5 text-neon-cyan" />
+   453→                  Recently Registered Users
+   454→                </CardTitle>
+   455→              </CardHeader>
+   456→              <CardContent>
+   457→                <div className="overflow-x-auto">
+   458→                  <table className="w-full">
+   459→                    <thead>
+   460→                      <tr className="border-b border-white/10">
+   461→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">User</th>
+   462→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Plan</th>
+   463→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Email Verified</th>
+   464→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Joined</th>
+   465→                      </tr>
+   466→                    </thead>
+   467→                    <tbody>
+   468→                      {stats.recentUsers.map((user: any) => (
+   469→                        <tr key={user.id} className="border-b border-white/5 hover:bg-white/5">
+   470→                          <td className="py-3 px-4">
+   471→                            <div className="flex items-center gap-3">
+   472→                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-white text-sm font-medium">
+   473→                                {(user.name || user.email[0]).toUpperCase()}
+   474→                              </div>
+   475→                              <div>
+   476→                                <p className="text-sm font-medium text-white">{user.name || 'Unnamed'}</p>
+   477→                                <p className="text-xs text-gray-500">{user.email}</p>
+   478→                              </div>
+   479→                            </div>
+   480→                          </td>
+   481→                          <td className="py-3 px-4">
+   482→                            <Badge variant="outline" className={getPlanBadgeColor(user.subscriptionPlan)}>
+   483→                              {user.subscriptionPlan.toUpperCase()}
+   484→                            </Badge>
+   485→                          </td>
+   486→                          <td className="py-3 px-4">
+   487→                            {user.emailVerified ? (
+   488→                              <CheckCircle className="w-4 h-4 text-green-400" />
+   489→                            ) : (
+   490→                              <AlertCircle className="w-4 h-4 text-yellow-400" />
+   491→                            )}
+   492→                          </td>
+   493→                          <td className="py-3 px-4 text-sm text-gray-400">
+   494→                            {formatDate(user.createdAt)}
+   495→                          </td>
+   496→                        </tr>
+   497→                      ))}
+   498→                    </tbody>
+   499→                  </table>
+   500→                </div>
+   501→              </CardContent>
+   502→            </Card>
+   503→          </div>
+   504→        )}
+   505→
+   506→        {/* Users Tab */}
+   507→        {activeTab === 'users' && (
+   508→          <div className="space-y-6">
+   509→            {/* Filters */}
+   510→            <Card className="bg-[#12121a] border-white/10">
+   511→              <CardContent className="p-4">
+   512→                <div className="flex flex-col sm:flex-row gap-4">
+   513→                  <div className="relative flex-1">
+   514→                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+   515→                    <Input
+   516→                      placeholder="Search users by name or email..."
+   517→                      value={searchQuery}
+   518→                      onChange={(e) => setSearchQuery(e.target.value)}
+   519→                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+   520→                    />
+   521→                  </div>
+   522→                  
+   523→                  <select
+   524→                    value={planFilter}
+   525→                    onChange={(e) => setPlanFilter(e.target.value)}
+   526→                    className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-neon-cyan"
+   527→                  >
+   528→                    <option value="">All Plans</option>
+   529→                    <option value="free">Free</option>
+   530→                    <option value="normal">Normal</option>
+   531→                    <option value="pro">Pro</option>
+   532→                  </select>
+   533→
+   534→                  <Button
+   535→                    onClick={fetchUsers}
+   536→                    variant="outline"
+   537→                    size="icon"
+   538→                    className="border-white/10 text-gray-400 hover:text-white"
+   539→                  >
+   540→                    <RefreshCw className="w-4 h-4" />
+   541→                  </Button>
+   542→                </div>
+   543→              </CardContent>
+   544→            </Card>
+   545→
+   546→            {/* Users Table */}
+   547→            <Card className="bg-[#12121a] border-white/10">
+   548→              <CardContent className="p-0">
+   549→                <div className="overflow-x-auto">
+   550→                  <table className="w-full">
+   551→                    <thead>
+   552→                      <tr className="border-b border-white/10 bg-white/5">
+   553→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">User</th>
+   554→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Plan</th>
+   555→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Chats Today</th>
+   556→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Email</th>
+   557→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Joined</th>
+   558→                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-400">Actions</th>
+   559→                      </tr>
+   560→                    </thead>
+   561→                    <tbody>
+   562→                      {loading ? (
+   563→                        <tr>
+   564→                          <td colSpan={6} className="py-12 text-center text-gray-500">
+   565→                            Loading...
+   566→                          </td>
+   567→                        </tr>
+   568→                      ) : users.length === 0 ? (
+   569→                        <tr>
+   570→                          <td colSpan={6} className="py-12 text-center text-gray-500">
+   571→                            No users found
+   572→                          </td>
+   573→                        </tr>
+   574→                      ) : (
+   575→                        users.map((user) => (
+   576→                          <tr key={user.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+   577→                            <td className="py-4 px-4">
+   578→                              <div className="flex items-center gap-3">
+   579→                                {user.avatar ? (
+   580→                                  <img src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+   581→                                ) : (
+   582→                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-white font-medium">
+   583→                                    {(user.name || user.email[0]).toUpperCase()}
+   584→                                  </div>
+   585→                                )}
+   586→                                <div>
+   587→                                  <p className="font-medium text-white">{user.name || 'Unnamed'}</p>
+   588→                                  <p className="text-xs text-gray-500">{user.email}</p>
+   589→                                </div>
+   590→                                {user.role === 'admin' && (
+   591→                                  <Badge className="bg-red-500/10 text-red-400 border-red-500/30 text-xs">
+   592→                                    ADMIN
+   593→                                  </Badge>
+   594→                                )}
+   595→                              </div>
+   596→                            </td>
+   597→                            <td className="py-4 px-4">
+   598→                              <Badge variant="outline" className={getPlanBadgeColor(user.subscriptionPlan)}>
+   599→                                {user.subscriptionPlan.toUpperCase()}
+   600→                              </Badge>
+   601→                            </td>
+   602→                            <td className="py-4 px-4">
+   603→                              <span className="text-white font-mono">{user.chatsToday}/10</span>
+   604→                            </td>
+   605→                            <td className="py-4 px-4">
+   606→                              {user.emailVerified ? (
+   607→                                <CheckCircle className="w-5 h-5 text-green-400" />
+   608→                              ) : (
+   609→                                <AlertCircle className="w-5 h-5 text-yellow-400" />
+   610→                              )}
+   611→                            </td>
+   612→                            <td className="py-4 px-4 text-sm text-gray-400">
+   613→                              {formatDate(user.createdAt)}
+   614→                            </td>
+   615→                            <td className="py-4 px-4">
+   616→                              <div className="flex items-center justify-end gap-2">
+   617→                                {!user.emailVerified && (
+   618→                                  <Button
+   619→                                    size="sm"
+   620→                                    variant="ghost"
+   621→                                    onClick={() => handleUserAction(user.id, 'verify_email')}
+   622→                                    disabled={userActionLoading === user.id}
+   623→                                    className="text-green-400 hover:bg-green-500/10"
+   624→                                  >
+   625→                                    <Mail className="w-4 h-4" />
+   626→                                  </Button>
+   627→                                )}
+   628→                                
+   629→                                <Button
+   630→                                  size="sm"
+   631→                                  variant="ghost"
+   632→                                  onClick={() => handleUserAction(user.id, 'reset_chats')}
+   633→                                  disabled={userActionLoading === user.id}
+   634→                                  className="text-neon-cyan hover:bg-neon-cyan/10"
+   635→                                >
+   636→                                  <RefreshCw className="w-4 h-4" />
+   637→                                </Button>
+   638→
+   639→                                <Button
+   640→                                  size="sm"
+   641→                                  variant="ghost"
+   642→                                  onClick={() => handleDeleteUser(user.id)}
+   643→                                  className="text-red-400 hover:bg-red-500/10"
+   644→                                >
+   645→                                  <Trash2 className="w-4 h-4" />
+   646→                                </Button>
+   647→                              </div>
+   648→                            </td>
+   649→                          </tr>
+   650→                        ))
+   651→                      )}
+   652→                    </tbody>
+   653→                  </table>
+   654→                </div>
+   655→
+   656→                {/* Pagination */}
+   657→                <div className="flex items-center justify-between p-4 border-t border-white/10">
+   658→                  <p className="text-sm text-gray-500">
+   659→                    Showing {users.length} users
+   660→                  </p>
+   661→                  <div className="flex gap-2">
+   662→                    <Button
+   663→                      size="sm"
+   664→                      variant="outline"
+   665→                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+   666→                      disabled={currentPage === 1}
+   667→                      className="border-white/10 text-gray-400"
+   668→                    >
+   669→                      Previous
+   670→                    </Button>
+   671→                    <Button
+   672→                      size="sm"
+   673→                      variant="outline"
+   674→                      onClick={() => setCurrentPage(currentPage + 1)}
+   675→                      className="border-white/10 text-gray-400"
+   676→                    >
+   677→                      Next
+   678→                    </Button>
+   679→                  </div>
+   680→                </div>
+   681→              </CardContent>
+   682→            </Card>
+   683→          </div>
+   684→        )}
+   685→
+   686→        {/* Payments Tab */}
+   687→        {activeTab === 'payments' && stats && (
+   688→          <div className="space-y-6">
+   689→            {/* Revenue Summary Cards */}
+   690→            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+   691→              <Card className="bg-[#12121a] border-white/10">
+   692→                <CardContent className="p-6">
+   693→                  <p className="text-sm text-gray-400">Total Revenue</p>
+   694→                  <p className="text-2xl font-bold text-white mt-1">{formatCurrency(stats.revenue.totalRevenue)}</p>
+   695→                  <p className="text-xs text-gray-500 mt-1">{stats.revenue.totalPayments} payments</p>
+   696→                </CardContent>
+   697→              </Card>
+   698→              
+   699→              <Card className="bg-[#12121a] border-white/10">
+   700→                <CardContent className="p-6">
+   701→                  <p className="text-sm text-gray-400">This Month</p>
+   702→                  <p className="text-2xl font-bold text-green-400 mt-1">{formatCurrency(stats.revenue.monthlyRevenue)}</p>
+   703→                  <p className="text-xs text-gray-500 mt-1">{stats.revenue.monthlyPayments} payments</p>
+   704→                </CardContent>
+   705→              </Card>
+   706→
+   707→              <Card className="bg-[#12121a] border-white/10">
+   708→                <CardContent className="p-6">
+   709→                  <p className="text-sm text-gray-400">Paying Customers</p>
+   710→                  <p className="text-2xl font-bold text-neon-cyan mt-1">
+   711→                    {stats.subscriptions.normal + stats.subscriptions.pro}
+   712→                  </p>
+   713→                  <p className="text-xs text-gray-500 mt-1">Normal + Pro plans</p>
+   714→                </CardContent>
+   715→              </Card>
+   716→            </div>
+   717→
+   718→            {/* All Payments Table */}
+   719→            <Card className="bg-[#12121a] border-white/10">
+   720→              <CardHeader>
+   721→                <CardTitle className="text-white">Payment History</CardTitle>
+   722→              </CardHeader>
+   723→              <CardContent>
+   724→                <div className="overflow-x-auto">
+   725→                  <table className="w-full">
+   726→                    <thead>
+   727→                      <tr className="border-b border-white/10">
+   728→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Customer</th>
+   729→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Amount</th>
+   730→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Status</th>
+   731→                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Date</th>
+   732→                      </tr>
+   733→                    </thead>
+   734→                    <tbody>
+   735→                      {stats.recentPayments.map((payment: any) => (
+   736→                        <tr key={payment.id} className="border-b border-white/5 hover:bg-white/5">
+   737→                          <td className="py-3 px-4">
+   738→                            <p className="text-sm font-medium text-white">{payment.user?.name || 'Unknown'}</p>
+   739→                            <p className="text-xs text-gray-500">{payment.user?.email}</p>
+   740→                          </td>
+   741→                          <td className="py-3 px-4 text-sm font-medium text-white">
+   742→                            {formatCurrency(payment.amount)}
+   743→                          </td>
+   744→                          <td className="py-3 px-4">
+   745→                            <Badge className={
+   746→                              payment.status === 'succeeded' ? 'bg-green-500/10 text-green-400' :
+   747→                              payment.status === 'failed' ? 'bg-red-500/10 text-red-400' :
+   748→                              'bg-yellow-500/10 text-yellow-400'
+   749→                            }>
+   750→                              {payment.status}
+   751→                            </Badge>
+   752→                          </td>
+   753→                          <td className="py-3 px-4 text-sm text-gray-400">
+   754→                            {formatDate(payment.createdAt)}
+   755→                          </td>
+   756→                        </tr>
+   757→                      ))}
+   758→                    </tbody>
+   759→                  </table>
+   760→                </div>
+   761→              </CardContent>
+   762→            </Card>
+   763→          </div>
+   764→        )}
+   765→
+   766→        {/* Logs Tab */}
+   767→        {activeTab === 'logs' && (
+   768→          <Card className="bg-[#12121a] border-white/10">
+   769→            <CardHeader>
+   770→              <CardTitle className="text-white flex items-center gap-2">
+   771→                <Database className="w-5 h-5 text-neon-cyan" />
+   772→                Admin Activity Logs
+   773→              </CardTitle>
+   774→            </CardHeader>
+   775→            <CardContent>
+   776→              <div className="text-center py-12 text-gray-500">
+   777→                <Database className="w-12 h-12 mx-auto mb-4 opacity-50" />
+   778→                <p>Activity logs will appear here as admin actions are performed.</p>
+   779→                <p className="text-sm mt-2">All user modifications are tracked for security purposes.</p>
+   780→              </div>
+   781→            </CardContent>
+   782→          </Card>
+   783→        )}
+   784→      </main>
+   785→    </div>
+   786→  )
+   787→}
+   788→
