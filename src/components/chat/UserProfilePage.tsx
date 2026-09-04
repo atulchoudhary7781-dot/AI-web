@@ -837,10 +837,10 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       </div>
 
-      {/* Tabs & Content - Scrollable Container */}
-      <div className="max-w-4xl mx-auto px-4 pb-12" style={{ minHeight: 'calc(100vh - 200px)' }}>
+      {/* Tabs & Content */}
+      <div className="max-w-4xl mx-auto px-4 pb-12">
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit sticky top-0 z-10">
+        <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
             { id: 'profile', label: 'Profile Info', icon: User },
             { id: 'subscription', label: 'Subscription', icon: CreditCard },
@@ -861,19 +861,18 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           ))}
         </div>
 
-        {/* Tab Content - Fixed Height Scrollable */}
-        <div style={{ 
-          height: 'calc(100vh - 280px)',
-          overflowY: 'auto',
-          overflowX: 'hidden'
-        }} className={
-          activeTab === 'profile' ? 'profile-info-tab-scroll' :
-          activeTab === 'subscription' ? 'subscription-tab-scroll' :
-          'settings-tab-scroll'
-        }>
+        {/* Profile Info Tab */}
         {activeTab === 'profile' && (
-          <>
-          <div className="grid md:grid-cols-2 gap-6 pb-8">
+          <div 
+            className="profile-info-tab-scroll"
+            style={{
+              height: 'calc(100vh - 300px)',
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              paddingRight: '8px'
+            }}
+          >
+            <div className="grid md:grid-cols-2 gap-6 pb-8">
             {/* Bio Card */}
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-6 space-y-4">
@@ -990,12 +989,21 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               </CardContent>
             </Card>
           </div>
-          </>
+          </div>
         )}
 
+        {/* Subscription Tab */}
         {activeTab === 'subscription' && (
-          <>
-          <div className="space-y-6 pb-8">
+          <div 
+            className="subscription-tab-scroll"
+            style={{
+              height: 'calc(100vh - 300px)',
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              paddingRight: '8px'
+            }}
+          >
+            <div className="space-y-6 pb-8">
             {/* Current Plan Status */}
             <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-8 text-center">
@@ -1148,12 +1156,21 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               ))}
             </div>
           </div>
-          </>
+          </div>
         )}
 
+        {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <>
-          <div className="space-y-5 pb-8">
+          <div 
+            className="settings-tab-scroll"
+            style={{
+              height: 'calc(100vh - 300px)',
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              paddingRight: '8px'
+            }}
+          >
+            <div className="space-y-5 pb-8">
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-6 space-y-6">
                 <h3 className="font-semibold text-white flex items-center gap-2">
@@ -1361,9 +1378,8 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               </CardContent>
             </Card>
           </div>
-          </>
+          </div>
         )}
-        </div>
       </div>
     </div>
   )
