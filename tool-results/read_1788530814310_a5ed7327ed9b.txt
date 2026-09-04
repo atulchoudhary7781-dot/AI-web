@@ -1,0 +1,858 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react'
+     4→     4→import { 
+     5→     5→  Send, Bot, User, Copy, Check, RefreshCw, 
+     6→     6→  Sparkles, Trash2, Maximize2, Minimize2,
+     7→     7→  History, Plus, ThumbsUp, ThumbsDown, Share2,
+     8→     8→  ChevronDown, Cpu, Zap, Brain, Star, Rocket, Lock,
+     9→     9→  X
+    10→    10→} from 'lucide-react'
+    11→    11→import { Button } from '@/components/ui/button'
+    12→    12→import { Textarea } from '@/components/ui/textarea'
+    13→    13→import { Badge } from '@/components/ui/badge'
+    14→    14→import { VoiceInput } from './VoiceInput'
+    15→    15→import { ChatHistory, type ChatConversation } from './ChatHistory'
+    16→    16→import { useI18n } from '@/lib/i18n'
+    17→    17→import { cn } from '@/lib/utils'
+    18→    18→
+    19→    19→// ==================== TYPES ====================
+    20→    20→interface Message {
+    21→    21→  id: string
+    22→    22→  role: 'user' | 'assistant'
+    23→    23→  content: string
+    24→    24→  timestamp: Date
+    25→    25→  showButtons?: boolean
+    26→    26→}
+    27→    27→
+    28→    28→interface AIModel {
+    29→    29→  id: string
+    30→    30→  name: string
+    31→    31→  provider: string
+    32→    32→  description: string
+    33→    33→  icon: React.ComponentType<{ className?: string }>
+    34→    34→  color: string
+    35→    35→  speed: 'fast' | 'balanced' | 'powerful'
+    36→    36→  isPopular?: boolean
+    37→    37→  isNew?: boolean
+    38→    38→  isLocked?: boolean
+    39→    39→}
+    40→    40→
+    41→    41→// ==================== CONSTANTS ====================
+    42→    42→const AI_MODELS: AIModel[] = [
+    43→    43→  {
+    44→    44→    id: 'gpt-4o',
+    45→    45→    name: 'GPT-4o',
+    46→    46→    provider: 'OpenAI',
+    47→    47→    description: 'Most capable, best for complex tasks',
+    48→    48→    icon: Brain,
+    49→    49→    color: 'text-green-400',
+    50→    50→    speed: 'powerful',
+    51→    51→    isPopular: true,
+    52→    52→    isLocked: true,
+    53→    53→  },
+    54→    54→  {
+    55→    55→    id: 'gpt-4o-mini',
+    56→    56→    name: 'GPT-4o Mini',
+    57→    57→    provider: 'OpenAI',
+    58→    58→    description: 'Fast & affordable for everyday tasks',
+    59→    59→    icon: Zap,
+    60→    60→    color: 'text-blue-400',
+    61→    61→    speed: 'fast',
+    62→    62→    isNew: true,
+    63→    63→    isLocked: true,
+    64→    64→  },
+    65→    65→  {
+    66→    66→    id: 'claude-3.5-sonnet',
+    67→    67→    name: 'Claude 3.5 Sonnet',
+    68→    68→    provider: 'Anthropic',
+    69→    69→    description: 'Great at reasoning & coding',
+    70→    70→    icon: Star,
+    71→    71→    color: 'text-orange-400',
+    72→    72→    speed: 'balanced',
+    73→    73→    isPopular: true,
+    74→    74→    isLocked: true,
+    75→    75→  },
+    76→    76→  {
+    77→    77→    id: 'claude-3-opus',
+    78→    78→    name: 'Claude 3 Opus',
+    79→    79→    provider: 'Anthropic',
+    80→    80→    description: 'Most intelligent for analysis',
+    81→    81→    icon: Cpu,
+    82→    82→    color: 'text-purple-400',
+    83→    83→    speed: 'powerful',
+    84→    84→    isLocked: true,
+    85→    85→  },
+    86→    86→  {
+    87→    87→    id: 'gemini-pro',
+    88→    88→    name: 'Gemini Pro',
+    89→    89→    provider: 'Google',
+    90→    90→    description: 'Multimodal & creative',
+    91→    91→    icon: Sparkles,
+    92→    92→    color: 'text-cyan-400',
+    93→    93→    speed: 'balanced',
+    94→    94→    isLocked: true,
+    95→    95→  },
+    96→    96→  {
+    97→    97→    id: 'llama-3.1',
+    98→    98→    name: 'Llama 3.1',
+    99→    99→    provider: 'Meta',
+   100→   100→    description: 'Open source & privacy focused - FREE',
+   101→   101→    icon: Rocket,
+   102→   102→    color: 'text-purple-300',
+   103→   103→    speed: 'fast',
+   104→   104→    isNew: true,
+   105→   105→    isLocked: false,
+   106→   106→  },
+   107→   107→]
+   108→   108→
+   109→   109→const DEFAULT_MODEL = AI_MODELS.find(m => m.id === 'llama-3.1') || AI_MODELS[5]
+   110→   110→
+   111→   111→// ==================== MEMOIZED SUB-COMPONENTS ====================
+   112→   112→
+   113→   113→// Model Icon Component - Optimized & Mobile Friendly
+   114→   114→const ModelIcon = memo(({ model, size = 'md' }: { model: AIModel; size?: 'sm' | 'md' | 'lg' }) => {
+   115→   115→  const Icon = model.icon
+   116→   116→  const sizeClasses = {
+   117→   117→    sm: 'w-8 h-8',      // Mobile: smaller
+   118→   118→    md: 'w-10 h-10',    // Tablet/Desktop
+   119→   119→    lg: 'w-12 h-12'     // Desktop large
+   120→   120→  }
+   121→   121→  
+   122→   122→  return (
+   123→   123→    <div className={cn(
+   124→   124→      "flex-shrink-0 rounded-lg flex items-center justify-center relative bg-gradient-to-br",
+   125→   125→      sizeClasses[size],
+   126→   126→      model.speed === 'fast' && "from-blue-500/20 to-cyan-500/20",
+   127→   127→      model.speed === 'balanced' && "from-purple-500/20 to-pink-500/20",
+   128→   128→      model.speed === 'powerful' && "from-green-500/20 to-emerald-500/20"
+   129→   129→    )}>
+   130→   130→      <Icon className={cn("w-5 h-5", model.color)} />
+   131→   131→      
+   132→   132→      {/* Lock Overlay */}
+   133→   133→      {model.isLocked && (
+   134→   134→        <div className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center backdrop-blur-sm">
+   135→   135→          <Lock className="w-4 h-4 text-red-400" />
+   136→   136→        </div>
+   137→   137→      )}
+   138→   138→    </div>
+   139→   139→  )
+   140→   140→})
+   141→   141→
+   142→   142→ModelIcon.displayName = 'ModelIcon'
+   143→   143→
+   144→   144→// Model Badge Component
+   145→   145→const ModelBadge = memo(({ model }: { model: AIModel }) => {
+   146→   146→  if (!model.isLocked) {
+   147→   147→    return (
+   148→   148→      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-green-500/30 text-green-400 rounded-full border border-green-500/40 hidden sm:inline-flex">
+   149→   149→        ✓ FREE
+   150→   150→      </span>
+   151→   151→    )
+   152→   152→  }
+   153→   153→  
+   154→   154→  return (
+   155→   155→    <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/30 text-red-400 rounded-full border border-red-500/40 animate-pulse hidden sm:inline-flex">
+   156→   156→      🔒 PRO
+   157→   157→    </span>
+   158→   158→  )
+   159→   159→})
+   160→   160→
+   161→   161→ModelBadge.displayName = 'ModelBadge'
+   162→   162→
+   163→   163→// Locked Banner Component
+   164→   164→const LockedBanner = memo(() => (
+   165→   165→  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-red-600 to-orange-500 py-1 px-2 flex items-center justify-center gap-1.5 z-10">
+   166→   166→    <Lock className="w-3 h-3 text-white" />
+   167→   167→    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Subscription Required</span>
+   168→   168→  </div>
+   169→   169→))
+   170→   170→
+   171→   171→LockedBanner.displayName = 'LockedBanner'
+   172→   172→
+   173→   173→// Message Bubble Component - Fully Mobile Optimized
+   174→   174→const MessageBubble = memo(({ 
+   175→   175→  message, 
+   176→   176→  isUser, 
+   177→   177→  copiedId, 
+   178→   178→  onCopy, 
+   179→   179→  likedMessages, 
+   180→   180→  dislikedMessages,
+   181→   181→  onLike,
+   182→   182→  onDislike,
+   183→   183→  onRegenerate,
+   184→   184→  t
+   185→   185→}: { 
+   186→   186→  message: Message
+   187→   187→  isUser: boolean
+   188→   188→  copiedId: string | null
+   189→   189→  onCopy: (content: string, id: string) => void
+   190→   190→  likedMessages: Set<string>
+   191→   191→  dislikedMessages: Set<string>
+   192→   192→  onLike: (id: string) => void
+   193→   193→  onDislike: (id: string) => void
+   194→   194→  onRegenerate: (id: string) => void
+   195→   195→  t: (key: string) => string
+   196→   196→}) => (
+   197→   197→  <div className={cn("flex gap-3 sm:gap-4 chat-message-enter", isUser ? "flex-row-reverse" : "")}>
+   198→   198→    {/* Avatar - Smaller on mobile */}
+   199→   199→    <div className={cn(
+   200→   200→      "flex-shrink-0 rounded-xl flex items-center justify-center shadow-lg border",
+   201→   201→      // Mobile: w-8 h-8, Desktop: w-9 h-9
+   202→   202→      "w-8 h-8 sm:w-9 sm:h-9",
+   203→   203→      isUser 
+   204→   204→        ? "bg-gradient-to-br from-neon-cyan to-cyan-600 text-white border-neon-cyan/30" 
+   205→   205→        : "bg-gradient-to-br from-gray-800 to-gray-900 text-white border-neon-purple/30"
+   206→   206→    )}>
+   207→   207→      {isUser ? <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+   208→   208→    </div>
+   209→   209→
+   210→   210→    {/* Content - Max width optimized for mobile */}
+   211→   211→    <div className={cn(
+   212→   212→      "rounded-2xl shadow-lg px-3 py-3 sm:px-5 sm:py-4",
+   213→   213→      // Mobile: max-w-[85%], Desktop: max-w-[80%]
+   214→   214→      "max-w-[85%] sm:max-w-[80%]",
+   215→   215→      isUser 
+   216→   216→        ? "message-user bg-gradient-to-r from-neon-cyan/20 to-cyan-600/20 border border-neon-cyan/30 text-white" 
+   217→   217→        : "message-ai bg-gray-800/50 backdrop-blur-sm border border-white/5 text-gray-100"
+   218→   218→    )}>
+   219→   219→      {/* Message Content - Responsive typography */}
+   220→   220→      <div className="prose prose-invert prose-sm max-w-none message-content">
+   221→   221→        {message.content.split('\n').map((line, i) => (
+   222→   222→          <p key={i} className="mb-2 last:mb-0 text-sm sm:text-base">{line}</p>
+   223→   223→        ))}
+   224→   224→      </div>
+   225→   225→
+   226→   226→      {/* Action Buttons - Hidden on small screens, shown on larger */}
+   227→   227→      {!isUser && message.showButtons && (
+   228→   228→        <div className="flex items-center gap-1 sm:gap-2 mt-3 pt-3 border-t border-white/5 overflow-x-auto">
+   229→   229→          {/* Primary actions always visible */}
+   230→   230→          <button
+   231→   231→            onClick={() => onCopy(message.content, message.id)}
+   232→   232→            className={cn(
+   233→   233→              "p-1.5 sm:p-2 rounded-lg transition-all duration-200 cursor-pointer flex-shrink-0",
+   234→   234→              copiedId === message.id 
+   235→   235→                ? "bg-green-500/20 text-green-400" 
+   236→   236→                : "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-neon-cyan"
+   237→   237→            )}
+   238→   238→            title={t('chat.copy')}
+   239→   239→            type="button"
+   240→   240→          >
+   241→   241→            {copiedId === message.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+   242→   242→          </button>
+   243→   243→
+   244→   244→          <button
+   245→   245→            onClick={() => onRegenerate(message.id)}
+   246→   246→            className="p-1.5 sm:p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-neon-purple transition-all duration-200 cursor-pointer flex-shrink-0"
+   247→   247→            title={t('chat.regenerate')}
+   248→   248→            type="button"
+   249→   249→          >
+   250→   250→            <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+   251→   251→          </button>
+   252→   252→
+   253→   253→          <div className="flex-1 min-w-[8px]" />
+   254→   254→
+   255→   255→          {/* Reaction buttons - Always visible but compact */}
+   256→   256→          <button
+   257→   257→            onClick={() => onLike(message.id)}
+   258→   258→            className={cn(
+   259→   259→              "p-1.5 sm:p-2 rounded-lg transition-all duration-200 cursor-pointer flex-shrink-0",
+   260→   260→              likedMessages.has(message.id)
+   261→   261→                ? "bg-neon-cyan/25 text-neon-cyan"
+   262→   262→                : "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-neon-cyan"
+   263→   263→            )}
+   264→   264→            title="Good response"
+   265→   265→            type="button"
+   266→   266→          >
+   267→   267→            <ThumbsUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${likedMessages.has(message.id) ? 'fill-neon-cyan' : ''}`} />
+   268→   268→          </button>
+   269→   269→
+   270→   270→          <button
+   271→   271→            onClick={() => onDislike(message.id)}
+   272→   272→            className={cn(
+   273→   273→              "p-1.5 sm:p-2 rounded-lg transition-all duration-200 cursor-pointer flex-shrink-0",
+   274→   274→              dislikedMessages.has(message.id)
+   275→   275→                ? "bg-red-500/25 text-red-400"
+   276→   276→                : "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-red-400"
+   277→   277→            )}
+   278→   278→            title="Bad response"
+   279→   279→            type="button"
+   280→   280→          >
+   281→   281→            <ThumbsDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dislikedMessages.has(message.id) ? 'fill-red-400' : ''}`} />
+   282→   282→          </button>
+   283→   283→
+   284→   284→          {/* Share button - Hidden on very small screens */}
+   285→   285→          <button
+   286→   286→            className="hidden sm:flex p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-neon-cyan transition-all duration-200 cursor-pointer flex-shrink-0"
+   287→   287→            title={t('chat.share')}
+   288→   288→            type="button"
+   289→   289→          >
+   290→   290→            <Share2 className="w-4 h-4" />
+   291→   291→          </button>
+   292→   292→        </div>
+   293→   293→      )}
+   294→   294→
+   295→   295→      {/* Timestamp & Copy for User Messages */}
+   296→   296→      {isUser && (
+   297→   297→        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/5 justify-end">
+   298→   298→          <span className="text-[10px] sm:text-xs text-muted-foreground">
+   299→   299→            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+   300→   300→          </span>
+   301→   301→          <button
+   302→   302→            onClick={() => onCopy(message.content, message.id)}
+   303→   303→            className={cn(
+   304→   304→              "p-1 rounded hover:bg-white/10 transition-colors cursor-pointer",
+   305→   305→              copiedId === message.id ? "text-green-400" : "text-muted-foreground hover:text-neon-cyan"
+   306→   306→            )}
+   307→   307→            aria-label={t('chat.copy')}
+   308→   308→            type="button"
+   309→   309→          >
+   310→   310→            {copiedId === message.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+   311→   311→          </button>
+   312→   312→        </div>
+   313→   313→      )}
+   314→   314→    </div>
+   315→   315→  </div>
+   316→   316→))
+   317→   317→
+   318→   318→MessageBubble.displayName = 'MessageBubble'
+   319→   319→
+   320→   320→// ==================== MAIN COMPONENT ====================
+   321→   321→export function ChatInterface() {
+   322→   322→  const { t } = useI18n()
+   323→   323→  
+   324→   324→  // State
+   325→   325→  const [messages, setMessages] = useState<Message[]>([
+   326→   326→    {
+   327→   327→      id: '1',
+   328→   328→      role: 'assistant',
+   329→   329→      content: "Greetings, human! I am NEXUS AI, your advanced neural companion. How may I assist you today?",
+   330→   330→      timestamp: new Date(),
+   331→   331→      showButtons: true,
+   332→   332→    }
+   333→   333→  ])
+   334→   334→  const [input, setInput] = useState('')
+   335→   335→  const [isTyping, setIsTyping] = useState(false)
+   336→   336→  const [copiedId, setCopiedId] = useState<string | null>(null)
+   337→   337→  const [isExpanded, setIsExpanded] = useState(false)
+   338→   338→  const [showHistory, setShowHistory] = useState(false)
+   339→   339→  const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null)
+   340→   340→  
+   341→   341→  // AI Model State - Default to Llama 3.1 (FREE)
+   342→   342→  const [selectedModel, setSelectedModel] = useState<AIModel>(DEFAULT_MODEL!)
+   343→   343→  const [showModelSelector, setShowModelSelector] = useState(false)
+   344→   344→  
+   345→   345→  // Reaction states
+   346→   346→  const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set())
+   347→   347→  const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set())
+   348→   348→  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
+   349→   349→  
+   350→   350→  // Refs
+   351→   351→  const messagesEndRef = useRef<HTMLDivElement>(null)
+   352→   352→  const textareaRef = useRef<HTMLTextAreaElement>(null)
+   353→   353→
+   354→   354→  // Auto-scroll to bottom
+   355→   355→  useEffect(() => {
+   356→   356→    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+   357→   357→  }, [messages])
+   358→   358→
+   359→   359→  // Handle voice input transcript
+   360→   360→  const handleVoiceTranscript = useCallback((transcript: string) => {
+   361→   361→    setInput(prev => prev ? `${prev} ${transcript}` : transcript)
+   362→   362→    textareaRef.current?.focus()
+   363→   363→  }, [])
+   364→   364→
+   365→   365→  // Handle send message
+   366→   366→  const handleSend = useCallback(async () => {
+   367→   367→    if (!input.trim()) return
+   368→   368→
+   369→   369→    const userMessage: Message = {
+   370→   370→      id: 'user-' + Date.now(),
+   371→   371→      role: 'user',
+   372→   372→      content: input.trim(),
+   373→   373→      timestamp: new Date(),
+   374→   374→    }
+   375→   375→
+   376→   376→    setMessages((prev) => [...prev, userMessage])
+   377→   377→    setInput('')
+   378→   378→    setIsTyping(true)
+   379→   379→
+   380→   380→    // Simulate AI response
+   381→   381→    setTimeout(() => {
+   382→   382→      const aiMessageId = 'ai-' + Date.now()
+   383→   383→      const aiMessage: Message = {
+   384→   384→        id: aiMessageId,
+   385→   385→        role: 'assistant',
+   386→   386→        content: `🤖 **${selectedModel.name}** (${selectedModel.provider})\n\nI've analyzed your query using ${selectedModel.name}. How can I help you further?`,
+   387→   387→        timestamp: new Date(),
+   388→   388→        showButtons: false,
+   389→   389→      }
+   390→   390→      
+   391→   391→      setMessages((prev) => [...prev, aiMessage])
+   392→   392→      setIsTyping(false)
+   393→   393→      
+   394→   394→      // Show buttons after delay
+   395→   395→      setTimeout(() => {
+   396→   396→        setMessages(prev => prev.map(msg => 
+   397→   397→          msg.id === aiMessageId ? { ...msg, showButtons: true } : msg
+   398→   398→        ))
+   399→   399→      }, 800)
+   400→   400→    }, 1500 + Math.random() * 1000)
+   401→   401→  }, [input, selectedModel])
+   402→   402→
+   403→   403→  // Handle copy message
+   404→   404→  const handleCopy = useCallback(async (content: string, id: string) => {
+   405→   405→    try {
+   406→   406→      await navigator.clipboard.writeText(content)
+   407→   407→      setCopiedId(id)
+   408→   408→      setTimeout(() => setCopiedId(null), 2000)
+   409→   409→    } catch (err) {
+   410→   410→      console.error('Failed to copy:', err)
+   411→   411→    }
+   412→   412→  }, [])
+   413→   413→
+   414→   414→  // Handle reactions
+   415→   415→  const handleLike = useCallback((id: string) => {
+   416→   416→    setLikedMessages(prev => {
+   417→   417→      const newSet = new Set(prev)
+   418→   418→      if (newSet.has(id)) newSet.delete(id)
+   419→   419→      else newSet.add(id)
+   420→   420→      return newSet
+   421→   421→    })
+   422→   422→    setDislikedMessages(prev => {
+   423→   423→      const newSet = new Set(prev)
+   424→   424→      newSet.delete(id)
+   425→   425→      return newSet
+   426→   426→    })
+   427→   427→  }, [])
+   428→   428→
+   429→   429→  const handleDislike = useCallback((id: string) => {
+   430→   430→    setDislikedMessages(prev => {
+   431→   431→      const newSet = new Set(prev)
+   432→   432→      if (newSet.has(id)) newSet.delete(id)
+   433→   433→      else newSet.add(id)
+   434→   434→      return newSet
+   435→   435→    })
+   436→   436→    setLikedMessages(prev => {
+   437→   437→      const newSet = new Set(prev)
+   438→   438→      newSet.delete(id)
+   439→   439→      return newSet
+   440→   440→    })
+   441→   441→  }, [])
+   442→   442→
+   443→   443→  // Handle regenerate response
+   444→   444→  const handleRegenerate = useCallback((id: string) => {
+   445→   445→    setRegeneratingId(id)
+   446→   446→    
+   447→   447→    setTimeout(() => {
+   448→   448→      const regeneratedContent = `🔄 **Regenerated Response (${selectedModel.name}**)\n\nHere's my fresh perspective based on ${selectedModel.provider}'s capabilities.\n\nWould you like me to explore anything specific?`
+   449→   449→      
+   450→   450→      setMessages(prev => prev.map(msg => 
+   451→   451→        msg.id === id ? { ...msg, content: regeneratedContent, showButtons: true } : msg
+   452→   452→      ))
+   453→   453→      setRegeneratingId(null)
+   454→   454→    }, 1500 + Math.random() * 1000)
+   455→   455→  }, [selectedModel])
+   456→   456→
+   457→   457→  // Handle keyboard input
+   458→   458→  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+   459→   459→    if (e.key === 'Enter' && !e.shiftKey) {
+   460→   460→      e.preventDefault()
+   461→   461→      handleSend()
+   462→   462→    }
+   463→   463→  }, [handleSend])
+   464→   464→
+   465→   465→  // Clear chat
+   466→   466→  const handleClearChat = useCallback(() => {
+   467→   467→    if (window.confirm(t('chat.clearConfirm'))) {
+   468→   468→      setMessages([])
+   469→   469→      setLikedMessages(new Set())
+   470→   470→      setDislikedMessages(new Set())
+   471→   471→    }
+   472→   472→  }, [t])
+   473→   473→
+   474→   474→  // Handle model selection
+   475→   475→  const handleModelSelect = useCallback((model: AIModel) => {
+   476→   476→    if (model.isLocked) {
+   477→   477→      alert('🔒 Subscription Required!\n\nThis model is only available with a premium subscription.\nComing soon!')
+   478→   478→      return
+   479→   479→    }
+   480→   480→    setSelectedModel(model)
+   481→   481→    setShowModelSelector(false)
+   482→   482→  }, [])
+   483→   483→
+   484→   484→  // Memoized values
+   485→   485→  const sortedModels = useMemo(() => [...AI_MODELS].sort((a, b) => {
+   486→   486→    if (a.isLocked === b.isLocked) return 0
+   487→   487→    return a.isLocked ? 1 : -1
+   488→   488→  }), [])
+   489→   489→
+   490→   490→  return (
+   491→   491→    <div className="flex flex-col h-[100dvh] bg-dark-bg text-foreground font-sans antialiased overflow-hidden">
+   492→   492→      {/* ==================== HEADER - MOBILE OPTIMIZED ==================== */}
+   493→   493→      <header className="flex-shrink-0 flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 border-b border-white/10 bg-dark-surface/95 backdrop-blur-md z-20 safe-area-top">
+   494→   494→        {/* Left: Logo & Title */}
+   495→   495→        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+   496→   496→          <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-neon-cyan via-neon-purple to-electric-blue bg-clip-text text-transparent truncate">
+   497→   497→            NEXUS AI
+   498→   498→          </h1>
+   499→   499→          <Badge variant="cyberpunk" className="hidden md:inline-flex text-[10px]">
+   500→   500→            Neural v4.0
+   501→   501→          </Badge>
+   502→   502→        </div>
+   503→   503→        
+   504→   504→        {/* Right: Action Buttons - Touch friendly (44px+ tap target) */}
+   505→   505→        <div className="flex items-center gap-1 sm:gap-2">
+   506→   506→          {/* Clear chat - Hidden on small mobile */}
+   507→   507→          <Button
+   508→   508→            variant="ghost"
+   509→   509→            size="icon"
+   510→   510→            onClick={handleClearChat}
+   511→   511→            className="hidden sm:flex text-muted-foreground hover:text-red-400 h-9 w-9"
+   512→   512→          >
+   513→   513→            <Trash2 className="w-4 h-4" />
+   514→   514→          </Button>
+   515→   515→          
+   516→   516→          {/* History */}
+   517→   517→          <Button
+   518→   518→            variant="ghost"
+   519→   519→            size="icon"
+   520→   520→            onClick={() => setShowHistory(!showHistory)}
+   521→   521→            className="text-muted-foreground hover:text-neon-cyan h-9 w-9 sm:h-10 sm:w-10"
+   522→   522→          >
+   523→   523→            <History className="w-4 h-4 sm:w-5 sm:h-5" />
+   524→   524→          </Button>
+   525→   525→
+   526→   526→          {/* Expand/Collapse - Hidden on mobile */}
+   527→   527→          <Button
+   528→   528→            variant="ghost"
+   529→   529→            size="icon"
+   530→   530→            onClick={() => setIsExpanded(!isExpanded)}
+   531→   531→            className="hidden sm:flex text-muted-foreground hover:text-neon-cyan h-9 w-9"
+   532→   532→          >
+   533→   533→            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+   534→   534→          </Button>
+   535→   535→        </div>
+   536→   536→      </header>
+   537→   537→
+   538→   538→      {/* ==================== MESSAGES AREA - FULLY RESPONSIVE ==================== */}
+   539→   539→      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-neon-cyan/20 scrollbar-track-transparent">
+   540→   540→        {messages.length === 0 ? (
+   541→   541→          /* Empty State - Centered & Responsive */
+   542→   542→          <div className="flex flex-col items-center justify-center h-full text-center space-y-4 sm:space-y-6 px-4">
+   543→   543→            {/* Icon - Smaller on mobile */}
+   544→   544→            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-neon-cyan via-neon-purple to-electric-blue p-[2px] animate-pulse-slow">
+   545→   545→              <div className="w-full h-full rounded-2xl sm:rounded-3xl bg-dark-bg flex items-center justify-center">
+   546→   546→                <Sparkles className="w-8 h-8 sm:w-12 sm:h-12 text-neon-cyan" />
+   547→   547→              </div>
+   548→   548→            </div>
+   549→   549→            
+   550→   550→            {/* Text - Responsive sizes */}
+   551→   551→            <div className="space-y-2">
+   552→   552→              <h2 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
+   553→   553→                Ready to Connect
+   554→   554→              </h2>
+   555→   555→              <p className="text-xs sm:text-base text-muted-foreground max-w-xs sm:max-w-md">
+   556→   556→                Start a conversation with NEXUS AI. Ask anything!
+   557→   557→              </p>
+   558→   558→            </div>
+   559→   559→          </div>
+   560→   560→        ) : (
+   561→   561→          /* Messages List */
+   562→   562→          messages.map((message) => (
+   563→   563→            <MessageBubble
+   564→   564→              key={message.id}
+   565→   565→              message={message}
+   566→   566→              isUser={message.role === 'user'}
+   567→   567→              copiedId={copiedId}
+   568→   568→              onCopy={handleCopy}
+   569→   569→              likedMessages={likedMessages}
+   570→   570→              dislikedMessages={dislikedMessages}
+   571→   571→              onLike={handleLike}
+   572→   572→              onDislike={handleDislike}
+   573→   573→              onRegenerate={handleRegenerate}
+   574→   574→              t={t}
+   575→   575→            />
+   576→   576→          ))
+   577→   577→        )}
+   578→   578→
+   579→   579→        {/* Typing Indicator - Compact on mobile */}
+   580→   580→        {isTyping && (
+   581→   581→          <div className="flex gap-3 sm:gap-4 chat-message-enter">
+   582→   582→            <div className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center shadow-lg border border-neon-purple/30">
+   583→   583→              <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+   584→   584→            </div>
+   585→   585→            <div className="message-ai px-3 py-2 sm:px-5 sm:py-4 rounded-2xl bg-gray-800/50 backdrop-blur-sm border border-white/5">
+   586→   586→              <div className="flex items-center gap-1.5">
+   587→   587→                <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" />
+   588→   588→                <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" style={{ animationDelay: '0.2s' }} />
+   589→   589→                <span className="w-2 h-2 rounded-full bg-neon-cyan animate-typing" style={{ animationDelay: '0.4s' }} />
+   590→   590→              </div>
+   591→   591→            </div>
+   592→   592→          </div>
+   593→   593→        )}
+   594→   594→
+   595→   595→        <div ref={messagesEndRef} />
+   596→   596→      </div>
+   597→   597→
+   598→   598→      {/* ==================== INPUT AREA - MOBILE FIRST ==================== */}
+   599→   599→      <div className="flex-shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t border-white/10 bg-dark-surface/95 backdrop-blur-md safe-area-bottom">
+   600→   600→        
+   601→   601→        {/* AI Model Selector - Compact on mobile */}
+   602→   602→        <div className="flex items-center justify-between mb-2 sm:mb-3">
+   603→   603→          <div className="relative z-30">
+   604→   604→            <button
+   605→   605→              onClick={() => setShowModelSelector(!showModelSelector)}
+   606→   606→              className={cn(
+   607→   607→                "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium border transition-all duration-200 group",
+   608→   608→                selectedModel.isLocked 
+   609→   609→                  ? "bg-red-500/10 border-red-500/40 hover:border-red-500/60" 
+   610→   610→                  : "bg-green-500/10 border-green-500/30 hover:border-green-500/50"
+   611→   611→              )}
+   612→   612→              aria-label="Select AI Model"
+   613→   613→            >
+   614→   614→              <selectedModel.icon className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", selectedModel.color)} />
+   615→   615→              
+   616→   616→              {/* Model Name - Truncated on mobile */}
+   617→   617→              <span className={cn(
+   618→   618→                "group-hover:text-foreground max-w-[60px] sm:max-w-none truncate",
+   619→   619→                selectedModel.isLocked ? "text-red-400" : "text-green-400"
+   620→   620→              )}>{selectedModel.name}</span>
+   621→   621→              
+   622→   622→              {/* Status Badge - Only on desktop */}
+   623→   623→              {selectedModel.isLocked ? (
+   624→   624→                <Lock className="w-3 h-3 text-red-400 hidden sm:block" />
+   625→   625→              ) : (
+   626→   626→                <Check className="w-3 h-3 text-green-400 hidden sm:block" />
+   627→   627→              )}
+   628→   628→              
+   629→   629→              <ChevronDown className={cn(
+   630→   630→                "w-3 h-3 text-muted-foreground transition-transform duration-200",
+   631→   631→                showModelSelector && "rotate-180"
+   632→   632→              )} />
+   633→   633→            </button>
+   634→   634→
+   635→   635→            {/* ==================== MODEL SELECTOR DROPDOWN ==================== */}
+   636→   636→            {showModelSelector && (
+   637→   637→              <>
+   638→   638→                {/* Backdrop */}
+   639→   639→                <div 
+   640→   640→                  className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" 
+   641→   641→                  onClick={() => setShowModelSelector(false)} 
+   642→   642→                />
+   643→   643→                
+   644→   644→                {/* Dropdown Panel - BOTTOM SHEET ON MOBILE, DROPUP ON DESKTOP */}
+   645→   645→                <div className={cn(
+   646→   646→                  // Mobile: Full width bottom sheet
+   647→   647→                  // Desktop: Dropup from button
+   648→   648→                  "fixed sm:absolute inset-x-0 sm:inset-x-auto bottom-0 sm:bottom-auto left-0 sm:left-0 right-0 sm:right-auto",
+   649→   649→                  "z-50 mb-0 sm:mb-2 w-full sm:w-80",
+   650→   650→                  "bg-gray-900/98 backdrop-blur-xl border border-white/10 sm:border-neon-cyan/20",
+   651→   651→                  "rounded-t-2xl sm:rounded-xl shadow-2xl shadow-black/50 overflow-hidden",
+   652→   652→                  "animate-in slide-in-from-bottom-4 sm:animate-in fade-in zoom-in-95 duration-200"
+   653→   653→                )}>
+   654→   654→                  {/* Header with Close Button (Mobile) */}
+   655→   655→                  <div className="px-4 py-3 bg-gradient-to-r from-red-600 to-orange-500 border-b border-white/5 flex items-center justify-between">
+   656→   656→                    <div>
+   657→   657→                      <p className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+   658→   658→                        <Lock className="w-3 h-3" />
+   659→   659→                        SELECT AI MODEL
+   660→   660→                      </p>
+   661→   661→                      <p className="text-[10px] sm:text-xs text-white/80 mt-0.5">Llama 3.1 is FREE</p>
+   662→   662→                    </div>
+   663→   663→                    
+   664→   664→                    {/* Close button for mobile */}
+   665→   665→                    <button
+   666→   666→                      onClick={() => setShowModelSelector(false)}
+   667→   667→                      className="sm:hidden p-1 rounded-lg hover:bg-white/10 text-white"
+   668→   668→                    >
+   669→   669→                      <X className="w-5 h-5" />
+   670→   670→                    </button>
+   671→   671→                  </div>
+   672→   672→
+   673→   673→                  {/* Models List - Scrollable */}
+   674→   674→                  <div className="p-2 sm:p-3 max-h-[50vh] sm:max-h-64 overflow-y-auto scrollbar-thin">
+   675→   675→                    {sortedModels.map((model) => (
+   676→   676→                      <button
+   677→   677→                        key={model.id}
+   678→   678→                        onClick={() => handleModelSelect(model)}
+   679→   679→                        disabled={model.isLocked}
+   680→   680→                        className={cn(
+   681→   681→                          "w-full flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg text-left relative overflow-hidden mt-1.5 sm:mt-2 first:mt-0",
+   682→   682→                          "transition-all duration-150 group/model",
+   683→   683→                          model.isLocked 
+   684→   684→                            ? "opacity-70 cursor-not-allowed bg-red-500/5 border border-red-500/20" 
+   685→   685→                            : "hover:bg-white/5 cursor-pointer border border-transparent",
+   686→   686→                          selectedModel.id === model.id && !model.isLocked && "bg-neon-cyan/10 border-neon-cyan/30",
+   687→   687→                          selectedModel.id === model.id && model.isLocked && "bg-yellow-500/10 border-yellow-500/30"
+   688→   688→                        )}
+   689→   689→                      >
+   690→   690→                        {/* Lock Banner */}
+   691→   691→                        {model.isLocked && <LockedBanner />}
+   692→   692→
+   693→   693→                        {/* Model Icon - Smaller on mobile */}
+   694→   694→                        <ModelIcon model={model} size="sm" />
+   695→   695→
+   696→   696→                        {/* Model Info */}
+   697→   697→                        <div className="flex-1 min-w-0 mt-2 sm:mt-3">
+   698→   698→                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+   699→   699→                            <span className={cn(
+   700→   700→                              "font-medium text-xs sm:text-sm truncate",
+   701→   701→                              model.isLocked ? "text-gray-300 line-through" : "text-foreground"
+   702→   702→                            )}>{model.name}</span>
+   703→   703→                            
+   704→   704→                            <ModelBadge model={model} />
+   705→   705→                            
+   706→   706→                            {model.isPopular && !model.isLocked && (
+   707→   707→                              <span className="px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[10px] font-bold bg-neon-cyan/20 text-neon-cyan rounded hidden sm:inline-block">POPULAR</span>
+   708→   708→                            )}
+   709→   709→                            {model.isNew && (
+   710→   710→                              <span className="px-1 sm:px-1.5 py-0.5 text-[8px] sm:text-[10px] font-bold bg-purple-500/20 text-purple-400 rounded">NEW</span>
+   711→   711→                            )}
+   712→   712→                          </div>
+   713→   713→                          
+   714→   714→                          <p className={cn(
+   715→   715→                            "text-[10px] sm:text-xs mt-0.5 truncate",
+   716→   716→                            model.isLocked ? "text-gray-500" : "text-muted-foreground"
+   717→   717→                          )}>{model.provider}</p>
+   718→   718→                          
+   719→   719→                          {/* Speed indicator - Only on desktop */}
+   720→   720→                          <div className="items-center gap-1 mt-1.5 sm:mt-2 hidden sm:flex">
+   721→   721→                            <span className={cn(
+   722→   722→                              "w-1.5 h-1.5 rounded-full",
+   723→   723→                              model.speed === 'fast' && "bg-blue-400",
+   724→   724→                              model.speed === 'balanced' && "bg-yellow-400",
+   725→   725→                              model.speed === 'powerful' && "bg-red-400"
+   726→   726→                            )} />
+   727→   727→                            <span className="text-[10px] uppercase tracking-wider text-gray-500">{model.speed}</span>
+   728→   728→                          </div>
+   729→   729→
+   730→   730→                          {/* Upgrade CTA */}
+   731→   731→                          {model.isLocked && (
+   732→   732→                            <p className="text-[9px] sm:text-[10px] text-orange-400 mt-1.5 sm:mt-2 font-medium animate-pulse">
+   733→   733→                              → Unlock with subscription
+   734→   734→                            </p>
+   735→   735→                          )}
+   736→   736→                        </div>
+   737→   737→
+   738→   738→                        {/* Selection Indicator */}
+   739→   739→                        {selectedModel.id === model.id && !model.isLocked && (
+   740→   740→                          <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0 mt-2 sm:mt-3" />
+   741→   741→                        )}
+   742→   742→                        {selectedModel.id === model.id && model.isLocked && (
+   743→   743→                          <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 flex-shrink-0 mt-2 sm:mt-3" />
+   744→   744→                        )}
+   745→   745→                      </button>
+   746→   746→                    ))}
+   747→   747→                  </div>
+   748→   748→
+   749→   749→                  {/* Footer */}
+   750→   750→                  <div className="px-4 py-2 sm:py-2.5 bg-black/30 border-t border-white/5">
+   751→   751→                    <p className="text-[9px] sm:text-[10px] text-gray-500 text-center">
+   752→   752→                      ⚡ Current: <span className={cn("font-medium", selectedModel.isLocked ? "text-red-400" : "text-green-400")}>{selectedModel.name}</span>
+   753→   753→                      {selectedModel.isLocked ? " 🔒" : " ✓"}
+   754→   754→                    </p>
+   755→   755→                  </div>
+   756→   756→                  
+   757→   757→                  {/* Safe area padding for mobile */}
+   758→   758→                  <div className="h-safe-area-inset-bottom sm:hidden" />
+   759→   759→                </div>
+   760→   760→              </>
+   761→   761→            )}
+   762→   762→          </div>
+   763→   763→
+   764→   764→          {/* Quick Info Badges - Hidden on mobile */}
+   765→   765→          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+   766→   766→            <span className="flex items-center gap-1">
+   767→   767→              <span className={cn("w-2 h-2 rounded-full", 
+   768→   768→                selectedModel.speed === 'fast' && "bg-blue-400",
+   769→   769→                selectedModel.speed === 'balanced' && "bg-yellow-400",
+   770→   770→                selectedModel.speed === 'powerful' && "bg-red-400"
+   771→   771→              )} />
+   772→   772→              {selectedModel.speed}
+   773→   773→            </span>
+   774→   774→            <span>•</span>
+   775→   775→            <span>Enter to send</span>
+   776→   776→          </div>
+   777→   777→        </div>
+   778→   778→
+   779→   779→        {/* ==================== INPUT BOX - TOUCH FRIENDLY ==================== */}
+   780→   780→        <div className="flex items-end gap-2 sm:gap-3">
+   781→   781→          <div className="flex-1 relative">
+   782→   782→            <Textarea
+   783→   783→              ref={textareaRef}
+   784→   784→              value={input}
+   785→   785→              onChange={(e) => setInput(e.target.value)}
+   786→   786→              onKeyDown={handleKeyDown}
+   787→   787→              placeholder={t('chat.placeholder')}
+   788→   788→              // Mobile: min-h bigger for easier tapping
+   789→   789→              className="min-h-[48px] sm:min-h-[52px] max-h-[120px] sm:max-h-[150px] pr-20 sm:pr-24 resize-none text-sm sm:text-base"
+   790→   790→            />
+   791→   791→            
+   792→   792→            {/* Right Side Buttons Inside Textarea */}
+   793→   793→            <div className="absolute right-1.5 sm:right-2 bottom-1.5 sm:bottom-2 flex items-center gap-0.5 sm:gap-1">
+   794→   794→              {/* Character count - Only on desktop or when typing */}
+   795→   795→              {input.length > 0 && (
+   796→   796→                <span className="text-[10px] sm:text-xs text-muted-foreground mr-0.5 hidden sm:inline">
+   797→   797→                  {input.length}
+   798→   798→                </span>
+   799→   799→              )}
+   800→   800→              
+   801→   801→              {/* Voice Input Button - Touch friendly (40px+) */}
+   802→   802→              <VoiceInput
+   803→   803→                onTranscript={handleVoiceTranscript}
+   804→   804→                disabled={isTyping}
+   805→   805→                className="w-8 h-8 sm:w-8 sm:h-8"
+   806→   806→              />
+   807→   807→            </div>
+   808→   808→          </div>
+   809→   809→
+   810→   810→          {/* Send Button - Larger on mobile for easy tapping */}
+   811→   811→          <Button
+   812→   812→            variant="neon"
+   813→   813→            size="icon"
+   814→   814→            onClick={handleSend}
+   815→   815→            disabled={!input.trim() || isTyping}
+   816→   816→            className="flex-shrink-0 h-[48px] w-[48px] sm:h-[52px] sm:w-[52px]"
+   817→   817→            aria-label={t('chat.send')}
+   818→   818→          >
+   819→   819→            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+   820→   820→          </Button>
+   821→   821→        </div>
+   822→   822→
+   823→   823→        {/* Input Hints - Hidden on mobile to save space */}
+   824→   824→        <div className="hidden sm:flex items-center justify-between mt-2 sm:mt-3">
+   825→   825→          <div className="flex items-center gap-2">
+   826→   826→            <Badge variant="cyberpunk" className="text-[9px]">Secure</Badge>
+   827→   827→            <Badge variant="cyberpunk" className="text-[9px]">Encrypted</Badge>
+   828→   828→          </div>
+   829→   829→          <span className="text-[10px] sm:text-xs text-muted-foreground">
+   830→   830→            Enter · Shift+Enter for new line
+   831→   831→          </span>
+   832→   832→        </div>
+   833→   833→      </div>
+   834→   834→
+   835→   835→      {/* ==================== CHAT HISTORY SIDEBAR ==================== */}
+   836→   836→      {showHistory && (
+   837→   837→        <ChatHistory
+   838→   838→          conversations={[]}
+   839→   839→          currentConversation={currentConversation}
+   840→   840→          onSelectConversation={(conv) => {
+   841→   841→            setCurrentConversation(conv)
+   842→   842→            setShowHistory(false)
+   843→   843→          }}
+   844→   844→          onDeleteConversation={() => {}}
+   845→   845→          onNewChat={() => {
+   846→   846→            setMessages([])
+   847→   847→            setCurrentConversation(null)
+   848→   848→            setShowHistory(false)
+   849→   849→          }}
+   850→   850→          onClose={() => setShowHistory(false)}
+   851→   851→        />
+   852→   852→      )}
+   853→   853→    </div>
+   854→   854→  )
+   855→   855→}
+   856→   856→
+   857→   857→export default ChatInterface
+   858→   858→
