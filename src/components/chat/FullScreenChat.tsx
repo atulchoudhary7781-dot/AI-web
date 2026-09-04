@@ -213,7 +213,7 @@ export default function FullScreenChat({
 
   // Handle insert text from tools panel to chat input
   const handleInsertFromTools = (text: string) => {
-    setInputValue(prev => prev ? `${prev}\n${text}` : text)
+    setInputValue(inputValue ? `${inputValue}\n${text}` : text)
     setIsToolsOpen(false)
     textareaRef.current?.focus()
   }

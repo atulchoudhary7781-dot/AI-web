@@ -315,7 +315,7 @@ export interface Database {
           content?: string | null
           published?: boolean
           authorId?: string
-          createdAt?: date
+          createdAt?: Date
           updatedAt?: Date
         }
       }

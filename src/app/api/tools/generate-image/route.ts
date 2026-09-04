@@ -62,12 +62,13 @@ export async function POST(request: NextRequest) {
     console.error('Image Generation Error:', error?.message || error)
     
     // Return a beautiful placeholder on error
+    const fallbackPrompt = 'AI Image'
     return NextResponse.json({
       success: true,
-      image: generatePlaceholderImage(prompt || 'AI Image'),
-      prompt: prompt || 'AI Image',
-      size: size || '1024x1024',
-      style: style || 'natural',
+      image: generatePlaceholderImage(fallbackPrompt),
+      prompt: fallbackPrompt,
+      size: '1024x1024',
+      style: 'natural',
       fallback: true,
       message: 'Using placeholder. AI image generation will be available soon.',
       timestamp: new Date().toISOString()

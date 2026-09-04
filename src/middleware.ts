@@ -329,10 +329,10 @@ export function middleware(request: NextRequest) {
           headers: {
             'content-type': 'application/json',
             'Retry-After': String(Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)),
-            'X-RateLimit-Limit': response.headers.get('X-RateLimit-Limit'),
+            'X-RateLimit-Limit': response.headers.get('X-RateLimit-Limit') || undefined,
             'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': response.headers.get('X-RateLimit-Reset'),
-          }
+            'X-RateLimit-Reset': response.headers.get('X-RateLimit-Reset') || undefined,
+          } as HeadersInit
         }
       )
     }

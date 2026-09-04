@@ -192,7 +192,7 @@ const MessageBubble = memo(({
   onLike: (id: string) => void
   onDislike: (id: string) => void
   onRegenerate: (id: string) => void
-  t: (key: string) => string
+  t: (key: any) => string
 }) => (
   <div className={cn("flex gap-3 sm:gap-4 chat-message-enter", isUser ? "flex-row-reverse" : "")}>
     {/* Avatar - Smaller on mobile */}
@@ -835,19 +835,16 @@ export function ChatInterface() {
       {/* ==================== CHAT HISTORY SIDEBAR ==================== */}
       {showHistory && (
         <ChatHistory
-          conversations={[]}
-          currentConversation={currentConversation}
-          onSelectConversation={(conv) => {
+          onLoadConversation={(conv) => {
             setCurrentConversation(conv)
             setShowHistory(false)
           }}
-          onDeleteConversation={() => {}}
           onNewChat={() => {
             setMessages([])
             setCurrentConversation(null)
             setShowHistory(false)
           }}
-          onClose={() => setShowHistory(false)}
+          currentChatId={currentConversation?.id}
         />
       )}
     </div>

@@ -328,6 +328,6 @@ export function ChatHistory({
 }
 
 // Export helper functions for use in other components
-export { loadConversations, saveConversations, generateTitle: _generateTitle }
+export { loadConversations, saveConversations }
 
 export default ChatHistory

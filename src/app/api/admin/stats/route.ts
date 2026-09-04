@@ -40,7 +40,8 @@ export async function GET(request: NextRequest) {
       activeUsersToday,
       
       subscriptionStats,
-      revenueData,
+      totalRevenueData,
+      monthlyRevenueData,
       recentPayments,
       recentUsers,
     ] = await Promise.all([
@@ -77,32 +78,27 @@ export async function GET(request: NextRequest) {
         _count: { id: true }
       }),
       
-      // Revenue data (from payments)
-      {
-        total: prisma.payment.aggregate({
-          where: { status: 'succeeded' },
-          _sum: { amount: true },
-          _count: { id: true }
-        }),
-        thisMonth: prisma.payment.aggregate({
-          where: {
-            status: 'succeeded',
-            createdAt: { gte: thirtyDaysAgo }
-          },
-          _sum: { amount: true },
-          _count: { id: true }
-        })
-      },
+      // Total revenue data
+      prisma.payment.aggregate({
+        where: { status: 'succeeded' },
+        _sum: { amount: true },
+        _count: { id: true }
+      }),
+      
+      // Monthly revenue data
+      prisma.payment.aggregate({
+        where: {
+          status: 'succeeded',
+          createdAt: { gte: thirtyDaysAgo }
+        },
+        _sum: { amount: true },
+        _count: { id: true }
+      }),
       
       // Recent payments (last 10)
       prisma.payment.findMany({
         take: 10,
         orderBy: { createdAt: 'desc' },
-        include: {
-          user: {
-            select: { name: true, email: true }
-          }
-        }
       }),
       
       // Recent users (last 10)
@@ -131,10 +127,10 @@ export async function GET(request: NextRequest) {
 
     // Format revenue data
     const revenue = {
-      totalRevenue: revenueData.total._sum.amount || 0,
-      totalPayments: revenueData.total._count.id || 0,
-      monthlyRevenue: revenueData.thisMonth._sum.amount || 0,
-      monthlyPayments: revenueData.thisMonth._count.id || 0
+      totalRevenue: totalRevenueData._sum.amount || 0,
+      totalPayments: totalRevenueData._count.id || 0,
+      monthlyRevenue: monthlyRevenueData._sum.amount || 0,
+      monthlyPayments: monthlyRevenueData._count.id || 0
     }
 
     return NextResponse.json({

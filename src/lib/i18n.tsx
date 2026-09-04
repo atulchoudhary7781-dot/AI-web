@@ -42,6 +42,7 @@ export type TranslationKey =
   | 'chat.history'
   | 'chat.noHistory'
   | 'chat.deleteConfirm'
+  | 'chat.clearConfirm'
   | 'chat.rename'
   | 'chat.voiceInput'
   | 'chat.voiceNotSupported'
@@ -155,6 +156,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'chat.history': 'Chat History',
     'chat.noHistory': 'No chat history yet',
     'chat.deleteConfirm': 'Are you sure you want to delete this conversation?',
+    'chat.clearConfirm': 'Are you sure you want to clear all messages?',
     'chat.rename': 'Rename chat',
     'chat.voiceInput': 'Voice input',
     'chat.voiceNotSupported': 'Voice input is not supported in your browser',
@@ -267,6 +269,7 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     'chat.history': 'चैट इतिहास',
     'chat.noHistory': 'अभी तक कोई चैट इतिहास नहीं',
     'chat.deleteConfirm': 'क्या आप सुनिश्चित हैं कि आप इस बातचीत को हटाना चाहते हैं?',
+    'chat.clearConfirm': 'क्या आप सुनिश्चित हैं कि आप सभी संदेश हटाना चाहते हैं?',
     'chat.rename': 'चैट का नाम बदलें',
     'chat.voiceInput': 'वॉइस इनपुट',
     'chat.voiceNotSupported': 'आपके ब्राउज़र में वॉइस इनपुट समर्थित नहीं है',
@@ -353,7 +356,7 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined)
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
+export function I18nProvider({ children }: { children: React.ReactNode }): React.ReactElement {
   const [locale, setLocaleState] = useState<Locale>('en')
   const [mounted, setMounted] = useState(false)
 

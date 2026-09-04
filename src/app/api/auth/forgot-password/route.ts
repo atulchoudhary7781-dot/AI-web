@@ -66,14 +66,6 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    // Additional validation: Check if user is locked out
-    if (user.isLocked) {
-      return NextResponse.json({
-        success: true,
-        message: 'If an account exists with this email, a password reset link has been sent.'
-      })
-    }
-
     // Generate reset token
     const token = uuidv4()
     const expiresAt = new Date()

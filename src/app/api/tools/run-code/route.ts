@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
     const result = await executeCode(code.trim(), language.toLowerCase(), input)
 
     return NextResponse.json({
-      success: true,
       ...result,
       timestamp: new Date().toISOString()
     })
@@ -263,7 +262,7 @@ async function executeJavaScript(code: string, input: string, startTime: number)
           end = start
           start = 0
         }
-        const arr = []
+        const arr: number[] = []
         for (let i = start; i < end; i += step) arr.push(i)
         return arr
       },
@@ -304,9 +303,11 @@ async function executeJavaScript(code: string, input: string, startTime: number)
     )
 
     // Execute with timeout (10 seconds max)
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('⏱ Execution timeout (10s max)'), 10000))
-    )
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('⏱ Execution timeout (10s max)'))
+      }, 10000)
+    })
 
     const result = await Promise.race([
       fn(...Object.values(sandbox)),
@@ -362,7 +363,7 @@ async function executeTypeScript(code: string, input: string, startTime: number)
   // Basic TypeScript to JavaScript conversion (simplified)
   let jsCode = code
     .replace(/:\s*(string|number|boolean|any|void|never|unknown)\b/g, '') // Remove type annotations
-    .replace(/:\s*\w+\[\]//g, '') // Remove array types
+    .replace(/:\s*\w+\[\]/g, '') // Remove array types
     .replace(/:\s*\{[^}]+\}/g, '') // Remove object types
     .replace(/interface\s+\w+\s*\{[^}]*\}/g, '') // Remove interfaces
     .replace(/type\s+\w+\s*=\s*[^;]+;/g, '') // Remove type aliases
@@ -472,7 +473,7 @@ ${'='.repeat(40)}
 📏 Depth: ${level} level(s)
 ${keys.length > 0 ? `🔑 Keys: ${keys.slice(0, 10).join(', ')}${keys.length > 10 ? '...' : ''}` : ''}
 ${hasNested ? '📦 Contains nested objects/arrays' : ''}
-📝 Size: ${formatBytes(new Blob([formatted].size))}
+📝 Size: ${formatBytes(new Blob([formatted]).size)}
 
 ${'─'.repeat(40)}
 Formatted Output:

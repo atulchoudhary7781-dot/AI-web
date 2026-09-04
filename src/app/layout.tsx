@@ -53,11 +53,7 @@ export default function RootLayout({
         style={{ background: '#000000' }}
       >
         {/* Feature E & J: Providers for theme and i18n */}
-        <ThemeProvider
-          defaultTheme="dark"
-          attribute="class"
-          enableSystem={false}
-        >
+        <ThemeProvider>
           <I18nProvider>
             {/* Black Hole Background Image */}
             <div 

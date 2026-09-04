@@ -35,6 +35,8 @@ interface SubscriptionPlan {
   popular?: boolean
   color: string
   gradient: string
+  locked?: boolean
+  lockMessage?: string
 }
 
 // Subscription Plans Data

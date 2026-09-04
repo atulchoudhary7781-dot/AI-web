@@ -183,7 +183,7 @@ export function validateMessage(message: string): ValidationResult {
   
   // Check for dangerous content
   const dangerCheck = checkForDangerousContent(message)
-  if (dangerCheck.dangerous) {
+  if (dangerCheck) {
     return { 
       valid: false, 
       value: sanitized, 

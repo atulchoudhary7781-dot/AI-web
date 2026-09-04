@@ -9,9 +9,6 @@ const nextConfig: NextConfig = {
   // Turbopack configuration (Next.js 16 default - faster builds)
   turbopack: {},
   
-  // Enable SWC minification for smaller bundles
-  swcMinify: true,
-  
   // ==================== BUNDLE OPTIMIZATION ====================
   
   // Experimental features
@@ -54,11 +51,6 @@ const nextConfig: NextConfig = {
   },
 
   // ==================== SECURITY CONFIGURATION ====================
-  
-  // Force Node.js runtime for middleware (fixes Edge runtime issues)
-  middleware: {
-    runtime: 'nodejs',
-  },
   
   // Security headers (additional to middleware)
   async headers() {
@@ -119,14 +111,14 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Redirect www to non-www and HTTP to HTTPS
+  // Redirect HTTP to HTTPS
   async redirects() {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nexus-ai.vercel.app'
     
     return [
       ...(process.env.NODE_ENV === 'production' ? [{
         source: '/:path*',
-        has: [{ type: 'header', key: 'x-forwarded-proto', value: 'http' }],
+        has: [{ type: 'header' as const, key: 'x-forwarded-proto', value: 'http' }],
         permanent: true,
         destination: `${baseUrl}/:path*`,
       }] : []),

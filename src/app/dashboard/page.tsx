@@ -105,7 +105,7 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
           {/* Total Chats */}
-          <Card variant="neon" glowColor="cyan" className="p-6">
+          <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">{t('dashboard.totalChats')}</p>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* Active Today */}
-          <Card variant="neon" glowColor="purple" className="p-6">
+          <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">{t('dashboard.activeToday')}</p>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* Total Users */}
-          <Card variant="neon" glowColor="blue" className="p-6">
+          <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">{t('dashboard.totalUsers')}</p>
@@ -156,7 +156,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* Revenue */}
-          <Card variant="neon" glowColor="green" className="p-6">
+          <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">{t('dashboard.revenue')}</p>

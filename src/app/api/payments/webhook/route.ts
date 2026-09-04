@@ -9,7 +9,7 @@ const prisma = new PrismaClient()
 const getStripe = () => {
   if (!process.env.STRIPE_SECRET_KEY) return null
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-12-18.acacia',
+    apiVersion: '2026-08-26.dahlia',
   })
 }
 
@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.text()
-    const signature = headers().get('stripe-signature')
+    const headersList = await headers()
+    const signature = headersList.get('stripe-signature')
 
     if (!signature || !endpointSecret) {
       console.error('Missing stripe signature or webhook secret')
@@ -122,8 +123,8 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
       status: 'active',
       stripeSubscriptionId: subscription.id,
       stripePriceId: priceId,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       amount,
     }
   })
@@ -135,8 +136,8 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
       subscriptionPlan: plan,
       subscriptionStatus: 'active',
       stripeSubscriptionId: subscription.id,
-      subscriptionStartDate: new Date(subscription.current_period_start * 1000),
-      subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+      subscriptionStartDate: new Date((subscription as any).current_period_start * 1000),
+      subscriptionEndDate: new Date((subscription as any).current_period_end * 1000),
     }
   })
 
@@ -158,9 +159,9 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     where: { id: subRecord.id },
     data: {
       status: subscription.status as string,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      cancelAtPeriodEnd: (subscription as any).cancel_at_period_end || false,
     }
   })
 
@@ -169,7 +170,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     where: { id: subRecord.userId },
     data: {
       subscriptionStatus: subscription.status as string,
-      subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+      subscriptionEndDate: new Date((subscription as any).current_period_end * 1000),
     }
   })
 
@@ -205,7 +206,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string
+  const subscriptionId = (invoice as any).subscription as string
   
   if (!subscriptionId) return
 
@@ -219,7 +220,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     await prisma.payment.create({
       data: {
         userId: subRecord.userId,
-        stripePaymentIntentId: invoice.payment_intent as string,
+        stripePaymentIntentId: (invoice as any).payment_intent as string,
         amount: invoice.amount_paid,
         currency: invoice.currency,
         status: 'succeeded',
@@ -238,7 +239,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string
+  const subscriptionId = (invoice as any).subscription as string
   
   if (!subscriptionId) return
 
@@ -251,7 +252,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     await prisma.payment.create({
       data: {
         userId: subRecord.userId,
-        stripePaymentIntentId: invoice.payment_intent as string,
+        stripePaymentIntentId: (invoice as any).payment_intent as string,
         amount: invoice.amount_due,
         currency: invoice.currency,
         status: 'failed',

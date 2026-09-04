@@ -225,8 +225,6 @@ Translation:`
       sourceLanguage: sourceLang,
       targetLanguage: targetLang,
       confidence: 0,
-      fallback: true,
-      message: 'AI translation unavailable. Showing placeholder.'
     }
   }
 }

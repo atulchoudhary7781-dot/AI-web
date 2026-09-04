@@ -233,7 +233,6 @@ export default function PricingPage() {
             <Card
               key={plan.id}
               variant={plan.locked ? 'locked' : (plan.popular ? 'neon' : 'glass')}
-              glowColor={plan.color as any}
               className={cn(
                 "relative p-8 transition-all duration-300",
                 plan.locked ? "opacity-75 cursor-not-allowed" : "hover:scale-[1.02]",

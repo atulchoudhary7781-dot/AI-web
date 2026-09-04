@@ -287,7 +287,7 @@ export default function SettingsPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Current Plan Card */}
-            <Card variant="neon" glowColor="cyan" className="p-6">
+            <Card variant="neon" className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard className="w-5 h-5 text-neon-cyan" />
                 <h3 className="font-semibold text-foreground">Current Plan</h3>

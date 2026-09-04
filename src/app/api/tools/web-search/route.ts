@@ -51,10 +51,11 @@ export async function POST(request: NextRequest) {
     console.error('Web Search Error:', error?.message || error)
     
     // Return enhanced fallback on error
+    const fallbackQuery = 'search'
     return NextResponse.json({
       success: true,
-      query: query || 'unknown',
-      results: generateEnhancedFallback(query || 'search'),
+      query: fallbackQuery,
+      results: generateEnhancedFallback(fallbackQuery),
       totalResults: 5,
       fallback: true,
       message: 'Using cached results. Live search will be available soon.',
@@ -151,7 +152,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Redirect to POST logic
-  const postResponse = await POST(new Request('', {
+  const postResponse = await POST(new NextRequest('http://localhost', {
     method: 'POST',
     body: JSON.stringify({ query, numResults: 5 })
   }))
