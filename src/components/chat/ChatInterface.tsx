@@ -536,7 +536,7 @@ export function ChatInterface() {
       </header>
 
       {/* ==================== MESSAGES AREA - FULLY RESPONSIVE ==================== */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-neon-cyan/20 scrollbar-track-transparent">
+      <div className="messages-container flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-neon-cyan/20 scrollbar-track-transparent">
         {messages.length === 0 ? (
           /* Empty State - Centered & Responsive */
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4 sm:space-y-6 px-4">
@@ -671,7 +671,7 @@ export function ChatInterface() {
                   </div>
 
                   {/* Models List - Scrollable */}
-                  <div className="p-2 sm:p-3 max-h-[50vh] sm:max-h-64 overflow-y-auto scrollbar-thin">
+                  <div className="model-list-scroll p-2 sm:p-3 max-h-[50vh] sm:max-h-64 overflow-y-auto scrollbar-thin">
                     {sortedModels.map((model) => (
                       <button
                         key={model.id}

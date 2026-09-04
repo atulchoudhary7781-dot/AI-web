@@ -653,15 +653,42 @@ body {
   touch-action: manipulation;
 }
 
-/* Hide scrollbar on mobile but keep functionality */
+/* Scrollbar visible on ALL devices - sleek style for mobile */
 @media (max-width: 768px) {
   .scrollbar-thin {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 255, 0.5) rgba(10, 10, 26, 0.8);
   }
   
   .scrollbar-thin::-webkit-scrollbar {
-    display: none;
+    width: 4px;  /* Thinner on mobile */
+    height: 4px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(10, 10, 26, 0.8);
+    border-radius: 2px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.6), rgba(168, 85, 247, 0.6));
+    border-radius: 2px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.8), rgba(168, 85, 247, 0.8));
+  }
+  
+  /* Always show scrollbar on message container */
+  .messages-container::-webkit-scrollbar,
+  .model-list-scroll::-webkit-scrollbar,
+  .history-list-scroll::-webkit-scrollbar,
+  .profile-page-container::-webkit-scrollbar,
+  .settings-page-container::-webkit-scrollbar,
+  .dashboard-page-container::-webkit-scrollbar,
+  .pricing-page-container::-webkit-scrollbar {
+    display: block !important;
+    width: 4px !important;
   }
 }
 

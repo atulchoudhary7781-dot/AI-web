@@ -76,7 +76,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-deep-black p-4 md:p-8">
+    <div className="settings-page-container min-h-screen bg-deep-black p-4 md:p-8 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">

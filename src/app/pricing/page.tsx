@@ -171,7 +171,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-deep-black">
+    <div className="pricing-page-container min-h-screen bg-deep-black overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
       {/* Hero Section */}
       <div className="pt-32 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
