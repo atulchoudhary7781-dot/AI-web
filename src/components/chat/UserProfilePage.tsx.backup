@@ -702,7 +702,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                     <div className="space-y-1">
                       <div className="flex items-center justify-center sm:justify-start gap-3">
                         <h2 className="text-xl font-bold text-white">{name || 'User'}</h2>
-                        <Badge variant="secondary" className={currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}>
+                        <Badge variant={currentPlan === 'pro' ? 'premium' : currentPlan === 'normal' ? 'normal' : 'free'} className="text-xs">
                           {currentPlan.toUpperCase()}
                         </Badge>
                       </div>
@@ -739,7 +739,100 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       </div>
 
       {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col\">\n        {/* Tabs & Content */}\n        <div className=\"max-w-4xl mx-auto px-4 pb-6 flex-1 flex flex-col overflow-hidden\">
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-gray-400 text-sm">
+                        <Mail className="w-4 h-4" />
+                        <span>{email}</span>
+                        <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 text-xs">
+                          Verified
+                        </Badge>
+                      </div>
+
+                      {/* Gmail Sync Button */}
+                      <button
+                        onClick={handleGmailPhotoSync}
+                        disabled={isSyncingGmail}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/20 transition-all text-sm disabled:opacity-50"
+                      >
+                        {isSyncingGmail ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <ImageIcon className="w-4 h-4" />
+                        )}
+                        {isSyncingGmail ? 'Syncing...' : 'Sync Google Photo'}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <h2 className="text-3xl font-bold text-white mb-2">
+                          {name || 'User'}
+                        </h2>
+                        <div className="flex items-center gap-2 text-gray-400 text-sm justify-center md:justify-start">
+                          <Mail className="w-4 h-4" />
+                          <span>{email}</span>
+                          <Badge variant="secondary" className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">
+                            <Shield className="w-3 h-3 mr-1" />
+                            Verified
+                          </Badge>
+                          <Badge 
+                            variant="secondary" 
+                            className={`${currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'} text-xs`}
+                          >
+                            {currentPlan === 'pro' ? <Crown className="w-3 h-3 mr-1" /> : <Star className="w-3 h-3 mr-1" />}
+                            {currentPlan.toUpperCase()}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {bio && !isEditing && (
+                        <p className="text-gray-400 max-w-lg">{bio}</p>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-3">
+                  {isEditing && (
+                    <Button
+                      onClick={handleSaveProfile}
+                      disabled={isLoading}
+                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Saving...
+                        </div>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  
+                  {onLogout && (
+                    <Button
+                      variant="outline"
+                      onClick={onLogout}
+                      className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Tabs & Content */}
       <div className="max-w-4xl mx-auto px-4 pb-12">
         {/* Tab Navigation */}
@@ -1283,7 +1376,6 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           </div>
           </div>
         )}
-      </div>
       </div>
     </div>
   )
