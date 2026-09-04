@@ -76,27 +76,39 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="settings-page-container min-h-screen bg-deep-black p-4 md:p-8 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold font-display gradient-text-nexus mb-2">
-            {t('nav.settings')}
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your account settings and preferences
-          </p>
-        </div>
-
-        {/* Success Message */}
-        {showSuccessMessage && (
-          <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 flex items-center gap-2 animate-pulse">
-            <CheckCircle className="w-5 h-5" />
-            {showSuccessMessage}
+    <div className="settings-page-container min-h-screen bg-deep-black flex flex-col">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 p-4 md:p-8 pb-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold font-display gradient-text-nexus mb-2">
+              {t('nav.settings')}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Manage your account settings and preferences
+            </p>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Success Message */}
+          {showSuccessMessage && (
+            <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 flex items-center gap-2 animate-pulse">
+              <CheckCircle className="w-5 h-5" />
+              {showSuccessMessage}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Content - Scrollable */}
+      <div 
+        className="flex-1 overflow-y-auto settings-main-scroll px-4 md:px-8 pb-8"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(168, 85, 247, 0.8) rgba(20, 20, 40, 0.9)'
+        }}
+      >
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Profile Section */}
@@ -342,6 +354,7 @@ export default function SettingsPage() {
               </div>
             </Card>
           </div>
+        </div>
         </div>
       </div>
     </div>

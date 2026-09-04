@@ -685,6 +685,7 @@ body {
   .history-list-scroll::-webkit-scrollbar,
   .profile-page-container::-webkit-scrollbar,
   .settings-page-container::-webkit-scrollbar,
+  .settings-main-scroll::-webkit-scrollbar,
   .dashboard-page-container::-webkit-scrollbar,
   .pricing-page-container::-webkit-scrollbar,
   .admin-page-container::-webkit-scrollbar,
@@ -753,6 +754,25 @@ body {
   .settings-tab-scroll {
     scrollbar-width: thin;
     scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
+  }
+
+  /* Settings Main Page - Purple scrollbar */
+  .settings-main-scroll::-webkit-scrollbar-track {
+    background: rgba(20, 20, 40, 0.9);
+    border-radius: 10px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+  .settings-main-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #a855f7, #6366f1);
+    border-radius: 10px;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+  }
+  .settings-main-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #9333ea, #4f46e5);
+  }
+  .settings-main-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Smooth scroll for all tabs */
