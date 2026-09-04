@@ -579,10 +579,124 @@ header, nav, [role="navigation"] {
 @media (max-width: 768px) {
   body {
     background-size: cover !important;
+    /* Prevent bounce scroll on iOS */
+    overscroll-behavior: none;
+    /* Smooth scrolling */
+    -webkit-overflow-scrolling: touch;
   }
   
   .glass-strong, .glass-light, .glass-subtle {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Mobile touch targets - minimum 44px */
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Text selection disabled on UI elements for app-like feel */
+  .no-select, header, footer, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS - SAFE AREA & VIEWPORT
+   ============================================ */
+
+/* Safe area support for notched phones (iPhone X+) */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.h-safe-area-inset-bottom {
+  height: env(safe-area-inset-bottom, 0);
+}
+
+/* Full viewport height fix for mobile browsers */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* Allow scroll only in message container */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Mobile keyboard handling - don't push layout up */
+@supports (padding: max(0px)) {
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+}
+
+/* Touch action optimization */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Hide scrollbar on mobile but keep functionality */
+@media (max-width: 768px) {
+  .scrollbar-thin {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Input focus state on mobile - prevent zoom */
+@media (max-width: 768px) {
+  input[type="text"],
+  textarea,
+  [contenteditable] {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Animation utilities for mobile */
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.slide-in-from-bottom-4 {
+  --tw-enter-translate-y: 1rem;
+}
+
+.fade-in {
+  --tw-enter-opacity: 0;
+}
+
+.zoom-in-95 {
+  --tw-enter-scale: 0.95;
+}
+
+/* Bottom sheet shadow for mobile model selector */
+@media (max-width: 640px) {
+  .rounded-t-2xl {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5),
+                0 -2px 10px rgba(0, 0, 0, 0.3);
   }
 }
