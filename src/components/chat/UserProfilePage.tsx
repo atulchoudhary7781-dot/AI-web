@@ -983,7 +983,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         )}
 
         {activeTab === 'subscription' && (
-          <div className="space-y-8">
+          <div className="space-y-8 overflow-y-auto max-h-[calc(100vh-280px)] subscription-tab-scroll scrollbar-thin">
             {/* Current Plan Status */}
             <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-8 text-center">
@@ -1139,7 +1139,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         )}
 
         {activeTab === 'settings' && (
-          <div className="space-y-6">
+          <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-280px)] settings-tab-scroll scrollbar-thin">
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-6 space-y-6">
                 <h3 className="font-semibold text-white flex items-center gap-2">
