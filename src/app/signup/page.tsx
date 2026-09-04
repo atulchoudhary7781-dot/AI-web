@@ -98,7 +98,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-deep-black flex items-center justify-center p-4 relative overflow-hidden py-12">
+    <div className="signup-page-container min-h-screen bg-deep-black flex items-center justify-center p-4 relative overflow-hidden py-12 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
       {/* Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-neon-cyan/10 rounded-full blur-[128px]" />

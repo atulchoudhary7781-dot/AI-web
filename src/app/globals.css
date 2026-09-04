@@ -679,14 +679,18 @@ body {
     background: linear-gradient(180deg, rgba(0, 255, 255, 0.8), rgba(168, 85, 247, 0.8));
   }
   
-  /* Always show scrollbar on message container */
+  /* Always show scrollbar on ALL pages with content */
   .messages-container::-webkit-scrollbar,
   .model-list-scroll::-webkit-scrollbar,
   .history-list-scroll::-webkit-scrollbar,
   .profile-page-container::-webkit-scrollbar,
   .settings-page-container::-webkit-scrollbar,
   .dashboard-page-container::-webkit-scrollbar,
-  .pricing-page-container::-webkit-scrollbar {
+  .pricing-page-container::-webkit-scrollbar,
+  .admin-page-container::-webkit-scrollbar,
+  .login-page-container::-webkit-scrollbar,
+  .signup-page-container::-webkit-scrollbar,
+  .nexus-main-container::-webkit-scrollbar {
     display: block !important;
     width: 4px !important;
   }
