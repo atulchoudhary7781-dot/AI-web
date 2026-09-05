@@ -1,0 +1,1312 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { useState, useEffect, useRef } from 'react'
+     4→     4→import { useRouter } from 'next/navigation'
+     5→     5→import {
+     6→     6→  User, Mail, Camera, Save, X, CheckCircle,
+     7→     7→  MapPin, Phone, Globe, Edit3, Sparkles,
+     8→     8→  Calendar, MessageSquare, Settings, LogOut,
+     9→     9→  ChevronLeft, Shield, Award, Zap, Upload,
+    10→    10→  Download, Crown, Star, Clock, RefreshCw,
+    11→    11→  Image as ImageIcon, CreditCard, Check, AlertCircle,
+    12→    12→  Lock, Key, ShieldCheck, ExternalLink, Database
+    13→    13→} from 'lucide-react'
+    14→    14→import { Button } from '@/components/ui/button'
+    15→    15→import { Card, CardContent } from '@/components/ui/card'
+    16→    16→import { Badge } from '@/components/ui/badge'
+    17→    17→
+    18→    18→// Types
+    19→    19→interface UserProfileProps {
+    20→    20→  user: {
+    21→    21→    name: string
+    22→    22→    email: string
+    23→    23→    avatar?: string
+    24→    24→  }
+    25→    25→  onBack?: () => void
+    26→    26→  onLogout?: () => void
+    27→    27→}
+    28→    28→
+    29→    29→interface SubscriptionPlan {
+    30→    30→  id: 'free' | 'normal' | 'pro'
+    31→    31→  name: string
+    32→    32→  price: number
+    33→    33→  period: string
+    34→    34→  features: string[]
+    35→    35→  popular?: boolean
+    36→    36→  color: string
+    37→    37→  gradient: string
+    38→    38→  locked?: boolean
+    39→    39→  lockMessage?: string
+    40→    40→}
+    41→    41→
+    42→    42→// Subscription Plans Data
+    43→    43→const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+    44→    44→  {
+    45→    45→    id: 'free',
+    46→    46→    name: 'Free',
+    47→    47→    price: 0,
+    48→    48→    period: 'forever',
+    49→    49→    features: [
+    50→    50→      '10 chats per day',
+    51→    51→      'Basic AI responses',
+    52→    52→      'Community support',
+    53→    53→      'Chat history (7 days)'
+    54→    54→    ],
+    55→    55→    color: 'text-gray-400',
+    56→    56→    gradient: 'from-gray-500 to-gray-600',
+    57→    57→    locked: false
+    58→    58→  },
+    59→    59→  {
+    60→    60→    id: 'normal',
+    61→    61→    name: 'Normal',
+    62→    62→    price: 10,
+    63→    63→    period: 'month',
+    64→    64→    features: [
+    65→    65→      'Unlimited chats',
+    66→    66→      'Advanced AI models',
+    67→    67→      'Priority support',
+    68→    68→      'Chat history (30 days)',
+    69→    69→      'File attachments',
+    70→    70→      'Export data'
+    71→    71→    ],
+    72→    72→    popular: true,
+    73→    73→    color: 'text-cyan-400',
+    74→    74→    gradient: 'from-cyan-500 to-blue-500',
+    75→    75→    locked: true,
+    76→    76→    lockMessage: 'Coming Soon with Subscription'
+    77→    77→  },
+    78→    78→  {
+    79→    79→    id: 'pro',
+    80→    80→    name: 'Pro',
+    81→    81→    price: 20,
+    82→    82→    period: 'month',
+    83→    83→    features: [
+    84→    84→      'Everything in Normal',
+    85→    85→      'GPT-4 & Claude access',
+    86→    86→      'Image generation',
+    87→    87→      'Voice conversations',
+    88→    88→      'API access',
+    89→    89→      'Custom AI training',
+    90→    90→      'Priority queue',
+    91→    91→      'Dedicated support'
+    92→    92→    ],
+    93→    93→    color: 'text-yellow-400',
+    94→    94→    gradient: 'from-neon-cyan to-neon-purple',
+    95→    95→    locked: true,
+    96→    96→    lockMessage: 'Coming Soon with Subscription'
+    97→    97→  }
+    98→    98→]
+    99→    99→
+   100→   100→export default function UserProfilePage({ user: initialUser, onBack, onLogout }: UserProfileProps) {
+   101→   101→  const [user, setUser] = useState(initialUser)
+   102→   102→  const [isEditing, setIsEditing] = useState(false)
+   103→   103→  const [isLoading, setIsLoading] = useState(false)
+   104→   104→  const [showSuccess, setShowSuccess] = useState(false)
+   105→   105→  const [activeTab, setActiveTab] = useState<'profile' | 'subscription' | 'settings'>('profile')
+   106→   106→  
+   107→   107→  // Form states
+   108→   108→  const [name, setName] = useState(initialUser.name || '')
+   109→   109→  const [email] = useState(initialUser.email || '')
+   110→   110→  const [avatar, setAvatar] = useState(initialUser.avatar || '')
+   111→   111→  const [bio, setBio] = useState('')
+   112→   112→  const [phone, setPhone] = useState('')
+   113→   113→  const [location, setLocation] = useState('')
+   114→   114→  const [website, setWebsite] = useState('')
+   115→   115→
+   116→   116→  // Subscription state
+   117→   117→  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
+   118→   118→  const [chatCountToday, setChatCountToday] = useState(0)
+   119→   119→  const [maxChatsForPlan, setMaxChatsForPlan] = useState(10)
+   120→   120→  const [chatResetTime, setChatResetTime] = useState<string>('')
+   121→   121→
+   122→   122→  // Import/Export state
+   123→   123→  const [isImporting, setIsImporting] = useState(false)
+   124→   124→  const [isExporting, setIsExporting] = useState(false)
+   125→   125→
+   126→   126→  // Gmail sync state
+   127→   127→  const [isSyncingGmail, setIsSyncingGmail] = useState(false)
+   128→   128→
+   129→   129→  // Stripe/Email verification states
+   130→   130→  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+   131→   131→  const [isSendingVerification, setIsSendingVerification] = useState(false)
+   132→   132→  const [emailVerified, setEmailVerified] = useState(false)
+   133→   133→  const [isAdmin, setIsAdmin] = useState(false)
+   134→   134→  
+   135→   135→  // Router for navigation
+   136→   136→  const router = useRouter()
+   137→   137→
+   138→   138→  // File input ref
+   139→   139→  const fileInputRef = useRef<HTMLInputElement>(null)
+   140→   140→  const importInputRef = useRef<HTMLInputElement>(null)
+   141→   141→
+   142→   142→  // Load user data from localStorage on mount
+   143→   143→  useEffect(() => {
+   144→   144→    const savedUser = localStorage.getItem('nexus_user')
+   145→   145→    if (savedUser) {
+   146→   146→      try {
+   147→   147→        const parsedUser = JSON.parse(savedUser)
+   148→   148→        setUser(parsedUser)
+   149→   149→        setName(parsedUser.name || '')
+   150→   150→        setAvatar(parsedUser.avatar || '')
+   151→   151→      } catch (e) {
+   152→   152→        console.error('Error parsing user data:', e)
+   153→   153→      }
+   154→   154→    }
+   155→   155→
+   156→   156→    // Load profile data if exists
+   157→   157→    const savedProfile = localStorage.getItem('nexus_profile')
+   158→   158→    if (savedProfile) {
+   159→   159→      try {
+   160→   160→        const profile = JSON.parse(savedProfile)
+   161→   161→        setBio(profile.bio || '')
+   162→   162→        setPhone(profile.phone || '')
+   163→   163→        setLocation(profile.location || '')
+   164→   164→        setWebsite(profile.website || '')
+   165→   165→      } catch (e) {
+   166→   166→        console.error('Error parsing profile data:', e)
+   167→   167→      }
+   168→   168→    }
+   169→   169→
+   170→   170→    // Load subscription data
+   171→   171→    loadSubscriptionData()
+   172→   172→
+   173→   173→    // Load chat count for today
+   174→   174→    loadChatCountForToday()
+   175→   175→
+   176→   176→    // Check if email is verified (from localStorage or API)
+   177→   177→    const savedVerified = localStorage.getItem('nexus_email_verified')
+   178→   178→    setEmailVerified(savedVerified === 'true')
+   179→   179→
+   180→   180→    // Check if user is admin
+   181→   181→    const savedRole = localStorage.getItem('nexus_user_role')
+   182→   182→    setIsAdmin(savedRole === 'admin')
+   183→   183→
+   184→   184→    // Check URL params for success/canceled from Stripe
+   185→   185→    const urlParams = new URLSearchParams(window.location.search)
+   186→   186→    if (urlParams.get('success') === 'true') {
+   187→   187→      setShowSuccess(true)
+   188→   188→      setTimeout(() => setShowSuccess(false), 5000)
+   189→   189→      // Clean URL
+   190→   190→      window.history.replaceState({}, '', window.location.pathname)
+   191→   191→    }
+   192→   192→    if (urlParams.get('verified') === 'true') {
+   193→   193→      setEmailVerified(true)
+   194→   194→      localStorage.setItem('nexus_email_verified', 'true')
+   195→   195→      setShowSuccess(true)
+   196→   196→      setTimeout(() => setShowSuccess(false), 5000)
+   197→   197→      window.history.replaceState({}, '', window.location.pathname)
+   198→   198→    }
+   199→   199→  }, [])
+   200→   200→
+   201→   201→  // Calculate chat reset time
+   202→   202→  const calculateResetTime = () => {
+   203→   203→    const now = new Date()
+   204→   204→    const tomorrow = new Date(now)
+   205→   205→    tomorrow.setDate(tomorrow.getDate() + 1)
+   206→   206→    tomorrow.setHours(0, 0, 0, 0)
+   207→   207→    
+   208→   208→    const diff = tomorrow.getTime() - now.getTime()
+   209→   209→    const hours = Math.floor(diff / (1000 * 60 * 60))
+   210→   210→    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+   211→   211→    
+   212→   212→    return `${hours}h ${minutes}m`
+   213→   213→  }
+   214→   214→
+   215→   215→  // Load subscription data
+   216→   216→  const loadSubscriptionData = () => {
+   217→   217→    const savedSub = localStorage.getItem('nexus_subscription')
+   218→   218→    if (savedSub) {
+   219→   219→      try {
+   220→   220→        const sub = JSON.parse(savedSub)
+   221→   221→        setCurrentPlan(sub.plan || 'free')
+   222→   222→        
+   223→   223→        // Set max chats based on plan
+   224→   224→        if (sub.plan === 'pro' || sub.plan === 'normal') {
+   225→   225→          setMaxChatsForPlan(Infinity) // Unlimited
+   226→   226→        } else {
+   227→   227→          setMaxChatsForPlan(10)
+   228→   228→        }
+   229→   229→      } catch (e) {
+   230→   230→        console.error('Error parsing subscription:', e)
+   231→   231→      }
+   232→   232→    }
+   233→   233→    
+   234→   234→    // Update reset time
+   235→   235→    setChatResetTime(calculateResetTime())
+   236→   236→    
+   237→   237→    // Update reset time every minute
+   238→   238→    const interval = setInterval(() => {
+   239→   239→      setChatResetTime(calculateResetTime())
+   240→   240→    }, 60000)
+   241→   241→
+   242→   242→    return () => clearInterval(interval)
+   243→   243→  }
+   244→   244→
+   245→   245→  // Load chat count for today
+   246→   246→  const loadChatCountForToday = () => {
+   247→   247→    const savedChats = localStorage.getItem('nexus_chat_count_today')
+   248→   248→    const savedDate = localStorage.getItem('nexus_chat_date')
+   249→   249→    
+   250→   250→    const today = new Date().toDateString()
+   251→   251→    
+   252→   252→    if (savedDate === today && savedChats) {
+   253→   253→      setChatCountToday(parseInt(savedChats, 10))
+   254→   254→    } else {
+   255→   255→      // New day, reset count
+   256→   256→      setChatCountToday(0)
+   257→   257→      localStorage.setItem('nexus_chat_count_today', '0')
+   258→   258→      localStorage.setItem('nexus_chat_date', today)
+   259→   259→    }
+   260→   260→  }
+   261→   261→
+   262→   262→  // Handle avatar upload
+   263→   263→  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+   264→   264→    const file = event.target.files?.[0]
+   265→   265→    if (!file) return
+   266→   266→
+   267→   267→    // Validate file type
+   268→   268→    if (!file.type.startsWith('image/')) {
+   269→   269→      alert('Please select an image file')
+   270→   270→      return
+   271→   271→    }
+   272→   272→
+   273→   273→    // Validate file size (max 5MB)
+   274→   274→    if (file.size > 5 * 1024 * 1024) {
+   275→   275→      alert('Image size should be less than 5MB')
+   276→   276→      return
+   277→   277→    }
+   278→   278→
+   279→   279→    const reader = new FileReader()
+   280→   280→    reader.onload = (e) => {
+   281→   281→      const result = e.target?.result as string
+   282→   282→      setAvatar(result)
+   283→   283→      
+   284→   284→      // Update user state immediately for preview
+   285→   285→      setUser(prev => ({ ...prev, avatar: result }))
+   286→   286→    }
+   287→   287→    reader.readAsDataURL(file)
+   288→   288→  }
+   289→   289→
+   290→   290→  // Remove avatar
+   291→   291→  const handleRemoveAvatar = () => {
+   292→   292→    setAvatar('')
+   293→   293→    setUser(prev => ({ ...prev, avatar: undefined }))
+   294→   294→    if (fileInputRef.current) {
+   295→   295→      fileInputRef.current.value = ''
+   296→   296→    }
+   297→   297→  }
+   298→   298→
+   299→   299→  // Sync photo from Gmail/Google
+   300→   300→  const handleGmailPhotoSync = async () => {
+   301→   301→    setIsSyncingGmail(true)
+   302→   302→    
+   303→   303→    try {
+   304→   304→      // Simulate Google OAuth flow (in production, use Google OAuth API)
+   305→   305→      await new Promise(resolve => setTimeout(resolve, 2000))
+   306→   306→      
+   307→   307→      // For demo: Use a placeholder Google avatar or ask user to enter URL
+   308→   308→      const googleImageUrl = prompt('Enter your Google Profile Photo URL (or leave blank for default):', 
+   309→   309→        'https://lh3.googleusercontent.com/a/default-user'
+   310→   310→      )
+   311→   311→      
+   312→   312→      if (googleImageUrl) {
+   313→   313→        setAvatar(googleImageUrl)
+   314→   314→        setUser(prev => ({ ...prev, avatar: googleImageUrl }))
+   315→   315→        setShowSuccess(true)
+   316→   316→        setTimeout(() => setShowSuccess(false), 3000)
+   317→   317→      }
+   318→   318→    } catch (error) {
+   319→   319→      console.error('Gmail sync error:', error)
+   320→   320→      alert('Failed to sync Google photo. Please try again.')
+   321→   321→    } finally {
+   322→   322→      setIsSyncingGmail(false)
+   323→   323→    }
+   324→   324→  }
+   325→   325→
+   326→   326→  // Save profile
+   327→   327→  const handleSaveProfile = async () => {
+   328→   328→    setIsLoading(true)
+   329→   329→    
+   330→   330→    // Simulate API call
+   331→   331→    await new Promise(resolve => setTimeout(resolve, 1000))
+   332→   332→
+   333→   333→    // Update user object
+   334→   334→    const updatedUser = {
+   335→   335→      ...user,
+   336→   336→      name,
+   337→   337→      avatar
+   338→   338→    }
+   339→   339→
+   340→   340→    // Save to localStorage
+   341→   341→    localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
+   342→   342→    
+   343→   343→    // Save extended profile data
+   344→   344→    const profileData = { bio, phone, location, website }
+   345→   345→    localStorage.setItem('nexus_profile', JSON.stringify(profileData))
+   346→   346→
+   347→   347→    setUser(updatedUser)
+   348→   348→    setIsEditing(false)
+   349→   349→    setShowSuccess(true)
+   350→   350→    setIsLoading(false)
+   351→   351→
+   352→   352→    // Hide success message after 3 seconds
+   353→   353→    setTimeout(() => setShowSuccess(false), 3000)
+   354→   354→  }
+   355→   355→
+   356→   356→  // Cancel editing
+   357→   357→  const handleCancelEdit = () => {
+   358→   358→    setName(user.name || '')
+   359→   359→    setAvatar(user.avatar || '')
+   360→   360→    setBio(bio)
+   361→   361→    setPhone(phone)
+   362→   362→    setLocation(location)
+   363→   363→    setWebsite(website)
+   364→   364→    setIsEditing(false)
+   365→   365→  }
+   366→   366→
+   367→   367→  // Handle subscription upgrade with real Stripe integration
+   368→   368→  const handleSubscriptionChange = async (planId: 'free' | 'normal' | 'pro') => {
+   369→   369→    if (planId === currentPlan) return
+   370→   370→    
+   371→   371→    // If downgrading to free, just do it locally
+   372→   372→    if (planId === 'free') {
+   373→   373→      setIsLoading(true)
+   374→   374→      await new Promise(resolve => setTimeout(resolve, 1000))
+   375→   375→      
+   376→   376→      const newSub = { plan: 'free', startDate: new Date().toISOString() }
+   377→   377→      localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
+   378→   378→      setCurrentPlan('free')
+   379→   379→      setMaxChatsForPlan(10)
+   380→   380→      
+   381→   381→      setIsLoading(false)
+   382→   382→      setShowSuccess(true)
+   383→   383→      setTimeout(() => setShowSuccess(false), 3000)
+   384→   384→      return
+   385→   385→    }
+   386→   386→    
+   387→   387→    // For paid plans, use Stripe Checkout
+   388→   388→    setIsProcessingPayment(true)
+   389→   389→    setIsLoading(true)
+   390→   390→    
+   391→   391→    try {
+   392→   392→      const response = await fetch('/api/payments/create-checkout', {
+   393→   393→        method: 'POST',
+   394→   394→        headers: { 'Content-Type': 'application/json' },
+   395→   395→        body: JSON.stringify({ email, plan: planId })
+   396→   396→      })
+   397→   397→      
+   398→   398→      const data = await response.json()
+   399→   399→      
+   400→   400→      if (data.success && data.url) {
+   401→   401→        // Redirect to Stripe Checkout
+   402→   402→        window.location.href = data.url
+   403→   403→      } else {
+   404→   404→        // Fallback to mock payment if Stripe not configured
+   405→   405→        console.log('Stripe not configured, using mock payment')
+   406→   406→        await new Promise(resolve => setTimeout(resolve, 1500))
+   407→   407→        
+   408→   408→        const newSub = {
+   409→   409→          plan: planId,
+   410→   410→          startDate: new Date().toISOString(),
+   411→   411→          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+   412→   412→          price: planId === 'normal' ? 10 : 20
+   413→   413→        }
+   414→   414→        
+   415→   415→        localStorage.setItem('nexus_subscription', JSON.stringify(newSub))
+   416→   416→        setCurrentPlan(planId)
+   417→   417→        setMaxChatsForPlan(Infinity)
+   418→   418→        
+   419→   419→        setIsLoading(false)
+   420→   420→        setShowSuccess(true)
+   421→   421→        setTimeout(() => setShowSuccess(false), 3000)
+   422→   422→        
+   423→   423→        alert(`Successfully upgraded to ${planId.toUpperCase()} plan! 🎉`)
+   424→   424→      }
+   425→   425→    } catch (error) {
+   426→   426→      console.error('Payment error:', error)
+   427→   427→      alert('Failed to process payment. Please try again.')
+   428→   428→      setIsLoading(false)
+   429→   429→    } finally {
+   430→   430→      setIsProcessingPayment(false)
+   431→   431→    }
+   432→   432→  }
+   433→   433→
+   434→   434→  // Send email verification
+   435→   435→  const handleSendVerification = async () => {
+   436→   436→    setIsSendingVerification(true)
+   437→   437→    
+   438→   438→    try {
+   439→   439→      const response = await fetch('/api/auth/send-verification', {
+   440→   440→        method: 'POST',
+   441→   441→        headers: { 'Content-Type': 'application/json' },
+   442→   442→        body: JSON.stringify({ email })
+   443→   443→      })
+   444→   444→      
+   445→   445→      const data = await response.json()
+   446→   446→      
+   447→   447→      if (response.ok) {
+   448→   448→        alert(data.message + (data.verificationUrl ? `\n\nDev URL: ${data.verificationUrl}` : ''))
+   449→   449→        if (data.verified) {
+   450→   450→          setEmailVerified(true)
+   451→   451→          localStorage.setItem('nexus_email_verified', 'true')
+   452→   452→        }
+   453→   453→      } else {
+   454→   454→        alert(data.error || 'Failed to send verification email')
+   455→   455→      }
+   456→   456→    } catch (error) {
+   457→   457→      console.error('Verification error:', error)
+   458→   458→      alert('Failed to send verification email.')
+   459→   459→    } finally {
+   460→   460→      setIsSendingVerification(false)
+   461→   461→    }
+   462→   462→  }
+   463→   463→
+   464→   464→  // Export data
+   465→   465→  const handleExportData = async () => {
+   466→   466→    setIsExporting(true)
+   467→   467→    
+   468→   468→    try {
+   469→   469→      // Gather all user data
+   470→   470→      const exportData = {
+   471→   471→        user: JSON.parse(localStorage.getItem('nexus_user') || '{}'),
+   472→   472→        profile: JSON.parse(localStorage.getItem('nexus_profile') || '{}'),
+   473→   473→        subscription: JSON.parse(localStorage.getItem('nexus_subscription') || '{}'),
+   474→   474→        chats: JSON.parse(localStorage.getItem('nexus_chats') || '[]'),
+   475→   475→        exportDate: new Date().toISOString(),
+   476→   476→        version: '1.0'
+   477→   477→      }
+   478→   478→      
+   479→   479→      // Create and download file
+   480→   480→      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+   481→   481→      const url = URL.createObjectURL(blob)
+   482→   482→      const a = document.createElement('a')
+   483→   483→      a.href = url
+   484→   484→      a.download = `nexus-ai-export-${new Date().toISOString().split('T')[0]}.json`
+   485→   485→      document.body.appendChild(a)
+   486→   486→      a.click()
+   487→   487→      document.body.removeChild(a)
+   488→   488→      URL.revokeObjectURL(url)
+   489→   489→      
+   490→   490→      setShowSuccess(true)
+   491→   491→      setTimeout(() => setShowSuccess(false), 3000)
+   492→   492→    } catch (error) {
+   493→   493→      console.error('Export error:', error)
+   494→   494→      alert('Failed to export data')
+   495→   495→    } finally {
+   496→   496→      setIsExporting(false)
+   497→   497→    }
+   498→   498→  }
+   499→   499→
+   500→   500→  // Import data
+   501→   501→  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+   502→   502→    const file = event.target.files?.[0]
+   503→   503→    if (!file) return
+   504→   504→
+   505→   505→    setIsImporting(true)
+   506→   506→    
+   507→   507→    const reader = new FileReader()
+   508→   508→    reader.onload = async (e) => {
+   509→   509→      try {
+   510→   510→        const importData = JSON.parse(e.target?.result as string)
+   511→   511→        
+   512→   512→        // Validate import data
+   513→   513→        if (!importData.user || !importData.version) {
+   514→   514→          throw new Error('Invalid export file')
+   515→   515→        }
+   516→   516→        
+   517→   517→        // Confirm import
+   518→   518→        const confirmed = confirm(
+   519→   519→          `This will overwrite your current data with:\n` +
+   520→   520→          `- User: ${importData.user?.name || 'Unknown'}\n` +
+   521→   521→          `- Chats: ${importData.chats?.length || 0} sessions\n\n` +
+   522→   522→          `Continue with import?`
+   523→   523→        )
+   524→   524→        
+   525→   525→        if (confirmed) {
+   526→   526→          // Import data
+   527→   527→          if (importData.user) localStorage.setItem('nexus_user', JSON.stringify(importData.user))
+   528→   528→          if (importData.profile) localStorage.setItem('nexus_profile', JSON.stringify(importData.profile))
+   529→   529→          if (importData.subscription) {
+   530→   530→            localStorage.setItem('nexus_subscription', JSON.stringify(importData.subscription))
+   531→   531→            loadSubscriptionData()
+   532→   532→          }
+   533→   533→          if (importData.chats) localStorage.setItem('nexus_chats', JSON.stringify(importData.chats))
+   534→   534→          
+   535→   535→          // Reload page to show imported data
+   536→   536→          window.location.reload()
+   537→   537→        }
+   538→   538→      } catch (error) {
+   539→   539→        console.error('Import error:', error)
+   540→   540→        alert('Failed to import data. Please check the file format.')
+   541→   541→      } finally {
+   542→   542→        setIsImporting(false)
+   543→   543→        if (importInputRef.current) {
+   544→   544→          importInputRef.current.value = ''
+   545→   545→        }
+   546→   546→      }
+   547→   547→    }
+   548→   548→    reader.readAsText(file)
+   549→   549→  }
+   550→   550→
+   551→   551→  // Get initials for fallback avatar
+   552→   552→  const getInitials = (name: string) => {
+   553→   553→    return name
+   554→   554→      .split(' ')
+   555→   555→      .map(word => word[0])
+   556→   556→      .join('')
+   557→   557→      .toUpperCase()
+   558→   558→      .slice(0, 2)
+   559→   559→  }
+   560→   560→
+   561→   561→  // Generate stats (mock data - in real app, fetch from API)
+   562→   562→  const stats = [
+   563→   563→    { label: 'Total Chats', value: currentPlan === 'free' ? `${chatCountToday}/${maxChatsForPlan}` : '∞', icon: MessageSquare, color: 'from-cyan-500 to-blue-500' },
+   564→   564→    { label: 'Days Active', value: '15', icon: Calendar, color: 'from-violet-500 to-purple-500' },
+   565→   565→    { label: 'AI Queries', value: '156', icon: Zap, color: 'from-pink-500 to-rose-500' },
+   566→   566→    { label: 'Plan', value: currentPlan.toUpperCase(), icon: currentPlan === 'pro' ? Crown : Star, color: currentPlan === 'pro' ? 'from-neon-cyan to-neon-purple' : currentPlan === 'normal' ? 'from-cyan-500 to-blue-500' : 'from-gray-500 to-gray-600' }
+   567→   567→  ]
+   568→   568→
+   569→   569→  // Chat limit percentage (for progress bar)
+   570→   570→  const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
+   571→   571→
+   572→   572→  return (
+   573→   573→    <div className="profile-page-container min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col">
+   574→   574→      {/* Success Toast */}
+   575→   575→      {showSuccess && (
+   576→   576→        <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
+   577→   577→          <div className="bg-green-500/20 border border-green-500/30 backdrop-blur-xl rounded-xl px-6 py-4 flex items-center gap-3 shadow-lg shadow-green-500/20">
+   578→   578→            <CheckCircle className="w-5 h-5 text-green-400" />
+   579→   579→            <span className="text-green-300 font-medium">Action completed successfully!</span>
+   580→   580→          </div>
+   581→   581→        </div>
+   582→   582→      )}
+   583→   583→
+   584→   584→      {/* ===== HEADER SECTION (Fixed Height) ===== */}
+   585→   585→      <div className="flex-shrink-0">
+   586→   586→        {/* Header Background */}
+   587→   587→        <div className="relative overflow-hidden">
+   588→   588→          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10" />
+   589→   589→          <div className="absolute inset-0 opacity-20">
+   590→   590→            <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]" />
+   591→   591→            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500 rounded-full filter blur-[120px]" />
+   592→   592→          </div>
+   593→   593→
+   594→   594→          {/* Chat Limit Banner - Compact */}
+   595→   595→          {currentPlan === 'free' && (
+   596→   596→            <div className="relative bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-electric-blue/20 border-b border-neon-cyan/30 px-4 py-2">
+   597→   597→              <div className="max-w-4xl mx-auto flex items-center justify-between">
+   598→   598→                <div className="flex items-center gap-2">
+   599→   599→                  <Clock className="w-4 h-4 text-neon-cyan animate-pulse" />
+   600→   600→                  <p className="text-xs font-medium text-neon-cyan">
+   601→   601→                    Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used · Resets in: <span className="font-mono">{chatResetTime}</span>
+   602→   602→                  </p>
+   603→   603→                </div>
+   604→   604→                <div className="hidden sm:flex items-center gap-2">
+   605→   605→                  <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+   606→   606→                    <div 
+   607→   607→                      className={`h-full transition-all duration-500 ${
+   608→   608→                        chatLimitPercentage >= 90 ? 'bg-red-500' : chatLimitPercentage >= 70 ? 'bg-yellow-500' : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+   609→   609→                      }`}
+   610→   610→                      style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+   611→   611→                    />
+   612→   612→                  </div>
+   613→   613→                  <span className="text-xs text-gray-400">Coming Soon</span>
+   614→   614→                </div>
+   615→   615→              </div>
+   616→   616→            </div>
+   617→   617→          )}
+   618→   618→
+   619→   619→          {/* Navigation Bar - Compact */}
+   620→   620→          <div className="relative max-w-4xl mx-auto px-4 py-4">
+   621→   621→            <div className="flex items-center justify-between">
+   622→   622→              <button
+   623→   623→                onClick={onBack}
+   624→   624→                className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm"
+   625→   625→              >
+   626→   626→                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+   627→   627→                <span>Back</span>
+   628→   628→              </button>
+   629→   629→
+   630→   630→              <h1 className="text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)]">
+   631→   631→                User Profile
+   632→   632→              </h1>
+   633→   633→
+   634→   634→              {!isEditing ? (
+   635→   635→                <button
+   636→   636→                  onClick={() => setIsEditing(true)}
+   637→   637→                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+   638→   638→                >
+   639→   639→                  <Edit3 className="w-3.5 h-3.5" />
+   640→   640→                  Edit Profile
+   641→   641→                </button>
+   642→   642→              ) : (
+   643→   643→                <button
+   644→   644→                  onClick={handleCancelEdit}
+   645→   645→                  className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+   646→   646→                >
+   647→   647→                  <X className="w-3.5 h-3.5" />
+   648→   648→                  Cancel
+   649→   649→                </button>
+   650→   650→              )}
+   651→   651→            </div>
+   652→   652→          </div>
+   653→   653→        </div>
+   654→   654→
+   655→   655→        {/* Profile Card - Compact */}
+   656→   656→        <div className="max-w-4xl mx-auto px-4 pb-4">
+   657→   657→          <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl overflow-hidden">
+   658→   658→            <CardContent className="p-5">
+   659→   659→              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+   660→   660→                
+   661→   661→                {/* Avatar Section - Smaller */}
+   662→   662→                <div className="relative group flex-shrink-0">
+   663→   663→                  <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
+   664→   664→                    <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
+   665→   665→                      {avatar ? (
+   666→   666→                        <img src={avatar} alt={name || 'User'} className="w-full h-full object-cover" />
+   667→   667→                      ) : (
+   668→   668→                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/20 to-violet-600/20">
+   669→   669→                          <span className="text-2xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
+   670→   670→                        </div>
+   671→   671→                      )}
+   672→   672→                    </div>
+   673→   673→                  </div>
+   674→   674→                  {isEditing && (
+   675→   675→                    <>
+   676→   676→                      <button onClick={() => fileInputRef.current?.click()} className="absolute inset-0 w-20 h-20 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+   677→   677→                        <Camera className="w-6 h-6 text-white" />
+   678→   678→                      </button>
+   679→   679→                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+   680→   680→                    </>
+   681→   681→                  )}
+   682→   682→                  <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900" />
+   683→   683→                  {isEditing && avatar && (
+   684→   684→                    <button onClick={handleRemoveAvatar} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
+   685→   685→                      <X className="w-2.5 h-2.5 text-white" />
+   686→   686→                    </button>
+   687→   687→                  )}
+   688→   688→                </div>
+   689→   689→
+   690→   690→                {/* User Info - Compact */}
+   691→   691→                <div className="flex-1 text-center sm:text-left">
+   692→   692→                  {isEditing ? (
+   693→   693→                    <div className="space-y-3">
+   694→   694→                      <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="w-full max-w-sm bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none" />
+   695→   695→                      <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-400 text-xs">
+   696→   696→                        <Mail className="w-3.5 h-3.5" />
+   697→   697→                        <span>{email}</span>
+   698→   698→                        {emailVerified && <CheckCircle className="w-3.5 h-3.5 text-green-400" />}
+   699→   699→                      </div>
+   700→   700→                    </div>
+   701→   701→                  ) : (
+   702→   702→                    <div className="space-y-1">
+   703→   703→                      <div className="flex items-center justify-center sm:justify-start gap-3">
+   704→   704→                        <h2 className="text-xl font-bold text-white">{name || 'User'}</h2>
+   705→   705→                        <Badge variant="secondary" className={currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}>
+   706→   706→                          {currentPlan.toUpperCase()}
+   707→   707→                        </Badge>
+   708→   708→                      </div>
+   709→   709→                      <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-400 text-sm">
+   710→   710→                        <Mail className="w-4 h-4" />
+   711→   711→                        <span>{email}</span>
+   712→   712→                        {emailVerified ? (
+   713→   713→                          <span className="flex items-center gap-1 text-green-400 text-xs"><CheckCircle className="w-3.5 h-3.5" /> VERIFIED</span>
+   714→   714→                        ) : (
+   715→   715→                          <span className="text-yellow-400 text-xs cursor-pointer hover:underline" onClick={handleSendVerification}>Verify Email</span>
+   716→   716→                        )}
+   717→   717→                      </div>
+   718→   718→                    </div>
+   719→   719→                  )}
+   720→   720→                </div>
+   721→   721→
+   722→   722→                {/* Action Buttons - Compact */}
+   723→   723→                <div className="flex flex-col gap-2">
+   724→   724→                  {isEditing && (
+   725→   725→                    <Button onClick={handleSaveProfile} disabled={isLoading} size="sm" className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 text-xs">
+   726→   726→                      {isLoading ? 'Saving...' : <><Save className="w-3.5 h-3.5 mr-1" /> Save</>}
+   727→   727→                    </Button>
+   728→   728→                  )}
+   729→   729→                  {onLogout && (
+   730→   730→                    <Button variant="outline" size="sm" onClick={onLogout} className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs">
+   731→   731→                      <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
+   732→   732→                    </Button>
+   733→   733→                  )}
+   734→   734→                </div>
+   735→   735→              </div>
+   736→   736→            </CardContent>
+   737→   737→          </Card>
+   738→   738→        </div>
+   739→   739→      </div>
+   740→   740→
+   741→   741→      {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
+   742→   742→      <div className="flex-1 overflow-hidden flex flex-col">
+   743→   743→      {/* Tabs & Content */}
+   744→   744→      <div className="max-w-4xl mx-auto px-4 pb-12">
+   745→   745→        {/* Tab Navigation */}
+   746→   746→        <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
+   747→   747→          {[
+   748→   748→            { id: 'profile', label: 'Profile Info', icon: User },
+   749→   749→            { id: 'subscription', label: 'Subscription', icon: CreditCard },
+   750→   750→            { id: 'settings', label: 'Settings', icon: Settings }
+   751→   751→          ].map((tab) => (
+   752→   752→            <button
+   753→   753→              key={tab.id}
+   754→   754→              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+   755→   755→              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+   756→   756→                activeTab === tab.id
+   757→   757→                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg'
+   758→   758→                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+   759→   759→              }`}
+   760→   760→            >
+   761→   761→              <tab.icon className="w-4 h-4" />
+   762→   762→              {tab.label}
+   763→   763→            </button>
+   764→   764→          ))}
+   765→   765→        </div>
+   766→   766→
+   767→   767→        {/* Profile Info Tab */}
+   768→   768→        {activeTab === 'profile' && (
+   769→   769→          <div 
+   770→   770→            className="profile-info-tab-scroll"
+   771→   771→            style={{
+   772→   772→              height: 'calc(100vh - 300px)',
+   773→   773→              overflowY: 'scroll',
+   774→   774→              overflowX: 'hidden',
+   775→   775→              paddingRight: '8px'
+   776→   776→            }}
+   777→   777→          >
+   778→   778→            <div className="grid md:grid-cols-2 gap-6 pb-8">
+   779→   779→            {/* Bio Card */}
+   780→   780→            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
+   781→   781→              <CardContent className="p-6 space-y-4">
+   782→   782→                <div className="flex items-center gap-2 mb-4">
+   783→   783→                  <Sparkles className="w-5 h-5 text-cyan-400" />
+   784→   784→                  <h3 className="font-semibold text-white">About Me</h3>
+   785→   785→                </div>
+   786→   786→                
+   787→   787→                {isEditing ? (
+   788→   788→                  <textarea
+   789→   789→                    value={bio}
+   790→   790→                    onChange={(e) => setBio(e.target.value)}
+   791→   791→                    placeholder="Tell us about yourself..."
+   792→   792→                    rows={4}
+   793→   793→                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none resize-none transition-all"
+   794→   794→                  />
+   795→   795→                ) : (
+   796→   796→                  <p className="text-gray-400 leading-relaxed">
+   797→   797→                    {bio || 'No bio added yet. Click edit to add your bio!'}
+   798→   798→                  </p>
+   799→   799→                )}
+   800→   800→              </CardContent>
+   801→   801→            </Card>
+   802→   802→
+   803→   803→            {/* Contact Info Card */}
+   804→   804→            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
+   805→   805→              <CardContent className="p-6 space-y-4">
+   806→   806→                <div className="flex items-center gap-2 mb-4">
+   807→   807→                  <User className="w-5 h-5 text-violet-400" />
+   808→   808→                  <h3 className="font-semibold text-white">Contact Information</h3>
+   809→   809→                </div>
+   810→   810→
+   811→   811→                <div className="space-y-4">
+   812→   812→                  {/* Phone */}
+   813→   813→                  <div className="flex items-center gap-3">
+   814→   814→                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+   815→   815→                      <Phone className="w-4 h-4 text-blue-400" />
+   816→   816→                    </div>
+   817→   817→                    <div className="flex-1">
+   818→   818→                      {isEditing ? (
+   819→   819→                        <input
+   820→   820→                          type="tel"
+   821→   821→                          value={phone}
+   822→   822→                          onChange={(e) => setPhone(e.target.value)}
+   823→   823→                          placeholder="Phone number"
+   824→   824→                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
+   825→   825→                        />
+   826→   826→                      ) : (
+   827→   827→                        <div>
+   828→   828→                          <p className="text-xs text-gray-500">Phone</p>
+   829→   829→                          <p className="text-sm text-gray-300">{phone || 'Not added'}</p>
+   830→   830→                        </div>
+   831→   831→                      )}
+   832→   832→                    </div>
+   833→   833→                  </div>
+   834→   834→
+   835→   835→                  {/* Location */}
+   836→   836→                  <div className="flex items-center gap-3">
+   837→   837→                    <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+   838→   838→                      <MapPin className="w-4 h-4 text-green-400" />
+   839→   839→                    </div>
+   840→   840→                    <div className="flex-1">
+   841→   841→                      {isEditing ? (
+   842→   842→                        <input
+   843→   843→                          type="text"
+   844→   844→                          value={location}
+   845→   845→                          onChange={(e) => setLocation(e.target.value)}
+   846→   846→                          placeholder="Location"
+   847→   847→                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
+   848→   848→                        />
+   849→   849→                      ) : (
+   850→   850→                        <div>
+   851→   851→                          <p className="text-xs text-gray-500">Location</p>
+   852→   852→                          <p className="text-sm text-gray-300">{location || 'Not added'}</p>
+   853→   853→                        </div>
+   854→   854→                      )}
+   855→   855→                    </div>
+   856→   856→                  </div>
+   857→   857→
+   858→   858→                  {/* Website */}
+   859→   859→                  <div className="flex items-center gap-3">
+   860→   860→                    <div className="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
+   861→   861→                      <Globe className="w-4 h-4 text-pink-400" />
+   862→   862→                    </div>
+   863→   863→                    <div className="flex-1">
+   864→   864→                      {isEditing ? (
+   865→   865→                        <input
+   866→   866→                          type="url"
+   867→   867→                          value={website}
+   868→   868→                          onChange={(e) => setWebsite(e.target.value)}
+   869→   869→                          placeholder="https://yourwebsite.com"
+   870→   870→                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
+   871→   871→                        />
+   872→   872→                      ) : (
+   873→   873→                        <div>
+   874→   874→                          <p className="text-xs text-gray-500">Website</p>
+   875→   875→                          {website ? (
+   876→   876→                            <a 
+   877→   877→                              href={website} 
+   878→   878→                              target="_blank" 
+   879→   879→                              rel="noopener noreferrer"
+   880→   880→                              className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+   881→   881→                            >
+   882→   882→                              {website}
+   883→   883→                            </a>
+   884→   884→                          ) : (
+   885→   885→                            <p className="text-sm text-gray-300">Not added</p>
+   886→   886→                          )}
+   887→   887→                        </div>
+   888→   888→                      )}
+   889→   889→                    </div>
+   890→   890→                  </div>
+   891→   891→                </div>
+   892→   892→              </CardContent>
+   893→   893→            </Card>
+   894→   894→          </div>
+   895→   895→          </div>
+   896→   896→        )}
+   897→   897→
+   898→   898→        {/* Subscription Tab */}
+   899→   899→        {activeTab === 'subscription' && (
+   900→   900→          <div 
+   901→   901→            className="subscription-tab-scroll"
+   902→   902→            style={{
+   903→   903→              height: 'calc(100vh - 300px)',
+   904→   904→              overflowY: 'scroll',
+   905→   905→              overflowX: 'hidden',
+   906→   906→              paddingRight: '8px'
+   907→   907→            }}
+   908→   908→          >
+   909→   909→            <div className="space-y-6 pb-8">
+   910→   910→            {/* Current Plan Status */}
+   911→   911→            <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
+   912→   912→              <CardContent className="p-8 text-center">
+   913→   913→                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-full mb-4">
+   914→   914→                  <Sparkles className="w-4 h-4 text-cyan-400" />
+   915→   915→                  <span className="text-sm text-gray-300">Current Plan</span>
+   916→   916→                </div>
+   917→   917→                <h2 className="text-3xl font-bold text-white mb-2">
+   918→   918→                  {currentPlan === 'pro' ? '👑 Pro' : currentPlan === 'normal' ? '⭐ Normal' : '🆓 Free'}
+   919→   919→                </h2>
+   920→   920→                <p className="text-gray-400 mb-6">
+   921→   921→                  {currentPlan === 'free' 
+   922→   922→                    ? `You have ${maxChatsForPlan - chatCountToday} chats remaining today`
+   923→   923→                    : 'Unlimited access to all features!'
+   924→   924→                  }
+   925→   925→                </p>
+   926→   926→                
+   927→   927→                {/* Free User Progress */}
+   928→   928→                {currentPlan === 'free' && (
+   929→   929→                  <div className="max-w-md mx-auto mb-6">
+   930→   930→                    <div className="flex justify-between text-sm mb-2">
+   931→   931→                      <span className="text-gray-400">Daily Usage</span>
+   932→   932→                      <span className="text-cyan-400">{chatCountToday}/{maxChatsForPlan} chats</span>
+   933→   933→                    </div>
+   934→   934→                    <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
+   935→   935→                      <div 
+   936→   936→                        className={`h-full transition-all duration-500 ${
+   937→   937→                          chatLimitPercentage >= 90 
+   938→   938→                            ? 'bg-red-500' 
+   939→   939→                            : chatLimitPercentage >= 70 
+   940→   940→                              ? 'bg-yellow-500' 
+   941→   941→                              : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+   942→   942→                        }`}
+   943→   943→                        style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+   944→   944→                      />
+   945→   945→                    </div>
+   946→   946→                    <div className="flex justify-between text-xs mt-2">
+   947→   947→                      <span className="text-gray-500">Resets at midnight</span>
+   948→   948→                      <span className="text-cyan-400">{chatResetTime}</span>
+   949→   949→                    </div>
+   950→   950→                  </div>
+   951→   951→                )}
+   952→   952→              </CardContent>
+   953→   953→            </Card>
+   954→   954→
+   955→   955→            {/* Subscription Plans Grid */}
+   956→   956→            <div className="grid md:grid-cols-3 gap-6">
+   957→   957→              {SUBSCRIPTION_PLANS.map((plan) => (
+   958→   958→                <Card 
+   959→   959→                  key={plan.id}
+   960→   960→                  className={`relative bg-gray-900/50 backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+   961→   961→                    (plan as any).locked 
+   962→   962→                      ? 'opacity-75 cursor-not-allowed border-yellow-500/30' 
+   963→   963→                      : currentPlan === plan.id 
+   964→   964→                        ? 'border-2 border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
+   965→   965→                        : 'border-gray-800 hover:border-gray-700'
+   966→   966→                  } ${(plan as any).popular && !(plan as any).locked ? 'md:-mt-4 md:mb-[-16px]' : ''}`}
+   967→   967→                >
+   968→   968→                  {/* Locked Badge */}
+   969→   969→                  {(plan as any).locked && (
+   970→   970→                    <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+   971→   971→                      <Lock className="w-3 h-3" />
+   972→   972→                      COMING SOON
+   973→   973→                    </div>
+   974→   974→                  )}
+   975→   975→                  
+   976→   976→                  {plan.popular && !(plan as any).locked && (
+   977→   977→                    <div className="absolute top-0 right-0 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+   978→   978→                      POPULAR
+   979→   979→                    </div>
+   980→   980→                  )}
+   981→   981→                  
+   982→   982→                  <CardContent className="p-6">
+   983→   983→                    <div className="text-center mb-6">
+   984→   984→                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3 ${
+   985→   985→                        (plan as any).locked ? 'grayscale opacity-60' : ''
+   986→   986→                      }`}>
+   987→   987→                        {plan.id === 'pro' ? (
+   988→   988→                          <Crown className="w-6 h-6 text-white" />
+   989→   989→                        ) : plan.id === 'normal' ? (
+   990→   990→                          <Star className="w-6 h-6 text-white" />
+   991→   991→                        ) : (
+   992→   992→                          <User className="w-6 h-6 text-white" />
+   993→   993→                        )}
+   994→   994→                      </div>
+   995→   995→                      <h3 className={`text-xl font-bold ${plan.color} ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>{plan.name}</h3>
+   996→   996→                      <div className="mt-2">
+   997→   997→                        <span className={`text-3xl font-bold text-white ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>${plan.price}</span>
+   998→   998→                        <span className="text-gray-400">/{plan.period}</span>
+   999→   999→                      </div>
+  1000→  1000→                    </div>
+  1001→  1001→
+  1002→  1002→                    <ul className="space-y-3 mb-6">
+  1003→  1003→                      {plan.features.map((feature, idx) => (
+  1004→  1004→                        <li key={idx} className={`flex items-start gap-2 text-sm ${
+  1005→  1005→                          (plan as any).locked ? 'opacity-50' : ''
+  1006→  1006→                        }`}>
+  1007→  1007→                          <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+  1008→  1008→                            currentPlan === plan.id ? 'text-cyan-400' : 'text-gray-500'
+  1009→  1009→                          }`} />
+  1010→  1010→                          <span className={currentPlan === plan.id ? 'text-gray-200' : 'text-gray-400'}>
+  1011→  1011→                            {feature}
+  1012→  1012→                          </span>
+  1013→  1013→                        </li>
+  1014→  1014→                      ))}
+  1015→  1015→                    </ul>
+  1016→  1016→
+  1017→  1017→                    {(plan as any).locked ? (
+  1018→  1018→                      <div className="w-full">
+  1019→  1019→                        <Button
+  1020→  1020→                          variant="locked"
+  1021→  1021→                          disabled={true}
+  1022→  1022→                          className="w-full"
+  1023→  1023→                        >
+  1024→  1024→                          <Lock className="w-4 h-4 mr-2" />
+  1025→  1025→                          Coming Soon with Subscription
+  1026→  1026→                        </Button>
+  1027→  1027→                        <p className="text-xs text-center text-yellow-400 mt-2 flex items-center justify-center gap-1">
+  1028→  1028→                          <Clock className="w-3 h-3" />
+  1029→  1029→                          Subscription feature coming soon!
+  1030→  1030→                        </p>
+  1031→  1031→                      </div>
+  1032→  1032→                    ) : (
+  1033→  1033→                      <Button
+  1034→  1034→                        onClick={() => handleSubscriptionChange(plan.id)}
+  1035→  1035→                        disabled={currentPlan === plan.id || isLoading}
+  1036→  1036→                        className={`w-full ${
+  1037→  1037→                          currentPlan === plan.id
+  1038→  1038→                            ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
+  1039→  1039→                            : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
+  1040→  1040→                        } transition-all`}
+  1041→  1041→                      >
+  1042→  1042→                        {currentPlan === plan.id ? (
+  1043→  1043→                          <>
+  1044→  1044→                            <Check className="w-4 h-4 mr-2" />
+  1045→  1045→                            Current Plan
+  1046→  1046→                          </>
+  1047→  1047→                        ) : plan.price === 0 ? (
+  1048→  1048→                          'Downgrade to Free'
+  1049→  1049→                        ) : (
+  1050→  1050→                          <>
+  1051→  1051→                            <CreditCard className="w-4 h-4 mr-2" />
+  1052→  1052→                            Upgrade to {plan.name}
+  1053→  1053→                          </>
+  1054→  1054→                        )}
+  1055→  1055→                      </Button>
+  1056→  1056→                    )}
+  1057→  1057→                  </CardContent>
+  1058→  1058→                </Card>
+  1059→  1059→              ))}
+  1060→  1060→            </div>
+  1061→  1061→          </div>
+  1062→  1062→          </div>
+  1063→  1063→        )}
+  1064→  1064→
+  1065→  1065→        {/* Settings Tab */}
+  1066→  1066→        {activeTab === 'settings' && (
+  1067→  1067→          <div 
+  1068→  1068→            className="settings-tab-scroll"
+  1069→  1069→            style={{
+  1070→  1070→              height: 'calc(100vh - 300px)',
+  1071→  1071→              overflowY: 'scroll',
+  1072→  1072→              overflowX: 'hidden',
+  1073→  1073→              paddingRight: '8px'
+  1074→  1074→            }}
+  1075→  1075→          >
+  1076→  1076→            <div className="space-y-5 pb-8">
+  1077→  1077→            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
+  1078→  1078→              <CardContent className="p-6 space-y-6">
+  1079→  1079→                <h3 className="font-semibold text-white flex items-center gap-2">
+  1080→  1080→                  <Settings className="w-5 h-5 text-cyan-400" />
+  1081→  1081→                  Account Settings
+  1082→  1082→                </h3>
+  1083→  1083→
+  1084→  1084→                <div className="space-y-4">
+  1085→  1085→                  {/* Notifications */}
+  1086→  1086→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1087→  1087→                    <div>
+  1088→  1088→                      <p className="text-white font-medium">Notifications</p>
+  1089→  1089→                      <p className="text-sm text-gray-400">Receive updates about your account</p>
+  1090→  1090→                    </div>
+  1091→  1091→                    <div className="w-12 h-6 bg-cyan-500 rounded-full relative cursor-pointer">
+  1092→  1092→                      <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" />
+  1093→  1093→                    </div>
+  1094→  1094→                  </div>
+  1095→  1095→
+  1096→  1096→                  {/* Data Export */}
+  1097→  1097→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1098→  1098→                    <div>
+  1099→  1099→                      <p className="text-white font-medium">Export Data</p>
+  1100→  1100→                      <p className="text-sm text-gray-400">Download all your chat history and data</p>
+  1101→  1101→                    </div>
+  1102→  1102→                    <Button
+  1103→  1103→                      variant="outline"
+  1104→  1104→                      size="sm"
+  1105→  1105→                      onClick={handleExportData}
+  1106→  1106→                      disabled={isExporting}
+  1107→  1107→                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+  1108→  1108→                    >
+  1109→  1109→                      {isExporting ? (
+  1110→  1110→                        <RefreshCw className="w-4 h-4 animate-spin" />
+  1111→  1111→                      ) : (
+  1112→  1112→                        <Download className="w-4 h-4" />
+  1113→  1113→                      )}
+  1114→  1114→                      {isExporting ? 'Exporting...' : 'Export'}
+  1115→  1115→                    </Button>
+  1116→  1116→                  </div>
+  1117→  1117→
+  1118→  1118→                  {/* Data Import */}
+  1119→  1119→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1120→  1120→                    <div>
+  1121→  1121→                      <p className="text-white font-medium">Import Data</p>
+  1122→  1122→                      <p className="text-sm text-gray-400">Restore data from backup file</p>
+  1123→  1123→                    </div>
+  1124→  1124→                    <div className="relative">
+  1125→  1125→                      <input
+  1126→  1126→                        ref={importInputRef}
+  1127→  1127→                        type="file"
+  1128→  1128→                        accept=".json"
+  1129→  1129→                        onChange={handleImportData}
+  1130→  1130→                        className="hidden"
+  1131→  1131→                      />
+  1132→  1132→                      <Button
+  1133→  1133→                        variant="outline"
+  1134→  1134→                        size="sm"
+  1135→  1135→                        onClick={() => importInputRef.current?.click()}
+  1136→  1136→                        disabled={isImporting}
+  1137→  1137→                        className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+  1138→  1138→                      >
+  1139→  1139→                        {isImporting ? (
+  1140→  1140→                          <RefreshCw className="w-4 h-4 animate-spin" />
+  1141→  1141→                        ) : (
+  1142→  1142→                          <Upload className="w-4 h-4" />
+  1143→  1143→                        )}
+  1144→  1144→                        {isImporting ? 'Importing...' : 'Import'}
+  1145→  1145→                      </Button>
+  1146→  1146→                    </div>
+  1147→  1147→                  </div>
+  1148→  1148→
+  1149→  1149→                  {/* Clear Cache */}
+  1150→  1150→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1151→  1151→                    <div>
+  1152→  1152→                      <p className="text-white font-medium">Clear Cache</p>
+  1153→  1153→                      <p className="text-sm text-gray-400">Clear local storage and cache</p>
+  1154→  1154→                    </div>
+  1155→  1155→                    <Button
+  1156→  1156→                      variant="outline"
+  1157→  1157→                      size="sm"
+  1158→  1158→                      onClick={() => {
+  1159→  1159→                        if (confirm('Clear all cache? This will not delete your account.')) {
+  1160→  1160→                          localStorage.clear()
+  1161→  1161→                          window.location.reload()
+  1162→  1162→                        }
+  1163→  1163→                      }}
+  1164→  1164→                      className="border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
+  1165→  1165→                    >
+  1166→  1166→                      Clear
+  1167→  1167→                    </Button>
+  1168→  1168→                  </div>
+  1169→  1169→
+  1170→  1170→                  {/* Email Verification */}
+  1171→  1171→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1172→  1172→                    <div>
+  1173→  1173→                      <p className="text-white font-medium flex items-center gap-2">
+  1174→  1174→                        Email Verification
+  1175→  1175→                        {emailVerified && (
+  1176→  1176→                          <ShieldCheck className="w-4 h-4 text-green-400" />
+  1177→  1177→                        )}
+  1178→  1178→                      </p>
+  1179→  1179→                      <p className="text-sm text-gray-400">
+  1180→  1180→                        {emailVerified ? 'Your email is verified' : 'Verify your email address'}
+  1181→  1181→                      </p>
+  1182→  1182→                    </div>
+  1183→  1183→                    <Button
+  1184→  1184→                      variant="outline"
+  1185→  1185→                      size="sm"
+  1186→  1186→                      onClick={handleSendVerification}
+  1187→  1187→                      disabled={isSendingVerification || emailVerified}
+  1188→  1188→                      className={emailVerified ? "border-green-500/30 text-green-400" : "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"}
+  1189→  1189→                    >
+  1190→  1190→                      {emailVerified ? (
+  1191→  1191→                        <>
+  1192→  1192→                          <CheckCircle className="w-4 h-4" />
+  1193→  1193→                          Verified
+  1194→  1194→                        </>
+  1195→  1195→                      ) : isSendingVerification ? (
+  1196→  1196→                        <RefreshCw className="w-4 h-4 animate-spin" />
+  1197→  1197→                      ) : (
+  1198→  1198→                        <>
+  1199→  1199→                          <Mail className="w-4 h-4" />
+  1200→  1200→                          Verify
+  1201→  1201→                        </>
+  1202→  1202→                      )}
+  1203→  1203→                    </Button>
+  1204→  1204→                  </div>
+  1205→  1205→
+  1206→  1206→                  {/* Password Reset */}
+  1207→  1207→                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+  1208→  1208→                    <div>
+  1209→  1209→                      <p className="text-white font-medium">Password</p>
+  1210→  1210→                      <p className="text-sm text-gray-400">Reset your password via email</p>
+  1211→  1211→                    </div>
+  1212→  1212→                    <Button
+  1213→  1213→                      variant="outline"
+  1214→  1214→                      size="sm"
+  1215→  1215→                      onClick={() => {
+  1216→  1216→                        // Open password reset modal or navigate
+  1217→  1217→                        const shouldReset = confirm('Send password reset link to ' + email + '?')
+  1218→  1218→                        if (shouldReset) {
+  1219→  1219→                          fetch('/api/auth/forgot-password', {
+  1220→  1220→                            method: 'POST',
+  1221→  1221→                            headers: { 'Content-Type': 'application/json' },
+  1222→  1222→                            body: JSON.stringify({ email })
+  1223→  1223→                          })
+  1224→  1224→                          .then(res => res.json())
+  1225→  1225→                          .then(data => {
+  1226→  1226→                            alert(data.message + (data.resetUrl ? '\n\nDev URL: ' + data.resetUrl : ''))
+  1227→  1227→                          })
+  1228→  1228→                          .catch(() => alert('Failed to send reset email'))
+  1229→  1229→                        }
+  1230→  1230→                      }}
+  1231→  1231→                      className="border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
+  1232→  1232→                    >
+  1233→  1233→                      <Key className="w-4 h-4 mr-1" />
+  1234→  1234→                      Reset
+  1235→  1235→                    </Button>
+  1236→  1236→                  </div>
+  1237→  1237→
+  1238→  1238→                  {/* Admin Dashboard - Only show for admins */}
+  1239→  1239→                  {isAdmin && (
+  1240→  1240→                    <div className="flex items-center justify-between p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg">
+  1241→  1241→                      <div>
+  1242→  1242→                        <p className="text-purple-400 font-medium flex items-center gap-2">
+  1243→  1243→                          <Database className="w-4 h-4" />
+  1244→  1244→                          Admin Dashboard
+  1245→  1245→                        </p>
+  1246→  1246→                        <p className="text-sm text-gray-400">Manage users, view stats & revenue</p>
+  1247→  1247→                      </div>
+  1248→  1248→                      <Button
+  1249→  1249→                        variant="outline"
+  1250→  1250→                        size="sm"
+  1251→  1251→                        onClick={() => router.push('/admin')}
+  1252→  1252→                        className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+  1253→  1253→                      >
+  1254→  1254→                        <ExternalLink className="w-4 h-4 mr-1" />
+  1255→  1255→                        Open
+  1256→  1256→                      </Button>
+  1257→  1257→                    </div>
+  1258→  1258→                  )}
+  1259→  1259→
+  1260→  1260→                  {/* Delete Account */}
+  1261→  1261→                  <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-lg">
+  1262→  1262→                    <div>
+  1263→  1263→                      <p className="text-red-400 font-medium">Delete Account</p>
+  1264→  1264→                      <p className="text-sm text-gray-400">Permanently delete your account and data</p>
+  1265→  1265→                    </div>
+  1266→  1266→                    <Button
+  1267→  1267→                      variant="outline"
+  1268→  1268→                      size="sm"
+  1269→  1269→                      onClick={() => {
+  1270→  1270→                        if (confirm('Are you sure? This action cannot be undone!')) {
+  1271→  1271→                          localStorage.clear()
+  1272→  1272→                          onLogout?.()
+  1273→  1273→                        }
+  1274→  1274→                      }}
+  1275→  1275→                      className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+  1276→  1276→                    >
+  1277→  1277→                      Delete
+  1278→  1278→                    </Button>
+  1279→  1279→                  </div>
+  1280→  1280→                </div>
+  1281→  1281→              </CardContent>
+  1282→  1282→            </Card>
+  1283→  1283→          </div>
+  1284→  1284→          </div>
+  1285→  1285→        )}
+  1286→  1286→      </div>
+  1287→  1287→      </div>
+  1288→  1288→    </div>
+  1289→  1289→  )
+  1290→  1290→}
+  1291→  1291→
+  1292→  1292→// Missing icon import
+  1293→  1293→function BarChart3(props: any) {
+  1294→  1294→  return (
+  1295→  1295→    <svg
+  1296→  1296→      xmlns="http://www.w3.org/2000/svg"
+  1297→  1297→      width="24"
+  1298→  1298→      height="24"
+  1299→  1299→      viewBox="0 0 24 24"
+  1300→  1300→      fill="none"
+  1301→  1301→      stroke="currentColor"
+  1302→  1302→      strokeWidth="2"
+  1303→  1303→      strokeLinecap="round"
+  1304→  1304→      strokeLinejoin="round"
+  1305→  1305→      {...props}
+  1306→  1306→    >
+  1307→  1307→      <path d="M3 3v18h18"/>
+  1308→  1308→      <path d="m19 9-5 5-4-4-3 3"/>
+  1309→  1309→    </svg>
+  1310→  1310→  )
+  1311→  1311→}
+  1312→  1312→
