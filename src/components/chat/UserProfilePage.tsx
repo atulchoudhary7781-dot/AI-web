@@ -570,14 +570,8 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
-    <div 
-      className="profile-page-container bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
-      style={{
-        minHeight: '100vh',
-        position: 'relative',
-        zIndex: 20
-      }}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+      
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
@@ -588,742 +582,623 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       )}
 
-      {/* ===== HEADER SECTION ===== */}
-      <div>
-        {/* Header Background */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10" />
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500 rounded-full filter blur-[120px]" />
+      {/* ===== HEADER NAVIGATION ===== */}
+      <header className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-xl border-b border-gray-800">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="font-medium">Back</span>
+            </button>
+            
+            <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              My Profile
+            </h1>
+            
+            {!isEditing ? (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                <Edit3 className="w-4 h-4" />
+                Edit
+              </button>
+            ) : (
+              <button
+                onClick={handleCancelEdit}
+                className="px-4 py-2 border border-gray-600 rounded-lg text-sm text-gray-300 hover:bg-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
           </div>
+        </div>
+      </header>
 
-          {/* Chat Limit Banner - Compact */}
-          {currentPlan === 'free' && (
-            <div className="relative bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-electric-blue/20 border-b border-neon-cyan/30 px-4 py-2">
-              <div className="max-w-6xl mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-neon-cyan animate-pulse" />
-                  <p className="text-xs font-medium text-neon-cyan">
-                    Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used · Resets in: <span className="font-mono">{chatResetTime}</span>
-                  </p>
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        
+        {/* Chat Limit Banner (Free users only) */}
+        {currentPlan === 'free' && (
+          <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-xl p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-cyan-400 animate-pulse" />
+                <span className="text-sm text-cyan-300">
+                  Daily Chat Limit: <strong>{chatCountToday}/{maxChatsForPlan}</strong> chats used
+                </span>
+              </div>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex-1 sm:w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all ${
+                      chatLimitPercentage >= 90 ? 'bg-red-500' : chatLimitPercentage >= 70 ? 'bg-yellow-500' : 'bg-gradient-to-r from-cyan-500 to-purple-500'
+                    }`}
+                    style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+                  />
                 </div>
-                <div className="hidden sm:flex items-center gap-2">
-                  <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full transition-all duration-500 ${
-                        chatLimitPercentage >= 90 ? 'bg-red-500' : chatLimitPercentage >= 70 ? 'bg-yellow-500' : 'bg-gradient-to-r from-cyan-500 to-violet-500'
-                      }`}
-                      style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-gray-400">Coming Soon</span>
-                </div>
+                <span className="text-xs text-gray-400">Resets: {chatResetTime}</span>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Navigation Bar - Perfectly Centered Title */}
-          <div className="relative max-w-6xl mx-auto px-4 md:px-8 py-4">
-            {/* Desktop: 3-column grid for perfect centering */}
-            <div className="hidden md:grid md:grid-cols-3 md:items-center md:gap-4">
-              {/* Left - Back Button */}
-              <div className="flex justify-start">
-                <button
-                  onClick={onBack}
-                  className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm"
-                >
-                  <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  <span>Back</span>
-                </button>
+        {/* ===== PROFILE CARD ===== */}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+            
+            {/* Avatar */}
+            <div className="relative group">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 p-1">
+                <div className="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                  {avatar ? (
+                    <img src={avatar} alt={name || 'User'} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-3xl md:text-4xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
+                  )}
+                </div>
               </div>
-
-              {/* Center - Title (Perfectly Centered) */}
-              <h1 className="text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)] text-center">
-                User Profile
-              </h1>
-
-              {/* Right - Edit Button */}
-              <div className="flex justify-end">
-                {!isEditing ? (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+              
+              {isEditing && (
+                <>
+                  <button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    Edit Profile
+                    <Camera className="w-8 h-8 text-white" />
                   </button>
-                ) : (
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                </>
+              )}
+              
+              <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-4 border-gray-900" />
+              
+              {isEditing && avatar && (
+                <button 
+                  onClick={handleRemoveAvatar} 
+                  className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              )}
+            </div>
+
+            {/* User Info */}
+            <div className="flex-1 text-center md:text-left space-y-3">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <input 
+                    type="text" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    placeholder="Enter your name" 
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                  />
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400">
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm">{email}</span>
+                    {emailVerified && <CheckCircle className="w-4 h-4 text-green-400" />}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white">{name || 'User'}</h2>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      currentPlan === 'pro' ? 'bg-yellow-500/20 text-yellow-400' :
+                      currentPlan === 'normal' ? 'bg-cyan-500/20 text-cyan-400' :
+                      'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      {currentPlan.toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400">
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm">{email}</span>
+                    {emailVerified ? (
+                      <span className="flex items-center gap-1 text-green-400 text-xs font-medium">
+                        <CheckCircle className="w-3.5 h-3.5" /> Verified
+                      </span>
+                    ) : (
+                      <button 
+                        onClick={handleSendVerification}
+                        className="text-yellow-400 text-xs hover:underline font-medium"
+                      >
+                        Verify Email →
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center md:items-start gap-3 pt-2">
+                {isEditing && (
                   <button
-                    onClick={handleCancelEdit}
-                    className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+                    onClick={handleSaveProfile}
+                    disabled={isLoading}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
-                    <X className="w-3.5 h-3.5" />
-                    Cancel
+                    {isLoading ? 'Saving...' : <><Save className="w-4 h-4 inline mr-2" /> Save Changes</>}
+                  </button>
+                )}
+                {onLogout && (
+                  <button
+                    onClick={onLogout}
+                    className="w-full sm:w-auto px-6 py-2.5 border border-red-500/30 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 inline mr-2" /> Logout
                   </button>
                 )}
               </div>
             </div>
-
-            {/* Mobile: Flex layout with centered title */}
-            <div className="md:hidden flex items-center justify-between relative">
-              <button
-                onClick={onBack}
-                className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm z-10"
-              >
-                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                <span>Back</span>
-              </button>
-
-              {/* Mobile Title - Absolutely Centered */}
-              <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)] whitespace-nowrap">
-                User Profile
-              </h1>
-
-              {!isEditing ? (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all z-10"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  Edit Profile
-                </button>
-              ) : (
-                <button
-                  onClick={handleCancelEdit}
-                  className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all z-10"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  Cancel
-                </button>
-              )}
-            </div>
           </div>
         </div>
 
-        {/* Profile Card - Compact */}
-        <div className="max-w-6xl mx-auto px-4 md:px-8 pb-4">
-          <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl overflow-hidden">
-            <CardContent className="p-5 md:p-8">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-8">
-                
-                {/* Avatar Section - Bigger on Desktop */}
-                <div className="relative group flex-shrink-0">
-                  <div className="relative w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
-                    <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
-                      {avatar ? (
-                        <img src={avatar} alt={name || 'User'} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/20 to-violet-600/20">
-                          <span className="text-2xl md:text-3xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {isEditing && (
-                    <>
-                      <button onClick={() => fileInputRef.current?.click()} className="absolute inset-0 w-20 h-20 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                        <Camera className="w-6 h-6 text-white" />
-                      </button>
-                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-                    </>
-                  )}
-                  <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900" />
-                  {isEditing && avatar && (
-                    <button onClick={handleRemoveAvatar} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
-                      <X className="w-2.5 h-2.5 text-white" />
-                    </button>
-                  )}
-                </div>
-
-                {/* User Info - Compact */}
-                <div className="flex-1 text-center sm:text-left">
-                  {isEditing ? (
-                    <div className="space-y-3">
-                      <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="w-full max-w-sm bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none" />
-                      <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-400 text-xs">
-                        <Mail className="w-3.5 h-3.5" />
-                        <span>{email}</span>
-                        {emailVerified && <CheckCircle className="w-3.5 h-3.5 text-green-400" />}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-center sm:justify-start gap-3">
-                        <h2 className="text-xl md:text-2xl font-bold text-white">{name || 'User'}</h2>
-                        <Badge variant="secondary" className={currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}>
-                          {currentPlan.toUpperCase()}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-400 text-sm">
-                        <Mail className="w-4 h-4" />
-                        <span>{email}</span>
-                        {emailVerified ? (
-                          <span className="flex items-center gap-1 text-green-400 text-xs"><CheckCircle className="w-3.5 h-3.5" /> VERIFIED</span>
-                        ) : (
-                          <span className="text-yellow-400 text-xs cursor-pointer hover:underline" onClick={handleSendVerification}>Verify Email</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons - Compact */}
-                <div className="flex flex-col gap-2">
-                  {isEditing && (
-                    <Button onClick={handleSaveProfile} disabled={isLoading} size="sm" className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 text-xs">
-                      {isLoading ? 'Saving...' : <><Save className="w-3.5 h-3.5 mr-1" /> Save</>}
-                    </Button>
-                  )}
-                  {onLogout && (
-                    <Button variant="outline" size="sm" onClick={onLogout} className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs">
-                      <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <div key={index} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
+              <stat.icon className={`w-6 h-6 mx-auto mb-2 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`} />
+              <p className="text-lg md:text-xl font-bold text-white">{stat.value}</p>
+              <p className="text-xs text-gray-400 mt-1">{stat.label}</p>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* ===== CONTENT SECTION ===== */}
-      <div>
-      {/* Tabs & Content */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 pb-12">
-        {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
+        {/* ===== TABS NAVIGATION ===== */}
+        <div className="flex gap-2 p-1 bg-gray-900/50 rounded-xl border border-gray-800">
           {[
-            { id: 'profile', label: 'Profile Info', icon: User },
+            { id: 'profile', label: 'Personal Info', icon: User },
             { id: 'subscription', label: 'Subscription', icon: CreditCard },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg'
                   : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
               }`}
             >
               <tab.icon className="w-4 h-4" />
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
         </div>
 
-        {/* Profile Info Tab */}
+        {/* ===== TAB CONTENT ===== */}
+        
+        {/* Personal Info Tab */}
         {activeTab === 'profile' && (
-          <div 
-            className="profile-info-tab-scroll"
-          >
-            <div className="grid md:grid-cols-2 gap-6 pb-8">
-            {/* Bio Card */}
-            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
-              <CardContent className="p-6 space-y-4">
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              
+              {/* Bio Card */}
+              <div className="md:col-span-2 bg-gray-900/50 border border-gray-800 rounded-xl p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-cyan-400" />
-                  <h3 className="font-semibold text-white">About Me</h3>
+                  <h3 className="font-semibold text-white text-lg">About Me</h3>
                 </div>
-                
                 {isEditing ? (
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Tell us about yourself..."
                     rows={4}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none resize-none transition-all"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none resize-none transition-all"
                   />
                 ) : (
-                  <p className="text-gray-400 leading-relaxed">
-                    {bio || 'No bio added yet. Click edit to add your bio!'}
+                  <p className="text-gray-300 leading-relaxed">
+                    {bio || <span className="text-gray-500 italic">No bio added yet. Click edit to add your bio!</span>}
                   </p>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Contact Info Card */}
-            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
-              <CardContent className="p-6 space-y-4">
+              {/* Contact Information */}
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <User className="w-5 h-5 text-violet-400" />
-                  <h3 className="font-semibold text-white">Contact Information</h3>
+                  <User className="w-5 h-5 text-purple-400" />
+                  <h3 className="font-semibold text-white text-lg">Contact Info</h3>
                 </div>
 
-                <div className="space-y-4">
-                  {/* Phone */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-blue-400" />
-                    </div>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="Phone number"
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
-                        />
-                      ) : (
-                        <div>
-                          <p className="text-xs text-gray-500">Phone</p>
-                          <p className="text-sm text-gray-300">{phone || 'Not added'}</p>
-                        </div>
-                      )}
-                    </div>
+                {/* Phone */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-4 h-4 text-blue-400" />
                   </div>
-
-                  {/* Location */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                      <MapPin className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          placeholder="Location"
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
-                        />
-                      ) : (
-                        <div>
-                          <p className="text-xs text-gray-500">Location</p>
-                          <p className="text-sm text-gray-300">{location || 'Not added'}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Website */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
-                      <Globe className="w-4 h-4 text-pink-400" />
-                    </div>
-                    <div className="flex-1">
-                      {isEditing ? (
-                        <input
-                          type="url"
-                          value={website}
-                          onChange={(e) => setWebsite(e.target.value)}
-                          placeholder="https://yourwebsite.com"
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none transition-all"
-                        />
-                      ) : (
-                        <div>
-                          <p className="text-xs text-gray-500">Website</p>
-                          {website ? (
-                            <a 
-                              href={website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
-                            >
-                              {website}
-                            </a>
-                          ) : (
-                            <p className="text-sm text-gray-300">Not added</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex-1">
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Phone number"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none"
+                      />
+                    ) : (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Phone</p>
+                        <p className="text-sm text-gray-300">{phone || <span className="text-gray-500">Not added</span>}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+
+                {/* Location */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Location"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none"
+                      />
+                    ) : (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Location</p>
+                        <p className="text-sm text-gray-300">{location || <span className="text-gray-500">Not added</span>}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Website */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center flex-shrink-0">
+                    <Globe className="w-4 h-4 text-pink-400" />
+                  </div>
+                  <div className="flex-1">
+                    {isEditing ? (
+                      <input
+                        type="url"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                        placeholder="https://yourwebsite.com"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none"
+                      />
+                    ) : (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Website</p>
+                        {website ? (
+                          <a href={website} target="_blank" rel="noopener noreferrer" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors break-all">
+                            {website}
+                          </a>
+                        ) : (
+                          <p className="text-sm text-gray-500">Not added</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
-          <div 
-            className="subscription-tab-scroll"
-          >
-            <div className="space-y-6 pb-8">
+          <div className="space-y-6">
+            
             {/* Current Plan Status */}
-            <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
-              <CardContent className="p-8 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-full mb-4">
-                  <Sparkles className="w-4 h-4 text-cyan-400" />
-                  <span className="text-sm text-gray-300">Current Plan</span>
-                </div>
-                <h2 className="text-3xl font-bold text-white mb-2">
-                  {currentPlan === 'pro' ? '👑 Pro' : currentPlan === 'normal' ? '⭐ Normal' : '🆓 Free'}
-                </h2>
-                <p className="text-gray-400 mb-6">
-                  {currentPlan === 'free' 
-                    ? `You have ${maxChatsForPlan - chatCountToday} chats remaining today`
-                    : 'Unlimited access to all features!'
-                  }
-                </p>
-                
-                {/* Free User Progress */}
-                {currentPlan === 'free' && (
-                  <div className="max-w-md mx-auto mb-6">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-400">Daily Usage</span>
-                      <span className="text-cyan-400">{chatCountToday}/{maxChatsForPlan} chats</span>
-                    </div>
-                    <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-500 ${
-                          chatLimitPercentage >= 90 
-                            ? 'bg-red-500' 
-                            : chatLimitPercentage >= 70 
-                              ? 'bg-yellow-500' 
-                              : 'bg-gradient-to-r from-cyan-500 to-violet-500'
-                        }`}
-                        style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs mt-2">
-                      <span className="text-gray-500">Resets at midnight</span>
-                      <span className="text-cyan-400">{chatResetTime}</span>
-                    </div>
+            <div className="bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-gray-800 rounded-2xl p-8 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-full mb-4">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <span className="text-sm text-gray-300">Current Plan</span>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-3">
+                {currentPlan === 'pro' ? '👑 Pro' : currentPlan === 'normal' ? '⭐ Normal' : '🆓 Free'}
+              </h2>
+              <p className="text-gray-400 mb-6">
+                {currentPlan === 'free' 
+                  ? `You have ${maxChatsForPlan - chatCountToday} chats remaining today`
+                  : 'Unlimited access to all features!'
+                }
+              </p>
+              
+              {/* Free User Progress */}
+              {currentPlan === 'free' && (
+                <div className="max-w-md mx-auto">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-400">Daily Usage</span>
+                    <span className="text-cyan-400 font-medium">{chatCountToday}/{maxChatsForPlan} chats</span>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <div className="w-full h-3 bg-gray-800 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all ${
+                        chatLimitPercentage >= 90 ? 'bg-red-500' : chatLimitPercentage >= 70 ? 'bg-yellow-500' : 'bg-gradient-to-r from-cyan-500 to-purple-500'
+                      }`}
+                      style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs mt-2 text-gray-500">
+                    <span>Resets at midnight</span>
+                    <span>{chatResetTime}</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Subscription Plans Grid */}
             <div className="grid md:grid-cols-3 gap-6">
               {SUBSCRIPTION_PLANS.map((plan) => (
-                <Card 
+                <div 
                   key={plan.id}
-                  className={`relative bg-gray-900/50 backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+                  className={`relative bg-gray-900/50 border rounded-2xl p-6 transition-all ${
                     (plan as any).locked 
-                      ? 'opacity-75 cursor-not-allowed border-yellow-500/30' 
+                      ? 'border-yellow-500/30 opacity-75' 
                       : currentPlan === plan.id 
-                        ? 'border-2 border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
+                        ? 'border-cyan-500 shadow-lg shadow-cyan-500/20 scale-105' 
                         : 'border-gray-800 hover:border-gray-700'
-                  } ${(plan as any).popular && !(plan as any).locked ? 'md:-mt-4 md:mb-[-16px]' : ''}`}
+                  }`}
                 >
-                  {/* Locked Badge */}
                   {(plan as any).locked && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
-                      <Lock className="w-3 h-3" />
-                      COMING SOON
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-500 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1">
+                      <Lock className="w-3 h-3" /> COMING SOON
                     </div>
                   )}
                   
                   {plan.popular && !(plan as any).locked && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-cyan-500 to-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-cyan-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
                       POPULAR
                     </div>
                   )}
                   
-                  <CardContent className="p-6">
-                    <div className="text-center mb-6">
-                      <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-3 ${
-                        (plan as any).locked ? 'grayscale opacity-60' : ''
-                      }`}>
-                        {plan.id === 'pro' ? (
-                          <Crown className="w-6 h-6 text-white" />
-                        ) : plan.id === 'normal' ? (
-                          <Star className="w-6 h-6 text-white" />
-                        ) : (
-                          <User className="w-6 h-6 text-white" />
-                        )}
-                      </div>
-                      <h3 className={`text-xl font-bold ${plan.color} ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>{plan.name}</h3>
-                      <div className="mt-2">
-                        <span className={`text-3xl font-bold text-white ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>${plan.price}</span>
-                        <span className="text-gray-400">/{plan.period}</span>
-                      </div>
+                  <div className="text-center mb-6">
+                    <div className={`w-14 h-14 mx-auto rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-4 ${(plan as any).locked ? 'grayscale opacity-60' : ''}`}>
+                      {plan.id === 'pro' ? <Crown className="w-7 h-7 text-white" /> : plan.id === 'normal' ? <Star className="w-7 h-7 text-white" /> : <User className="w-7 h-7 text-white" />}
                     </div>
+                    <h3 className={`text-xl font-bold ${plan.color} ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>{plan.name}</h3>
+                    <div className="mt-2">
+                      <span className={`text-3xl font-bold text-white ${(plan as any).locked ? 'line-through opacity-60' : ''}`}>${plan.price}</span>
+                      <span className="text-gray-400">/{plan.period}</span>
+                    </div>
+                  </div>
 
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className={`flex items-start gap-2 text-sm ${
-                          (plan as any).locked ? 'opacity-50' : ''
-                        }`}>
-                          <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
-                            currentPlan === plan.id ? 'text-cyan-400' : 'text-gray-500'
-                          }`} />
-                          <span className={currentPlan === plan.id ? 'text-gray-200' : 'text-gray-400'}>
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className={`flex items-start gap-2 text-sm ${(plan as any).locked ? 'opacity-50' : ''}`}>
+                        <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${currentPlan === plan.id ? 'text-cyan-400' : 'text-gray-500'}`} />
+                        <span className={currentPlan === plan.id ? 'text-gray-200' : 'text-gray-400'}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                    {(plan as any).locked ? (
-                      <div className="w-full">
-                        <Button
-                          variant="locked"
-                          disabled={true}
-                          className="w-full"
-                        >
-                          <Lock className="w-4 h-4 mr-2" />
-                          Coming Soon with Subscription
-                        </Button>
-                        <p className="text-xs text-center text-yellow-400 mt-2 flex items-center justify-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          Subscription feature coming soon!
-                        </p>
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={() => handleSubscriptionChange(plan.id)}
-                        disabled={currentPlan === plan.id || isLoading}
-                        className={`w-full ${
-                          currentPlan === plan.id
-                            ? 'bg-gray-700 text-gray-300 cursor-not-allowed'
-                            : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
-                        } transition-all`}
-                      >
-                        {currentPlan === plan.id ? (
-                          <>
-                            <Check className="w-4 h-4 mr-2" />
-                            Current Plan
-                          </>
-                        ) : plan.price === 0 ? (
-                          'Downgrade to Free'
-                        ) : (
-                          <>
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            Upgrade to {plan.name}
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
+                  {(plan as any).locked ? (
+                    <button disabled className="w-full py-3 bg-gray-800 text-gray-500 rounded-xl font-medium cursor-not-allowed flex items-center justify-center gap-2">
+                      <Lock className="w-4 h-4" /> Coming Soon
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleSubscriptionChange(plan.id)}
+                      disabled={currentPlan === plan.id || isLoading}
+                      className={`w-full py-3 rounded-xl font-medium transition-all ${
+                        currentPlan === plan.id
+                          ? 'bg-gray-800 text-gray-400 cursor-not-allowed'
+                          : `bg-gradient-to-r ${plan.gradient} hover:shadow-lg hover:opacity-90`
+                      }`}
+                    >
+                      {currentPlan === plan.id ? (
+                        <><Check className="w-4 h-4 inline mr-2" /> Current Plan</>
+                      ) : plan.price === 0 ? (
+                        'Downgrade to Free'
+                      ) : (
+                        <><CreditCard className="w-4 h-4 inline mr-2" /> Upgrade to {plan.name}</>
+                      )}
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
-          </div>
           </div>
         )}
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div 
-            className="settings-tab-scroll"
-          >
-            <div className="space-y-5 pb-8">
-            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
-              <CardContent className="p-6 space-y-6">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-cyan-400" />
-                  Account Settings
-                </h3>
+          <div className="space-y-4">
+            
+            {/* Account Settings */}
+            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6">
+              <h3 className="font-semibold text-white text-lg mb-6 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-cyan-400" />
+                Account Settings
+              </h3>
 
-                <div className="space-y-4">
-                  {/* Notifications */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">Notifications</p>
-                      <p className="text-sm text-gray-400">Receive updates about your account</p>
-                    </div>
-                    <div className="w-12 h-6 bg-cyan-500 rounded-full relative cursor-pointer">
-                      <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" />
-                    </div>
+              <div className="space-y-4">
+                {/* Notifications Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                  <div>
+                    <p className="text-white font-medium">Notifications</p>
+                    <p className="text-sm text-gray-400">Receive updates about your account</p>
                   </div>
-
-                  {/* Data Export */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">Export Data</p>
-                      <p className="text-sm text-gray-400">Download all your chat history and data</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleExportData}
-                      disabled={isExporting}
-                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
-                    >
-                      {isExporting ? (
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Download className="w-4 h-4" />
-                      )}
-                      {isExporting ? 'Exporting...' : 'Export'}
-                    </Button>
-                  </div>
-
-                  {/* Data Import */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">Import Data</p>
-                      <p className="text-sm text-gray-400">Restore data from backup file</p>
-                    </div>
-                    <div className="relative">
-                      <input
-                        ref={importInputRef}
-                        type="file"
-                        accept=".json"
-                        onChange={handleImportData}
-                        className="hidden"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => importInputRef.current?.click()}
-                        disabled={isImporting}
-                        className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
-                      >
-                        {isImporting ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Upload className="w-4 h-4" />
-                        )}
-                        {isImporting ? 'Importing...' : 'Import'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Clear Cache */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">Clear Cache</p>
-                      <p className="text-sm text-gray-400">Clear local storage and cache</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm('Clear all cache? This will not delete your account.')) {
-                          localStorage.clear()
-                          window.location.reload()
-                        }
-                      }}
-                      className="border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
-                    >
-                      Clear
-                    </Button>
-                  </div>
-
-                  {/* Email Verification */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium flex items-center gap-2">
-                        Email Verification
-                        {emailVerified && (
-                          <ShieldCheck className="w-4 h-4 text-green-400" />
-                        )}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {emailVerified ? 'Your email is verified' : 'Verify your email address'}
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSendVerification}
-                      disabled={isSendingVerification || emailVerified}
-                      className={emailVerified ? "border-green-500/30 text-green-400" : "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"}
-                    >
-                      {emailVerified ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          Verified
-                        </>
-                      ) : isSendingVerification ? (
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <>
-                          <Mail className="w-4 h-4" />
-                          Verify
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Password Reset */}
-                  <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">Password</p>
-                      <p className="text-sm text-gray-400">Reset your password via email</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        // Open password reset modal or navigate
-                        const shouldReset = confirm('Send password reset link to ' + email + '?')
-                        if (shouldReset) {
-                          fetch('/api/auth/forgot-password', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email })
-                          })
-                          .then(res => res.json())
-                          .then(data => {
-                            alert(data.message + (data.resetUrl ? '\n\nDev URL: ' + data.resetUrl : ''))
-                          })
-                          .catch(() => alert('Failed to send reset email'))
-                        }
-                      }}
-                      className="border-neon-cyan/30 text-neon-cyan hover:bg-neon-cyan/10"
-                    >
-                      <Key className="w-4 h-4 mr-1" />
-                      Reset
-                    </Button>
-                  </div>
-
-                  {/* Admin Dashboard - Only show for admins */}
-                  {isAdmin && (
-                    <div className="flex items-center justify-between p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg">
-                      <div>
-                        <p className="text-purple-400 font-medium flex items-center gap-2">
-                          <Database className="w-4 h-4" />
-                          Admin Dashboard
-                        </p>
-                        <p className="text-sm text-gray-400">Manage users, view stats & revenue</p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push('/admin')}
-                        className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-1" />
-                        Open
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Delete Account */}
-                  <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-lg">
-                    <div>
-                      <p className="text-red-400 font-medium">Delete Account</p>
-                      <p className="text-sm text-gray-400">Permanently delete your account and data</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm('Are you sure? This action cannot be undone!')) {
-                          localStorage.clear()
-                          onLogout?.()
-                        }
-                      }}
-                      className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                    >
-                      Delete
-                    </Button>
+                  <div className="w-12 h-6 bg-cyan-500 rounded-full relative cursor-pointer">
+                    <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+
+                {/* Export Data */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                  <div>
+                    <p className="text-white font-medium">Export Data</p>
+                    <p className="text-sm text-gray-400">Download all your data</p>
+                  </div>
+                  <button
+                    onClick={handleExportData}
+                    disabled={isExporting}
+                    className="px-4 py-2 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors text-sm"
+                  >
+                    {isExporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Download className="w-4 h-4 inline mr-2" /> Export</>}
+                  </button>
+                </div>
+
+                {/* Import Data */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                  <div>
+                    <p className="text-white font-medium">Import Data</p>
+                    <p className="text-sm text-gray-400">Restore from backup</p>
+                  </div>
+                  <div className="relative">
+                    <input ref={importInputRef} type="file" accept=".json" onChange={handleImportData} className="hidden" />
+                    <button
+                      onClick={() => importInputRef.current?.click()}
+                      disabled={isImporting}
+                      className="px-4 py-2 border border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors text-sm"
+                    >
+                      {isImporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Upload className="w-4 h-4 inline mr-2" /> Import</>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Clear Cache */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                  <div>
+                    <p className="text-white font-medium">Clear Cache</p>
+                    <p className="text-sm text-gray-400">Clear local storage</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (confirm('Clear all cache?')) {
+                        localStorage.clear()
+                        window.location.reload()
+                      }
+                    }}
+                    className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors text-sm"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {/* Email Verification */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                  <div>
+                    <p className="text-white font-medium flex items-center gap-2">
+                      Email Verification
+                      {emailVerified && <ShieldCheck className="w-4 h-4 text-green-400" />}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {emailVerified ? 'Your email is verified' : 'Verify your email address'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleSendVerification}
+                    disabled={isSendingVerification || emailVerified}
+                    className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+                      emailVerified 
+                        ? 'border border-green-500/30 text-green-400' 
+                        : 'border border-blue-500/30 text-blue-400 hover:bg-blue-500/10'
+                    }`}
+                  >
+                    {emailVerified ? <><CheckCircle className="w-4 h-4 inline mr-2" /> Verified</> : isSendingVerification ? 'Sending...' : 'Verify'}
+                  </button>
+                </div>
+
+                {/* Password Reset */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+                  <div>
+                    <p className="text-white font-medium">Password</p>
+                    <p className="text-sm text-gray-400">Reset your password</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (confirm('Send password reset link to ' + email + '?')) {
+                        fetch('/api/auth/forgot-password', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email })
+                        })
+                        .then(res => res.json())
+                        .then(data => alert(data.message))
+                        .catch(() => alert('Failed to send reset email'))
+                      }
+                    }}
+                    className="px-4 py-2 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors text-sm"
+                  >
+                    <Key className="w-4 h-4 inline mr-2" /> Reset
+                  </button>
+                </div>
+
+                {/* Admin Dashboard (Admin only) */}
+                {isAdmin && (
+                  <div className="flex items-center justify-between p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg">
+                    <div>
+                      <p className="text-purple-400 font-medium flex items-center gap-2">
+                        <Database className="w-4 h-4" /> Admin Dashboard
+                      </p>
+                      <p className="text-sm text-gray-400">Manage users & view stats</p>
+                    </div>
+                    <button
+                      onClick={() => router.push('/admin')}
+                      className="px-4 py-2 border border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors text-sm"
+                    >
+                      <ExternalLink className="w-4 h-4 inline mr-2" /> Open
+                    </button>
+                  </div>
+                )}
+
+                {/* Delete Account */}
+                <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-lg">
+                  <div>
+                    <p className="text-red-400 font-medium">Delete Account</p>
+                    <p className="text-sm text-gray-400">Permanently delete account & data</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (confirm('Are you sure? This cannot be undone!')) {
+                        localStorage.clear()
+                        onLogout?.()
+                      }
+                    }}
+                    className="px-4 py-2 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/10 transition-colors text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
-      </div>
-      </div>
+      </main>
 
-      {/* ===== FOOTER SECTION ===== */}
-      <div className="border-t border-gray-800 bg-gray-900/30 backdrop-blur-xl mt-8">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* Brand Section */}
+      {/* ===== FOOTER ===== */}
+      <footer className="border-t border-gray-800 bg-gray-900/30 mt-12">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Brand */}
             <div>
-              <h3 className="text-lg font-bold gradient-text mb-2">Nexus AI</h3>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-3">
+                Nexus AI
+              </h3>
               <p className="text-sm text-gray-400 leading-relaxed">
                 Your intelligent AI assistant for productivity, creativity, and seamless communication.
               </p>
@@ -1331,7 +1206,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-3">Quick Links</h4>
+              <h4 className="text-sm font-semibold text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li><a href="/dashboard" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</a></li>
                 <li><a href="/pricing" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Pricing Plans</a></li>
@@ -1340,46 +1215,44 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               </ul>
             </div>
 
-            {/* Contact/Status */}
+            {/* Account Status */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-3">Account Status</h4>
-              <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-white mb-4">Account Status</h4>
+              <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
-                  <span className="text-xs text-gray-400">Email: {emailVerified ? 'Verified' : 'Not Verified'}</span>
+                  <span className="text-sm text-gray-400">Email: {emailVerified ? 'Verified' : 'Not Verified'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Crown className={`w-4 h-4 ${currentPlan === 'pro' ? 'text-yellow-400' : currentPlan === 'normal' ? 'text-cyan-400' : 'text-gray-500'}`} />
-                  <span className="text-xs text-gray-400">Plan: {currentPlan.toUpperCase()}</span>
+                  <span className="text-sm text-gray-400">Plan: {currentPlan.toUpperCase()}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-violet-400" />
-                  <span className="text-xs text-gray-400">Member since: {new Date().toLocaleDateString()}</span>
+                  <Calendar className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm text-gray-400">Member since: {new Date().toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-gray-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-500">
+          <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} Nexus AI. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5 text-xs text-gray-500">
+              <span className="flex items-center gap-2 text-sm text-gray-500">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 System Online
               </span>
-              <span className="text-xs text-gray-600">v2.0.1</span>
+              <span className="text-sm text-gray-600">v2.0.1</span>
             </div>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }
-
-// Missing icon import
 function BarChart3(props: any) {
   return (
     <svg
