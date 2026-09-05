@@ -739,9 +739,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       </div>
 
       {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-      {/* Tabs & Content */}
-      <div className="max-w-4xl mx-auto px-4 pb-12">
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+      {/* Tabs & Content - Must fill remaining space */}
+      <div className="max-w-4xl mx-auto px-4 pb-6 flex-1 flex flex-col overflow-hidden">
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
@@ -767,11 +767,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Profile Info Tab */}
         {activeTab === 'profile' && (
           <div 
-            className="profile-info-tab-scroll"
+            className="profile-info-tab-scroll flex-1 overflow-y-auto"
             style={{
-              height: 'calc(100vh - 300px)',
-              overflowY: 'scroll',
-              overflowX: 'hidden',
+              minHeight: '400px',
               paddingRight: '8px'
             }}
           >
@@ -898,11 +896,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
           <div 
-            className="subscription-tab-scroll"
+            className="subscription-tab-scroll flex-1 overflow-y-auto"
             style={{
-              height: 'calc(100vh - 300px)',
-              overflowY: 'scroll',
-              overflowX: 'hidden',
+              minHeight: '400px',
               paddingRight: '8px'
             }}
           >
@@ -1065,11 +1061,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div 
-            className="settings-tab-scroll"
+            className="settings-tab-scroll flex-1 overflow-y-auto"
             style={{
-              height: 'calc(100vh - 300px)',
-              overflowY: 'scroll',
-              overflowX: 'hidden',
+              minHeight: '400px',
               paddingRight: '8px'
             }}
           >
