@@ -782,6 +782,13 @@ body {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
+
+  /* Fix profile page stuck issue - override body position:fixed */
+  .profile-page-container {
+    position: relative !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+  }
 }
 
 /* Input focus state on mobile - prevent zoom */
