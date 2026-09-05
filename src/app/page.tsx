@@ -5,7 +5,7 @@ import {
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
   Cpu, Globe, Rocket, Star, Layers, Command, Shield,
   TrendingUp, Users, Eye, Heart, ArrowRight, Send,
-  Menu, X, ChevronLeft, Plus, LogIn, LogOut
+  Menu, X, ChevronLeft, Plus, LogIn, LogOut, Crown, CheckCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -954,6 +954,81 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                     Free to Use
                   </div>
                 </div>
+              </div>
+
+              {/* 🔥 CREATOR BADGE - Built by User 🔥 */}
+              <div className="mt-12 max-w-2xl mx-auto">
+                <div 
+                  className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-red-500/10 to-purple-500/10 p-1"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(239, 68, 68, 0.15), rgba(168, 85, 247, 0.15))',
+                    boxShadow: '0 0 40px rgba(251, 191, 36, 0.2), 0 0 80px rgba(168, 85, 247, 0.1)'
+                  }}
+                >
+                  <div className="bg-black/60 backdrop-blur-xl rounded-xl p-6 md:p-8">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      {/* Avatar with Glow */}
+                      <div className="relative flex-shrink-0">
+                        <div 
+                          className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 animate-spin-slow opacity-75 blur-sm"
+                          style={{ animation: 'spin 3s linear infinite' }}
+                        />
+                        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center border-4 border-black/50">
+                          <span className="text-2xl md:text-3xl font-bold text-white">
+                            {user?.name ? user.name.charAt(0).toUpperCase() : 'N'}
+                          </span>
+                        </div>
+                        {/* Verified Badge */}
+                        <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-black flex items-center justify-center shadow-lg shadow-green-500/50">
+                          <CheckCircle size={14} className="text-white" strokeWidth={3} />
+                        </div>
+                      </div>
+
+                      {/* Creator Info */}
+                      <div className="text-center md:text-left flex-1">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/20 to-red-500/20 border border-yellow-500/40 mb-3">
+                          <Heart size={14} className="text-red-500 animate-pulse" />
+                          <span className="text-xs font-bold text-yellow-400 tracking-wider">BUILT WITH ❤️ BY</span>
+                          <Crown size={14} className="text-yellow-400" />
+                        </div>
+                        
+                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                          {user?.name || 'The Creator'} 👨‍💻
+                        </h3>
+                        
+                        <p className="text-cyan-400 font-semibold text-sm mb-3">
+                          Founder & Developer of Nexus AI
+                        </p>
+                        
+                        <p className="text-gray-400 text-sm leading-relaxed max-w-md">
+                          ✨ Built this AI platform with a mission to democratize technology for everyone, everywhere.
+                          <br />
+                          🌍 Serving users worldwide with cutting-edge AI capabilities.
+                        </p>
+
+                        {/* Stats Mini */}
+                        <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
+                          {[
+                            { label: 'Users', value: '10K+', icon: Globe, color: 'text-cyan-400' },
+                            { label: 'Countries', value: '150+', icon: Star, color: 'text-purple-400' },
+                            { label: 'AI Models', value: '50+', icon: Sparkles, color: 'text-pink-400' }
+                          ].map((stat, idx) => (
+                            <div key={idx} className="text-center">
+                              <stat.icon size={14} className={`mx-auto ${stat.color}`} />
+                              <div className="text-xs font-bold text-white">{stat.value}</div>
+                              <div className="text-[10px] text-gray-500">{stat.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Tagline below badge */}
+                <p className="text-center mt-4 text-sm font-semibold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  ⚡ Nexus AI — Crafted by {user?.name || 'Innovation'}, Used by the World 🌍
+                </p>
               </div>
             </section>
 
