@@ -570,7 +570,15 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
-    <div className="profile-page-container min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
+    <div 
+      className="profile-page-container bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white"
+      style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}
+    >
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
@@ -738,11 +746,16 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       </div>
 
-      {/* ===== CONTENT SECTION ===== */}
+      {/* ===== CONTENT SECTION (Scrollable) ===== */}
       <div 
-        className="max-w-4xl mx-auto px-4 pb-8"
-        style={{ minHeight: 'calc(100vh - 380px)' }}
+        style={{
+          flex: 1,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
       >
+      <div className="max-w-4xl mx-auto px-4 pb-6" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
@@ -770,9 +783,10 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div 
             className="profile-info-tab-scroll"
             style={{
-              overflowY: 'auto',
+              flex: 1,
+              overflowY: 'scroll',
               overflowX: 'hidden',
-              paddingRight: '8px'
+              paddingRight: '12px'
             }}
           >
             <div className="grid md:grid-cols-2 gap-6 pb-8">
@@ -900,9 +914,10 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div 
             className="subscription-tab-scroll"
             style={{
-              overflowY: 'auto',
+              flex: 1,
+              overflowY: 'scroll',
               overflowX: 'hidden',
-              paddingRight: '8px'
+              paddingRight: '12px'
             }}
           >
             <div className="space-y-6 pb-8">
@@ -1066,9 +1081,10 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div 
             className="settings-tab-scroll"
             style={{
-              overflowY: 'auto',
+              flex: 1,
+              overflowY: 'scroll',
               overflowX: 'hidden',
-              paddingRight: '8px'
+              paddingRight: '12px'
             }}
           >
             <div className="space-y-5 pb-8">
@@ -1281,6 +1297,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   )
