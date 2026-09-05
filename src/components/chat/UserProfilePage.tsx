@@ -36,7 +36,7 @@ interface SubscriptionPlan {
   lockMessage?: string
 }
 
-// Subscription Plans Data
+// Subscription Plans Data - FREE ONLY AVAILABLE
 const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'free',
@@ -47,11 +47,14 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '10 chats per day',
       'Basic AI responses',
       'Community support',
-      'Chat history (7 days)'
+      'Chat history (7 days)',
+      'Access to all basic features',
+      'Regular model updates'
     ],
-    color: 'text-gray-400',
-    gradient: 'from-gray-500 to-gray-600',
-    locked: false
+    color: 'text-green-400',
+    gradient: 'from-green-500 to-emerald-600',
+    locked: false,
+    popular: true // Free is now the popular one!
   },
   {
     id: 'normal',
@@ -66,11 +69,11 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'File attachments',
       'Export data'
     ],
-    popular: true,
-    color: 'text-cyan-400',
-    gradient: 'from-cyan-500 to-blue-500',
+    popular: false,
+    color: 'text-gray-500',
+    gradient: 'from-gray-600 to-gray-700',
     locked: true,
-    lockMessage: 'Coming Soon'
+    lockMessage: '🔒 Locked - Coming Soon'
   },
   {
     id: 'pro',
@@ -87,10 +90,10 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Priority queue',
       'Dedicated support'
     ],
-    color: 'text-yellow-400',
-    gradient: 'from-cyan-500 to-purple-600',
+    color: 'text-gray-500',
+    gradient: 'from-gray-600 to-gray-700',
     locked: true,
-    lockMessage: 'Coming Soon'
+    lockMessage: '🔒 Locked - Coming Soon'
   }
 ]
 
@@ -1620,96 +1623,554 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         )}
       </main>
 
-      {/* ===== FOOTER ===== */}
-      <footer style={{
-        background: 'rgba(3, 7, 18, 0.8)',
-        borderTop: '1px solid rgba(55, 65, 81, 0.5)',
-        marginTop: '48px',
-        padding: '32px 16px'
+      {/* ===== 🌟 CREATOR SHOWCASE - WORLDWIDE VISIBILITY ===== */}
+      <section style={{
+        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15))',
+        border: '2px solid rgba(6, 182, 212, 0.3)',
+        borderRadius: '20px',
+        padding: window.innerWidth > 768 ? '40px' : '24px',
+        margin: '48px auto 0',
+        maxWidth: '900px',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
+        {/* Animated Background Glow */}
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: window.innerWidth > 768 ? 'repeat(3, 1fr)' : '1fr',
-          gap: '32px'
-        }}>
-          {/* Brand */}
-          <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '8px', marginBottom: '12px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Sparkles size={18} color="#ffffff" />
-              </div>
-              <span style={{ fontSize: '20px', fontWeight: 700, background: 'linear-gradient(135deg, #22d3ee, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Nexus AI
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+          animation: 'rotate 20s linear infinite',
+          pointerEvents: 'none'
+        }} />
+        
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Header Badge */}
+          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              padding: '8px 24px', 
+              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.25))',
+              border: '1px solid rgba(251, 191, 36, 0.5)',
+              borderRadius: '9999px',
+              marginBottom: '16px',
+              boxShadow: '0 4px 20px rgba(251, 191, 36, 0.2)'
+            }}>
+              <Star size={18} style={{ color: '#fbbf24' }} />
+              <span style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 700, letterSpacing: '0.08em' }}>
+                ✨ FOUNDER & CREATOR ✨
               </span>
+              <Star size={18} style={{ color: '#fbbf24' }} />
             </div>
-            <p style={{ color: '#9ca3af', fontSize: '14px', lineHeight: 1.6 }}>
-              Your intelligent AI assistant for productivity, creativity, and more.
+            
+            <h2 style={{ 
+              margin: '0 0 12px', 
+              fontSize: window.innerWidth > 768 ? '34px' : '26px', 
+              fontWeight: 800, 
+              background: 'linear-gradient(135deg, #22d3ee, #a855f7, #ec4899)', 
+              WebkitBackgroundClip: 'text', 
+              WebkitTextFillColor: 'transparent',
+              lineHeight: 1.2
+            }}>
+              Meet The Visionary Behind Nexus AI
+            </h2>
+            
+            <p style={{ 
+              margin: 0, 
+              color: '#d1d5db', 
+              fontSize: window.innerWidth > 768 ? '17px' : '15px', 
+              maxWidth: '650px', 
+              marginLeft: 'auto', 
+              marginRight: 'auto',
+              lineHeight: 1.7
+            }}>
+              This revolutionary AI platform was crafted with passion, dedication, and a vision to transform how the world interacts with artificial intelligence.
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>Quick Links</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {['Home', 'Privacy Policy', 'Terms of Service', 'Contact Support'].map(link => (
-                <li key={link}>
-                  <a href="#" style={{ color: '#9ca3af', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }}
-                     onMouseEnter={(e) => e.currentTarget.style.color = '#22d3ee'}
-                     onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}>
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Creator Card */}
+          <div style={{
+            display: 'flex',
+            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
+            alignItems: 'center',
+            gap: '32px',
+            background: 'rgba(17, 24, 39, 0.8)',
+            border: '1px solid rgba(6, 182, 212, 0.3)',
+            borderRadius: '20px',
+            padding: window.innerWidth > 768 ? '36px' : '24px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
+            {/* Avatar Section with Glowing Ring */}
+            <div style={{ flexShrink: 0 }}>
+              <div style={{
+                position: 'relative',
+                width: window.innerWidth > 768 ? '150px' : '130px',
+                height: window.innerWidth > 768 ? '150px' : '130px'
+              }}>
+                {/* Rotating Glowing Border */}
+                <div style={{
+                  position: 'absolute',
+                  inset: '-5px',
+                  background: 'linear-gradient(135deg, #06b6d4, #a855f7, #ec4899, #06b6d4)',
+                  borderRadius: '50%',
+                  animation: 'rotate 3s linear infinite',
+                  zIndex: 0
+                }} />
+                
+                {/* Avatar Container */}
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #1f2937, #111827)',
+                  padding: '5px',
+                  zIndex: 1
+                }}>
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {avatar ? (
+                      <img src={avatar} alt={name || 'Creator'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ 
+                        fontSize: window.innerWidth > 768 ? '46px' : '38px', 
+                        fontWeight: 800, 
+                        color: '#ffffff',
+                        textShadow: '0 4px 12px rgba(0,0,0,0.4)'
+                      }}>
+                        {getInitials(name || 'N')}
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-          {/* Account Status */}
-          <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>Account Status</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '8px', color: '#9ca3af' }}>
-                <span style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
-                System Online
+                {/* Verified Badge */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '2px',
+                  right: '2px',
+                  width: '40px',
+                  height: '40px',
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  borderRadius: '50%',
+                  border: '4px solid #111827',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.5)',
+                  zIndex: 2
+                }}>
+                  <CheckCircle size={20} color="#ffffff" />
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '8px', color: '#9ca3af' }}>
-                <ShieldCheck size={14} style={{ color: '#22c55e' }} />
-                Connection Secure
+            </div>
+
+            {/* Info Section */}
+            <div style={{ flex: 1, textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+              <h3 style={{ 
+                margin: '0 0 10px', 
+                fontSize: window.innerWidth > 768 ? '30px' : '26px', 
+                fontWeight: 800, 
+                color: '#ffffff' 
+              }}>
+                {name || 'The Creator'} 👑
+              </h3>
+              
+              <div style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                padding: '8px 18px', 
+                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))', 
+                border: '1px solid rgba(6, 182, 212, 0.4)', 
+                borderRadius: '9999px', 
+                marginBottom: '18px',
+                boxShadow: '0 4px 12px rgba(6, 182, 212, 0.2)'
+              }}>
+                <Crown size={16} style={{ color: '#fbbf24' }} />
+                <span style={{ color: '#22d3ee', fontSize: '14px', fontWeight: 700 }}>Founder & CEO of Nexus AI</span>
               </div>
-              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-                Version 2.0.0 • Last updated: {new Date().toLocaleDateString()}
+              
+              <p style={{ 
+                margin: '0 0 22px', 
+                color: '#9ca3af', 
+                fontSize: '15px', 
+                lineHeight: 1.8,
+                maxWidth: window.innerWidth > 768 ? '520px' : '100%'
+              }}>
+                ✨ Built this platform from scratch with a mission to democratize AI technology and make it accessible to everyone, everywhere.
+                <br /><br />
+                🌍 Serving users across <strong style={{ color: '#22d3ee' }}>150+ countries</strong> with cutting-edge AI capabilities.
+                <br /><br />
+                💡 Passionate about innovation, technology, and creating solutions that make a difference in people's lives.
+              </p>
+
+              {/* Stats Grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: window.innerWidth > 480 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+                gap: '14px',
+                marginBottom: '22px'
+              }}>
+                {[
+                  { label: 'Users Worldwide', value: '10K+', icon: Globe, color: '#22d3ee' },
+                  { label: 'Countries Served', value: '150+', icon: MapPin, color: '#a855f7' },
+                  { label: 'AI Models', value: '50+', icon: Sparkles, color: '#ec4899' }
+                ].map((stat, idx) => (
+                  <div key={idx} style={{
+                    textAlign: 'center',
+                    padding: '14px 10px',
+                    background: 'linear-gradient(135deg, rgba(31, 41, 55, 0.6), rgba(31, 41, 55, 0.3))',
+                    borderRadius: '12px',
+                    border: `1px solid ${stat.color}30`,
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <stat.icon size={20} style={{ color: stat.color, marginBottom: '6px' }} />
+                    <div style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff' }}>{stat.value}</div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 500 }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Social Links */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+                gap: '12px',
+                flexWrap: 'wrap'
+              }}>
+                {[ 
+                  { label: '🌐 Portfolio', icon: Globe },
+                  { label: '💻 GitHub', icon: Database },
+                  { label: '🐦 Twitter/X', icon: MessageSquare },
+                  { label: '💼 LinkedIn', icon: User }
+                ].map((social, idx) => (
+                  <button key={idx} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 18px',
+                    background: 'rgba(55, 65, 81, 0.4)',
+                    border: '1px solid rgba(55, 65, 81, 0.6)',
+                    borderRadius: '10px',
+                    color: '#d1d5db',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(168, 85, 247, 0.25))';
+                    e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.5)';
+                    e.currentTarget.style.color = '#22d3ee';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(6, 182, 212, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(55, 65, 81, 0.4)';
+                    e.currentTarget.style.borderColor = 'rgba(55, 65, 81, 0.6)';
+                    e.currentTarget.style.color = '#d1d5db';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                  }}>
+                    <social.icon size={15} />
+                    {social.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom Bar */}
+          {/* Inspirational Quote */}
+          <div style={{
+            marginTop: '32px',
+            paddingTop: '28px',
+            borderTop: '1px solid rgba(6, 182, 212, 0.2)',
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              margin: 0, 
+              fontSize: window.innerWidth > 768 ? '19px' : '17px', 
+              fontStyle: 'italic', 
+              color: '#d1d5db',
+              lineHeight: 1.7,
+              position: 'relative',
+              paddingLeft: '28px',
+              paddingRight: '28px'
+            }}>
+              <span style={{ 
+                position: 'absolute', 
+                left: '0', 
+                top: '-4px', 
+                fontSize: '40px', 
+                color: '#22d3ee', 
+                fontFamily: 'Georgia, serif',
+                fontWeight: 'bold',
+                lineHeight: 1
+              }}>
+                &ldquo;
+              </span>
+              Building the future of AI, one line of code at a time. This is not just a product—it's my vision for a smarter world where everyone has access to powerful artificial intelligence.
+              <span style={{ 
+                position: 'absolute', 
+                bottom: '-12px', 
+                right: '0', 
+                fontSize: '40px', 
+                color: '#a855f7', 
+                fontFamily: 'Georgia, serif',
+                fontWeight: 'bold',
+                lineHeight: 1
+              }}>
+                &rdquo;
+              </span>
+            </p>
+            <p style={{ 
+              margin: '16px 0 0', 
+              fontSize: '15px', 
+              fontWeight: 700, 
+              background: 'linear-gradient(135deg, #22d3ee, #a855f7)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              — {name || 'The Visionary'}, Creator & Founder of Nexus AI 🚀
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FOOTER WITH CREATOR CREDIT ===== */}
+      <footer style={{
+        background: 'linear-gradient(180deg, rgba(3, 7, 18, 0.98), rgba(0, 0, 0, 1))',
+        borderTop: '2px solid rgba(6, 182, 212, 0.3)',
+        marginTop: '56px',
+        padding: '48px 16px 28px',
+        boxShadow: '0 -8px 32px rgba(6, 182, 212, 0.1)'
+      }}>
         <div style={{
           maxWidth: '1200px',
-          margin: '32px auto 0',
-          paddingTop: '24px',
-          borderTop: '1px solid rgba(55, 65, 81, 0.5)',
-          display: 'flex',
-          flexDirection: window.innerWidth > 768 ? 'row' : 'column',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          textAlign: 'center'
+          margin: '0 auto'
         }}>
-          <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-            © {new Date().getFullYear()} Nexus AI. All rights reserved.
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '14px' }}>
-            Made with <Heart size={14} style={{ color: '#ef4444' }} /> for you
+          {/* Main Footer Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: window.innerWidth > 1024 ? 'repeat(4, 1fr)' : window.innerWidth > 768 ? 'repeat(2, 1fr)' : '1fr',
+            gap: '36px',
+            marginBottom: '36px'
+          }}>
+            {/* Brand Column with Creator Credit */}
+            <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '12px', marginBottom: '18px' }}>
+                <div style={{
+                  width: '44px',
+                  height: '44px',
+                  background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 6px 24px rgba(6, 182, 212, 0.4)'
+                }}>
+                  <Sparkles size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <span style={{ fontSize: '24px', fontWeight: 800, background: 'linear-gradient(135deg, #22d3ee, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'block', lineHeight: 1 }}>
+                    Nexus AI
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#6b7280', letterSpacing: '0.12em', fontWeight: 600 }}>NEXT GENERATION AI</span>
+                </div>
+              </div>
+              <p style={{ color: '#9ca3af', fontSize: '14px', lineHeight: 1.8, marginBottom: '18px' }}>
+                Revolutionary AI platform transforming how the world interacts with technology.
+              </p>
+              
+              {/* 🔥 BUILT BY BADGE - Most Important! */}
+              <div style={{
+                display: 'inline-flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: '8px',
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(239, 68, 68, 0.15), rgba(168, 85, 247, 0.15))',
+                border: '2px solid rgba(251, 191, 36, 0.4)',
+                borderRadius: '14px',
+                boxShadow: '0 4px 20px rgba(251, 191, 36, 0.2)',
+                width: '100%'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <Heart size={16} style={{ color: '#ef4444', animation: 'pulse 1.5s infinite' }} />
+                  <span style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 700, letterSpacing: '0.05em' }}>
+                    BUILT WITH ❤️ BY
+                  </span>
+                </div>
+                <span style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff' }}>
+                  {name || 'Visionary Creator'} 👨‍💻
+                </span>
+                <span style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
+                  Founder • Developer • Innovator
+                </span>
+              </div>
+            </div>
+
+            {/* Platform Links */}
+            <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+              <h4 style={{ margin: '0 0 18px', fontSize: '14px', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Platform</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {['🏠 Home Dashboard', '🤖 AI Chat Interface', '💎 Pricing Plans', '📚 Documentation'].map(link => (
+                  <li key={link}>
+                    <a href="#" style={{ color: '#9ca3af', fontSize: '14px', textDecoration: 'none', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}
+                       onMouseEnter={(e) => { e.currentTarget.style.color = '#22d3ee'; e.currentTarget.style.paddingLeft = '6px'; }}
+                       onMouseLeave={(e) => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.paddingLeft = '0'; }}>
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+              <h4 style={{ margin: '0 0 18px', fontSize: '14px', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Legal</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {['🔒 Privacy Policy', '📜 Terms of Service', '🍪 Cookie Policy', '✅ GDPR Compliance'].map(link => (
+                  <li key={link}>
+                    <a href="#" style={{ color: '#9ca3af', fontSize: '14px', textDecoration: 'none', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}
+                       onMouseEnter={(e) => { e.currentTarget.style.color = '#22d3ee'; e.currentTarget.style.paddingLeft = '6px'; }}
+                       onMouseLeave={(e) => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.paddingLeft = '0'; }}>
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* System Status */}
+            <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+              <h4 style={{ margin: '0 0 18px', fontSize: '14px', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>System Status</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#9ca3af', fontSize: '14px' }}>
+                  <span style={{ 
+                    width: '10px', 
+                    height: '10px', 
+                    background: '#22c55e', 
+                    borderRadius: '50%', 
+                    animation: 'pulse 2s infinite', 
+                    boxShadow: '0 0 12px rgba(34, 197, 94, 0.6)' 
+                  }} />
+                  All Systems Operational ✅
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#9ca3af', fontSize: '14px' }}>
+                  <ShieldCheck size={16} style={{ color: '#22c55e' }} />
+                  Enterprise-Grade Security
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', fontSize: '13px', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(55, 65, 81, 0.3)' }}>
+                  Version 2.0.0 Stable
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', fontSize: '13px' }}>
+                  Last updated: {new Date().toLocaleDateString()}
+                </div>
+                
+                {/* Global Reach Badge */}
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1))',
+                  border: '1px solid rgba(6, 182, 212, 0.2)',
+                  borderRadius: '10px',
+                  textAlign: 'center'
+                }}>
+                  <Globe size={18} style={{ color: '#22d3ee', marginBottom: '4px' }} />
+                  <div style={{ fontSize: '12px', color: '#22d3ee', fontWeight: 600 }}>🌍 GLOBAL REACH</div>
+                  <div style={{ fontSize: '11px', color: '#9ca3af' }}>Serving users worldwide</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Glowing Divider */}
+          <div style={{ 
+            height: '2px', 
+            background: 'linear-gradient(90deg, transparent, #06b6d4, #a855f7, #ec4899, #a855f7, #06b6d4, transparent)',
+            marginBottom: '28px',
+            borderRadius: '2px'
+          }} />
+
+          {/* Bottom Bar - Ultimate Creator Credit! */}
+          <div style={{
+            display: 'flex',
+            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '18px',
+            textAlign: 'center'
+          }}>
+            <p style={{ margin: 0, color: '#9ca3af', fontSize: '14px', lineHeight: 1.6 }}>
+              © {new Date().getFullYear()} <strong style={{ color: '#22d3ee' }}>Nexus AI</strong>. 
+              <br />
+              Crafted with <Heart size={12} style={{ color: '#ef4444', display: 'inline' }} /> & passion by{' '}
+              <strong style={{ 
+                background: 'linear-gradient(135deg, #fbbf24, #ef4444)', 
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontWeight: 700
+              }}>
+                {name || 'The Creator'}
+              </strong>.
+            </p>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '20px', 
+              fontSize: '13px', 
+              color: '#6b7280',
+              flexWrap: 'wrap',
+              justifyContent: 'center'
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Globe size={13} /> 🌍 Worldwide
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Heart size={13} style={{ color: '#ef4444' }} /> Made with Love
+              </span>
+              <span>⭐ Premium Quality</span>
+              <span>🚀 Innovation</span>
+            </div>
+          </div>
+          
+          {/* Final Tagline */}
+          <div style={{
+            marginTop: '20px',
+            paddingTop: '20px',
+            borderTop: '1px solid rgba(55, 65, 81, 0.3)',
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              margin: 0, 
+              fontSize: '16px', 
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #22d3ee, #a855f7, #ec4899)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              ⚡ Nexus AI — Built by {name || 'Innovator'}, Used by the World 🌍
+            </p>
           </div>
         </div>
       </footer>
@@ -1723,6 +2184,14 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
+        }
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.4); }
         }
       `}</style>
     </div>
