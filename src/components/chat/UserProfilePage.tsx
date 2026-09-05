@@ -8,12 +8,9 @@ import {
   Calendar, MessageSquare, Settings, LogOut,
   ChevronLeft, Shield, Award, Zap, Upload,
   Download, Crown, Star, Clock, RefreshCw,
-  Image as ImageIcon, CreditCard, Check, AlertCircle,
+  CreditCard, Check, AlertCircle,
   Lock, Key, ShieldCheck, ExternalLink, Database, Heart
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 
 // Types
 interface UserProfileProps {
@@ -73,7 +70,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     color: 'text-cyan-400',
     gradient: 'from-cyan-500 to-blue-500',
     locked: true,
-    lockMessage: 'Coming Soon with Subscription'
+    lockMessage: 'Coming Soon'
   },
   {
     id: 'pro',
@@ -91,9 +88,9 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Dedicated support'
     ],
     color: 'text-yellow-400',
-    gradient: 'from-neon-cyan to-neon-purple',
+    gradient: 'from-cyan-500 to-purple-600',
     locked: true,
-    lockMessage: 'Coming Soon with Subscription'
+    lockMessage: 'Coming Soon'
   }
 ]
 
@@ -117,30 +114,23 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
   const [chatCountToday, setChatCountToday] = useState(0)
   const [maxChatsForPlan, setMaxChatsForPlan] = useState(10)
-  const [chatResetTime, setChatResetTime] = useState<string>('')
+  const [chatResetTime, setChatResetTime] = useState<string>('12:00 AM')
 
-  // Import/Export state
-  const [isImporting, setIsImporting] = useState(false)
+  // States for various actions
   const [isExporting, setIsExporting] = useState(false)
-
-  // Gmail sync state
+  const [isImporting, setIsImporting] = useState(false)
   const [isSyncingGmail, setIsSyncingGmail] = useState(false)
-
-  // Stripe/Email verification states
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
   const [isSendingVerification, setIsSendingVerification] = useState(false)
   const [emailVerified, setEmailVerified] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  
-  // Router for navigation
-  const router = useRouter()
 
-  // File input ref
+  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const importInputRef = useRef<HTMLInputElement>(null)
 
-  // Load user data from localStorage on mount
+  // Load data on mount
   useEffect(() => {
+    // Load user data
     const savedUser = localStorage.getItem('nexus_user')
     if (savedUser) {
       try {
@@ -153,7 +143,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       }
     }
 
-    // Load profile data if exists
+    // Load profile data
     const savedProfile = localStorage.getItem('nexus_profile')
     if (savedProfile) {
       try {
@@ -169,54 +159,32 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
 
     // Load subscription data
     loadSubscriptionData()
-
-    // Load chat count for today
     loadChatCountForToday()
 
-    // Check if email is verified (from localStorage or API)
+    // Load verification status
     const savedVerified = localStorage.getItem('nexus_email_verified')
     setEmailVerified(savedVerified === 'true')
 
-    // Check if user is admin
-    const savedRole = localStorage.getItem('nexus_user_role')
-    setIsAdmin(savedRole === 'admin')
-
-    // Check URL params for success/canceled from Stripe
+    // Check URL params
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('success') === 'true') {
       setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 5000)
-      // Clean URL
-      window.history.replaceState({}, '', window.location.pathname)
-    }
-    if (urlParams.get('verified') === 'true') {
-      setEmailVerified(true)
-      localStorage.setItem('nexus_email_verified', 'true')
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 5000)
+      setTimeout(() => setShowSuccess(false), 3000)
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [])
 
-  // Helper Functions
+  // Helper functions
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     })
   }
 
-  // Load subscription data from localStorage
   const loadSubscriptionData = () => {
     try {
       const savedSubscription = localStorage.getItem('nexus_subscription')
@@ -224,25 +192,16 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         const subscription = JSON.parse(savedSubscription)
         setCurrentPlan(subscription.plan || 'free')
       }
-
-      // Load chat count
+      
       const savedChatCount = localStorage.getItem('nexus_chat_count_today')
       if (savedChatCount) {
         setChatCountToday(parseInt(savedChatCount, 10))
       }
-
-      // Calculate reset time (midnight)
-      const now = new Date()
-      const tomorrow = new Date(now)
-      tomorrow.setDate(tomorrow.getDate() + 1)
-      tomorrow.setHours(0, 0, 0, 0)
-      setChatResetTime(tomorrow.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }))
     } catch (e) {
       console.error('Error loading subscription data:', e)
     }
   }
 
-  // Load chat count for today
   const loadChatCountForToday = () => {
     try {
       const savedDate = localStorage.getItem('nexus_chat_count_date')
@@ -252,26 +211,16 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         const count = localStorage.getItem('nexus_chat_count_today')
         setChatCountToday(count ? parseInt(count, 10) : 0)
       } else {
-        // New day, reset count
         localStorage.setItem('nexus_chat_count_date', today)
         localStorage.setItem('nexus_chat_count_today', '0')
         setChatCountToday(0)
-      }
-
-      // Set max chats based on plan
-      const savedPlan = localStorage.getItem('nexus_subscription')
-      if (savedPlan) {
-        const plan = JSON.parse(savedPlan)
-        if (plan.plan === 'pro') setMaxChatsForPlan(Infinity)
-        else if (plan.plan === 'normal') setMaxChatsForPlan(100)
-        else setMaxChatsForPlan(10)
       }
     } catch (e) {
       console.error('Error loading chat count:', e)
     }
   }
 
-  // Handle avatar upload
+  // Avatar upload handler
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
@@ -280,12 +229,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       reader.onloadend = () => {
         const result = reader.result as string
         setAvatar(result)
-        
-        // Update user state and localStorage
         const updatedUser = { ...user, avatar: result }
         setUser(updatedUser)
         localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
-        
         setIsLoading(false)
         setShowSuccess(true)
         setTimeout(() => setShowSuccess(false), 3000)
@@ -294,7 +240,6 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     }
   }
 
-  // Remove avatar
   const handleRemoveAvatar = () => {
     setAvatar('')
     const updatedUser = { ...user, avatar: undefined }
@@ -302,21 +247,15 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
   }
 
-  // Save profile changes
+  // Save profile
   const handleSaveProfile = async () => {
     setIsLoading(true)
+    await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    
-    // Update user object
     const updatedUser = { ...user, name, avatar }
     setUser(updatedUser)
-    
-    // Save to localStorage
     localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
     
-    // Save profile data
     const profileData = { bio, phone, location, website }
     localStorage.setItem('nexus_profile', JSON.stringify(profileData))
     
@@ -326,13 +265,11 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     setTimeout(() => setShowSuccess(false), 3000)
   }
 
-  // Cancel editing
   const handleCancelEdit = () => {
     setName(user.name || '')
     setAvatar(user.avatar || '')
     setIsEditing(false)
     
-    // Reload original values
     const savedProfile = localStorage.getItem('nexus_profile')
     if (savedProfile) {
       try {
@@ -341,46 +278,35 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         setPhone(profile.phone || '')
         setLocation(profile.location || '')
         setWebsite(profile.website || '')
-      } catch (e) {
-        console.error('Error parsing profile data:', e)
-      }
+      } catch (e) {}
     }
   }
 
-  // Handle subscription upgrade
+  // Upgrade plan
   const handleUpgrade = async (planId: string) => {
-    if (planId === 'free') return // Free plan can't upgrade to itself
+    if (planId === 'free') return
     setIsProcessingPayment(true)
-    
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    
-    // In real app, redirect to Stripe checkout
-    alert(`Redirecting to Stripe checkout for ${planId.toUpperCase()} plan...`)
-    
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    alert(`Redirecting to checkout for ${planId.toUpperCase()} plan...`)
     setIsProcessingPayment(false)
   }
 
-  // Export chat data
+  // Export data
   const handleExportData = async () => {
     setIsExporting(true)
-    
     try {
-      // Gather all user data
       const userData = {
         user: localStorage.getItem('nexus_user'),
         profile: localStorage.getItem('nexus_profile'),
-        subscription: localStorage.getItem('nexus_subscription'),
         chatHistory: localStorage.getItem('nexus_chat_history'),
         exportDate: new Date().toISOString()
       }
       
-      // Create and download file
       const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `nexus-ai-export-${new Date().toISOString().split('T')[0]}.json`
+      a.download = `nexus-export-${new Date().toISOString().split('T')[0]}.json`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -392,53 +318,39 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     }
-    
     setIsExporting(false)
   }
 
-  // Import chat data
+  // Import data
   const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     
     setIsImporting(true)
-    
     const reader = new FileReader()
     reader.onload = async (e) => {
       try {
         const data = JSON.parse(e.target?.result as string)
+        if (!data.user) throw new Error('Invalid format')
         
-        // Validate data structure
-        if (!data.user || !data.chatHistory) {
-          throw new Error('Invalid file format')
-        }
-        
-        // Import data
         if (data.user) localStorage.setItem('nexus_user', data.user)
         if (data.profile) localStorage.setItem('nexus_profile', data.profile)
-        if (data.subscription) localStorage.setItem('nexus_subscription', data.subscription)
         if (data.chatHistory) localStorage.setItem('nexus_chat_history', data.chatHistory)
         
-        // Reload page to reflect changes
         window.location.reload()
       } catch (error) {
         console.error('Import failed:', error)
         alert('Import failed. Please check the file format.')
       }
-      
       setIsImporting(false)
     }
-    
     reader.readAsText(file)
   }
 
-  // Sync Gmail
+  // Gmail sync
   const handleSyncGmail = async () => {
     setIsSyncingGmail(true)
-    
-    // Simulate Gmail sync
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-    
+    await new Promise(resolve => setTimeout(resolve, 3000))
     setIsSyncingGmail(false)
     setShowSuccess(true)
     setTimeout(() => setShowSuccess(false), 3000)
@@ -447,29 +359,21 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   // Send verification email
   const handleSendVerification = async () => {
     setIsSendingVerification(true)
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
+    await new Promise(resolve => setTimeout(resolve, 1500))
     setIsSendingVerification(false)
     alert('Verification email sent! Please check your inbox.')
   }
 
   // Delete account
   const handleDeleteAccount = () => {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      // Clear all data
+    if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
       localStorage.clear()
-      
-      // Logout and redirect
-      if (onLogout) {
-        onLogout()
-      }
+      if (onLogout) onLogout()
       router.push('/')
     }
   }
 
-  // Clear chat history
+  // Clear history
   const handleClearHistory = () => {
     if (confirm('Are you sure you want to clear all chat history?')) {
       localStorage.removeItem('nexus_chat_history')
@@ -478,315 +382,531 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     }
   }
 
-  // Calculate chat limit percentage
   const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #030712, #111827, #000000)',
+      color: '#ffffff',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
       
       {/* Success Toast */}
       {showSuccess && (
-        <div className="fixed top-4 right-4 z-[9999] animate-in slide-in-from-right duration-300">
-          <div className="bg-green-500/20 border border-green-500/30 backdrop-blur-xl rounded-xl px-6 py-4 flex items-center gap-3 shadow-lg shadow-green-500/20">
-            <CheckCircle className="w-5 h-5 text-green-400" />
-            <span className="text-green-300 font-medium">Action completed successfully!</span>
-          </div>
+        <div style={{
+          position: 'fixed',
+          top: '16px',
+          right: '16px',
+          zIndex: 9999,
+          background: 'rgba(34, 197, 94, 0.2)',
+          border: '1px solid rgba(34, 197, 94, 0.3)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '12px',
+          padding: '16px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 8px 32px rgba(34, 197, 94, 0.2)'
+        }}>
+          <CheckCircle size={20} className="text-green-400" />
+          <span style={{ color: '#86efac', fontWeight: 500 }}>Action completed successfully!</span>
         </div>
       )}
 
-      {/* ===== HEADER NAVIGATION ===== */}
-      <header className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-xl border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          {/* Desktop: 3-column grid for centered title */}
-          <div className="hidden md:grid md:grid-cols-3 items-center">
-            {/* Left: Back button */}
-            <div className="justify-self-start">
-              <button
-                onClick={onBack}
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-                <span className="font-medium">Back</span>
-              </button>
-            </div>
-            
-            {/* Center: Title */}
-            <div className="justify-self-center">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                My Profile
-              </h1>
-            </div>
-            
-            {/* Right: Edit/Cancel button */}
-            <div className="justify-self-end">
-              {!isEditing ? (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  Edit
-                </button>
-              ) : (
-                <button
-                  onClick={handleCancelEdit}
-                  className="px-4 py-2 border border-gray-600 rounded-lg text-sm text-gray-300 hover:bg-gray-800 transition-colors"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </div>
+      {/* ===== HEADER ===== */}
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        background: 'rgba(3, 7, 18, 0.95)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(55, 65, 81, 0.5)',
+        padding: '16px'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px'
+        }}>
+          {/* Back Button */}
+          <button
+            onClick={onBack}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: '#9ca3af',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 500,
+              padding: '8px 12px',
+              borderRadius: '8px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(75, 85, 99, 0.3)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.background = 'transparent' }}
+          >
+            <ChevronLeft size={18} />
+            <span>Back</span>
+          </button>
 
-          {/* Mobile: Flex layout */}
-          <div className="flex md:hidden items-center justify-between">
+          {/* Title - Centered */}
+          <h1 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #22d3ee, #a855f7)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            margin: 0,
+            position: window.innerWidth > 768 ? 'relative' : 'absolute',
+            left: window.innerWidth > 768 ? 'auto' : '50%',
+            transform: window.innerWidth > 768 ? 'none' : 'translateX(-50%)'
+          }}>
+            My Profile
+          </h1>
+
+          {/* Edit/Cancel Button */}
+          {!isEditing ? (
             <button
-              onClick={onBack}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              onClick={() => setIsEditing(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#000000',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="font-medium">Back</span>
+              <Edit3 size={16} />
+              <span>Edit</span>
             </button>
-            
-            <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent absolute left-1/2 transform -translate-x-1/2">
-              My Profile
-            </h1>
-            
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <Edit3 className="w-4 h-4" />
-                <span className="hidden sm:inline">Edit</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleCancelEdit}
-                className="px-3 py-1.5 border border-gray-600 rounded-lg text-sm text-gray-300 hover:bg-gray-800 transition-colors"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={handleCancelEdit}
+              style={{
+                padding: '8px 16px',
+                background: 'transparent',
+                border: '1px solid #4b5563',
+                borderRadius: '8px',
+                color: '#d1d5db',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(75, 85, 99, 0.3)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              Cancel
+            </button>
+          )}
         </div>
       </header>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8 pb-20">
+      <main style={{
+        maxWidth: '900px',
+        margin: '0 auto',
+        padding: '24px 16px',
+        paddingBottom: '80px'
+      }}>
         
-        {/* Chat Limit Banner (Free users only) */}
+        {/* Chat Limit Banner */}
         {currentPlan === 'free' && (
-          <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-xl p-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-cyan-400 animate-pulse" />
-                <span className="text-sm text-cyan-300">
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1))',
+            border: '1px solid rgba(6, 182, 212, 0.2)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '24px'
+          }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: window.innerWidth > 640 ? 'row' : 'column',
+              alignItems: window.innerWidth > 640 ? 'center' : 'flex-start',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={18} className="text-cyan-400" style={{ animation: 'pulse 2s infinite' }} />
+                <span style={{ color: '#67e8f9', fontSize: '14px' }}>
                   Daily Chat Limit: <strong>{chatCountToday}/{maxChatsForPlan}</strong> chats used
                 </span>
               </div>
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="flex-1 sm:w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full transition-all ${
-                      chatLimitPercentage >= 90 ? 'bg-red-500' : chatLimitPercentage >= 70 ? 'bg-yellow-500' : 'bg-gradient-to-r from-cyan-500 to-purple-500'
-                    }`}
-                    style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
-                  />
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px',
+                width: window.innerWidth > 640 ? 'auto' : '100%'
+              }}>
+                <div style={{ 
+                  flex: 1,
+                  height: '8px',
+                  background: '#1f2937',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  width: window.innerWidth > 640 ? '128px' : '100%'
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${Math.min(chatLimitPercentage, 100)}%`,
+                    background: chatLimitPercentage >= 90 ? '#ef4444' : chatLimitPercentage >= 70 ? '#eab308' : 'linear-gradient(90deg, #06b6d4, #a855f7)',
+                    transition: 'width 0.3s ease',
+                    borderRadius: '4px'
+                  }} />
                 </div>
-                <span className="text-xs text-gray-400">Resets: {chatResetTime}</span>
+                <span style={{ fontSize: '12px', color: '#9ca3af' }}>Resets: {chatResetTime}</span>
               </div>
             </div>
           </div>
         )}
 
         {/* ===== PROFILE CARD ===== */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div style={{
+          background: 'rgba(17, 24, 39, 0.6)',
+          border: '1px solid rgba(55, 65, 81, 0.5)',
+          borderRadius: '16px',
+          padding: window.innerWidth > 768 ? '32px' : '24px',
+          marginBottom: '24px'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
+            alignItems: window.innerWidth > 768 ? 'flex-start' : 'center',
+            gap: '24px',
+            textAlign: window.innerWidth > 768 ? 'left' : 'center'
+          }}>
             
-            {/* Avatar */}
-            <div className="relative group">
-              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 p-1">
-                <div className="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+            {/* Avatar Section */}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <div style={{
+                width: window.innerWidth > 768 ? '128px' : '96px',
+                height: window.innerWidth > 768 ? '128px' : '96px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                padding: '3px'
+              }}>
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  background: '#1f2937',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
                   {avatar ? (
-                    <img src={avatar} alt={name || 'User'} className="w-full h-full object-cover" />
+                    <img src={avatar} alt={name || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <span className="text-3xl md:text-4xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
+                    <span style={{ fontSize: window.innerWidth > 736 ? '32px' : '24px', fontWeight: 700, color: '#22d3ee' }}>
+                      {getInitials(name || 'U')}
+                    </span>
                   )}
                 </div>
               </div>
               
+              {/* Online Status */}
+              <span style={{
+                position: 'absolute',
+                bottom: '4px',
+                right: '4px',
+                width: '16px',
+                height: '16px',
+                backgroundColor: '#22c55e',
+                borderRadius: '50%',
+                border: '3px solid #111827'
+              }} />
+
+              {/* Edit Avatar Overlay */}
               {isEditing && (
                 <>
-                  <button 
-                    onClick={() => fileInputRef.current?.click()} 
-                    className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: window.innerWidth > 768 ? '128px' : '96px',
+                      height: window.innerWidth > 768 ? '128px' : '96px',
+                      borderRadius: '50%',
+                      background: 'rgba(0, 0, 0, 0.6)',
+                      opacity: 0,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'opacity 0.2s',
+                      border: 'none',
+                      padding: 0
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
                   >
-                    <Camera className="w-8 h-8 text-white" />
+                    <Camera size={28} color="white" />
                   </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
                 </>
               )}
-              
-              <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-4 border-gray-900" />
-              
+
+              {/* Remove Avatar Button */}
               {isEditing && avatar && (
-                <button 
-                  onClick={handleRemoveAvatar} 
-                  className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
+                <button
+                  onClick={handleRemoveAvatar}
+                  style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    right: '-8px',
+                    width: '28px',
+                    height: '28px',
+                    background: '#ef4444',
+                    borderRadius: '50%',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)'
+                  }}
                 >
-                  <X className="w-4 h-4 text-white" />
+                  <X size={14} color="white" />
                 </button>
               )}
             </div>
 
             {/* User Info */}
-            <div className="flex-1 text-center md:text-left space-y-3">
+            <div style={{ flex: 1 }}>
               {isEditing ? (
-                <div className="space-y-4">
-                  <input 
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    placeholder="Enter your name" 
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    style={{
+                      width: '100%',
+                      background: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      color: '#ffffff',
+                      fontSize: '16px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = '#06b6d4'; e.target.style.boxShadow = '0 0 0 3px rgba(6, 182, 212, 0.2)' }}
+                    onBlur={(e) => { e.target.style.borderColor = '#374151'; e.target.style.boxShadow = 'none' }}
                   />
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400">
-                    <Mail className="w-4 h-4" />
-                    <span className="text-sm">{email}</span>
-                    {emailVerified && <CheckCircle className="w-4 h-4 text-green-400" />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '14px' }}>
+                    <Mail size={16} />
+                    <span>{email}</span>
+                    {emailVerified && <CheckCircle size={16} className="text-green-400" />}
                   </div>
+                  
+                  {/* Additional Fields in Edit Mode */}
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: window.innerWidth > 640 ? 'repeat(3, 1fr)' : '1fr',
+                    gap: '12px',
+                    paddingTop: '16px',
+                    borderTop: '1px solid #374151'
+                  }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Bio</label>
+                      <textarea
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Tell us about yourself..."
+                        rows={2}
+                        style={{
+                          width: '100%',
+                          background: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          color: '#ffffff',
+                          fontSize: '14px',
+                          resize: 'none',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Phone</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+1 234 567 890"
+                        style={{
+                          width: '100%',
+                          background: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          color: '#ffffff',
+                          fontSize: '14px',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Location</label>
+                      <input
+                        type="text"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="City, Country"
+                        style={{
+                          width: '100%',
+                          background: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          padding: '8px 12px',
+                          color: '#ffffff',
+                          fontSize: '14px',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={isLoading}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '12px 24px',
+                      background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#000000',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      opacity: isLoading ? 0.7 : 1,
+                      alignSelf: 'flex-start'
+                    }}
+                  >
+                    {isLoading ? (
+                      <><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</>
+                    ) : (
+                      <><Save size={16} /> Save Changes</>
+                    )}
+                  </button>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">{name || 'User'}</h2>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      currentPlan === 'pro' ? 'bg-yellow-500/20 text-yellow-400' :
-                      currentPlan === 'normal' ? 'bg-cyan-500/20 text-cyan-400' :
-                      'bg-gray-500/20 text-gray-400'
-                    }`}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Name & Badge */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+                    gap: '12px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <h2 style={{ margin: 0, fontSize: window.innerWidth > 768 ? '28px' : '24px', fontWeight: 700, color: '#ffffff' }}>
+                      {name || 'User'}
+                    </h2>
+                    <span style={{
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      background: currentPlan === 'pro' ? 'rgba(234, 179, 8, 0.2)' : currentPlan === 'normal' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+                      color: currentPlan === 'pro' ? '#fbbf24' : currentPlan === 'normal' ? '#22d3ee' : '#9ca3af'
+                    }}>
                       {currentPlan.toUpperCase()}
                     </span>
                   </div>
                   
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400">
-                    <Mail className="w-4 h-4" />
-                    <span className="text-sm">{email}</span>
+                  {/* Email */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+                    gap: '8px', 
+                    color: '#9ca3af', 
+                    fontSize: '14px' 
+                  }}>
+                    <Mail size={16} />
+                    <span>{email}</span>
                     {emailVerified ? (
-                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <CheckCircle size={16} className="text-green-400" />
                     ) : (
-                      <button 
+                      <button
                         onClick={handleSendVerification}
                         disabled={isSendingVerification}
-                        className="text-xs text-cyan-400 hover:text-cyan-300 underline disabled:opacity-50"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#22d3ee',
+                          cursor: isSendingVerification ? 'not-allowed' : 'pointer',
+                          fontSize: '12px',
+                          textDecoration: 'underline',
+                          padding: 0
+                        }}
                       >
                         {isSendingVerification ? 'Sending...' : 'Verify'}
                       </button>
                     )}
                   </div>
 
+                  {/* Bio */}
                   {bio && (
-                    <p className="text-gray-300 text-sm mt-2 max-w-md mx-auto md:mx-0">{bio}</p>
+                    <p style={{ margin: '8px 0 0', color: '#d1d5db', fontSize: '14px', maxWidth: '400px' }}>
+                      {bio}
+                    </p>
                   )}
 
                   {/* Additional Info */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-gray-500 pt-2">
+                  <div style={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap',
+                    alignItems: 'center', 
+                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+                    gap: '16px', 
+                    fontSize: '12px', 
+                    color: '#6b7280',
+                    marginTop: '8px'
+                  }}>
                     {phone && (
-                      <span className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        {phone}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Phone size={12} /> {phone}
                       </span>
                     )}
                     {location && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {location}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <MapPin size={12} /> {location}
                       </span>
                     )}
                     {website && (
-                      <a href={website.startsWith('http') ? website : `https://${website}`} 
-                         target="_blank" 
-                         rel="noopener noreferrer"
-                         className="flex items-center gap-1 hover:text-cyan-400 transition-colors">
-                        <Globe className="w-3 h-3" />
-                        Website
+                      <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer"
+                         style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', textDecoration: 'none' }}
+                         onMouseEnter={(e) => e.currentTarget.style.color = '#22d3ee'}
+                         onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}>
+                        <Globe size={12} /> Website
                       </a>
                     )}
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      Joined {formatDate(new Date().toISOString())}
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar size={12} /> Joined {formatDate(new Date().toISOString())}
                     </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Editing: Additional Fields */}
-              {isEditing && (
-                <div className="space-y-3 pt-4 border-t border-gray-700">
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Bio</label>
-                    <textarea
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      placeholder="Tell us about yourself..."
-                      rows={3}
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-cyan-500 outline-none resize-none text-sm"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-xs text-gray-400 mb-1">Phone</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+1 234 567 890"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 outline-none text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-400 mb-1">Location</label>
-                      <input
-                        type="text"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="City, Country"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 outline-none text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-400 mb-1">Website</label>
-                      <input
-                        type="url"
-                        value={website}
-                        onChange={(e) => setWebsite(e.target.value)}
-                        placeholder="https://example.com"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 outline-none text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Save/Cancel Buttons */}
-                  <div className="flex items-center gap-3 pt-4">
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={isLoading}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-sm font-medium hover:opacity-90 transition-all disabled:opacity-50"
-                    >
-                      {isLoading ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4" />
-                          Save Changes
-                        </>
-                      )}
-                    </button>
                   </div>
                 </div>
               )}
@@ -795,253 +915,309 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
 
         {/* ===== TABS NAVIGATION ===== */}
-        <div className="flex items-center gap-2 p-1 bg-gray-900/50 rounded-xl border border-gray-800">
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'profile'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            Profile
-          </button>
-          <button
-            onClick={() => setActiveTab('subscription')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'subscription'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-            }`}
-          >
-            <Crown className="w-4 h-4" />
-            Subscription
-          </button>
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'settings'
-                ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            Settings
-          </button>
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          padding: '4px',
+          background: 'rgba(17, 24, 39, 0.6)',
+          border: '1px solid rgba(55, 65, 81, 0.5)',
+          borderRadius: '12px',
+          marginBottom: '24px'
+        }}>
+          {[
+            { id: 'profile' as const, label: 'Profile', icon: User },
+            { id: 'subscription' as const, label: 'Subscription', icon: Crown },
+            { id: 'settings' as const, label: 'Settings', icon: Settings }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px 16px',
+                background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))' : 'transparent',
+                border: activeTab === tab.id ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent',
+                borderRadius: '8px',
+                color: activeTab === tab.id ? '#22d3ee' : '#9ca3af',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'rgba(55, 65, 81, 0.3)' }}
+              onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'transparent' }}
+            >
+              <tab.icon size={16} />
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* ===== TAB CONTENT ===== */}
-        
-        {/* PROFILE TAB */}
+
+        {/* PROFILE TAB CONTENT */}
         {activeTab === 'profile' && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                <MessageSquare className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{chatCountToday}</div>
-                <div className="text-xs text-gray-400">Chats Today</div>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                <Calendar className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{currentPlan === 'free' ? '10' : '∞'}</div>
-                <div className="text-xs text-gray-400">Daily Limit</div>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                <Award className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{currentPlan.toUpperCase()}</div>
-                <div className="text-xs text-gray-400">Current Plan</div>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-                <ShieldCheck className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{emailVerified ? 'Yes' : 'No'}</div>
-                <div className="text-xs text-gray-400">Verified</div>
-              </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* Stats Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: window.innerWidth > 640 ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
+              gap: '16px'
+            }}>
+              {[
+                { icon: MessageSquare, value: chatCountToday.toString(), label: 'Chats Today', color: '#22d3ee' },
+                { icon: Calendar, value: currentPlan === 'free' ? '10' : '∞', label: 'Daily Limit', color: '#a855f7' },
+                { icon: Award, value: currentPlan.toUpperCase(), label: 'Current Plan', color: '#fbbf24' },
+                { icon: ShieldCheck, value: emailVerified ? 'Yes' : 'No', label: 'Verified', color: '#22c55e' }
+              ].map((stat, idx) => (
+                <div key={idx} style={{
+                  background: 'rgba(17, 24, 39, 0.6)',
+                  border: '1px solid rgba(55, 65, 81, 0.5)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  textAlign: 'center'
+                }}>
+                  <stat.icon size={24} style={{ color: stat.color, margin: '0 auto 8px' }} />
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>{stat.value}</div>
+                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>{stat.label}</div>
+                </div>
+              ))}
             </div>
 
             {/* Account Details */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Database className="w-5 h-5 text-cyan-400" />
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(55, 65, 81, 0.5)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Database size={20} style={{ color: '#22d3ee' }} />
                 Account Details
               </h3>
               
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400 text-sm">Account Status</span>
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400 text-sm">Member Since</span>
-                  <span className="text-white text-sm">{formatDate(new Date().toISOString())}</span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400 text-sm">Plan Type</span>
-                  <span className="text-white text-sm capitalize">{currentPlan}</span>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-gray-400 text-sm">Email Verified</span>
-                  <span className={`text-sm ${emailVerified ? 'text-green-400' : 'text-yellow-400'}`}>
-                    {emailVerified ? 'Verified' : 'Pending'}
-                  </span>
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { label: 'Account Status', value: 'Active', badge: true },
+                  { label: 'Member Since', value: formatDate(new Date().toISOString()), badge: false },
+                  { label: 'Plan Type', value: currentPlan, badge: false },
+                  { label: 'Email Verified', value: emailVerified ? 'Verified' : 'Pending', badge: false, highlight: !emailVerified }
+                ].map((item, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 0',
+                    borderBottom: idx < 3 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none'
+                  }}>
+                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>{item.label}</span>
+                    {item.badge ? (
+                      <span style={{
+                        padding: '4px 12px',
+                        background: 'rgba(34, 197, 94, 0.2)',
+                        color: '#4ade80',
+                        borderRadius: '9999px',
+                        fontSize: '12px',
+                        fontWeight: 600
+                      }}>
+                        {item.value}
+                      </span>
+                    ) : (
+                      <span style={{ color: item.highlight ? '#fbbf24' : '#ffffff', fontSize: '14px' }}>{item.value}</span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Zap className="w-5 h-5 text-purple-400" />
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(55, 65, 81, 0.5)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Zap size={20} style={{ color: '#a855f7' }} />
                 Quick Actions
               </h3>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setActiveTab('subscription')}
-                  className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors text-left group"
-                >
-                  <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-lg group-hover:from-cyan-500/30 group-hover:to-purple-500/30 transition-all">
-                    <Crown className="w-5 h-5 text-cyan-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">Upgrade Plan</div>
-                    <div className="text-xs text-gray-400">Unlock more features</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={handleExportData}
-                  disabled={isExporting}
-                  className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors text-left group disabled:opacity-50"
-                >
-                  <div className="p-2 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg group-hover:from-green-500/30 group-hover:to-emerald-500/30 transition-all">
-                    <Download className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">Export Data</div>
-                    <div className="text-xs text-gray-400">Download your chat history</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => importInputRef.current?.click()}
-                  disabled={isImporting}
-                  className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors text-left group disabled:opacity-50"
-                >
-                  <div className="p-2 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-lg group-hover:from-blue-500/30 group-hover:to-indigo-500/30 transition-all">
-                    <Upload className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">Import Data</div>
-                    <div className="text-xs text-gray-400">Restore from backup</div>
-                  </div>
-                </button>
-                <input ref={importInputRef} type="file" accept=".json" onChange={handleImportData} className="hidden" />
-
-                <button
-                  onClick={handleClearHistory}
-                  className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors text-left group"
-                >
-                  <div className="p-2 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-lg group-hover:from-red-500/30 group-hover:to-orange-500/30 transition-all">
-                    <RefreshCw className="w-5 h-5 text-red-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">Clear History</div>
-                    <div className="text-xs text-gray-400">Delete all chat data</div>
-                  </div>
-                </button>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: window.innerWidth > 640 ? 'repeat(2, 1fr)' : '1fr',
+                gap: '12px'
+              }}>
+                {[
+                  { icon: Crown, title: 'Upgrade Plan', desc: 'Unlock more features', action: () => setActiveTab('subscription'), color: '#22d3ee' },
+                  { icon: Download, title: 'Export Data', desc: 'Download your chat history', action: handleExportData, loading: isExporting, color: '#22c55e' },
+                  { icon: Upload, title: 'Import Data', desc: 'Restore from backup', action: () => importInputRef.current?.click(), loading: isImporting, color: '#3b82f6' },
+                  { icon: RefreshCw, title: 'Clear History', desc: 'Delete all chat data', action: handleClearHistory, color: '#ef4444' }
+                ].map((action, idx) => (
+                  <button
+                    key={idx}
+                    onClick={action.action}
+                    disabled={action.loading}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '16px',
+                      background: 'rgba(31, 41, 55, 0.5)',
+                      border: '1px solid rgba(55, 65, 81, 0.3)',
+                      borderRadius: '8px',
+                      cursor: action.loading ? 'not-allowed' : 'pointer',
+                      textAlign: 'left',
+                      transition: 'background 0.2s',
+                      opacity: action.loading ? 0.6 : 1
+                    }}
+                    onMouseEnter={(e) => { if (!action.loading) e.currentTarget.style.background = 'rgba(55, 65, 81, 0.5)' }}
+                    onMouseLeave={(e) => { if (!action.loading) e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)' }}
+                  >
+                    <div style={{
+                      padding: '8px',
+                      background: `${action.color}20`,
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <action.icon size={20} style={{ color: action.color }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>
+                        {action.title}
+                        {action.loading && <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite', marginLeft: '8px' }} />}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{action.desc}</div>
+                    </div>
+                  </button>
+                ))}
               </div>
+              <input ref={importInputRef} type="file" accept=".json" onChange={handleImportData} style={{ display: 'none' }} />
             </div>
           </div>
         )}
 
-        {/* SUBSCRIPTION TAB */}
+        {/* SUBSCRIPTION TAB CONTENT */}
         {activeTab === 'subscription' && (
-          <div className="space-y-6 animate-fade-in">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
             {/* Current Plan Status */}
-            <div className="bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/20 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Current Plan</h3>
-                <Badge className={
-                  currentPlan === 'pro' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                  currentPlan === 'normal' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
-                  'bg-gray-500/20 text-gray-400 border-gray-500/30'
-                }>
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1))',
+              border: '1px solid rgba(6, 182, 212, 0.2)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Current Plan</h3>
+                <span style={{
+                  padding: '4px 12px',
+                  background: currentPlan === 'pro' ? 'rgba(251, 191, 36, 0.2)' : currentPlan === 'normal' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+                  color: currentPlan === 'pro' ? '#fbbf24' : currentPlan === 'normal' ? '#22d3ee' : '#9ca3af',
+                  borderRadius: '9999px',
+                  fontSize: '12px',
+                  fontWeight: 600
+                }}>
                   {currentPlan.toUpperCase()}
-                </Badge>
+                </span>
               </div>
               
-              {currentPlan === 'free' && (
-                <div className="space-y-3">
-                  <p className="text-gray-300 text-sm">
+              {currentPlan === 'free' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <p style={{ margin: 0, color: '#d1d5db', fontSize: '14px' }}>
                     You're currently on the Free plan. Upgrade to unlock unlimited chats and premium features!
                   </p>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Clock className="w-4 h-4 text-cyan-400" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#9ca3af' }}>
+                    <Clock size={16} style={{ color: '#22d3ee' }} />
                     <span>{chatCountToday} of {maxChatsForPlan} chats used today</span>
                   </div>
                 </div>
-              )}
-              
-              {(currentPlan === 'normal' || currentPlan === 'pro') && (
-                <div className="space-y-3">
-                  <p className="text-gray-300 text-sm">
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <p style={{ margin: 0, color: '#d1d5db', fontSize: '14px' }}>
                     Enjoy your {currentPlan.toUpperCase()} benefits! Unlimited access to premium features.
                   </p>
-                  <div className="flex items-center gap-2 text-sm text-green-400">
-                    <CheckCircle className="w-4 h-4" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#22c55e' }}>
+                    <CheckCircle size={16} />
                     <span>Unlimited chats & premium features</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Available Plans */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Available Plans</h3>
+            {/* Plans Grid */}
+            <div>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Available Plans</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: window.innerWidth > 768 ? 'repeat(3, 1fr)' : '1fr',
+                gap: '16px'
+              }}>
                 {SUBSCRIPTION_PLANS.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={`relative bg-gray-900/50 border rounded-xl p-6 transition-all ${
-                      plan.popular
-                        ? 'border-cyan-500/50 ring-2 ring-cyan-500/20'
-                        : currentPlan === plan.id
-                        ? 'border-green-500/50'
-                        : 'border-gray-800 hover:border-gray-700'
-                    } ${plan.locked ? 'opacity-75' : ''}`}
-                  >
+                  <div key={plan.id} style={{
+                    position: 'relative',
+                    background: 'rgba(17, 24, 39, 0.6)',
+                    border: plan.popular ? '1px solid #22d3ee' : plan.locked ? '1px solid rgba(55, 65, 81, 0.5)' : currentPlan === plan.id ? '1px solid #22c55e' : '1px solid rgba(55, 65, 81, 0.5)',
+                    borderRadius: '12px',
+                    padding: '24px',
+                    opacity: plan.locked ? 0.8 : 1
+                  }}>
                     {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white border-0">
-                          Most Popular
-                        </Badge>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-12px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        padding: '4px 16px',
+                        background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                        borderRadius: '9999px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#000000'
+                      }}>
+                        Most Popular
                       </div>
                     )}
 
                     {currentPlan === plan.id && (
-                      <div className="absolute -top-3 right-4">
-                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                          Current
-                        </Badge>
+                      <div style={{
+                        position: 'absolute',
+                        top: '-12px',
+                        right: '-8px',
+                        padding: '4px 12px',
+                        background: 'rgba(34, 197, 94, 0.2)',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                        borderRadius: '9999px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#4ade80'
+                      }}>
+                        Current
                       </div>
                     )}
 
-                    <div className="text-center mb-4">
-                      <div className={`text-2xl font-bold ${plan.color}`}>{plan.name}</div>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold text-white">${plan.price}</span>
-                        <span className="text-gray-400 text-sm">/{plan.period}</span>
+                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: plan.color === 'text-gray-400' ? '#9ca3af' : plan.color === 'text-cyan-400' ? '#22d3ee' : '#fbbf24' }}>
+                        {plan.name}
+                      </div>
+                      <div style={{ marginTop: '12px' }}>
+                        <span style={{ fontSize: '32px', fontWeight: 700, color: '#ffffff' }}>${plan.price}</span>
+                        <span style={{ color: '#9ca3af', fontSize: '14px' }}>/{plan.period}</span>
                       </div>
                     </div>
 
-                    <ul className="space-y-2 mb-6">
+                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-300">{feature}</span>
+                        <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#d1d5db' }}>
+                          <Check size={16} style={{ color: '#22c55e', flexShrink: 0, marginTop: '2px' }} />
+                          <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -1049,15 +1225,39 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                     {plan.locked ? (
                       <button
                         disabled
-                        className="w-full py-2.5 bg-gray-800 text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed flex items-center justify-center gap-2"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#6b7280',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          cursor: 'not-allowed',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px'
+                        }}
                       >
-                        <Lock className="w-4 h-4" />
+                        <Lock size={16} />
                         {plan.lockMessage}
                       </button>
                     ) : currentPlan === plan.id ? (
                       <button
                         disabled
-                        className="w-full py-2.5 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium cursor-not-allowed"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'rgba(34, 197, 94, 0.2)',
+                          border: '1px solid rgba(34, 197, 94, 0.3)',
+                          borderRadius: '8px',
+                          color: '#4ade80',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          cursor: 'not-allowed'
+                        }}
                       >
                         Current Plan
                       </button>
@@ -1065,11 +1265,23 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                       <button
                         onClick={() => handleUpgrade(plan.id)}
                         disabled={isProcessingPayment}
-                        className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all disabled:opacity-50"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                          border: 'none',
+                          borderRadius: '8px',
+                          color: '#000000',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          cursor: isProcessingPayment ? 'not-allowed' : 'pointer',
+                          opacity: isProcessingPayment ? 0.7 : 1,
+                          transition: 'opacity 0.2s'
+                        }}
                       >
                         {isProcessingPayment ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
                             Processing...
                           </span>
                         ) : (
@@ -1083,232 +1295,324 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
             </div>
 
             {/* Billing Info */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-cyan-400" />
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(55, 65, 81, 0.5)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CreditCard size={20} style={{ color: '#22d3ee' }} />
                 Billing Information
               </h3>
               
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Next Payment</span>
-                  <span className="text-white">
-                    {currentPlan === 'free' ? 'N/A' : 'Monthly'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Payment Method</span>
-                  <span className="text-white flex items-center gap-2">
-                    <CreditCard className="w-4 h-4" />
-                    {currentPlan === 'free' ? 'Not configured' : '•••• 4242'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-gray-400">Invoice History</span>
-                  <button className="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
-                    View <ExternalLink className="w-3 h-3" />
-                  </button>
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { label: 'Next Payment', value: currentPlan === 'free' ? 'N/A' : 'Monthly' },
+                  { label: 'Payment Method', value: currentPlan === 'free' ? 'Not configured' : '•••• 4242', icon: CreditCard },
+                  { label: 'Invoice History', value: 'View', link: true }
+                ].map((item, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 0',
+                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none'
+                  }}>
+                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>{item.label}</span>
+                    {item.link ? (
+                      <button style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#22d3ee',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: 0
+                      }}>
+                        {item.value} <ExternalLink size={12} />
+                      </button>
+                    ) : (
+                      <span style={{ color: '#ffffff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {item.icon && <item.icon size={14} />}
+                        {item.value}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* SETTINGS TAB */}
+        {/* SETTINGS TAB CONTENT */}
         {activeTab === 'settings' && (
-          <div className="space-y-6 animate-fade-in">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
             {/* Security Section */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Shield className="w-5 h-5 text-cyan-400" />
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(55, 65, 81, 0.5)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Shield size={20} style={{ color: '#22d3ee' }} />
                 Security
               </h3>
               
-              <div className="space-y-3">
-                {/* Change Password */}
-                <div className="flex items-center justify-between py-3 border-b border-gray-800">
-                  <div>
-                    <div className="text-sm font-medium text-white">Password</div>
-                    <div className="text-xs text-gray-400">Last changed 30 days ago</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[
+                  { title: 'Password', desc: 'Last changed 30 days ago', btnText: 'Change', icon: Key, variant: 'default' },
+                  { title: 'Two-Factor Authentication', desc: 'Add an extra layer of security', btnText: 'Enable', variant: 'default' },
+                  { title: 'Active Sessions', desc: '2 devices currently active', btnText: 'Manage', variant: 'danger' }
+                ].map((item, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16px 0',
+                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
+                    flexWrap: 'wrap',
+                    gap: '12px'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '4px' }}>{item.title}</div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{item.desc}</div>
+                    </div>
+                    <button style={{
+                      padding: '8px 16px',
+                      background: item.variant === 'danger' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(31, 41, 55, 0.5)',
+                      border: item.variant === 'danger' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(55, 65, 81, 0.5)',
+                      borderRadius: '8px',
+                      color: item.variant === 'danger' ? '#ef4444' : '#d1d5db',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s'
+                    }}>
+                      {item.btnText}
+                    </button>
                   </div>
-                  <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                    <Key className="w-4 h-4 mr-2" />
-                    Change
-                  </Button>
-                </div>
-
-                {/* Two-Factor Auth */}
-                <div className="flex items-center justify-between py-3 border-b border-gray-800">
-                  <div>
-                    <div className="text-sm font-medium text-white">Two-Factor Authentication</div>
-                    <div className="text-xs text-gray-400">Add an extra layer of security</div>
-                  </div>
-                  <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                    Enable
-                  </Button>
-                </div>
-
-                {/* Active Sessions */}
-                <div className="flex items-center justify-between py-3">
-                  <div>
-                    <div className="text-sm font-medium text-white">Active Sessions</div>
-                    <div className="text-xs text-gray-400">2 devices currently active</div>
-                  </div>
-                  <Button variant="outline" size="sm" className="border-red-500/50 text-red-400 hover:bg-red-500/10">
-                    Manage
-                  </Button>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Integrations Section */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-400" />
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(55, 65, 81, 0.5)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={20} style={{ color: '#a855f7' }} />
                 Integrations
               </h3>
               
-              <div className="space-y-3">
-                {/* Gmail Sync */}
-                <div className="flex items-center justify-between py-3 border-b border-gray-800">
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-red-400" />
-                    <div>
-                      <div className="text-sm font-medium text-white">Gmail Integration</div>
-                      <div className="text-xs text-gray-400">Sync emails for context-aware responses</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[
+                  { title: 'Gmail Integration', desc: 'Sync emails for context-aware responses', icon: Mail, color: '#ef4444', action: handleSyncGmail, loading: isSyncingGmail },
+                  { title: 'Google Calendar', desc: 'Schedule meetings and reminders', icon: Calendar, color: '#3b82f6', action: null, loading: false },
+                  { title: 'Cloud Storage', desc: 'Backup files to Google Drive/Dropbox', icon: Database, color: '#22c55e', action: null, loading: false }
+                ].map((item, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16px 0',
+                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
+                    flexWrap: 'wrap',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <item.icon size={20} style={{ color: item.color }} />
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{item.title}</div>
+                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>{item.desc}</div>
+                      </div>
                     </div>
+                    <button
+                      onClick={item.action || undefined}
+                      disabled={item.loading}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(31, 41, 55, 0.5)',
+                        border: '1px solid rgba(55, 65, 81, 0.5)',
+                        borderRadius: '8px',
+                        color: '#d1d5db',
+                        fontSize: '13px',
+                        cursor: item.loading ? 'not-allowed' : 'pointer',
+                        opacity: item.loading ? 0.6 : 1
+                      }}
+                    >
+                      {item.loading ? (
+                        <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite', marginRight: '4px' }} /> Syncing...</>
+                      ) : (
+                        'Connect'
+                      )}
+                    </button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSyncGmail}
-                    disabled={isSyncingGmail}
-                    className="border-gray-700 text-gray-300 hover:bg-gray-800"
-                  >
-                    {isSyncingGmail ? (
-                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Syncing...</>
-                    ) : (
-                      <>Connect</>
-                    )}
-                  </Button>
-                </div>
-
-                {/* Calendar */}
-                <div className="flex items-center justify-between py-3 border-b border-gray-800">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-blue-400" />
-                    <div>
-                      <div className="text-sm font-medium text-white">Google Calendar</div>
-                      <div className="text-xs text-gray-400">Schedule meetings and reminders</div>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                    Connect
-                  </Button>
-                </div>
-
-                {/* Storage */}
-                <div className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <Database className="w-5 h-5 text-green-400" />
-                    <div>
-                      <div className="text-sm font-medium text-white">Cloud Storage</div>
-                      <div className="text-xs text-gray-400">Backup files to Google Drive/Dropbox</div>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-800">
-                    Connect
-                  </Button>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Preferences Section */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Settings className="w-5 h-5 text-yellow-400" />
+            <div style={{
+              background: 'rgba(17, 24, 39, 0.6)',
+              border: '1px solid rgba(55, 65, 81, 0.5)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Settings size={20} style={{ color: '#fbbf24' }} />
                 Preferences
               </h3>
               
-              <div className="space-y-4">
-                {/* Theme Toggle */}
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <div className="text-sm font-medium text-white">Theme</div>
-                    <div className="text-xs text-gray-400">Customize appearance</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[
+                  { label: 'Theme', options: ['Cyberpunk Dark', 'Light Mode', 'System Default'] },
+                  { label: 'Language', options: ['English', 'Hindi', 'Spanish', 'French'] }
+                ].map((pref, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 0',
+                    borderBottom: idx < 1 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
+                    flexWrap: 'wrap',
+                    gap: '12px'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{pref.label}</div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                        {idx === 0 ? 'Customize appearance' : 'Interface language'}
+                      </div>
+                    </div>
+                    <select style={{
+                      background: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      color: '#ffffff',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}>
+                      {pref.options.map(opt => (
+                        <option key={opt}>{opt}</option>
+                      ))}
+                    </select>
                   </div>
-                  <select className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
-                    <option>Cyberpunk Dark</option>
-                    <option>Light Mode</option>
-                    <option>System Default</option>
-                  </select>
-                </div>
+                ))}
 
-                {/* Language */}
-                <div className="flex items-center justify-between py-2 border-t border-gray-800">
+                {/* Notifications Toggle */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingTop: '16px',
+                  borderTop: '1px solid rgba(55, 65, 81, 0.3)'
+                }}>
                   <div>
-                    <div className="text-sm font-medium text-white">Language</div>
-                    <div className="text-xs text-gray-400">Interface language</div>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>Notifications</div>
+                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Email and push notifications</div>
                   </div>
-                  <select className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none">
-                    <option>English</option>
-                    <option>Hindi</option>
-                    <option>Spanish</option>
-                    <option>French</option>
-                  </select>
-                </div>
-
-                {/* Notifications */}
-                <div className="flex items-center justify-between py-2 border-t border-gray-800">
-                  <div>
-                    <div className="text-sm font-medium text-white">Notifications</div>
-                    <div className="text-xs text-gray-400">Email and push notifications</div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" defaultChecked className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-700 peer-focus:ring-2 peer-focus:ring-cyan-500/20 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-purple-600"></div>
+                  <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '26px', cursor: 'pointer' }}>
+                    <input type="checkbox" defaultChecked style={{ opacity: 0, width: 0, height: 0 }} />
+                    <span style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#374151',
+                      borderRadius: '26px',
+                      transition: 'background 0.3s'
+                    }} />
+                    <span style={{
+                      position: 'absolute',
+                      left: '3px',
+                      bottom: '3px',
+                      width: '20px',
+                      height: '20px',
+                      background: '#ffffff',
+                      borderRadius: '50%',
+                      transition: 'transform 0.3s'
+                    }} />
                   </label>
                 </div>
               </div>
             </div>
 
             {/* Danger Zone */}
-            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-red-400 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5" />
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.05)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertCircle size={20} />
                 Danger Zone
               </h3>
               
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '12px'
+                }}>
                   <div>
-                    <div className="text-sm font-medium text-white">Logout</div>
-                    <div className="text-xs text-gray-400">Sign out of your account</div>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>Logout</div>
+                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Sign out of your account</div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  <button
                     onClick={onLogout}
-                    className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                    style={{
+                      padding: '8px 16px',
+                      background: 'rgba(31, 41, 55, 0.5)',
+                      border: '1px solid rgba(55, 65, 81, 0.5)',
+                      borderRadius: '8px',
+                      color: '#d1d5db',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </Button>
+                    <LogOut size={14} /> Logout
+                  </button>
                 </div>
 
-                <div className="flex items-center justify-between py-2 border-t border-red-500/20">
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingTop: '16px',
+                  borderTop: '1px solid rgba(239, 68, 68, 0.2)',
+                  flexWrap: 'wrap',
+                  gap: '12px'
+                }}>
                   <div>
-                    <div className="text-sm font-medium text-red-400">Delete Account</div>
-                    <div className="text-xs text-gray-400">Permanently delete your account and data</div>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ef4444' }}>Delete Account</div>
+                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Permanently delete your account and data</div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  <button
                     onClick={handleDeleteAccount}
-                    className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                    style={{
+                      padding: '8px 16px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '8px',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      cursor: 'pointer'
+                    }}
                   >
                     Delete
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1317,75 +1621,110 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="bg-gray-950/80 border-t border-gray-800 mt-12">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Brand */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  Nexus AI
-                </span>
+      <footer style={{
+        background: 'rgba(3, 7, 18, 0.8)',
+        borderTop: '1px solid rgba(55, 65, 81, 0.5)',
+        marginTop: '48px',
+        padding: '32px 16px'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: window.innerWidth > 768 ? 'repeat(3, 1fr)' : '1fr',
+          gap: '32px'
+        }}>
+          {/* Brand */}
+          <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '8px', marginBottom: '12px' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Sparkles size={18} color="#ffffff" />
               </div>
-              <p className="text-sm text-gray-400">
-                Your intelligent AI assistant for productivity, creativity, and more.
-              </p>
+              <span style={{ fontSize: '20px', fontWeight: 700, background: 'linear-gradient(135deg, #22d3ee, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Nexus AI
+              </span>
             </div>
-
-            {/* Quick Links */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-white">Quick Links</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-cyan-400 transition-colors">Home</a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-cyan-400 transition-colors">Terms of Service</a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-cyan-400 transition-colors">Contact Support</a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Account Status */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-white">Account Status</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  System Online
-                </div>
-                <div className="flex items-center gap-2 text-gray-400">
-                  <ShieldCheck className="w-4 h-4 text-green-400" />
-                  Connection Secure
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Version 2.0.0 • Last updated: {new Date().toLocaleDateString()}
-                </div>
-              </div>
-            </div>
+            <p style={{ color: '#9ca3af', fontSize: '14px', lineHeight: 1.6 }}>
+              Your intelligent AI assistant for productivity, creativity, and more.
+            </p>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-500">
-              © {new Date().getFullYear()} Nexus AI. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4 text-sm text-gray-400">
-              <span className="flex items-center gap-1">
-                Made with <Heart className="w-4 h-4 text-red-400" /> for you
-              </span>
+          {/* Quick Links */}
+          <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>Quick Links</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {['Home', 'Privacy Policy', 'Terms of Service', 'Contact Support'].map(link => (
+                <li key={link}>
+                  <a href="#" style={{ color: '#9ca3af', fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }}
+                     onMouseEnter={(e) => e.currentTarget.style.color = '#22d3ee'}
+                     onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}>
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Account Status */}
+          <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>Account Status</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '8px', color: '#9ca3af' }}>
+                <span style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                System Online
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '8px', color: '#9ca3af' }}>
+                <ShieldCheck size={14} style={{ color: '#22c55e' }} />
+                Connection Secure
+              </div>
+              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                Version 2.0.0 • Last updated: {new Date().toLocaleDateString()}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Bottom Bar */}
+        <div style={{
+          maxWidth: '1200px',
+          margin: '32px auto 0',
+          paddingTop: '24px',
+          borderTop: '1px solid rgba(55, 65, 81, 0.5)',
+          display: 'flex',
+          flexDirection: window.innerWidth > 768 ? 'row' : 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+            © {new Date().getFullYear()} Nexus AI. All rights reserved.
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '14px' }}>
+            Made with <Heart size={14} style={{ color: '#ef4444' }} /> for you
+          </div>
+        </div>
       </footer>
+
+      {/* Inline Styles for Animations */}
+      <style jsx global>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   )
 }
