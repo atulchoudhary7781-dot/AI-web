@@ -80,51 +80,6 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
     return () => clearInterval(interval)
   }, [])
 
-  // Increment chat count (call this when user sends a message)
-  export const incrementChatCount = () => {
-    const today = new Date().toDateString()
-    const savedDate = localStorage.getItem('nexus_chat_date')
-    
-    if (savedDate !== today) {
-      localStorage.setItem('nexus_chat_count_today', '1')
-      localStorage.setItem('nexus_chat_date', today)
-      return true
-    }
-
-    const currentCount = parseInt(localStorage.getItem('nexus_chat_count_today') || '0', 10)
-    
-    if (currentCount >= 10) {
-      return false // Limit reached
-    }
-
-    localStorage.setItem('nexus_chat_count_today', String(currentCount + 1))
-    return true
-  }
-
-  // Check if user can chat
-  export const canChat = (): boolean => {
-    const savedSub = localStorage.getItem('nexus_subscription')
-    if (savedSub) {
-      try {
-        const sub = JSON.parse(savedSub)
-        if (sub.plan === 'pro' || sub.plan === 'normal') {
-          return true
-        }
-      } catch (e) {
-        // Ignore parse error
-      }
-    }
-
-    const today = new Date().toDateString()
-    const savedDate = localStorage.getItem('nexus_chat_date')
-    const savedChats = localStorage.getItem('nexus_chat_count_today')
-
-    if (savedDate !== today) return true
-
-    const count = parseInt(savedChats || '0', 10)
-    return count < 10
-  }
-
   // Don't show anything for paid users
   if (currentPlan === 'normal' || currentPlan === 'pro') {
     return null
@@ -224,5 +179,46 @@ export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: Ch
   )
 }
 
-// Export utility functions for use in other components
-export { incrementChatCount, canChat }
+// Utility functions (exported for use in other components)
+export const incrementChatCount = () => {
+  const today = new Date().toDateString()
+  const savedDate = localStorage.getItem('nexus_chat_date')
+  
+  if (savedDate !== today) {
+    localStorage.setItem('nexus_chat_count_today', '1')
+    localStorage.setItem('nexus_chat_date', today)
+    return true
+  }
+
+  const currentCount = parseInt(localStorage.getItem('nexus_chat_count_today') || '0', 10)
+  
+  if (currentCount >= 10) {
+    return false // Limit reached
+  }
+
+  localStorage.setItem('nexus_chat_count_today', String(currentCount + 1))
+  return true
+}
+
+export const canChat = (): boolean => {
+  const savedSub = localStorage.getItem('nexus_subscription')
+  if (savedSub) {
+    try {
+      const sub = JSON.parse(savedSub)
+      if (sub.plan === 'pro' || sub.plan === 'normal') {
+        return true
+      }
+    } catch (e) {
+      // Ignore parse error
+    }
+  }
+
+  const today = new Date().toDateString()
+  const savedDate = localStorage.getItem('nexus_chat_date')
+  const savedChats = localStorage.getItem('nexus_chat_count_today')
+
+  if (savedDate !== today) return true
+
+  const count = parseInt(savedChats || '0', 10)
+  return count < 10
+}

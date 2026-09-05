@@ -216,7 +216,7 @@ export function ChatHistory({
 
       {/* Conversation List */}
       {isExpanded && (
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+        <div className="history-list-scroll flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-neon-purple/20 scrollbar-track-transparent">
           {filteredConversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
               <MessageSquare className="w-12 h-12 mb-3 opacity-30" />
@@ -328,6 +328,6 @@ export function ChatHistory({
 }
 
 // Export helper functions for use in other components
-export { loadConversations, saveConversations, generateTitle: _generateTitle }
+export { loadConversations, saveConversations }
 
 export default ChatHistory

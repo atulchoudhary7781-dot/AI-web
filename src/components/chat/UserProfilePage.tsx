@@ -35,6 +35,8 @@ interface SubscriptionPlan {
   popular?: boolean
   color: string
   gradient: string
+  locked?: boolean
+  lockMessage?: string
 }
 
 // Subscription Plans Data
@@ -568,7 +570,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
   const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
+    <div className="profile-page-container min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col">
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
@@ -579,253 +581,154 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       )}
 
-      {/* Header */}
-      <div className="relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10" />
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500 rounded-full filter blur-[120px]" />
-        </div>
+      {/* ===== HEADER SECTION (Fixed Height) ===== */}
+      <div className="flex-shrink-0">
+        {/* Header Background */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10" />
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]" />
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500 rounded-full filter blur-[120px]" />
+          </div>
 
-        {/* Chat Limit Banner - Only for Free Users */}
-        {currentPlan === 'free' && (
-          <div className="relative bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-electric-blue/20 border-b border-neon-cyan/30 px-4 py-3">
-            <div className="max-w-4xl mx-auto flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-neon-cyan animate-pulse" />
-                <div>
-                  <p className="text-sm font-medium text-neon-cyan">
-                    Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    Resets in: <span className="text-cyan-400 font-mono">{chatResetTime}</span>
+          {/* Chat Limit Banner - Compact */}
+          {currentPlan === 'free' && (
+            <div className="relative bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-electric-blue/20 border-b border-neon-cyan/30 px-4 py-2">
+              <div className="max-w-4xl mx-auto flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-neon-cyan animate-pulse" />
+                  <p className="text-xs font-medium text-neon-cyan">
+                    Daily Chat Limit: {chatCountToday}/{maxChatsForPlan} chats used · Resets in: <span className="font-mono">{chatResetTime}</span>
                   </p>
                 </div>
-              </div>
-              
-              {/* Progress Bar */}
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full transition-all duration-500 ${
-                      chatLimitPercentage >= 90 
-                        ? 'bg-red-500' 
-                        : chatLimitPercentage >= 70 
-                          ? 'bg-yellow-500' 
-                          : 'bg-gradient-to-r from-cyan-500 to-violet-500'
-                    }`}
-                    style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
-                  />
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-500 ${
+                        chatLimitPercentage >= 90 ? 'bg-red-500' : chatLimitPercentage >= 70 ? 'bg-yellow-500' : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                      }`}
+                      style={{ width: `${Math.min(chatLimitPercentage, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-400">Coming Soon</span>
                 </div>
-                <Button
-                  size="sm"
-                  variant="locked"
-                  disabled={true}
-                  className="text-xs"
-                >
-                  <Lock className="w-3 h-3 mr-1" />
-                  Coming Soon
-                </Button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="relative max-w-4xl mx-auto px-4 py-8">
-          {/* Navigation */}
-          <div className="flex items-center justify-between mb-8">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
-            >
-              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span>Back</span>
-            </button>
-
-            <h1 className="text-2xl font-bold gradient-text font-[family-name:var(--font-orbitron)]">
-              User Profile
-            </h1>
-
-            {!isEditing ? (
+          {/* Navigation Bar - Compact */}
+          <div className="relative max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
               <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+                onClick={onBack}
+                className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm"
               >
-                <Edit3 className="w-4 h-4" />
-                Edit Profile
+                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                <span>Back</span>
               </button>
-            ) : (
-              <div className="flex items-center gap-2">
+
+              <h1 className="text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)]">
+                User Profile
+              </h1>
+
+              {!isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  Edit Profile
+                </button>
+              ) : (
                 <button
                   onClick={handleCancelEdit}
-                  className="flex items-center gap-2 px-4 py-2 border border-gray-600 rounded-lg text-sm text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+                  className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                   Cancel
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+        </div>
 
-          {/* Profile Header Card */}
+        {/* Profile Card - Compact */}
+        <div className="max-w-4xl mx-auto px-4 pb-4">
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl overflow-hidden">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+            <CardContent className="p-5">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                 
-                {/* Avatar Section */}
-                <div className="relative group">
-                  {/* Avatar */}
-                  <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
+                {/* Avatar Section - Smaller */}
+                <div className="relative group flex-shrink-0">
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
                     <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
                       {avatar ? (
-                        <img
-                          src={avatar}
-                          alt={name || 'User'}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={avatar} alt={name || 'User'} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/20 to-violet-600/20">
-                          <span className="text-4xl font-bold text-cyan-400">
-                            {getInitials(name || 'U')}
-                          </span>
+                          <span className="text-2xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
                         </div>
                       )}
                     </div>
                   </div>
-
-                  {/* Camera Overlay - Only show when editing */}
                   {isEditing && (
                     <>
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="absolute inset-0 w-32 h-32 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                      >
-                        <Camera className="w-8 h-8 text-white" />
+                      <button onClick={() => fileInputRef.current?.click()} className="absolute inset-0 w-20 h-20 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                        <Camera className="w-6 h-6 text-white" />
                       </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarUpload}
-                        className="hidden"
-                      />
+                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
                     </>
                   )}
-
-                  {/* Online Status */}
-                  <span className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-4 border-gray-900" />
-
-                  {/* Remove Avatar Button */}
+                  <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900" />
                   {isEditing && avatar && (
-                    <button
-                      onClick={handleRemoveAvatar}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                    >
-                      <X className="w-3 h-3 text-white" />
+                    <button onClick={handleRemoveAvatar} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
+                      <X className="w-2.5 h-2.5 text-white" />
                     </button>
                   )}
                 </div>
 
-                {/* User Info */}
-                <div className="flex-1 text-center md:text-left space-y-4">
+                {/* User Info - Compact */}
+                <div className="flex-1 text-center sm:text-left">
                   {isEditing ? (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">
-                          Display Name
-                        </label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Enter your name"
-                          className="w-full max-w-md bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-gray-400 text-sm">
-                        <Mail className="w-4 h-4" />
+                    <div className="space-y-3">
+                      <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your name" className="w-full max-w-sm bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500 outline-none" />
+                      <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-400 text-xs">
+                        <Mail className="w-3.5 h-3.5" />
                         <span>{email}</span>
-                        <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 text-xs">
-                          Verified
-                        </Badge>
+                        {emailVerified && <CheckCircle className="w-3.5 h-3.5 text-green-400" />}
                       </div>
-
-                      {/* Gmail Sync Button */}
-                      <button
-                        onClick={handleGmailPhotoSync}
-                        disabled={isSyncingGmail}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/20 transition-all text-sm disabled:opacity-50"
-                      >
-                        {isSyncingGmail ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <ImageIcon className="w-4 h-4" />
-                        )}
-                        {isSyncingGmail ? 'Syncing...' : 'Sync Google Photo'}
-                      </button>
                     </div>
                   ) : (
-                    <>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">
-                          {name || 'User'}
-                        </h2>
-                        <div className="flex items-center gap-2 text-gray-400 text-sm justify-center md:justify-start">
-                          <Mail className="w-4 h-4" />
-                          <span>{email}</span>
-                          <Badge variant="secondary" className="bg-green-500/10 text-green-400 border-green-500/20 text-xs">
-                            <Shield className="w-3 h-3 mr-1" />
-                            Verified
-                          </Badge>
-                          <Badge 
-                            variant="secondary" 
-                            className={`${currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'} text-xs`}
-                          >
-                            {currentPlan === 'pro' ? <Crown className="w-3 h-3 mr-1" /> : <Star className="w-3 h-3 mr-1" />}
-                            {currentPlan.toUpperCase()}
-                          </Badge>
-                        </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center sm:justify-start gap-3">
+                        <h2 className="text-xl font-bold text-white">{name || 'User'}</h2>
+                        <Badge variant="secondary" className={currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}>
+                          {currentPlan.toUpperCase()}
+                        </Badge>
                       </div>
-
-                      {bio && !isEditing && (
-                        <p className="text-gray-400 max-w-lg">{bio}</p>
-                      )}
-                    </>
+                      <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-400 text-sm">
+                        <Mail className="w-4 h-4" />
+                        <span>{email}</span>
+                        {emailVerified ? (
+                          <span className="flex items-center gap-1 text-green-400 text-xs"><CheckCircle className="w-3.5 h-3.5" /> VERIFIED</span>
+                        ) : (
+                          <span className="text-yellow-400 text-xs cursor-pointer hover:underline" onClick={handleSendVerification}>Verify Email</span>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col gap-3">
+                {/* Action Buttons - Compact */}
+                <div className="flex flex-col gap-2">
                   {isEditing && (
-                    <Button
-                      onClick={handleSaveProfile}
-                      disabled={isLoading}
-                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25"
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Saving...
-                        </div>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Changes
-                        </>
-                      )}
+                    <Button onClick={handleSaveProfile} disabled={isLoading} size="sm" className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white shadow-lg shadow-cyan-500/25 text-xs">
+                      {isLoading ? 'Saving...' : <><Save className="w-3.5 h-3.5 mr-1" /> Save</>}
                     </Button>
                   )}
-                  
                   {onLogout && (
-                    <Button
-                      variant="outline"
-                      onClick={onLogout}
-                      className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
+                    <Button variant="outline" size="sm" onClick={onLogout} className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs">
+                      <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
                     </Button>
                   )}
                 </div>
@@ -835,10 +738,12 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       </div>
 
+      {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
+      <div className="flex-1 overflow-hidden flex flex-col">
       {/* Tabs & Content */}
       <div className="max-w-4xl mx-auto px-4 pb-12">
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-8 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
+        <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
             { id: 'profile', label: 'Profile Info', icon: User },
             { id: 'subscription', label: 'Subscription', icon: CreditCard },
@@ -859,9 +764,18 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           ))}
         </div>
 
-        {/* Tab Content */}
+        {/* Profile Info Tab */}
         {activeTab === 'profile' && (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div 
+            className="profile-info-tab-scroll"
+            style={{
+              height: 'calc(100vh - 300px)',
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              paddingRight: '8px'
+            }}
+          >
+            <div className="grid md:grid-cols-2 gap-6 pb-8">
             {/* Bio Card */}
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-6 space-y-4">
@@ -978,10 +892,21 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               </CardContent>
             </Card>
           </div>
+          </div>
         )}
 
+        {/* Subscription Tab */}
         {activeTab === 'subscription' && (
-          <div className="space-y-8">
+          <div 
+            className="subscription-tab-scroll"
+            style={{
+              height: 'calc(100vh - 300px)',
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              paddingRight: '8px'
+            }}
+          >
+            <div className="space-y-6 pb-8">
             {/* Current Plan Status */}
             <Card className="bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-8 text-center">
@@ -1134,10 +1059,21 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               ))}
             </div>
           </div>
+          </div>
         )}
 
+        {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="space-y-6">
+          <div 
+            className="settings-tab-scroll"
+            style={{
+              height: 'calc(100vh - 300px)',
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              paddingRight: '8px'
+            }}
+          >
+            <div className="space-y-5 pb-8">
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
               <CardContent className="p-6 space-y-6">
                 <h3 className="font-semibold text-white flex items-center gap-2">
@@ -1345,7 +1281,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               </CardContent>
             </Card>
           </div>
+          </div>
         )}
+      </div>
       </div>
     </div>
   )

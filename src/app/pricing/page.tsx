@@ -171,7 +171,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-deep-black">
+    <div className="pricing-page-container min-h-screen bg-deep-black overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
       {/* Hero Section */}
       <div className="pt-32 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -233,7 +233,6 @@ export default function PricingPage() {
             <Card
               key={plan.id}
               variant={plan.locked ? 'locked' : (plan.popular ? 'neon' : 'glass')}
-              glowColor={plan.color as any}
               className={cn(
                 "relative p-8 transition-all duration-300",
                 plan.locked ? "opacity-75 cursor-not-allowed" : "hover:scale-[1.02]",

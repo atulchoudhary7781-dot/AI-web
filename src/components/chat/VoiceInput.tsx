@@ -87,8 +87,10 @@ export function VoiceInput({ onTranscript, disabled = false, className }: VoiceI
       recognition.onresult = (event: SpeechRecognitionEvent) => {
         let finalTranscript = ''
         
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i]
+        // Type assertion for browser-specific properties
+        const speechEvent = event as any
+        for (let i = speechEvent.resultIndex; i < speechEvent.results.length; i++) {
+          const result = speechEvent.results[i]
           if (result.isFinal) {
             finalTranscript += result[0].transcript + ' '
           }

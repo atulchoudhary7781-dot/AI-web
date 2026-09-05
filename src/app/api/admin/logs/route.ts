@@ -46,11 +46,6 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          admin: {
-            select: { name: true, email: true }
-          }
-        }
       }),
       prisma.adminLog.count({ where })
     ])

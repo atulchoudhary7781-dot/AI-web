@@ -1140,7 +1140,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300`}>
+    <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`}>
       {/* Intro Animation - Shows on first visit */}
       {showIntro && (
         <IntroAnimation onComplete={() => {

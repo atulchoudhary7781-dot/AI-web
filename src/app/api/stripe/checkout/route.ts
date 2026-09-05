@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 // Initialize Stripe with your secret key
 // In production, this should come from environment variables
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2026-08-26.dahlia',
 })
 
 // Plan configuration

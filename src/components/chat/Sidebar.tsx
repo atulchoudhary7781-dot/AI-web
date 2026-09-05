@@ -222,9 +222,9 @@ export default function Sidebar({
                   className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-800/50 rounded-xl transition-all duration-200 group cursor-pointer"
                 >
                   <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-md shadow-cyan-500/20 overflow-hidden">
-                    {user.avatar ? (
+                    {(user as any).avatar ? (
                       <img 
-                        src={user.avatar} 
+                        src={(user as any).avatar} 
                         alt={user.name}
                         className="w-full h-full object-cover"
                       />

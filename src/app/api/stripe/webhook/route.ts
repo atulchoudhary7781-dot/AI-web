@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2026-08-26.dahlia',
 })
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
@@ -12,7 +12,8 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
-    const signature = headers().get('stripe-signature')
+    const headersList = await headers()
+    const signature = headersList.get('stripe-signature')
 
     if (!signature) {
       console.error('No Stripe signature found')
