@@ -573,10 +573,15 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     <div 
       className="profile-page-container bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white"
       style={{
-        height: '100vh',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        zIndex: 10
       }}
     >
       {/* Success Toast */}
