@@ -607,7 +607,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           {/* Chat Limit Banner - Compact */}
           {currentPlan === 'free' && (
             <div className="relative bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-electric-blue/20 border-b border-neon-cyan/30 px-4 py-2">
-              <div className="max-w-4xl mx-auto flex items-center justify-between">
+              <div className="max-w-6xl mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-neon-cyan animate-pulse" />
                   <p className="text-xs font-medium text-neon-cyan">
@@ -630,7 +630,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           )}
 
           {/* Navigation Bar - Compact */}
-          <div className="relative max-w-4xl mx-auto px-4 py-4">
+          <div className="relative max-w-6xl mx-auto px-4 md:px-8 py-4">
             <div className="flex items-center justify-between">
               <button
                 onClick={onBack}
@@ -666,20 +666,20 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
 
         {/* Profile Card - Compact */}
-        <div className="max-w-4xl mx-auto px-4 pb-4">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 pb-4">
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl overflow-hidden">
-            <CardContent className="p-5">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <CardContent className="p-5 md:p-8">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-8">
                 
-                {/* Avatar Section - Smaller */}
+                {/* Avatar Section - Bigger on Desktop */}
                 <div className="relative group flex-shrink-0">
-                  <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
+                  <div className="relative w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden bg-gradient-to-br from-cyan-500 to-violet-600 p-1">
                     <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
                       {avatar ? (
                         <img src={avatar} alt={name || 'User'} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/20 to-violet-600/20">
-                          <span className="text-2xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
+                          <span className="text-2xl md:text-3xl font-bold text-cyan-400">{getInitials(name || 'U')}</span>
                         </div>
                       )}
                     </div>
@@ -714,7 +714,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
                   ) : (
                     <div className="space-y-1">
                       <div className="flex items-center justify-center sm:justify-start gap-3">
-                        <h2 className="text-xl font-bold text-white">{name || 'User'}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold text-white">{name || 'User'}</h2>
                         <Badge variant="secondary" className={currentPlan === 'pro' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : currentPlan === 'normal' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}>
                           {currentPlan.toUpperCase()}
                         </Badge>
@@ -754,7 +754,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
       <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
       {/* Tabs & Content - Must fill remaining space */}
-      <div className="max-w-4xl mx-auto px-4 pb-6 flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pb-6 flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
