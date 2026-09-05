@@ -573,15 +573,15 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
     <div 
       className="profile-page-container bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white"
       style={{
-        position: 'absolute',
+        position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
-        zIndex: 10
+        overflowY: 'scroll',
+        overflowX: 'hidden'
       }}
     >
       {/* Success Toast */}
@@ -751,16 +751,10 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       </div>
 
-      {/* ===== CONTENT SECTION (Scrollable) ===== */}
-      <div 
-        style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-      <div className="max-w-4xl mx-auto px-4 pb-6" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+      {/* Tabs & Content - Must fill remaining space */}
+      <div className="max-w-4xl mx-auto px-4 pb-6 flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
@@ -786,12 +780,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Profile Info Tab */}
         {activeTab === 'profile' && (
           <div 
-            className="profile-info-tab-scroll"
+            className="profile-info-tab-scroll flex-1 min-h-0 overflow-y-auto"
             style={{
-              flex: 1,
-              overflowY: 'scroll',
-              overflowX: 'hidden',
-              paddingRight: '12px'
+              paddingRight: '8px'
             }}
           >
             <div className="grid md:grid-cols-2 gap-6 pb-8">
@@ -917,12 +908,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
           <div 
-            className="subscription-tab-scroll"
+            className="subscription-tab-scroll flex-1 min-h-0 overflow-y-auto"
             style={{
-              flex: 1,
-              overflowY: 'scroll',
-              overflowX: 'hidden',
-              paddingRight: '12px'
+              paddingRight: '8px'
             }}
           >
             <div className="space-y-6 pb-8">
@@ -1084,12 +1072,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div 
-            className="settings-tab-scroll"
+            className="settings-tab-scroll flex-1 min-h-0 overflow-y-auto"
             style={{
-              flex: 1,
-              overflowY: 'scroll',
-              overflowX: 'hidden',
-              paddingRight: '12px'
+              paddingRight: '8px'
             }}
           >
             <div className="space-y-5 pb-8">

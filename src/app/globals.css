@@ -792,6 +792,24 @@ body {
     background: rgba(20, 20, 40, 0.95);
     border-radius: 10px;
   }
+
+  /* Main profile page scrollbar - ALWAYS VISIBLE */
+  .profile-page-container::-webkit-scrollbar {
+    display: block !important;
+    width: 12px !important;
+    background: rgba(20, 20, 40, 0.95) !important;
+  }
+  
+  .profile-page-container::-webkit-scrollbar-track {
+    background: rgba(20, 20, 40, 0.95) !important;
+    border-radius: 10px;
+  }
+  
+  .profile-page-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ffff, #a855f7) !important;
+    border-radius: 10px !important;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+  }
 }
 
 /* Input focus state on mobile - prevent zoom */
