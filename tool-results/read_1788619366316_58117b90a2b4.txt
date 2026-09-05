@@ -1,0 +1,2002 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import { useRouter } from 'next/navigation'
+     5→import {
+     6→  User, Mail, Camera, Save, X, CheckCircle,
+     7→  MapPin, Phone, Globe, Edit3, Sparkles,
+     8→  Calendar, MessageSquare, Settings, LogOut,
+     9→  ChevronLeft, Shield, Award, Zap, Upload,
+    10→  Download, Crown, Star, Clock, RefreshCw,
+    11→  CreditCard, Check, AlertCircle,
+    12→  Lock, Key, ShieldCheck, ExternalLink, Database, Heart
+    13→} from 'lucide-react'
+    14→
+    15→// Types
+    16→interface UserProfileProps {
+    17→  user: {
+    18→    name: string
+    19→    email: string
+    20→    avatar?: string
+    21→  }
+    22→  onBack?: () => void
+    23→  onLogout?: () => void
+    24→}
+    25→
+    26→interface SubscriptionPlan {
+    27→  id: 'free' | 'normal' | 'pro'
+    28→  name: string
+    29→  price: number
+    30→  period: string
+    31→  features: string[]
+    32→  popular?: boolean
+    33→  color: string
+    34→  gradient: string
+    35→  locked?: boolean
+    36→  lockMessage?: string
+    37→}
+    38→
+    39→// Subscription Plans Data - FREE ONLY AVAILABLE
+    40→const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+    41→  {
+    42→    id: 'free',
+    43→    name: 'Free',
+    44→    price: 0,
+    45→    period: 'forever',
+    46→    features: [
+    47→      '10 chats per day',
+    48→      'Basic AI responses',
+    49→      'Community support',
+    50→      'Chat history (7 days)',
+    51→      'Access to all basic features',
+    52→      'Regular model updates'
+    53→    ],
+    54→    color: 'text-green-400',
+    55→    gradient: 'from-green-500 to-emerald-600',
+    56→    locked: false,
+    57→    popular: true // Free is now the popular one!
+    58→  },
+    59→  {
+    60→    id: 'normal',
+    61→    name: 'Normal',
+    62→    price: 10,
+    63→    period: 'month',
+    64→    features: [
+    65→      'Unlimited chats',
+    66→      'Advanced AI models',
+    67→      'Priority support',
+    68→      'Chat history (30 days)',
+    69→      'File attachments',
+    70→      'Export data'
+    71→    ],
+    72→    popular: false,
+    73→    color: 'text-gray-500',
+    74→    gradient: 'from-gray-600 to-gray-700',
+    75→    locked: true,
+    76→    lockMessage: '🔒 Locked - Coming Soon'
+    77→  },
+    78→  {
+    79→    id: 'pro',
+    80→    name: 'Pro',
+    81→    price: 20,
+    82→    period: 'month',
+    83→    features: [
+    84→      'Everything in Normal',
+    85→      'GPT-4 & Claude access',
+    86→      'Image generation',
+    87→      'Voice conversations',
+    88→      'API access',
+    89→      'Custom AI training',
+    90→      'Priority queue',
+    91→      'Dedicated support'
+    92→    ],
+    93→    color: 'text-gray-500',
+    94→    gradient: 'from-gray-600 to-gray-700',
+    95→    locked: true,
+    96→    lockMessage: '🔒 Locked - Coming Soon'
+    97→  }
+    98→]
+    99→
+   100→export default function UserProfilePage({ user: initialUser, onBack, onLogout }: UserProfileProps) {
+   101→  const [user, setUser] = useState(initialUser)
+   102→  const [isEditing, setIsEditing] = useState(false)
+   103→  const [isLoading, setIsLoading] = useState(false)
+   104→  const [showSuccess, setShowSuccess] = useState(false)
+   105→  const [activeTab, setActiveTab] = useState<'profile' | 'subscription' | 'settings'>('profile')
+   106→  
+   107→  // Form states
+   108→  const [name, setName] = useState(initialUser.name || '')
+   109→  const [email] = useState(initialUser.email || '')
+   110→  const [avatar, setAvatar] = useState(initialUser.avatar || '')
+   111→  const [bio, setBio] = useState('')
+   112→  const [phone, setPhone] = useState('')
+   113→  const [location, setLocation] = useState('')
+   114→  const [website, setWebsite] = useState('')
+   115→
+   116→  // Subscription state
+   117→  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
+   118→  const [chatCountToday, setChatCountToday] = useState(0)
+   119→  const [maxChatsForPlan, setMaxChatsForPlan] = useState(10)
+   120→  const [chatResetTime, setChatResetTime] = useState<string>('12:00 AM')
+   121→
+   122→  // States for various actions
+   123→  const [isExporting, setIsExporting] = useState(false)
+   124→  const [isImporting, setIsImporting] = useState(false)
+   125→  const [isSyncingGmail, setIsSyncingGmail] = useState(false)
+   126→  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+   127→  const [isSendingVerification, setIsSendingVerification] = useState(false)
+   128→  const [emailVerified, setEmailVerified] = useState(false)
+   129→
+   130→  const router = useRouter()
+   131→  const fileInputRef = useRef<HTMLInputElement>(null)
+   132→  const importInputRef = useRef<HTMLInputElement>(null)
+   133→
+   134→  // Load data on mount
+   135→  useEffect(() => {
+   136→    // Load user data
+   137→    const savedUser = localStorage.getItem('nexus_user')
+   138→    if (savedUser) {
+   139→      try {
+   140→        const parsedUser = JSON.parse(savedUser)
+   141→        setUser(parsedUser)
+   142→        setName(parsedUser.name || '')
+   143→        setAvatar(parsedUser.avatar || '')
+   144→      } catch (e) {
+   145→        console.error('Error parsing user data:', e)
+   146→      }
+   147→    }
+   148→
+   149→    // Load profile data
+   150→    const savedProfile = localStorage.getItem('nexus_profile')
+   151→    if (savedProfile) {
+   152→      try {
+   153→        const profile = JSON.parse(savedProfile)
+   154→        setBio(profile.bio || '')
+   155→        setPhone(profile.phone || '')
+   156→        setLocation(profile.location || '')
+   157→        setWebsite(profile.website || '')
+   158→      } catch (e) {
+   159→        console.error('Error parsing profile data:', e)
+   160→      }
+   161→    }
+   162→
+   163→    // Load subscription data
+   164→    loadSubscriptionData()
+   165→    loadChatCountForToday()
+   166→
+   167→    // Load verification status
+   168→    const savedVerified = localStorage.getItem('nexus_email_verified')
+   169→    setEmailVerified(savedVerified === 'true')
+   170→
+   171→    // Check URL params
+   172→    const urlParams = new URLSearchParams(window.location.search)
+   173→    if (urlParams.get('success') === 'true') {
+   174→      setShowSuccess(true)
+   175→      setTimeout(() => setShowSuccess(false), 3000)
+   176→      window.history.replaceState({}, '', window.location.pathname)
+   177→    }
+   178→  }, [])
+   179→
+   180→  // Helper functions
+   181→  const getInitials = (name: string) => {
+   182→    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+   183→  }
+   184→
+   185→  const formatDate = (dateString: string) => {
+   186→    return new Date(dateString).toLocaleDateString('en-US', {
+   187→      year: 'numeric', month: 'long', day: 'numeric'
+   188→    })
+   189→  }
+   190→
+   191→  const loadSubscriptionData = () => {
+   192→    try {
+   193→      const savedSubscription = localStorage.getItem('nexus_subscription')
+   194→      if (savedSubscription) {
+   195→        const subscription = JSON.parse(savedSubscription)
+   196→        setCurrentPlan(subscription.plan || 'free')
+   197→      }
+   198→      
+   199→      const savedChatCount = localStorage.getItem('nexus_chat_count_today')
+   200→      if (savedChatCount) {
+   201→        setChatCountToday(parseInt(savedChatCount, 10))
+   202→      }
+   203→    } catch (e) {
+   204→      console.error('Error loading subscription data:', e)
+   205→    }
+   206→  }
+   207→
+   208→  const loadChatCountForToday = () => {
+   209→    try {
+   210→      const savedDate = localStorage.getItem('nexus_chat_count_date')
+   211→      const today = new Date().toDateString()
+   212→
+   213→      if (savedDate === today) {
+   214→        const count = localStorage.getItem('nexus_chat_count_today')
+   215→        setChatCountToday(count ? parseInt(count, 10) : 0)
+   216→      } else {
+   217→        localStorage.setItem('nexus_chat_count_date', today)
+   218→        localStorage.setItem('nexus_chat_count_today', '0')
+   219→        setChatCountToday(0)
+   220→      }
+   221→    } catch (e) {
+   222→      console.error('Error loading chat count:', e)
+   223→    }
+   224→  }
+   225→
+   226→  // Avatar upload handler
+   227→  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+   228→    const file = event.target.files?.[0]
+   229→    if (file) {
+   230→      setIsLoading(true)
+   231→      const reader = new FileReader()
+   232→      reader.onloadend = () => {
+   233→        const result = reader.result as string
+   234→        setAvatar(result)
+   235→        const updatedUser = { ...user, avatar: result }
+   236→        setUser(updatedUser)
+   237→        localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
+   238→        setIsLoading(false)
+   239→        setShowSuccess(true)
+   240→        setTimeout(() => setShowSuccess(false), 3000)
+   241→      }
+   242→      reader.readAsDataURL(file)
+   243→    }
+   244→  }
+   245→
+   246→  const handleRemoveAvatar = () => {
+   247→    setAvatar('')
+   248→    const updatedUser = { ...user, avatar: undefined }
+   249→    setUser(updatedUser)
+   250→    localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
+   251→  }
+   252→
+   253→  // Save profile
+   254→  const handleSaveProfile = async () => {
+   255→    setIsLoading(true)
+   256→    await new Promise(resolve => setTimeout(resolve, 1000))
+   257→    
+   258→    const updatedUser = { ...user, name, avatar }
+   259→    setUser(updatedUser)
+   260→    localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
+   261→    
+   262→    const profileData = { bio, phone, location, website }
+   263→    localStorage.setItem('nexus_profile', JSON.stringify(profileData))
+   264→    
+   265→    setIsLoading(false)
+   266→    setIsEditing(false)
+   267→    setShowSuccess(true)
+   268→    setTimeout(() => setShowSuccess(false), 3000)
+   269→  }
+   270→
+   271→  const handleCancelEdit = () => {
+   272→    setName(user.name || '')
+   273→    setAvatar(user.avatar || '')
+   274→    setIsEditing(false)
+   275→    
+   276→    const savedProfile = localStorage.getItem('nexus_profile')
+   277→    if (savedProfile) {
+   278→      try {
+   279→        const profile = JSON.parse(savedProfile)
+   280→        setBio(profile.bio || '')
+   281→        setPhone(profile.phone || '')
+   282→        setLocation(profile.location || '')
+   283→        setWebsite(profile.website || '')
+   284→      } catch (e) {}
+   285→    }
+   286→  }
+   287→
+   288→  // Upgrade plan
+   289→  const handleUpgrade = async (planId: string) => {
+   290→    if (planId === 'free') return
+   291→    setIsProcessingPayment(true)
+   292→    await new Promise(resolve => setTimeout(resolve, 2000))
+   293→    alert(`Redirecting to checkout for ${planId.toUpperCase()} plan...`)
+   294→    setIsProcessingPayment(false)
+   295→  }
+   296→
+   297→  // Export data
+   298→  const handleExportData = async () => {
+   299→    setIsExporting(true)
+   300→    try {
+   301→      const userData = {
+   302→        user: localStorage.getItem('nexus_user'),
+   303→        profile: localStorage.getItem('nexus_profile'),
+   304→        chatHistory: localStorage.getItem('nexus_chat_history'),
+   305→        exportDate: new Date().toISOString()
+   306→      }
+   307→      
+   308→      const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' })
+   309→      const url = URL.createObjectURL(blob)
+   310→      const a = document.createElement('a')
+   311→      a.href = url
+   312→      a.download = `nexus-export-${new Date().toISOString().split('T')[0]}.json`
+   313→      document.body.appendChild(a)
+   314→      a.click()
+   315→      document.body.removeChild(a)
+   316→      URL.revokeObjectURL(url)
+   317→      
+   318→      setShowSuccess(true)
+   319→      setTimeout(() => setShowSuccess(false), 3000)
+   320→    } catch (error) {
+   321→      console.error('Export failed:', error)
+   322→      alert('Export failed. Please try again.')
+   323→    }
+   324→    setIsExporting(false)
+   325→  }
+   326→
+   327→  // Import data
+   328→  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+   329→    const file = event.target.files?.[0]
+   330→    if (!file) return
+   331→    
+   332→    setIsImporting(true)
+   333→    const reader = new FileReader()
+   334→    reader.onload = async (e) => {
+   335→      try {
+   336→        const data = JSON.parse(e.target?.result as string)
+   337→        if (!data.user) throw new Error('Invalid format')
+   338→        
+   339→        if (data.user) localStorage.setItem('nexus_user', data.user)
+   340→        if (data.profile) localStorage.setItem('nexus_profile', data.profile)
+   341→        if (data.chatHistory) localStorage.setItem('nexus_chat_history', data.chatHistory)
+   342→        
+   343→        window.location.reload()
+   344→      } catch (error) {
+   345→        console.error('Import failed:', error)
+   346→        alert('Import failed. Please check the file format.')
+   347→      }
+   348→      setIsImporting(false)
+   349→    }
+   350→    reader.readAsText(file)
+   351→  }
+   352→
+   353→  // Gmail sync
+   354→  const handleSyncGmail = async () => {
+   355→    setIsSyncingGmail(true)
+   356→    await new Promise(resolve => setTimeout(resolve, 3000))
+   357→    setIsSyncingGmail(false)
+   358→    setShowSuccess(true)
+   359→    setTimeout(() => setShowSuccess(false), 3000)
+   360→  }
+   361→
+   362→  // Send verification email
+   363→  const handleSendVerification = async () => {
+   364→    setIsSendingVerification(true)
+   365→    await new Promise(resolve => setTimeout(resolve, 1500))
+   366→    setIsSendingVerification(false)
+   367→    alert('Verification email sent! Please check your inbox.')
+   368→  }
+   369→
+   370→  // Delete account
+   371→  const handleDeleteAccount = () => {
+   372→    if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
+   373→      localStorage.clear()
+   374→      if (onLogout) onLogout()
+   375→      router.push('/')
+   376→    }
+   377→  }
+   378→
+   379→  // Clear history
+   380→  const handleClearHistory = () => {
+   381→    if (confirm('Are you sure you want to clear all chat history?')) {
+   382→      localStorage.removeItem('nexus_chat_history')
+   383→      setShowSuccess(true)
+   384→      setTimeout(() => setShowSuccess(false), 3000)
+   385→    }
+   386→  }
+   387→
+   388→  const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
+   389→
+   390→  return (
+   391→    <div style={{ 
+   392→      minHeight: '100vh',
+   393→      background: 'linear-gradient(to bottom right, #030712, #111827, #000000)',
+   394→      color: '#ffffff',
+   395→      fontFamily: 'system-ui, -apple-system, sans-serif'
+   396→    }}>
+   397→      
+   398→      {/* Success Toast */}
+   399→      {showSuccess && (
+   400→        <div style={{
+   401→          position: 'fixed',
+   402→          top: '16px',
+   403→          right: '16px',
+   404→          zIndex: 9999,
+   405→          background: 'rgba(34, 197, 94, 0.2)',
+   406→          border: '1px solid rgba(34, 197, 94, 0.3)',
+   407→          backdropFilter: 'blur(12px)',
+   408→          borderRadius: '12px',
+   409→          padding: '16px 24px',
+   410→          display: 'flex',
+   411→          alignItems: 'center',
+   412→          gap: '8px',
+   413→          boxShadow: '0 8px 32px rgba(34, 197, 94, 0.2)'
+   414→        }}>
+   415→          <CheckCircle size={20} className="text-green-400" />
+   416→          <span style={{ color: '#86efac', fontWeight: 500 }}>Action completed successfully!</span>
+   417→        </div>
+   418→      )}
+   419→
+   420→      {/* ===== HEADER ===== */}
+   421→      <header style={{
+   422→        position: 'sticky',
+   423→        top: 0,
+   424→        zIndex: 100,
+   425→        background: 'rgba(3, 7, 18, 0.95)',
+   426→        backdropFilter: 'blur(12px)',
+   427→        borderBottom: '1px solid rgba(55, 65, 81, 0.5)',
+   428→        padding: '16px'
+   429→      }}>
+   430→        <div style={{
+   431→          maxWidth: '1200px',
+   432→          margin: '0 auto',
+   433→          display: 'flex',
+   434→          alignItems: 'center',
+   435→          justifyContent: 'space-between',
+   436→          gap: '16px'
+   437→        }}>
+   438→          {/* Back Button */}
+   439→          <button
+   440→            onClick={onBack}
+   441→            style={{
+   442→              display: 'flex',
+   443→              alignItems: 'center',
+   444→              gap: '8px',
+   445→              color: '#9ca3af',
+   446→              background: 'none',
+   447→              border: 'none',
+   448→              cursor: 'pointer',
+   449→              fontSize: '14px',
+   450→              fontWeight: 500,
+   451→              padding: '8px 12px',
+   452→              borderRadius: '8px',
+   453→              transition: 'all 0.2s'
+   454→            }}
+   455→            onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(75, 85, 99, 0.3)' }}
+   456→            onMouseLeave={(e) => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.background = 'transparent' }}
+   457→          >
+   458→            <ChevronLeft size={18} />
+   459→            <span>Back</span>
+   460→          </button>
+   461→
+   462→          {/* Title - Centered */}
+   463→          <h1 style={{
+   464→            fontSize: '20px',
+   465→            fontWeight: 700,
+   466→            background: 'linear-gradient(135deg, #22d3ee, #a855f7)',
+   467→            WebkitBackgroundClip: 'text',
+   468→            WebkitTextFillColor: 'transparent',
+   469→            margin: 0,
+   470→            position: window.innerWidth > 768 ? 'relative' : 'absolute',
+   471→            left: window.innerWidth > 768 ? 'auto' : '50%',
+   472→            transform: window.innerWidth > 768 ? 'none' : 'translateX(-50%)'
+   473→          }}>
+   474→            My Profile
+   475→          </h1>
+   476→
+   477→          {/* Edit/Cancel Button */}
+   478→          {!isEditing ? (
+   479→            <button
+   480→              onClick={() => setIsEditing(true)}
+   481→              style={{
+   482→                display: 'flex',
+   483→                alignItems: 'center',
+   484→                gap: '6px',
+   485→                padding: '8px 16px',
+   486→                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+   487→                border: 'none',
+   488→                borderRadius: '8px',
+   489→                color: '#000000',
+   490→                fontSize: '14px',
+   491→                fontWeight: 600,
+   492→                cursor: 'pointer',
+   493→                transition: 'opacity 0.2s'
+   494→              }}
+   495→              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+   496→              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+   497→            >
+   498→              <Edit3 size={16} />
+   499→              <span>Edit</span>
+   500→            </button>
+   501→          ) : (
+   502→            <button
+   503→              onClick={handleCancelEdit}
+   504→              style={{
+   505→                padding: '8px 16px',
+   506→                background: 'transparent',
+   507→                border: '1px solid #4b5563',
+   508→                borderRadius: '8px',
+   509→                color: '#d1d5db',
+   510→                fontSize: '14px',
+   511→                cursor: 'pointer',
+   512→                transition: 'background 0.2s'
+   513→              }}
+   514→              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(75, 85, 99, 0.3)'}
+   515→              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+   516→            >
+   517→              Cancel
+   518→            </button>
+   519→          )}
+   520→        </div>
+   521→      </header>
+   522→
+   523→      {/* ===== MAIN CONTENT ===== */}
+   524→      <main style={{
+   525→        maxWidth: '900px',
+   526→        margin: '0 auto',
+   527→        padding: '24px 16px',
+   528→        paddingBottom: '80px'
+   529→      }}>
+   530→        
+   531→        {/* Chat Limit Banner */}
+   532→        {currentPlan === 'free' && (
+   533→          <div style={{
+   534→            background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1))',
+   535→            border: '1px solid rgba(6, 182, 212, 0.2)',
+   536→            borderRadius: '12px',
+   537→            padding: '16px',
+   538→            marginBottom: '24px'
+   539→          }}>
+   540→            <div style={{
+   541→              display: 'flex',
+   542→              flexDirection: window.innerWidth > 640 ? 'row' : 'column',
+   543→              alignItems: window.innerWidth > 640 ? 'center' : 'flex-start',
+   544→              justifyContent: 'space-between',
+   545→              gap: '12px'
+   546→            }}>
+   547→              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+   548→                <Clock size={18} className="text-cyan-400" style={{ animation: 'pulse 2s infinite' }} />
+   549→                <span style={{ color: '#67e8f9', fontSize: '14px' }}>
+   550→                  Daily Chat Limit: <strong>{chatCountToday}/{maxChatsForPlan}</strong> chats used
+   551→                </span>
+   552→              </div>
+   553→              <div style={{ 
+   554→                display: 'flex', 
+   555→                alignItems: 'center', 
+   556→                gap: '12px',
+   557→                width: window.innerWidth > 640 ? 'auto' : '100%'
+   558→              }}>
+   559→                <div style={{ 
+   560→                  flex: 1,
+   561→                  height: '8px',
+   562→                  background: '#1f2937',
+   563→                  borderRadius: '4px',
+   564→                  overflow: 'hidden',
+   565→                  width: window.innerWidth > 640 ? '128px' : '100%'
+   566→                }}>
+   567→                  <div style={{
+   568→                    height: '100%',
+   569→                    width: `${Math.min(chatLimitPercentage, 100)}%`,
+   570→                    background: chatLimitPercentage >= 90 ? '#ef4444' : chatLimitPercentage >= 70 ? '#eab308' : 'linear-gradient(90deg, #06b6d4, #a855f7)',
+   571→                    transition: 'width 0.3s ease',
+   572→                    borderRadius: '4px'
+   573→                  }} />
+   574→                </div>
+   575→                <span style={{ fontSize: '12px', color: '#9ca3af' }}>Resets: {chatResetTime}</span>
+   576→              </div>
+   577→            </div>
+   578→          </div>
+   579→        )}
+   580→
+   581→        {/* ===== PROFILE CARD ===== */}
+   582→        <div style={{
+   583→          background: 'rgba(17, 24, 39, 0.6)',
+   584→          border: '1px solid rgba(55, 65, 81, 0.5)',
+   585→          borderRadius: '16px',
+   586→          padding: window.innerWidth > 768 ? '32px' : '24px',
+   587→          marginBottom: '24px'
+   588→        }}>
+   589→          <div style={{
+   590→            display: 'flex',
+   591→            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
+   592→            alignItems: window.innerWidth > 768 ? 'flex-start' : 'center',
+   593→            gap: '24px',
+   594→            textAlign: window.innerWidth > 768 ? 'left' : 'center'
+   595→          }}>
+   596→            
+   597→            {/* Avatar Section */}
+   598→            <div style={{ position: 'relative', display: 'inline-block' }}>
+   599→              <div style={{
+   600→                width: window.innerWidth > 768 ? '128px' : '96px',
+   601→                height: window.innerWidth > 768 ? '128px' : '96px',
+   602→                borderRadius: '50%',
+   603→                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+   604→                padding: '3px'
+   605→              }}>
+   606→                <div style={{
+   607→                  width: '100%',
+   608→                  height: '100%',
+   609→                  borderRadius: '50%',
+   610→                  overflow: 'hidden',
+   611→                  background: '#1f2937',
+   612→                  display: 'flex',
+   613→                  alignItems: 'center',
+   614→                  justifyContent: 'center'
+   615→                }}>
+   616→                  {avatar ? (
+   617→                    <img src={avatar} alt={name || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+   618→                  ) : (
+   619→                    <span style={{ fontSize: window.innerWidth > 736 ? '32px' : '24px', fontWeight: 700, color: '#22d3ee' }}>
+   620→                      {getInitials(name || 'U')}
+   621→                    </span>
+   622→                  )}
+   623→                </div>
+   624→              </div>
+   625→              
+   626→              {/* Online Status */}
+   627→              <span style={{
+   628→                position: 'absolute',
+   629→                bottom: '4px',
+   630→                right: '4px',
+   631→                width: '16px',
+   632→                height: '16px',
+   633→                backgroundColor: '#22c55e',
+   634→                borderRadius: '50%',
+   635→                border: '3px solid #111827'
+   636→              }} />
+   637→
+   638→              {/* Edit Avatar Overlay */}
+   639→              {isEditing && (
+   640→                <>
+   641→                  <button
+   642→                    onClick={() => fileInputRef.current?.click()}
+   643→                    style={{
+   644→                      position: 'absolute',
+   645→                      inset: 0,
+   646→                      width: window.innerWidth > 768 ? '128px' : '96px',
+   647→                      height: window.innerWidth > 768 ? '128px' : '96px',
+   648→                      borderRadius: '50%',
+   649→                      background: 'rgba(0, 0, 0, 0.6)',
+   650→                      opacity: 0,
+   651→                      cursor: 'pointer',
+   652→                      display: 'flex',
+   653→                      alignItems: 'center',
+   654→                      justifyContent: 'center',
+   655→                      transition: 'opacity 0.2s',
+   656→                      border: 'none',
+   657→                      padding: 0
+   658→                    }}
+   659→                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+   660→                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+   661→                  >
+   662→                    <Camera size={28} color="white" />
+   663→                  </button>
+   664→                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+   665→                </>
+   666→              )}
+   667→
+   668→              {/* Remove Avatar Button */}
+   669→              {isEditing && avatar && (
+   670→                <button
+   671→                  onClick={handleRemoveAvatar}
+   672→                  style={{
+   673→                    position: 'absolute',
+   674→                    top: '-8px',
+   675→                    right: '-8px',
+   676→                    width: '28px',
+   677→                    height: '28px',
+   678→                    background: '#ef4444',
+   679→                    borderRadius: '50%',
+   680→                    border: 'none',
+   681→                    cursor: 'pointer',
+   682→                    display: 'flex',
+   683→                    alignItems: 'center',
+   684→                    justifyContent: 'center',
+   685→                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)'
+   686→                  }}
+   687→                >
+   688→                  <X size={14} color="white" />
+   689→                </button>
+   690→              )}
+   691→            </div>
+   692→
+   693→            {/* User Info */}
+   694→            <div style={{ flex: 1 }}>
+   695→              {isEditing ? (
+   696→                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+   697→                  <input
+   698→                    type="text"
+   699→                    value={name}
+   700→                    onChange={(e) => setName(e.target.value)}
+   701→                    placeholder="Enter your name"
+   702→                    style={{
+   703→                      width: '100%',
+   704→                      background: '#1f2937',
+   705→                      border: '1px solid #374151',
+   706→                      borderRadius: '8px',
+   707→                      padding: '12px 16px',
+   708→                      color: '#ffffff',
+   709→                      fontSize: '16px',
+   710→                      outline: 'none'
+   711→                    }}
+   712→                    onFocus={(e) => { e.target.style.borderColor = '#06b6d4'; e.target.style.boxShadow = '0 0 0 3px rgba(6, 182, 212, 0.2)' }}
+   713→                    onBlur={(e) => { e.target.style.borderColor = '#374151'; e.target.style.boxShadow = 'none' }}
+   714→                  />
+   715→                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '14px' }}>
+   716→                    <Mail size={16} />
+   717→                    <span>{email}</span>
+   718→                    {emailVerified && <CheckCircle size={16} className="text-green-400" />}
+   719→                  </div>
+   720→                  
+   721→                  {/* Additional Fields in Edit Mode */}
+   722→                  <div style={{ 
+   723→                    display: 'grid', 
+   724→                    gridTemplateColumns: window.innerWidth > 640 ? 'repeat(3, 1fr)' : '1fr',
+   725→                    gap: '12px',
+   726→                    paddingTop: '16px',
+   727→                    borderTop: '1px solid #374151'
+   728→                  }}>
+   729→                    <div>
+   730→                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Bio</label>
+   731→                      <textarea
+   732→                        value={bio}
+   733→                        onChange={(e) => setBio(e.target.value)}
+   734→                        placeholder="Tell us about yourself..."
+   735→                        rows={2}
+   736→                        style={{
+   737→                          width: '100%',
+   738→                          background: '#1f2937',
+   739→                          border: '1px solid #374151',
+   740→                          borderRadius: '8px',
+   741→                          padding: '8px 12px',
+   742→                          color: '#ffffff',
+   743→                          fontSize: '14px',
+   744→                          resize: 'none',
+   745→                          outline: 'none'
+   746→                        }}
+   747→                      />
+   748→                    </div>
+   749→                    <div>
+   750→                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Phone</label>
+   751→                      <input
+   752→                        type="tel"
+   753→                        value={phone}
+   754→                        onChange={(e) => setPhone(e.target.value)}
+   755→                        placeholder="+1 234 567 890"
+   756→                        style={{
+   757→                          width: '100%',
+   758→                          background: '#1f2937',
+   759→                          border: '1px solid #374151',
+   760→                          borderRadius: '8px',
+   761→                          padding: '8px 12px',
+   762→                          color: '#ffffff',
+   763→                          fontSize: '14px',
+   764→                          outline: 'none'
+   765→                        }}
+   766→                      />
+   767→                    </div>
+   768→                    <div>
+   769→                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Location</label>
+   770→                      <input
+   771→                        type="text"
+   772→                        value={location}
+   773→                        onChange={(e) => setLocation(e.target.value)}
+   774→                        placeholder="City, Country"
+   775→                        style={{
+   776→                          width: '100%',
+   777→                          background: '#1f2937',
+   778→                          border: '1px solid #374151',
+   779→                          borderRadius: '8px',
+   780→                          padding: '8px 12px',
+   781→                          color: '#ffffff',
+   782→                          fontSize: '14px',
+   783→                          outline: 'none'
+   784→                        }}
+   785→                      />
+   786→                    </div>
+   787→                  </div>
+   788→
+   789→                  {/* Save Button */}
+   790→                  <button
+   791→                    onClick={handleSaveProfile}
+   792→                    disabled={isLoading}
+   793→                    style={{
+   794→                      display: 'flex',
+   795→                      alignItems: 'center',
+   796→                      justifyContent: 'center',
+   797→                      gap: '8px',
+   798→                      padding: '12px 24px',
+   799→                      background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+   800→                      border: 'none',
+   801→                      borderRadius: '8px',
+   802→                      color: '#000000',
+   803→                      fontSize: '14px',
+   804→                      fontWeight: 600,
+   805→                      cursor: isLoading ? 'not-allowed' : 'pointer',
+   806→                      opacity: isLoading ? 0.7 : 1,
+   807→                      alignSelf: 'flex-start'
+   808→                    }}
+   809→                  >
+   810→                    {isLoading ? (
+   811→                      <><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</>
+   812→                    ) : (
+   813→                      <><Save size={16} /> Save Changes</>
+   814→                    )}
+   815→                  </button>
+   816→                </div>
+   817→              ) : (
+   818→                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+   819→                  {/* Name & Badge */}
+   820→                  <div style={{ 
+   821→                    display: 'flex', 
+   822→                    alignItems: 'center', 
+   823→                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+   824→                    gap: '12px',
+   825→                    flexWrap: 'wrap'
+   826→                  }}>
+   827→                    <h2 style={{ margin: 0, fontSize: window.innerWidth > 768 ? '28px' : '24px', fontWeight: 700, color: '#ffffff' }}>
+   828→                      {name || 'User'}
+   829→                    </h2>
+   830→                    <span style={{
+   831→                      padding: '4px 12px',
+   832→                      borderRadius: '9999px',
+   833→                      fontSize: '12px',
+   834→                      fontWeight: 600,
+   835→                      background: currentPlan === 'pro' ? 'rgba(234, 179, 8, 0.2)' : currentPlan === 'normal' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+   836→                      color: currentPlan === 'pro' ? '#fbbf24' : currentPlan === 'normal' ? '#22d3ee' : '#9ca3af'
+   837→                    }}>
+   838→                      {currentPlan.toUpperCase()}
+   839→                    </span>
+   840→                  </div>
+   841→                  
+   842→                  {/* Email */}
+   843→                  <div style={{ 
+   844→                    display: 'flex', 
+   845→                    alignItems: 'center', 
+   846→                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+   847→                    gap: '8px', 
+   848→                    color: '#9ca3af', 
+   849→                    fontSize: '14px' 
+   850→                  }}>
+   851→                    <Mail size={16} />
+   852→                    <span>{email}</span>
+   853→                    {emailVerified ? (
+   854→                      <CheckCircle size={16} className="text-green-400" />
+   855→                    ) : (
+   856→                      <button
+   857→                        onClick={handleSendVerification}
+   858→                        disabled={isSendingVerification}
+   859→                        style={{
+   860→                          background: 'none',
+   861→                          border: 'none',
+   862→                          color: '#22d3ee',
+   863→                          cursor: isSendingVerification ? 'not-allowed' : 'pointer',
+   864→                          fontSize: '12px',
+   865→                          textDecoration: 'underline',
+   866→                          padding: 0
+   867→                        }}
+   868→                      >
+   869→                        {isSendingVerification ? 'Sending...' : 'Verify'}
+   870→                      </button>
+   871→                    )}
+   872→                  </div>
+   873→
+   874→                  {/* Bio */}
+   875→                  {bio && (
+   876→                    <p style={{ margin: '8px 0 0', color: '#d1d5db', fontSize: '14px', maxWidth: '400px' }}>
+   877→                      {bio}
+   878→                    </p>
+   879→                  )}
+   880→
+   881→                  {/* Additional Info */}
+   882→                  <div style={{ 
+   883→                    display: 'flex', 
+   884→                    flexWrap: 'wrap',
+   885→                    alignItems: 'center', 
+   886→                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+   887→                    gap: '16px', 
+   888→                    fontSize: '12px', 
+   889→                    color: '#6b7280',
+   890→                    marginTop: '8px'
+   891→                  }}>
+   892→                    {phone && (
+   893→                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+   894→                        <Phone size={12} /> {phone}
+   895→                      </span>
+   896→                    )}
+   897→                    {location && (
+   898→                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+   899→                        <MapPin size={12} /> {location}
+   900→                      </span>
+   901→                    )}
+   902→                    {website && (
+   903→                      <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer"
+   904→                         style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', textDecoration: 'none' }}
+   905→                         onMouseEnter={(e) => e.currentTarget.style.color = '#22d3ee'}
+   906→                         onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}>
+   907→                        <Globe size={12} /> Website
+   908→                      </a>
+   909→                    )}
+   910→                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+   911→                      <Calendar size={12} /> Joined {formatDate(new Date().toISOString())}
+   912→                    </span>
+   913→                  </div>
+   914→                </div>
+   915→              )}
+   916→            </div>
+   917→          </div>
+   918→        </div>
+   919→
+   920→        {/* ===== TABS NAVIGATION ===== */}
+   921→        <div style={{
+   922→          display: 'flex',
+   923→          gap: '8px',
+   924→          padding: '4px',
+   925→          background: 'rgba(17, 24, 39, 0.6)',
+   926→          border: '1px solid rgba(55, 65, 81, 0.5)',
+   927→          borderRadius: '12px',
+   928→          marginBottom: '24px'
+   929→        }}>
+   930→          {[
+   931→            { id: 'profile' as const, label: 'Profile', icon: User },
+   932→            { id: 'subscription' as const, label: 'Subscription', icon: Crown },
+   933→            { id: 'settings' as const, label: 'Settings', icon: Settings }
+   934→          ].map(tab => (
+   935→            <button
+   936→              key={tab.id}
+   937→              onClick={() => setActiveTab(tab.id)}
+   938→              style={{
+   939→                flex: 1,
+   940→                display: 'flex',
+   941→                alignItems: 'center',
+   942→                justifyContent: 'center',
+   943→                gap: '8px',
+   944→                padding: '12px 16px',
+   945→                background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))' : 'transparent',
+   946→                border: activeTab === tab.id ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent',
+   947→                borderRadius: '8px',
+   948→                color: activeTab === tab.id ? '#22d3ee' : '#9ca3af',
+   949→                fontSize: '14px',
+   950→                fontWeight: 500,
+   951→                cursor: 'pointer',
+   952→                transition: 'all 0.2s'
+   953→              }}
+   954→              onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'rgba(55, 65, 81, 0.3)' }}
+   955→              onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'transparent' }}
+   956→            >
+   957→              <tab.icon size={16} />
+   958→              <span>{tab.label}</span>
+   959→            </button>
+   960→          ))}
+   961→        </div>
+   962→
+   963→        {/* ===== TAB CONTENT ===== */}
+   964→
+   965→        {/* PROFILE TAB CONTENT */}
+   966→        {activeTab === 'profile' && (
+   967→          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+   968→            
+   969→            {/* Stats Grid */}
+   970→            <div style={{
+   971→              display: 'grid',
+   972→              gridTemplateColumns: window.innerWidth > 640 ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
+   973→              gap: '16px'
+   974→            }}>
+   975→              {[
+   976→                { icon: MessageSquare, value: chatCountToday.toString(), label: 'Chats Today', color: '#22d3ee' },
+   977→                { icon: Calendar, value: currentPlan === 'free' ? '10' : '∞', label: 'Daily Limit', color: '#a855f7' },
+   978→                { icon: Award, value: currentPlan.toUpperCase(), label: 'Current Plan', color: '#fbbf24' },
+   979→                { icon: ShieldCheck, value: emailVerified ? 'Yes' : 'No', label: 'Verified', color: '#22c55e' }
+   980→              ].map((stat, idx) => (
+   981→                <div key={idx} style={{
+   982→                  background: 'rgba(17, 24, 39, 0.6)',
+   983→                  border: '1px solid rgba(55, 65, 81, 0.5)',
+   984→                  borderRadius: '12px',
+   985→                  padding: '16px',
+   986→                  textAlign: 'center'
+   987→                }}>
+   988→                  <stat.icon size={24} style={{ color: stat.color, margin: '0 auto 8px' }} />
+   989→                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>{stat.value}</div>
+   990→                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>{stat.label}</div>
+   991→                </div>
+   992→              ))}
+   993→            </div>
+   994→
+   995→            {/* Account Details */}
+   996→            <div style={{
+   997→              background: 'rgba(17, 24, 39, 0.6)',
+   998→              border: '1px solid rgba(55, 65, 81, 0.5)',
+   999→              borderRadius: '12px',
+  1000→              padding: '24px'
+  1001→            }}>
+  1002→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1003→                <Database size={20} style={{ color: '#22d3ee' }} />
+  1004→                Account Details
+  1005→              </h3>
+  1006→              
+  1007→              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+  1008→                {[
+  1009→                  { label: 'Account Status', value: 'Active', badge: true },
+  1010→                  { label: 'Member Since', value: formatDate(new Date().toISOString()), badge: false },
+  1011→                  { label: 'Plan Type', value: currentPlan, badge: false },
+  1012→                  { label: 'Email Verified', value: emailVerified ? 'Verified' : 'Pending', badge: false, highlight: !emailVerified }
+  1013→                ].map((item, idx) => (
+  1014→                  <div key={idx} style={{
+  1015→                    display: 'flex',
+  1016→                    justifyContent: 'space-between',
+  1017→                    alignItems: 'center',
+  1018→                    padding: '12px 0',
+  1019→                    borderBottom: idx < 3 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none'
+  1020→                  }}>
+  1021→                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>{item.label}</span>
+  1022→                    {item.badge ? (
+  1023→                      <span style={{
+  1024→                        padding: '4px 12px',
+  1025→                        background: 'rgba(34, 197, 94, 0.2)',
+  1026→                        color: '#4ade80',
+  1027→                        borderRadius: '9999px',
+  1028→                        fontSize: '12px',
+  1029→                        fontWeight: 600
+  1030→                      }}>
+  1031→                        {item.value}
+  1032→                      </span>
+  1033→                    ) : (
+  1034→                      <span style={{ color: item.highlight ? '#fbbf24' : '#ffffff', fontSize: '14px' }}>{item.value}</span>
+  1035→                    )}
+  1036→                  </div>
+  1037→                ))}
+  1038→              </div>
+  1039→            </div>
+  1040→
+  1041→            {/* Quick Actions */}
+  1042→            <div style={{
+  1043→              background: 'rgba(17, 24, 39, 0.6)',
+  1044→              border: '1px solid rgba(55, 65, 81, 0.5)',
+  1045→              borderRadius: '12px',
+  1046→              padding: '24px'
+  1047→            }}>
+  1048→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1049→                <Zap size={20} style={{ color: '#a855f7' }} />
+  1050→                Quick Actions
+  1051→              </h3>
+  1052→              
+  1053→              <div style={{
+  1054→                display: 'grid',
+  1055→                gridTemplateColumns: window.innerWidth > 640 ? 'repeat(2, 1fr)' : '1fr',
+  1056→                gap: '12px'
+  1057→              }}>
+  1058→                {[
+  1059→                  { icon: Crown, title: 'Upgrade Plan', desc: 'Unlock more features', action: () => setActiveTab('subscription'), color: '#22d3ee' },
+  1060→                  { icon: Download, title: 'Export Data', desc: 'Download your chat history', action: handleExportData, loading: isExporting, color: '#22c55e' },
+  1061→                  { icon: Upload, title: 'Import Data', desc: 'Restore from backup', action: () => importInputRef.current?.click(), loading: isImporting, color: '#3b82f6' },
+  1062→                  { icon: RefreshCw, title: 'Clear History', desc: 'Delete all chat data', action: handleClearHistory, color: '#ef4444' }
+  1063→                ].map((action, idx) => (
+  1064→                  <button
+  1065→                    key={idx}
+  1066→                    onClick={action.action}
+  1067→                    disabled={action.loading}
+  1068→                    style={{
+  1069→                      display: 'flex',
+  1070→                      alignItems: 'center',
+  1071→                      gap: '12px',
+  1072→                      padding: '16px',
+  1073→                      background: 'rgba(31, 41, 55, 0.5)',
+  1074→                      border: '1px solid rgba(55, 65, 81, 0.3)',
+  1075→                      borderRadius: '8px',
+  1076→                      cursor: action.loading ? 'not-allowed' : 'pointer',
+  1077→                      textAlign: 'left',
+  1078→                      transition: 'background 0.2s',
+  1079→                      opacity: action.loading ? 0.6 : 1
+  1080→                    }}
+  1081→                    onMouseEnter={(e) => { if (!action.loading) e.currentTarget.style.background = 'rgba(55, 65, 81, 0.5)' }}
+  1082→                    onMouseLeave={(e) => { if (!action.loading) e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)' }}
+  1083→                  >
+  1084→                    <div style={{
+  1085→                      padding: '8px',
+  1086→                      background: `${action.color}20`,
+  1087→                      borderRadius: '8px',
+  1088→                      display: 'flex',
+  1089→                      alignItems: 'center',
+  1090→                      justifyContent: 'center'
+  1091→                    }}>
+  1092→                      <action.icon size={20} style={{ color: action.color }} />
+  1093→                    </div>
+  1094→                    <div>
+  1095→                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>
+  1096→                        {action.title}
+  1097→                        {action.loading && <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite', marginLeft: '8px' }} />}
+  1098→                      </div>
+  1099→                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{action.desc}</div>
+  1100→                    </div>
+  1101→                  </button>
+  1102→                ))}
+  1103→              </div>
+  1104→              <input ref={importInputRef} type="file" accept=".json" onChange={handleImportData} style={{ display: 'none' }} />
+  1105→            </div>
+  1106→          </div>
+  1107→        )}
+  1108→
+  1109→        {/* SUBSCRIPTION TAB CONTENT */}
+  1110→        {activeTab === 'subscription' && (
+  1111→          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+  1112→            
+  1113→            {/* Current Plan Status */}
+  1114→            <div style={{
+  1115→              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1))',
+  1116→              border: '1px solid rgba(6, 182, 212, 0.2)',
+  1117→              borderRadius: '12px',
+  1118→              padding: '24px'
+  1119→            }}>
+  1120→              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+  1121→                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Current Plan</h3>
+  1122→                <span style={{
+  1123→                  padding: '4px 12px',
+  1124→                  background: currentPlan === 'pro' ? 'rgba(251, 191, 36, 0.2)' : currentPlan === 'normal' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+  1125→                  color: currentPlan === 'pro' ? '#fbbf24' : currentPlan === 'normal' ? '#22d3ee' : '#9ca3af',
+  1126→                  borderRadius: '9999px',
+  1127→                  fontSize: '12px',
+  1128→                  fontWeight: 600
+  1129→                }}>
+  1130→                  {currentPlan.toUpperCase()}
+  1131→                </span>
+  1132→              </div>
+  1133→              
+  1134→              {currentPlan === 'free' ? (
+  1135→                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+  1136→                  <p style={{ margin: 0, color: '#d1d5db', fontSize: '14px' }}>
+  1137→                    You're currently on the Free plan. Upgrade to unlock unlimited chats and premium features!
+  1138→                  </p>
+  1139→                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#9ca3af' }}>
+  1140→                    <Clock size={16} style={{ color: '#22d3ee' }} />
+  1141→                    <span>{chatCountToday} of {maxChatsForPlan} chats used today</span>
+  1142→                  </div>
+  1143→                </div>
+  1144→              ) : (
+  1145→                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+  1146→                  <p style={{ margin: 0, color: '#d1d5db', fontSize: '14px' }}>
+  1147→                    Enjoy your {currentPlan.toUpperCase()} benefits! Unlimited access to premium features.
+  1148→                  </p>
+  1149→                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#22c55e' }}>
+  1150→                    <CheckCircle size={16} />
+  1151→                    <span>Unlimited chats & premium features</span>
+  1152→                  </div>
+  1153→                </div>
+  1154→              )}
+  1155→            </div>
+  1156→
+  1157→            {/* Plans Grid */}
+  1158→            <div>
+  1159→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Available Plans</h3>
+  1160→              
+  1161→              <div style={{
+  1162→                display: 'grid',
+  1163→                gridTemplateColumns: window.innerWidth > 768 ? 'repeat(3, 1fr)' : '1fr',
+  1164→                gap: '16px'
+  1165→              }}>
+  1166→                {SUBSCRIPTION_PLANS.map((plan) => (
+  1167→                  <div key={plan.id} style={{
+  1168→                    position: 'relative',
+  1169→                    background: 'rgba(17, 24, 39, 0.6)',
+  1170→                    border: plan.popular ? '1px solid #22d3ee' : plan.locked ? '1px solid rgba(55, 65, 81, 0.5)' : currentPlan === plan.id ? '1px solid #22c55e' : '1px solid rgba(55, 65, 81, 0.5)',
+  1171→                    borderRadius: '12px',
+  1172→                    padding: '24px',
+  1173→                    opacity: plan.locked ? 0.8 : 1
+  1174→                  }}>
+  1175→                    {plan.popular && (
+  1176→                      <div style={{
+  1177→                        position: 'absolute',
+  1178→                        top: '-12px',
+  1179→                        left: '50%',
+  1180→                        transform: 'translateX(-50%)',
+  1181→                        padding: '4px 16px',
+  1182→                        background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+  1183→                        borderRadius: '9999px',
+  1184→                        fontSize: '12px',
+  1185→                        fontWeight: 600,
+  1186→                        color: '#000000'
+  1187→                      }}>
+  1188→                        Most Popular
+  1189→                      </div>
+  1190→                    )}
+  1191→
+  1192→                    {currentPlan === plan.id && (
+  1193→                      <div style={{
+  1194→                        position: 'absolute',
+  1195→                        top: '-12px',
+  1196→                        right: '-8px',
+  1197→                        padding: '4px 12px',
+  1198→                        background: 'rgba(34, 197, 94, 0.2)',
+  1199→                        border: '1px solid rgba(34, 197, 94, 0.3)',
+  1200→                        borderRadius: '9999px',
+  1201→                        fontSize: '11px',
+  1202→                        fontWeight: 600,
+  1203→                        color: '#4ade80'
+  1204→                      }}>
+  1205→                        Current
+  1206→                      </div>
+  1207→                    )}
+  1208→
+  1209→                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+  1210→                      <div style={{ fontSize: '24px', fontWeight: 700, color: plan.color === 'text-gray-400' ? '#9ca3af' : plan.color === 'text-cyan-400' ? '#22d3ee' : '#fbbf24' }}>
+  1211→                        {plan.name}
+  1212→                      </div>
+  1213→                      <div style={{ marginTop: '12px' }}>
+  1214→                        <span style={{ fontSize: '32px', fontWeight: 700, color: '#ffffff' }}>${plan.price}</span>
+  1215→                        <span style={{ color: '#9ca3af', fontSize: '14px' }}>/{plan.period}</span>
+  1216→                      </div>
+  1217→                    </div>
+  1218→
+  1219→                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+  1220→                      {plan.features.map((feature, idx) => (
+  1221→                        <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#d1d5db' }}>
+  1222→                          <Check size={16} style={{ color: '#22c55e', flexShrink: 0, marginTop: '2px' }} />
+  1223→                          <span>{feature}</span>
+  1224→                        </li>
+  1225→                      ))}
+  1226→                    </ul>
+  1227→
+  1228→                    {plan.locked ? (
+  1229→                      <button
+  1230→                        disabled
+  1231→                        style={{
+  1232→                          width: '100%',
+  1233→                          padding: '12px',
+  1234→                          background: '#1f2937',
+  1235→                          border: '1px solid #374151',
+  1236→                          borderRadius: '8px',
+  1237→                          color: '#6b7280',
+  1238→                          fontSize: '14px',
+  1239→                          fontWeight: 500,
+  1240→                          cursor: 'not-allowed',
+  1241→                          display: 'flex',
+  1242→                          alignItems: 'center',
+  1243→                          justifyContent: 'center',
+  1244→                          gap: '8px'
+  1245→                        }}
+  1246→                      >
+  1247→                        <Lock size={16} />
+  1248→                        {plan.lockMessage}
+  1249→                      </button>
+  1250→                    ) : currentPlan === plan.id ? (
+  1251→                      <button
+  1252→                        disabled
+  1253→                        style={{
+  1254→                          width: '100%',
+  1255→                          padding: '12px',
+  1256→                          background: 'rgba(34, 197, 94, 0.2)',
+  1257→                          border: '1px solid rgba(34, 197, 94, 0.3)',
+  1258→                          borderRadius: '8px',
+  1259→                          color: '#4ade80',
+  1260→                          fontSize: '14px',
+  1261→                          fontWeight: 500,
+  1262→                          cursor: 'not-allowed'
+  1263→                        }}
+  1264→                      >
+  1265→                        Current Plan
+  1266→                      </button>
+  1267→                    ) : (
+  1268→                      <button
+  1269→                        onClick={() => handleUpgrade(plan.id)}
+  1270→                        disabled={isProcessingPayment}
+  1271→                        style={{
+  1272→                          width: '100%',
+  1273→                          padding: '12px',
+  1274→                          background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+  1275→                          border: 'none',
+  1276→                          borderRadius: '8px',
+  1277→                          color: '#000000',
+  1278→                          fontSize: '14px',
+  1279→                          fontWeight: 600,
+  1280→                          cursor: isProcessingPayment ? 'not-allowed' : 'pointer',
+  1281→                          opacity: isProcessingPayment ? 0.7 : 1,
+  1282→                          transition: 'opacity 0.2s'
+  1283→                        }}
+  1284→                      >
+  1285→                        {isProcessingPayment ? (
+  1286→                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+  1287→                            <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
+  1288→                            Processing...
+  1289→                          </span>
+  1290→                        ) : (
+  1291→                          `Upgrade to ${plan.name}`
+  1292→                        )}
+  1293→                      </button>
+  1294→                    )}
+  1295→                  </div>
+  1296→                ))}
+  1297→              </div>
+  1298→            </div>
+  1299→
+  1300→            {/* Billing Info */}
+  1301→            <div style={{
+  1302→              background: 'rgba(17, 24, 39, 0.6)',
+  1303→              border: '1px solid rgba(55, 65, 81, 0.5)',
+  1304→              borderRadius: '12px',
+  1305→              padding: '24px'
+  1306→            }}>
+  1307→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1308→                <CreditCard size={20} style={{ color: '#22d3ee' }} />
+  1309→                Billing Information
+  1310→              </h3>
+  1311→              
+  1312→              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+  1313→                {[
+  1314→                  { label: 'Next Payment', value: currentPlan === 'free' ? 'N/A' : 'Monthly' },
+  1315→                  { label: 'Payment Method', value: currentPlan === 'free' ? 'Not configured' : '•••• 4242', icon: CreditCard },
+  1316→                  { label: 'Invoice History', value: 'View', link: true }
+  1317→                ].map((item, idx) => (
+  1318→                  <div key={idx} style={{
+  1319→                    display: 'flex',
+  1320→                    justifyContent: 'space-between',
+  1321→                    alignItems: 'center',
+  1322→                    padding: '12px 0',
+  1323→                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none'
+  1324→                  }}>
+  1325→                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>{item.label}</span>
+  1326→                    {item.link ? (
+  1327→                      <button style={{
+  1328→                        background: 'none',
+  1329→                        border: 'none',
+  1330→                        color: '#22d3ee',
+  1331→                        cursor: 'pointer',
+  1332→                        fontSize: '14px',
+  1333→                        display: 'flex',
+  1334→                        alignItems: 'center',
+  1335→                        gap: '4px',
+  1336→                        padding: 0
+  1337→                      }}>
+  1338→                        {item.value} <ExternalLink size={12} />
+  1339→                      </button>
+  1340→                    ) : (
+  1341→                      <span style={{ color: '#ffffff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1342→                        {item.icon && <item.icon size={14} />}
+  1343→                        {item.value}
+  1344→                      </span>
+  1345→                    )}
+  1346→                  </div>
+  1347→                ))}
+  1348→              </div>
+  1349→            </div>
+  1350→          </div>
+  1351→        )}
+  1352→
+  1353→        {/* SETTINGS TAB CONTENT */}
+  1354→        {activeTab === 'settings' && (
+  1355→          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+  1356→            
+  1357→            {/* Security Section */}
+  1358→            <div style={{
+  1359→              background: 'rgba(17, 24, 39, 0.6)',
+  1360→              border: '1px solid rgba(55, 65, 81, 0.5)',
+  1361→              borderRadius: '12px',
+  1362→              padding: '24px'
+  1363→            }}>
+  1364→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1365→                <Shield size={20} style={{ color: '#22d3ee' }} />
+  1366→                Security
+  1367→              </h3>
+  1368→              
+  1369→              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+  1370→                {[
+  1371→                  { title: 'Password', desc: 'Last changed 30 days ago', btnText: 'Change', icon: Key, variant: 'default' },
+  1372→                  { title: 'Two-Factor Authentication', desc: 'Add an extra layer of security', btnText: 'Enable', variant: 'default' },
+  1373→                  { title: 'Active Sessions', desc: '2 devices currently active', btnText: 'Manage', variant: 'danger' }
+  1374→                ].map((item, idx) => (
+  1375→                  <div key={idx} style={{
+  1376→                    display: 'flex',
+  1377→                    justifyContent: 'space-between',
+  1378→                    alignItems: 'center',
+  1379→                    padding: '16px 0',
+  1380→                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
+  1381→                    flexWrap: 'wrap',
+  1382→                    gap: '12px'
+  1383→                  }}>
+  1384→                    <div>
+  1385→                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '4px' }}>{item.title}</div>
+  1386→                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{item.desc}</div>
+  1387→                    </div>
+  1388→                    <button style={{
+  1389→                      padding: '8px 16px',
+  1390→                      background: item.variant === 'danger' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(31, 41, 55, 0.5)',
+  1391→                      border: item.variant === 'danger' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(55, 65, 81, 0.5)',
+  1392→                      borderRadius: '8px',
+  1393→                      color: item.variant === 'danger' ? '#ef4444' : '#d1d5db',
+  1394→                      fontSize: '13px',
+  1395→                      cursor: 'pointer',
+  1396→                      transition: 'background 0.2s'
+  1397→                    }}>
+  1398→                      {item.btnText}
+  1399→                    </button>
+  1400→                  </div>
+  1401→                ))}
+  1402→              </div>
+  1403→            </div>
+  1404→
+  1405→            {/* Integrations Section */}
+  1406→            <div style={{
+  1407→              background: 'rgba(17, 24, 39, 0.6)',
+  1408→              border: '1px solid rgba(55, 65, 81, 0.5)',
+  1409→              borderRadius: '12px',
+  1410→              padding: '24px'
+  1411→            }}>
+  1412→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1413→                <Sparkles size={20} style={{ color: '#a855f7' }} />
+  1414→                Integrations
+  1415→              </h3>
+  1416→              
+  1417→              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+  1418→                {[
+  1419→                  { title: 'Gmail Integration', desc: 'Sync emails for context-aware responses', icon: Mail, color: '#ef4444', action: handleSyncGmail, loading: isSyncingGmail },
+  1420→                  { title: 'Google Calendar', desc: 'Schedule meetings and reminders', icon: Calendar, color: '#3b82f6', action: null, loading: false },
+  1421→                  { title: 'Cloud Storage', desc: 'Backup files to Google Drive/Dropbox', icon: Database, color: '#22c55e', action: null, loading: false }
+  1422→                ].map((item, idx) => (
+  1423→                  <div key={idx} style={{
+  1424→                    display: 'flex',
+  1425→                    justifyContent: 'space-between',
+  1426→                    alignItems: 'center',
+  1427→                    padding: '16px 0',
+  1428→                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
+  1429→                    flexWrap: 'wrap',
+  1430→                    gap: '12px'
+  1431→                  }}>
+  1432→                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+  1433→                      <item.icon size={20} style={{ color: item.color }} />
+  1434→                      <div>
+  1435→                        <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{item.title}</div>
+  1436→                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>{item.desc}</div>
+  1437→                      </div>
+  1438→                    </div>
+  1439→                    <button
+  1440→                      onClick={item.action || undefined}
+  1441→                      disabled={item.loading}
+  1442→                      style={{
+  1443→                        padding: '8px 16px',
+  1444→                        background: 'rgba(31, 41, 55, 0.5)',
+  1445→                        border: '1px solid rgba(55, 65, 81, 0.5)',
+  1446→                        borderRadius: '8px',
+  1447→                        color: '#d1d5db',
+  1448→                        fontSize: '13px',
+  1449→                        cursor: item.loading ? 'not-allowed' : 'pointer',
+  1450→                        opacity: item.loading ? 0.6 : 1
+  1451→                      }}
+  1452→                    >
+  1453→                      {item.loading ? (
+  1454→                        <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite', marginRight: '4px' }} /> Syncing...</>
+  1455→                      ) : (
+  1456→                        'Connect'
+  1457→                      )}
+  1458→                    </button>
+  1459→                  </div>
+  1460→                ))}
+  1461→              </div>
+  1462→            </div>
+  1463→
+  1464→            {/* Preferences Section */}
+  1465→            <div style={{
+  1466→              background: 'rgba(17, 24, 39, 0.6)',
+  1467→              border: '1px solid rgba(55, 65, 81, 0.5)',
+  1468→              borderRadius: '12px',
+  1469→              padding: '24px'
+  1470→            }}>
+  1471→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1472→                <Settings size={20} style={{ color: '#fbbf24' }} />
+  1473→                Preferences
+  1474→              </h3>
+  1475→              
+  1476→              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+  1477→                {[
+  1478→                  { label: 'Theme', options: ['Cyberpunk Dark', 'Light Mode', 'System Default'] },
+  1479→                  { label: 'Language', options: ['English', 'Hindi', 'Spanish', 'French'] }
+  1480→                ].map((pref, idx) => (
+  1481→                  <div key={idx} style={{
+  1482→                    display: 'flex',
+  1483→                    justifyContent: 'space-between',
+  1484→                    alignItems: 'center',
+  1485→                    padding: '12px 0',
+  1486→                    borderBottom: idx < 1 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
+  1487→                    flexWrap: 'wrap',
+  1488→                    gap: '12px'
+  1489→                  }}>
+  1490→                    <div>
+  1491→                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{pref.label}</div>
+  1492→                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+  1493→                        {idx === 0 ? 'Customize appearance' : 'Interface language'}
+  1494→                      </div>
+  1495→                    </div>
+  1496→                    <select style={{
+  1497→                      background: '#1f2937',
+  1498→                      border: '1px solid #374151',
+  1499→                      borderRadius: '8px',
+  1500→                      padding: '8px 12px',
+  1501→                      color: '#ffffff',
+  1502→                      fontSize: '13px',
+  1503→                      cursor: 'pointer',
+  1504→                      outline: 'none'
+  1505→                    }}>
+  1506→                      {pref.options.map(opt => (
+  1507→                        <option key={opt}>{opt}</option>
+  1508→                      ))}
+  1509→                    </select>
+  1510→                  </div>
+  1511→                ))}
+  1512→
+  1513→                {/* Notifications Toggle */}
+  1514→                <div style={{
+  1515→                  display: 'flex',
+  1516→                  justifyContent: 'space-between',
+  1517→                  alignItems: 'center',
+  1518→                  paddingTop: '16px',
+  1519→                  borderTop: '1px solid rgba(55, 65, 81, 0.3)'
+  1520→                }}>
+  1521→                  <div>
+  1522→                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>Notifications</div>
+  1523→                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Email and push notifications</div>
+  1524→                  </div>
+  1525→                  <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '26px', cursor: 'pointer' }}>
+  1526→                    <input type="checkbox" defaultChecked style={{ opacity: 0, width: 0, height: 0 }} />
+  1527→                    <span style={{
+  1528→                      position: 'absolute',
+  1529→                      inset: 0,
+  1530→                      background: '#374151',
+  1531→                      borderRadius: '26px',
+  1532→                      transition: 'background 0.3s'
+  1533→                    }} />
+  1534→                    <span style={{
+  1535→                      position: 'absolute',
+  1536→                      left: '3px',
+  1537→                      bottom: '3px',
+  1538→                      width: '20px',
+  1539→                      height: '20px',
+  1540→                      background: '#ffffff',
+  1541→                      borderRadius: '50%',
+  1542→                      transition: 'transform 0.3s'
+  1543→                    }} />
+  1544→                  </label>
+  1545→                </div>
+  1546→              </div>
+  1547→            </div>
+  1548→
+  1549→            {/* Danger Zone */}
+  1550→            <div style={{
+  1551→              background: 'rgba(239, 68, 68, 0.05)',
+  1552→              border: '1px solid rgba(239, 68, 68, 0.2)',
+  1553→              borderRadius: '12px',
+  1554→              padding: '24px'
+  1555→            }}>
+  1556→              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  1557→                <AlertCircle size={20} />
+  1558→                Danger Zone
+  1559→              </h3>
+  1560→              
+  1561→              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+  1562→                <div style={{
+  1563→                  display: 'flex',
+  1564→                  justifyContent: 'space-between',
+  1565→                  alignItems: 'center',
+  1566→                  flexWrap: 'wrap',
+  1567→                  gap: '12px'
+  1568→                }}>
+  1569→                  <div>
+  1570→                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>Logout</div>
+  1571→                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Sign out of your account</div>
+  1572→                  </div>
+  1573→                  <button
+  1574→                    onClick={onLogout}
+  1575→                    style={{
+  1576→                      padding: '8px 16px',
+  1577→                      background: 'rgba(31, 41, 55, 0.5)',
+  1578→                      border: '1px solid rgba(55, 65, 81, 0.5)',
+  1579→                      borderRadius: '8px',
+  1580→                      color: '#d1d5db',
+  1581→                      fontSize: '13px',
+  1582→                      cursor: 'pointer',
+  1583→                      display: 'flex',
+  1584→                      alignItems: 'center',
+  1585→                      gap: '6px'
+  1586→                    }}
+  1587→                  >
+  1588→                    <LogOut size={14} /> Logout
+  1589→                  </button>
+  1590→                </div>
+  1591→
+  1592→                <div style={{
+  1593→                  display: 'flex',
+  1594→                  justifyContent: 'space-between',
+  1595→                  alignItems: 'center',
+  1596→                  paddingTop: '16px',
+  1597→                  borderTop: '1px solid rgba(239, 68, 68, 0.2)',
+  1598→                  flexWrap: 'wrap',
+  1599→                  gap: '12px'
+  1600→                }}>
+  1601→                  <div>
+  1602→                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ef4444' }}>Delete Account</div>
+  1603→                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Permanently delete your account and data</div>
+  1604→                  </div>
+  1605→                  <button
+  1606→                    onClick={handleDeleteAccount}
+  1607→                    style={{
+  1608→                      padding: '8px 16px',
+  1609→                      background: 'rgba(239, 68, 68, 0.1)',
+  1610→                      border: '1px solid rgba(239, 68, 68, 0.3)',
+  1611→                      borderRadius: '8px',
+  1612→                      color: '#ef4444',
+  1613→                      fontSize: '13px',
+  1614→                      cursor: 'pointer'
+  1615→                    }}
+  1616→                  >
+  1617→                    Delete
+  1618→                  </button>
+  1619→                </div>
+  1620→              </div>
+  1621→            </div>
+  1622→          </div>
+  1623→        )}
+  1624→      </main>
+  1625→
+  1626→      {/* ===== 🌟 CREATOR SHOWCASE - WORLDWIDE VISIBILITY ===== */}
+  1627→      <section style={{
+  1628→        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15))',
+  1629→        border: '2px solid rgba(6, 182, 212, 0.3)',
+  1630→        borderRadius: '20px',
+  1631→        padding: window.innerWidth > 768 ? '40px' : '24px',
+  1632→        margin: '48px auto 0',
+  1633→        maxWidth: '900px',
+  1634→        position: 'relative',
+  1635→        overflow: 'hidden'
+  1636→      }}>
+  1637→        {/* Animated Background Glow */}
+  1638→        <div style={{
+  1639→          position: 'absolute',
+  1640→          top: '-50%',
+  1641→          left: '-50%',
+  1642→          width: '200%',
+  1643→          height: '200%',
+  1644→          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+  1645→          animation: 'rotate 20s linear infinite',
+  1646→          pointerEvents: 'none'
+  1647→        }} />
+  1648→        
+  1649→        <div style={{ position: 'relative', zIndex: 1 }}>
+  1650→          {/* Header Badge */}
+  1651→          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+  1652→            <div style={{ 
+  1653→              display: 'inline-flex', 
+  1654→              alignItems: 'center', 
+  1655→              gap: '8px', 
+  1656→              padding: '8px 24px', 
+  1657→              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.25))',
+  1658→              border: '1px solid rgba(251, 191, 36, 0.5)',
+  1659→              borderRadius: '9999px',
+  1660→              marginBottom: '16px',
+  1661→              boxShadow: '0 4px 20px rgba(251, 191, 36, 0.2)'
+  1662→            }}>
+  1663→              <Star size={18} style={{ color: '#fbbf24' }} />
+  1664→              <span style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 700, letterSpacing: '0.08em' }}>
+  1665→                ✨ FOUNDER & CREATOR ✨
+  1666→              </span>
+  1667→              <Star size={18} style={{ color: '#fbbf24' }} />
+  1668→            </div>
+  1669→            
+  1670→            <h2 style={{ 
+  1671→              margin: '0 0 12px', 
+  1672→              fontSize: window.innerWidth > 768 ? '34px' : '26px', 
+  1673→              fontWeight: 800, 
+  1674→              background: 'linear-gradient(135deg, #22d3ee, #a855f7, #ec4899)', 
+  1675→              WebkitBackgroundClip: 'text', 
+  1676→              WebkitTextFillColor: 'transparent',
+  1677→              lineHeight: 1.2
+  1678→            }}>
+  1679→              Meet The Visionary Behind Nexus AI
+  1680→            </h2>
+  1681→            
+  1682→            <p style={{ 
+  1683→              margin: 0, 
+  1684→              color: '#d1d5db', 
+  1685→              fontSize: window.innerWidth > 768 ? '17px' : '15px', 
+  1686→              maxWidth: '650px', 
+  1687→              marginLeft: 'auto', 
+  1688→              marginRight: 'auto',
+  1689→              lineHeight: 1.7
+  1690→            }}>
+  1691→              This revolutionary AI platform was crafted with passion, dedication, and a vision to transform how the world interacts with artificial intelligence.
+  1692→            </p>
+  1693→          </div>
+  1694→
+  1695→          {/* Creator Card */}
+  1696→          <div style={{
+  1697→            display: 'flex',
+  1698→            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
+  1699→            alignItems: 'center',
+  1700→            gap: '32px',
+  1701→            background: 'rgba(17, 24, 39, 0.8)',
+  1702→            border: '1px solid rgba(6, 182, 212, 0.3)',
+  1703→            borderRadius: '20px',
+  1704→            padding: window.innerWidth > 768 ? '36px' : '24px',
+  1705→            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+  1706→          }}>
+  1707→            {/* Avatar Section with Glowing Ring */}
+  1708→            <div style={{ flexShrink: 0 }}>
+  1709→              <div style={{
+  1710→                position: 'relative',
+  1711→                width: window.innerWidth > 768 ? '150px' : '130px',
+  1712→                height: window.innerWidth > 768 ? '150px' : '130px'
+  1713→              }}>
+  1714→                {/* Rotating Glowing Border */}
+  1715→                <div style={{
+  1716→                  position: 'absolute',
+  1717→                  inset: '-5px',
+  1718→                  background: 'linear-gradient(135deg, #06b6d4, #a855f7, #ec4899, #06b6d4)',
+  1719→                  borderRadius: '50%',
+  1720→                  animation: 'rotate 3s linear infinite',
+  1721→                  zIndex: 0
+  1722→                }} />
+  1723→                
+  1724→                {/* Avatar Container */}
+  1725→                <div style={{
+  1726→                  position: 'relative',
+  1727→                  width: '100%',
+  1728→                  height: '100%',
+  1729→                  borderRadius: '50%',
+  1730→                  background: 'linear-gradient(135deg, #1f2937, #111827)',
+  1731→                  padding: '5px',
+  1732→                  zIndex: 1
+  1733→                }}>
+  1734→                  <div style={{
+  1735→                    width: '100%',
+  1736→                    height: '100%',
+  1737→                    borderRadius: '50%',
+  1738→                    overflow: 'hidden',
+  1739→                    background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+  1740→                    display: 'flex',
+  1741→                    alignItems: 'center',
+  1742→                    justifyContent: 'center'
+  1743→                  }}>
+  1744→                    {avatar ? (
+  1745→                      <img src={avatar} alt={name || 'Creator'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  1746→                    ) : (
+  1747→                      <span style={{ 
+  1748→                        fontSize: window.innerWidth > 768 ? '46px' : '38px', 
+  1749→                        fontWeight: 800, 
+  1750→                        color: '#ffffff',
+  1751→                        textShadow: '0 4px 12px rgba(0,0,0,0.4)'
+  1752→                      }}>
+  1753→                        {getInitials(name || 'N')}
+  1754→                      </span>
+  1755→                    )}
+  1756→                  </div>
+  1757→                </div>
+  1758→
+  1759→                {/* Verified Badge */}
+  1760→                <div style={{
+  1761→                  position: 'absolute',
+  1762→                  bottom: '2px',
+  1763→                  right: '2px',
+  1764→                  width: '40px',
+  1765→                  height: '40px',
+  1766→                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+  1767→                  borderRadius: '50%',
+  1768→                  border: '4px solid #111827',
+  1769→                  display: 'flex',
+  1770→                  alignItems: 'center',
+  1771→                  justifyContent: 'center',
+  1772→                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.5)',
+  1773→                  zIndex: 2
+  1774→                }}>
+  1775→                  <CheckCircle size={20} color="#ffffff" />
+  1776→                </div>
+  1777→              </div>
+  1778→            </div>
+  1779→
+  1780→            {/* Info Section */}
+  1781→            <div style={{ flex: 1, textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+  1782→              <h3 style={{ 
+  1783→                margin: '0 0 10px', 
+  1784→                fontSize: window.innerWidth > 768 ? '30px' : '26px', 
+  1785→                fontWeight: 800, 
+  1786→                color: '#ffffff' 
+  1787→              }}>
+  1788→                {name || 'The Creator'} 👑
+  1789→              </h3>
+  1790→              
+  1791→              <div style={{ 
+  1792→                display: 'inline-flex', 
+  1793→                alignItems: 'center', 
+  1794→                gap: '8px', 
+  1795→                padding: '8px 18px', 
+  1796→                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))', 
+  1797→                border: '1px solid rgba(6, 182, 212, 0.4)', 
+  1798→                borderRadius: '9999px', 
+  1799→                marginBottom: '18px',
+  1800→                boxShadow: '0 4px 12px rgba(6, 182, 212, 0.2)'
+  1801→              }}>
+  1802→                <Crown size={16} style={{ color: '#fbbf24' }} />
+  1803→                <span style={{ color: '#22d3ee', fontSize: '14px', fontWeight: 700 }}>Founder & CEO of Nexus AI</span>
+  1804→              </div>
+  1805→              
+  1806→              <p style={{ 
+  1807→                margin: '0 0 22px', 
+  1808→                color: '#9ca3af', 
+  1809→                fontSize: '15px', 
+  1810→                lineHeight: 1.8,
+  1811→                maxWidth: window.innerWidth > 768 ? '520px' : '100%'
+  1812→              }}>
+  1813→                ✨ Built this platform from scratch with a mission to democratize AI technology and make it accessible to everyone, everywhere.
+  1814→                <br /><br />
+  1815→                🌍 Serving users across <strong style={{ color: '#22d3ee' }}>150+ countries</strong> with cutting-edge AI capabilities.
+  1816→                <br /><br />
+  1817→                💡 Passionate about innovation, technology, and creating solutions that make a difference in people's lives.
+  1818→              </p>
+  1819→
+  1820→              {/* Stats Grid */}
+  1821→              <div style={{
+  1822→                display: 'grid',
+  1823→                gridTemplateColumns: window.innerWidth > 480 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+  1824→                gap: '14px',
+  1825→                marginBottom: '22px'
+  1826→              }}>
+  1827→                {[
+  1828→                  { label: 'Users Worldwide', value: '10K+', icon: Globe, color: '#22d3ee' },
+  1829→                  { label: 'Countries Served', value: '150+', icon: MapPin, color: '#a855f7' },
+  1830→                  { label: 'AI Models', value: '50+', icon: Sparkles, color: '#ec4899' }
+  1831→                ].map((stat, idx) => (
+  1832→                  <div key={idx} style={{
+  1833→                    textAlign: 'center',
+  1834→                    padding: '14px 10px',
+  1835→                    background: 'linear-gradient(135deg, rgba(31, 41, 55, 0.6), rgba(31, 41, 55, 0.3))',
+  1836→                    borderRadius: '12px',
+  1837→                    border: `1px solid ${stat.color}30`,
+  1838→                    transition: 'transform 0.2s'
+  1839→                  }}
+  1840→                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+  1841→                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+  1842→                  >
+  1843→                    <stat.icon size={20} style={{ color: stat.color, marginBottom: '6px' }} />
+  1844→                    <div style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff' }}>{stat.value}</div>
+  1845→                    <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 500 }}>{stat.label}</div>
+  1846→                  </div>
+  1847→                ))}
+  1848→              </div>
+  1849→
+  1850→              {/* Social Links */}
+  1851→              <div style={{
+  1852→                display: 'flex',
+  1853→                alignItems: 'center',
+  1854→                justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
+  1855→                gap: '12px',
+  1856→                flexWrap: 'wrap'
+  1857→              }}>
+  1858→                {[ 
+  1859→                  { label: '🌐 Portfolio', icon: Globe },
+  1860→                  { label: '💻 GitHub', icon: Database },
+  1861→                  { label: '🐦 Twitter/X', icon: MessageSquare },
+  1862→                  { label: '💼 LinkedIn', icon: User }
+  1863→                ].map((social, idx) => (
+  1864→                  <button key={idx} style={{
+  1865→                    display: 'flex',
+  1866→                    alignItems: 'center',
+  1867→                    gap: '8px',
+  1868→                    padding: '10px 18px',
+  1869→                    background: 'rgba(55, 65, 81, 0.4)',
+  1870→                    border: '1px solid rgba(55, 65, 81, 0.6)',
+  1871→                    borderRadius: '10px',
+  1872→                    color: '#d1d5db',
+  1873→                    fontSize: '13px',
+  1874→                    fontWeight: 500,
+  1875→                    cursor: 'pointer',
+  1876→                    transition: 'all 0.3s',
+  1877→                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+  1878→                  }}
+  1879→                  onMouseEnter={(e) => {
+  1880→                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(168, 85, 247, 0.25))';
+  1881→                    e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.5)';
+  1882→                    e.currentTarget.style.color = '#22d3ee';
+  1883→                    e.currentTarget.style.transform = 'translateY(-2px)';
+  1884→                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(6, 182, 212, 0.3)';
+  1885→                  }}
+  1886→                  onMouseLeave={(e) => {
+  1887→                    e.currentTarget.style.background = 'rgba(55, 65, 81, 0.4)';
+  1888→                    e.currentTarget.style.borderColor = 'rgba(55, 65, 81, 0.6)';
+  1889→                    e.currentTarget.style.color = '#d1d5db';
+  1890→                    e.currentTarget.style.transform = 'translateY(0)';
+  1891→                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+  1892→                  }}>
+  1893→                    <social.icon size={15} />
+  1894→                    {social.label}
+  1895→                  </button>
+  1896→                ))}
+  1897→              </div>
+  1898→            </div>
+  1899→          </div>
+  1900→
+  1901→          {/* Inspirational Quote */}
+  1902→          <div style={{
+  1903→            marginTop: '32px',
+  1904→            paddingTop: '28px',
+  1905→            borderTop: '1px solid rgba(6, 182, 212, 0.2)',
+  1906→            textAlign: 'center'
+  1907→          }}>
+  1908→            <p style={{ 
+  1909→              margin: 0, 
+  1910→              fontSize: window.innerWidth > 768 ? '19px' : '17px', 
+  1911→              fontStyle: 'italic', 
+  1912→              color: '#d1d5db',
+  1913→              lineHeight: 1.7,
+  1914→              position: 'relative',
+  1915→              paddingLeft: '28px',
+  1916→              paddingRight: '28px'
+  1917→            }}>
+  1918→              <span style={{ 
+  1919→                position: 'absolute', 
+  1920→                left: '0', 
+  1921→                top: '-4px', 
+  1922→                fontSize: '40px', 
+  1923→                color: '#22d3ee', 
+  1924→                fontFamily: 'Georgia, serif',
+  1925→                fontWeight: 'bold',
+  1926→                lineHeight: 1
+  1927→              }}>
+  1928→                &ldquo;
+  1929→              </span>
+  1930→              Building the future of AI, one line of code at a time. This is not just a product—it's my vision for a smarter world where everyone has access to powerful artificial intelligence.
+  1931→              <span style={{ 
+  1932→                position: 'absolute', 
+  1933→                bottom: '-12px', 
+  1934→                right: '0', 
+  1935→                fontSize: '40px', 
+  1936→                color: '#a855f7', 
+  1937→                fontFamily: 'Georgia, serif',
+  1938→                fontWeight: 'bold',
+  1939→                lineHeight: 1
+  1940→              }}>
+  1941→                &rdquo;
+  1942→              </span>
+  1943→            </p>
+  1944→            <p style={{ 
+  1945→              margin: '16px 0 0', 
+  1946→              fontSize: '15px', 
+  1947→              fontWeight: 700, 
+  1948→              background: 'linear-gradient(135deg, #22d3ee, #a855f7)',
+  1949→              WebkitBackgroundClip: 'text',
+  1950→              WebkitTextFillColor: 'transparent'
+  1951→            }}>
+  1952→              — {name || 'The Visionary'}, Creator & Founder of Nexus AI 🚀
+  1953→            </p>
+  1954→          </div>
+  1955→        </div>
+  1956→      </section>
+  1957→
+  1958→      {/* ===== FOOTER WITH CREATOR CREDIT ===== */}
+  1959→      <footer style={{
+  1960→        background: 'linear-gradient(180deg, rgba(3, 7, 18, 0.98), rgba(0, 0, 0, 1))',
+  1961→        borderTop: '2px solid rgba(6, 182, 212, 0.3)',
+  1962→        marginTop: '56px',
+  1963→        padding: '48px 16px 28px',
+  1964→        boxShadow: '0 -8px 32px rgba(6, 182, 212, 0.1)'
+  1965→      }}>
+  1966→        <div style={{
+  1967→          maxWidth: '1200px',
+  1968→          margin: '0 auto'
+  1969→        }}>
+  1970→          {/* Main Footer Grid */}
+  1971→          <div style={{
+  1972→            display: 'grid',
+  1973→            gridTemplateColumns: window.innerWidth > 1024 ? 'repeat(4, 1fr)' : window.innerWidth > 768 ? 'repeat(2, 1fr)' : '1fr',
+  1974→            gap: '36px',
+  1975→            marginBottom: '36px'
+  1976→          }}>
+  1977→            {/* Brand Column with Creator Credit */}
+  1978→            <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
+  1979→              <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '12px', marginBottom: '18px' }}>
+  1980→                <div style={{
+  1981→                  width: '44px',
+  1982→                  height: '44px',
+  1983→                  background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
+  1984→                  borderRadius: '12px',
+  1985→                  display: 'flex',
+  1986→                  alignItems: 'center',
+  1987→                  justifyContent: 'center',
+  1988→                  boxShadow: '0 6px 24px rgba(6, 182, 212, 0.4)'
+  1989→                }}>
+  1990→                  <Sparkles size={24} color="#ffffff" />
+  1991→                </div>
+  1992→                <div>
+  1993→                  <span style={{ fontSize: '24px', fontWeight: 800, background: 'linear-gradient(135deg, #22d3ee, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'block', lineHeight: 1 }}>
+  1994→                    Nexus AI
+  1995→                  </span>
+  1996→                  <span style={{ fontSize: '11px', color: '#6b7280', letterSpacing: '0.12em', fontWeight: 600 }}>NEXT GENERATION AI</span>
+  1997→                </div>
+  1998→              </div>
+  1999→              <p style={{ color: '#9ca3af', fontSize: '14px', lineHeight: 1.8, marginBottom: '18px' }}>
+  2000→                Revolutionary AI platform transforming how the world interacts with technology.
+
+[showing lines 1-2000 of 2200; use offset=2001 with limit to continue reading]

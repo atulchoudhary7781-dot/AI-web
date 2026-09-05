@@ -1,0 +1,1271 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef, useCallback } from 'react'
+     4→import { 
+     5→  Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
+     6→  Cpu, Globe, Rocket, Star, Layers, Command, Shield,
+     7→  TrendingUp, Users, Eye, Heart, ArrowRight, Send,
+     8→  Menu, X, ChevronLeft, Plus, LogIn, LogOut
+     9→} from 'lucide-react'
+    10→import { Button } from '@/components/ui/button'
+    11→import { Card, CardContent } from '@/components/ui/card'
+    12→import { Badge } from '@/components/ui/badge'
+    13→
+    14→// Import chat components
+    15→import Sidebar from '@/components/chat/Sidebar'
+    16→import FullScreenChat from '@/components/chat/FullScreenChat'
+    17→import SettingsView from '@/components/chat/SettingsView'
+    18→import LoginView from '@/components/chat/LoginView'
+    19→import AuthModal from '@/components/chat/AuthModal'
+    20→import IntroAnimation from '@/components/chat/IntroAnimation'
+    21→
+    22→// Types
+    23→interface ChatMessage {
+    24→  id: string
+    25→  role: 'user' | 'assistant'
+    26→  content: string
+    27→  timestamp: Date
+    28→  image?: string // Base64 image data
+    29→  imageMimeType?: string
+    30→  // Document support (PDF, DOC, TXT, etc.)
+    31→  fileName?: string
+    32→  fileType?: string
+    33→  fileSize?: number
+    34→}
+    35→
+    36→interface Feature {
+    37→  icon: React.ReactNode
+    38→  title: string
+    39→  description: string
+    40→  gradient: string
+    41→}
+    42→
+    43→interface Stat {
+    44→  label: string
+    45→  value: number
+    46→  suffix: string
+    47→  icon: React.ReactNode
+    48→}
+    49→
+    50→interface ChatSession {
+    51→  id: string
+    52→  title: string
+    53→  date: Date
+    54→  messages: ChatMessage[]
+    55→}
+    56→
+    57→interface User {
+    58→  name: string
+    59→  email: string
+    60→}
+    61→
+    62→// Neural Network Background Component
+    63→function NeuralNetworkBackground() {
+    64→  const canvasRef = useRef<HTMLCanvasElement>(null)
+    65→
+    66→  useEffect(() => {
+    67→    const canvas = canvasRef.current
+    68→    if (!canvas) return
+    69→
+    70→    const ctx = canvas.getContext('2d')
+    71→    if (!ctx) return
+    72→
+    73→    let animationFrameId: number
+    74→    let mouseX = 0
+    75→    let mouseY = 0
+    76→
+    77→    const resizeCanvas = () => {
+    78→      canvas.width = window.innerWidth
+    79→      canvas.height = window.innerHeight
+    80→    }
+    81→
+    82→    resizeCanvas()
+    83→    window.addEventListener('resize', resizeCanvas)
+    84→
+    85→    const handleMouseMove = (e: MouseEvent) => {
+    86→      mouseX = e.clientX
+    87→      mouseY = e.clientY
+    88→    }
+    89→    window.addEventListener('mousemove', handleMouseMove)
+    90→
+    91→    // Nodes for neural network
+    92→    interface Node {
+    93→      x: number
+    94→      y: number
+    95→      vx: number
+    96→      vy: number
+    97→      radius: number
+    98→      opacity: number
+    99→    }
+   100→
+   101→    const nodes: Node[] = []
+   102→    const nodeCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 15000))
+   103→
+   104→    for (let i = 0; i < nodeCount; i++) {
+   105→      nodes.push({
+   106→        x: Math.random() * canvas.width,
+   107→        y: Math.random() * canvas.height,
+   108→        vx: (Math.random() - 0.5) * 0.5,
+   109→        vy: (Math.random() - 0.5) * 0.5,
+   110→        radius: Math.random() * 2 + 1,
+   111→        opacity: Math.random() * 0.5 + 0.3
+   112→      })
+   113→    }
+   114→
+   115→    const animate = () => {
+   116→      ctx.fillStyle = 'rgba(0, 0, 10, 0.1)'
+   117→      ctx.fillRect(0, 0, canvas.width, canvas.height)
+   118→
+   119→      // Update and draw nodes
+   120→      nodes.forEach((node, i) => {
+   121→        // Mouse attraction
+   122→        const dx = mouseX - node.x
+   123→        const dy = mouseY - node.y
+   124→        const dist = Math.sqrt(dx * dx + dy * dy)
+   125→        
+   126→        if (dist < 200) {
+   127→          node.vx += dx * 0.00005
+   128→          node.vy += dy * 0.00005
+   129→        }
+   130→
+   131→        node.x += node.vx
+   132→        node.y += node.vy
+   133→
+   134→        // Bounce off edges
+   135→        if (node.x < 0 || node.x > canvas.width) node.vx *= -1
+   136→        if (node.y < 0 || node.y > canvas.height) node.vy *= -1
+   137→
+   138→        // Draw connections
+   139→        nodes.slice(i + 1).forEach(otherNode => {
+   140→          const distance = Math.sqrt(
+   141→            Math.pow(node.x - otherNode.x, 2) + Math.pow(node.y - otherNode.y, 2)
+   142→          )
+   143→          
+   144→          if (distance < 150) {
+   145→            const opacity = (1 - distance / 150) * 0.3
+   146→            ctx.beginPath()
+   147→            ctx.strokeStyle = `rgba(0, 245, 255, ${opacity})`
+   148→            ctx.lineWidth = 0.5
+   149→            ctx.moveTo(node.x, node.y)
+   150→            ctx.lineTo(otherNode.x, otherNode.y)
+   151→            ctx.stroke()
+   152→          }
+   153→        })
+   154→
+   155→        // Draw node
+   156→        ctx.beginPath()
+   157→        const gradient = ctx.createRadialGradient(
+   158→          node.x, node.y, 0,
+   159→          node.x, node.y, node.radius * 2
+   160→        )
+   161→        gradient.addColorStop(0, `rgba(0, 245, 255, ${node.opacity})`)
+   162→        gradient.addColorStop(1, 'rgba(124, 58, 237, 0)')
+   163→        ctx.fillStyle = gradient
+   164→        ctx.arc(node.x, node.y, node.radius * 2, 0, Math.PI * 2)
+   165→        ctx.fill()
+   166→      })
+   167→
+   168→      animationFrameId = requestAnimationFrame(animate)
+   169→    }
+   170→
+   171→    animate()
+   172→
+   173→    return () => {
+   174→      window.removeEventListener('resize', resizeCanvas)
+   175→      window.removeEventListener('mousemove', handleMouseMove)
+   176→      cancelAnimationFrame(animationFrameId)
+   177→    }
+   178→  }, [])
+   179→
+   180→  return (
+   181→    <canvas
+   182→      ref={canvasRef}
+   183→      className="fixed inset-0 pointer-events-none z-0"
+   184→      style={{ background: '#00000a' }}
+   185→    />
+   186→  )
+   187→}
+   188→
+   189→// Glitch Text Component
+   190→function GlitchText({ text, className = '' }: { text: string; className?: string }) {
+   191→  const [glitchActive, setGlitchActive] = useState(false)
+   192→
+   193→  useEffect(() => {
+   194→    const interval = setInterval(() => {
+   195→      setGlitchActive(true)
+   196→      setTimeout(() => setGlitchActive(false), 200)
+   197→    }, 3000)
+   198→    return () => clearInterval(interval)
+   199→  }, [])
+   200→
+   201→  return (
+   202→    <span className={`relative inline-block ${className}`}>
+   203→      <span className={`relative z-10 ${glitchActive ? 'animate-pulse' : ''}`}>
+   204→        {text}
+   205→      </span>
+   206→      {glitchActive && (
+   207→        <>
+   208→          <span className="absolute top-0 left-0.5 text-[#ff00aa] opacity-80 clip-text-glitch-1" aria-hidden="true">
+   209→            {text}
+   210→          </span>
+   211→          <span className="absolute top-0 -left-0.5 text-[#00f5ff] opacity-80 clip-text-glitch-2" aria-hidden="true">
+   212→            {text}
+   213→          </span>
+   214→        </>
+   215→      )}
+   216→    </span>
+   217→  )
+   218→}
+   219→
+   220→// Animated Counter Component
+   221→function AnimatedCounter({ target, suffix = '', duration = 2000 }: { target: number; suffix?: string; duration?: number }) {
+   222→  const [count, setCount] = useState(0)
+   223→  const [isVisible, setIsVisible] = useState(false)
+   224→  const ref = useRef<HTMLDivElement>(null)
+   225→
+   226→  useEffect(() => {
+   227→    const observer = new IntersectionObserver(
+   228→      ([entry]) => {
+   229→        if (entry.isIntersecting && !isVisible) {
+   230→          setIsVisible(true)
+   231→        }
+   232→      },
+   233→      { threshold: 0.1 }
+   234→    )
+   235→
+   236→    if (ref.current) observer.observe(ref.current)
+   237→    return () => observer.disconnect()
+   238→  }, [isVisible])
+   239→
+   240→  useEffect(() => {
+   241→    if (!isVisible) return
+   242→    
+   243→    let start = 0
+   244→    const increment = target / (duration / 16)
+   245→    
+   246→    const timer = setInterval(() => {
+   247→      start += increment
+   248→      if (start >= target) {
+   249→        setCount(target)
+   250→        clearInterval(timer)
+   251→      } else {
+   252→        setCount(Math.floor(start))
+   253→      }
+   254→    }, 16)
+   255→
+   256→    return () => clearInterval(timer)
+   257→  }, [isVisible, target, duration])
+   258→
+   259→  return <div ref={ref}>{count.toLocaleString()}{suffix}</div>
+   260→}
+   261→
+   262→// Feature Card Component
+   263→function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
+   264→  const [isHovered, setIsHovered] = useState(false)
+   265→
+   266→  return (
+   267→    <Card 
+   268→      className="group relative bg-black/40 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 overflow-hidden"
+   269→      onMouseEnter={() => setIsHovered(true)}
+   270→      onMouseLeave={() => setIsHovered(false)}
+   271→      style={{
+   272→        transform: isHovered ? 'translateY(-10px) rotateX(5deg)' : 'translateY(0)',
+   273→        transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+   274→        transformStyle: 'preserve-3d',
+   275→        perspective: '1000px'
+   276→      }}
+   277→    >
+   278→      <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+   279→      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+   280→      
+   281→      <CardContent className="p-6 relative z-10">
+   282→        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 transform transition-transform duration-500 ${isHovered ? 'scale-110 rotate-3' : ''}`}>
+   283→          {feature.icon}
+   284→        </div>
+   285→        
+   286→        <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
+   287→          {feature.title}
+   288→        </h3>
+   289→        <p className="text-gray-400 text-sm leading-relaxed">
+   290→          {feature.description}
+   291→        </p>
+   292→
+   293→        <div className="mt-4 flex items-center gap-2 text-cyan-400 text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+   294→          <span>Explore</span>
+   295→          <ArrowRight className="w-4 h-4" />
+   296→        </div>
+   297→      </CardContent>
+   298→    </Card>
+   299→  )
+   300→}
+   301→
+   302→// Main App Component
+   303→export default function NexusAI() {
+   304→  const [sessions, setSessions] = useState<ChatSession[]>([])
+   305→  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+   306→  const [currentView, setCurrentView] = useState<string>('chat') // Start with chat (free mode)
+   307→  
+   308→  // Chat Limit State
+   309→  const [chatCount, setChatCount] = useState(0)
+   310→  const [showAuthModal, setShowAuthModal] = useState(false)
+   311→  const [authModalReason, setAuthModalReason] = useState<'chat_limit' | 'file_attach'>('chat_limit')
+   312→  const MAX_FREE_CHATS = 6 // Max chats without login
+   313→  const [sidebarOpen, setSidebarOpen] = useState(false)
+   314→  const [isDarkMode, setIsDarkMode] = useState(true)
+   315→  const [copiedCode, setCopiedCode] = useState(false)
+   316→  const [isLoading, setIsLoading] = useState(false)
+   317→  const [inputValue, setInputValue] = useState('')
+   318→  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+   319→  const [fileBase64, setFileBase64] = useState<string | null>(null)
+   320→  
+   321→  // Intro Animation State
+   322→  const [showIntro, setShowIntro] = useState(true)
+   323→  const [introComplete, setIntroComplete] = useState(false)
+   324→  
+   325→  // AbortController for stopping responses
+   326→  const abortControllerRef = useRef<AbortController | null>(null)
+   327→  
+   328→  // Auth State
+   329→  const [isLoggedIn, setIsLoggedIn] = useState(false)
+   330→  const [user, setUser] = useState<User | null>(null)
+   331→
+   332→  // Check for existing session on mount
+   333→  useEffect(() => {
+   334→    const savedUser = localStorage.getItem('nexus_user')
+   335→    if (savedUser) {
+   336→      try {
+   337→        const parsedUser = JSON.parse(savedUser)
+   338→        setIsLoggedIn(true)
+   339→        setUser(parsedUser)
+   340→        
+   341→        // Load sessions only if logged in
+   342→        const savedSessions = localStorage.getItem('nexus_sessions')
+   343→        if (savedSessions) {
+   344→          setSessions(JSON.parse(savedSessions))
+   345→        }
+   346→      } catch (e) {
+   347→        console.error('Error parsing saved user:', e)
+   348→      }
+   349→    }
+   350→    
+   351→    // Load chat count for guests
+   352→    const savedChatCount = localStorage.getItem('nexus_chat_count')
+   353→    if (savedChatCount) {
+   354→      setChatCount(parseInt(savedChatCount, 10))
+   355→    }
+   356→    
+   357→    // Check if intro was already shown in this session
+   358→    const introShown = sessionStorage.getItem('nexus_intro_shown')
+   359→    if (introShown) {
+   360→      setShowIntro(false)
+   361→      setIntroComplete(true)
+   362→    }
+   363→  }, [])
+   364→
+   365→  // Save sessions to localStorage when they change (only if logged in)
+   366→  useEffect(() => {
+   367→    if (isLoggedIn && sessions.length > 0) {
+   368→      localStorage.setItem('nexus_sessions', JSON.stringify(sessions))
+   369→    }
+   370→  }, [sessions, isLoggedIn])
+   371→
+   372→  // Login Handler
+   373→  const handleLogin = (userData: User) => {
+   374→    setIsLoggedIn(true)
+   375→    setUser(userData)
+   376→    setCurrentView('chat') // Redirect to chat after login
+   377→    setShowAuthModal(false) // Close modal if open
+   378→    setChatCount(0) // Reset chat count for logged in users
+   379→    localStorage.removeItem('nexus_chat_count')
+   380→  }
+   381→
+   382→  // Logout Handler
+   383→  const handleLogout = () => {
+   384→    setIsLoggedIn(false)
+   385→    setUser(null)
+   386→    setSessions([])
+   387→    setActiveSessionId(null)
+   388→    setChatCount(0) // Reset chat count on logout
+   389→    localStorage.removeItem('nexus_user')
+   390→    localStorage.removeItem('nexus_sessions')
+   391→    localStorage.removeItem('nexus_chat_count')
+   392→  }
+   393→
+   394→  // Get current session messages
+   395→  const getCurrentMessages = (): ChatMessage[] => {
+   396→    if (activeSessionId) {
+   397→      const session = sessions.find(s => s.id === activeSessionId)
+   398→      return session?.messages || getDefaultMessages()
+   399→    }
+   400→    return getDefaultMessages()
+   401→  }
+   402→
+   403→  const getDefaultMessages = (): ChatMessage[] => [
+   404→    {
+   405→      id: '1',
+   406→      role: 'assistant',
+   407→      content: '👋 Welcome to **NEXUS AI** — The Future of Intelligence!\n\nI\'m your advanced AI assistant powered by Llama 3.1. Ask me anything about:\n• 🤖 Artificial Intelligence & Machine Learning\n• 💻 Programming & Code\n• 🔬 Science & Technology\n• 🚀 Innovation & Future Trends\n\n*How can I help you today?*',
+   408→      timestamp: new Date()
+   409→    }
+   410→  ]
+   411→
+   412→  // Features data
+   413→  const features: Feature[] = [
+   414→    {
+   415→      icon: <Brain className="w-7 h-7 text-white" />,
+   416→      title: 'Neural Processing',
+   417→      description: 'Advanced deep learning algorithms that understand context, nuance, and intent like never before.',
+   418→      gradient: 'from-violet-600 to-purple-600'
+   419→    },
+   420→    {
+   421→      icon: <Code2 className="w-7 h-7 text-white" />,
+   422→      title: 'Code Generation',
+   423→      description: 'Generate production-ready code in 50+ languages with intelligent auto-completion and optimization.',
+   424→      gradient: 'from-cyan-600 to-blue-600'
+   425→    },
+   426→    {
+   427→      icon: <MessageSquare className="w-7 h-7 text-white" />,
+   428→      title: 'Natural Conversations',
+   429→      description: 'Human-like dialogue capabilities with emotional intelligence and contextual awareness.',
+   430→      gradient: 'from-pink-600 to-rose-600'
+   431→    },
+   432→    {
+   433→      icon: <Terminal className="w-7 h-7 text-white" />,
+   434→      title: 'Command Center',
+   435→      description: 'Powerful terminal interface for developers with real-time execution and debugging tools.',
+   436→      gradient: 'from-neon-purple to-electric-blue'
+   437→    },
+   438→    {
+   439→      icon: <Shield className="w-7 h-7 text-white" />,
+   440→      title: 'Quantum Security',
+   441→      description: 'Military-grade encryption with quantum-resistant protocols protecting your data.',
+   442→      gradient: 'from-emerald-600 to-green-600'
+   443→    },
+   444→    {
+   445→      icon: <Globe className="w-7 h-7 text-white" />,
+   446→      title: 'Global Network',
+   447→      description: 'Distributed computing across 200+ edge locations for lightning-fast responses worldwide.',
+   448→      gradient: 'from-indigo-600 to-violet-600'
+   449→    }
+   450→  ]
+   451→
+   452→  // Stats data
+   453→  const stats: Stat[] = [
+   454→    { label: 'API Calls/Day', value: 50, suffix: 'M+', icon: <TrendingUp className="w-5 h-5" /> },
+   455→    { label: 'Active Users', value: 10, suffix: 'M+', icon: <Users className="w-5 h-5" /> },
+   456→    { label: 'Uptime', value: 99.9, suffix: '%', icon: <Shield className="w-5 h-5" /> },
+   457→    { label: 'Response Time', value: 50, suffix: 'ms', icon: <Zap className="w-5 h-5" /> }
+   458→  ]
+   459→
+   460→  // Create new chat session
+   461→  const handleNewChat = useCallback(() => {
+   462→    const newSession: ChatSession = {
+   463→      id: Date.now().toString(),
+   464→      title: 'New Chat',
+   465→      date: new Date(),
+   466→      messages: getDefaultMessages()
+   467→    }
+   468→    setSessions(prev => [newSession, ...prev])
+   469→    setActiveSessionId(newSession.id)
+   470→    setCurrentView('chat')
+   471→    setInputValue('')
+   472→  }, [])
+   473→
+   474→  // Select session
+   475→  const handleSelectSession = useCallback((id: string) => {
+   476→    setActiveSessionId(id)
+   477→    setCurrentView('chat')
+   478→  }, [])
+   479→
+   480→  // Delete session
+   481→  const handleDeleteSession = useCallback((id: string) => {
+   482→    setSessions(prev => prev.filter(s => s.id !== id))
+   483→    if (activeSessionId === id) {
+   484→      setActiveSessionId(null)
+   485→    }
+   486→  }, [activeSessionId])
+   487→
+   488→  // Update session title based on first message
+   489→  const updateSessionTitle = useCallback((sessionId: string, firstMessage: string) => {
+   490→    setSessions(prev => prev.map(s => 
+   491→      s.id === sessionId 
+   492→        ? { ...s, title: firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : '') }
+   493→        : s
+   494→    ))
+   495→  }, [])
+   496→
+   497→  // Handle stop generating response
+   498→  const handleStop = useCallback(() => {
+   499→    if (abortControllerRef.current) {
+   500→      abortControllerRef.current.abort()
+   501→      abortControllerRef.current = null
+   502→    }
+   503→    setIsLoading(false)
+   504→    
+   505→    // Add "stopped" message to show user that they stopped the response
+   506→    const stoppedMessage: ChatMessage = {
+   507→      id: Date.now().toString(),
+   508→      role: 'assistant',
+   509→      content: '⏹️ **You stopped the response**\n\nThe AI generation was interrupted. You can ask a new question or modify your prompt.',
+   510→      timestamp: new Date()
+   511→    }
+   512→    
+   513→    setSessions(prev => {
+   514→      const activeId = activeSessionId || 'default'
+   515→      return prev.map(s => 
+   516→        s.id === activeId 
+   517→          ? { ...s, messages: [...s.messages, stoppedMessage] }
+   518→          : s
+   519→      )
+   520→    })
+   521→  }, [activeSessionId])
+   522→
+   523→  // Typewriter effect for AI responses - word by word display
+   524→  const typeWriterEffect = useCallback((sessionId: string, fullText: string, messageId: string, speed: number = 40) => {
+   525→    const words = fullText.split(' ')
+   526→    let currentIndex = 0
+   527→    
+   528→    const typeInterval = setInterval(() => {
+   529→      if (currentIndex < words.length) {
+   530→        currentIndex++
+   531→        const displayedText = words.slice(0, currentIndex).join(' ')
+   532→        
+   533→        const partialMessage: ChatMessage = {
+   534→          id: messageId,
+   535→          role: 'assistant',
+   536→          content: displayedText,
+   537→          timestamp: new Date()
+   538→        }
+   539→        
+   540→        setSessions(prev => prev.map(s => 
+   541→          s.id === sessionId 
+   542→            ? { ...s, messages: [...s.messages.filter(m => m.id !== messageId), partialMessage] }
+   543→            : s
+   544→        ))
+   545→      } else {
+   546→        clearInterval(typeInterval)
+   547→        setIsLoading(false)
+   548→      }
+   549→    }, speed)
+   550→    
+   551→    // Return cleanup function to stop typing if user interrupts
+   552→    return () => clearInterval(typeInterval)
+   553→  }, [])
+   554→
+   555→  // Handle chat submission
+   556→  const handleSubmit = useCallback(async () => {
+   557→    // Allow sending if there's text OR an attached file
+   558→    if ((!inputValue.trim() && !attachedFile) || isLoading) return
+   559→
+   560→    // Check if guest has reached chat limit
+   561→    if (!isLoggedIn && chatCount >= MAX_FREE_CHATS) {
+   562→      setShowAuthModal(true)
+   563→      return
+   564→    }
+   565→
+   566→    const userMessage: ChatMessage = {
+   567→      id: Date.now().toString(),
+   568→      role: 'user',
+   569→      content: inputValue || (attachedFile ? `📎 ${attachedFile.name}` : ''),
+   570→      timestamp: new Date(),
+   571→      // Attach image data if available
+   572→      ...(fileBase64 && attachedFile?.type.startsWith('image/') ? {
+   573→        image: fileBase64,
+   574→        imageMimeType: attachedFile.type
+   575→      } : {}),
+   576→      // Attach document info for non-image files
+   577→      ...(attachedFile && !attachedFile?.type.startsWith('image/') ? {
+   578→        fileName: attachedFile.name,
+   579→        fileType: attachedFile.type,
+   580→        fileSize: attachedFile.size
+   581→      } : {})
+   582→    }
+   583→
+   584→    // DEBUG: Log message to console
+   585→    console.log('📤 User Message Created:', userMessage)
+   586→    console.log('  - Has fileName:', !!userMessage.fileName)
+   587→    console.log('  - Has image:', !!userMessage.image)
+   588→    console.log('  - Content:', userMessage.content)
+   589→
+   590→    // If no active session, create one
+   591→    let sessionId = activeSessionId
+   592→    if (!sessionId) {
+   593→      const newSession: ChatSession = {
+   594→        id: Date.now().toString(),
+   595→        title: inputValue.slice(0, 30),
+   596→        date: new Date(),
+   597→        messages: [...getDefaultMessages(), userMessage]
+   598→      }
+   599→      setSessions(prev => [newSession, ...prev])
+   600→      sessionId = newSession.id
+   601→      setActiveSessionId(sessionId)
+   602→    } else {
+   603→      // Update existing session
+   604→      setSessions(prev => prev.map(s => 
+   605→        s.id === sessionId 
+   606→          ? { ...s, messages: [...s.messages, userMessage] }
+   607→          : s
+   608→      ))
+   609→      // Update title if it's "New Chat"
+   610→      const session = sessions.find(s => s.id === sessionId)
+   611→      if (session?.title === 'New Chat') {
+   612→        updateSessionTitle(sessionId, inputValue)
+   613→      }
+   614→    }
+   615→
+   616→    setInputValue('')
+   617→    setIsLoading(true)
+   618→
+   619→    // Create new AbortController for this request
+   620→    const controller = new AbortController()
+   621→    abortControllerRef.current = controller
+   622→
+   623→    try {
+   624→      // Prepare request body with optional image/document data
+   625→      const requestBody: any = { message: inputValue }
+   626→      
+   627→      // Add image data if attached
+   628→      if (attachedFile && fileBase64 && attachedFile.type.startsWith('image/')) {
+   629→        requestBody.imageData = fileBase64
+   630→        requestBody.imageMimeType = attachedFile.type
+   631→      }
+   632→      
+   633→      // Add document info if non-image file is attached
+   634→      if (attachedFile && !attachedFile.type.startsWith('image/')) {
+   635→        requestBody.fileName = attachedFile.name
+   636→        requestBody.fileType = attachedFile.type
+   637→      }
+   638→      
+   639→      const response = await fetch('/api/chat', {
+   640→        method: 'POST',
+   641→        headers: { 'Content-Type': 'application/json' },
+   642→        body: JSON.stringify(requestBody),
+   643→        signal: controller.signal
+   644→      })
+   645→
+   646→      if (!response.ok) throw new Error('Failed to get response')
+   647→
+   648→      const data = await response.json()
+   649→      const fullResponse = data.response || 'I apologize, but I encountered an error processing your request.'
+   650→      
+   651→      // Create message ID for typewriter effect
+   652→      const assistantMessageId = (Date.now() + 1).toString()
+   653→      
+   654→      // Add empty message first
+   655→      const emptyMessage: ChatMessage = {
+   656→        id: assistantMessageId,
+   657→        role: 'assistant',
+   658→        content: '',
+   659→        timestamp: new Date()
+   660→      }
+   661→      
+   662→      setSessions(prev => prev.map(s => 
+   663→        s.id === sessionId 
+   664→          ? { ...s, messages: [...s.messages, emptyMessage] }
+   665→          : s
+   666→      ))
+   667→      
+   668→      // Start typewriter effect - word by word (40ms per word)
+   669→      typeWriterEffect(sessionId, fullResponse, assistantMessageId, 40)
+   670→      
+   671→      // Clear attached file after sending
+   672→      setAttachedFile(null)
+   673→      setFileBase64(null)
+   674→    } catch (error) {
+   675→      console.error('Chat error:', error)
+   676→      
+   677→      // Fallback responses based on keywords
+   678→      let fallbackResponse = "I'm NEXUS AI, your advanced intelligence system. I can help you explore the frontiers of technology, generate code, analyze complex problems, and much more. What would you like to discover?"
+   679→      
+   680→      const lowerInput = inputValue.toLowerCase()
+   681→      if (lowerInput.includes('ai') || lowerInput.includes('artificial intelligence')) {
+   682→        fallbackResponse = `## 🤖 The Future of AI
+   683→
+   684→Artificial Intelligence is evolving at an unprecedented pace. Here's what's next:
+   685→
+   686→**Current Frontiers:**
+   687→- **Large Language Models**: GPT-4, Claude, and beyond — systems that truly understand context
+   688→- **Multimodal AI**: Vision, language, and reasoning combined in unified architectures
+   689→- **Agentic AI**: Autonomous systems that can plan, execute, and iterate on complex tasks
+   690→
+   691→**Emerging Capabilities:**
+   692→- Reasoning & planning at human-level or superhuman performance
+   693→- Scientific discovery acceleration (protein folding, materials science)
+   694→- Creative collaboration in art, music, and design
+   695→
+   696→**The NEXUS Advantage:**
+   697→Our neural architecture processes information through 175B+ parameters, enabling nuanced understanding that bridges the gap between artificial and natural intelligence.
+   698→
+   699→*Would you like me to dive deeper into any specific area?*`
+   700→      } else if (lowerInput.includes('code') || lowerInput.includes('programming') || lowerInput.includes('python')) {
+   701→        fallbackResponse = `## 💻 Code Generation Example
+   702→
+   703→Here's a **Neural Network implementation in Python** using PyTorch:
+   704→
+   705→\`\`\`python
+   706→import torch
+   707→import torch.nn as nn
+   708→import torch.optim as optim
+   709→
+   710→class NexusNet(nn.Module):
+   711→    def __init__(self, input_size, hidden_size, output_size):
+   712→        super(NexusNet, self).__init__()
+   713→        # Neural architecture layers
+   714→        self.fc1 = nn.Linear(input_size, hidden_size)
+   715→        self.fc2 = nn.Linear(hidden_size, hidden_size)
+   716→        self.fc3 = nn.Linear(hidden_size, output_size)
+   717→        self.dropout = nn.Dropout(0.3)
+   718→        self.relu = nn.ReLU()
+   719→        
+   720→    def forward(self, x):
+   721→        x = self.relu(self.fc1(x))
+   722→        x = self.dropout(x)
+   723→        x = self.relu(self.fc2(x))
+   724→        x = self.dropout(x)
+   725→        x = self.fc3(x)
+   726→        return x
+   727→
+   728→# Initialize model
+   729→model = NexusNet(input_size=784, hidden_size=256, output_size=10)
+   730→optimizer = optim.Adam(model.parameters(), lr=0.001)
+   731→criterion = nn.CrossEntropyLoss()
+   732→
+   733→print(f"NEXUS Neural Network initialized")
+   734→print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+   735→\`\`\`
+   736→
+   737→**Key Features:**
+   738→- 🧠 Deep architecture with dropout regularization
+   739→- ⚡ Adam optimizer for fast convergence
+   740→- 📊 Suitable for image classification, NLP, and more
+   741→
+   742→Need code in another language or for a specific use case?`
+   743→      } else if (lowerInput.includes('quantum') || lowerInput.includes('computing')) {
+   744→        fallbackResponse = `## ⚛️ Quantum Computing Explained
+   745→
+   746→**What is Quantum Computing?**
+   747→
+   748→Traditional computers use bits (0 or 1). Quantum computers use **qubits**, which can exist in **superposition** — being 0 AND 1 simultaneously.
+   749→
+   750→**Key Concepts:**
+   751→
+   752→| Concept | Description |
+   753→|---------|-------------|
+   754→| Superposition | Qubits exist in multiple states at once |
+   755→| Entanglement | Correlated qubits affect each other instantly |
+   756→| Interference | Amplify correct answers, cancel wrong ones |
+   757→
+   758→**Real-World Applications:**
+   759→- 🔐 Breaking current encryption (Shor's algorithm)
+   760→- 💊 Drug discovery & molecular simulation
+   761→- 📈 Financial modeling & optimization
+   762→- 🤖 Training better AI models
+   763→
+   764→**The Quantum Advantage:**
+   765→A quantum computer with 300 perfect qubits could represent more states than there are atoms in the observable universe!
+   766→
+   767→*Want to explore quantum algorithms or hardware?*`
+   768→      } else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('hey')) {
+   769→        fallbackResponse = `## 👋 Hello, Human! Welcome to NEXUS AI
+   770→
+   771→I'm **NEXUS** — Next-Generation Universal Experience System.
+   772→
+   773→**What I Can Do For You:**
+   774→- 🎯 Answer complex questions with detailed analysis
+   775→- 💻 Generate code in any programming language
+   776→- 📊 Explain technical concepts simply
+   777→- 🚀 Brainstorm ideas and strategies
+   778→- 📝 Write, edit, and improve content
+   779→- 🔬 Research and summarize topics
+   780→
+   781→**Try asking me:**
+   782→- *"Explain how transformers work"*
+   783→- *"Write a React component for a dashboard"*
+   784→- *"What are the latest advances in AI?"*
+   785→
+   786→I'm here to push the boundaries of what's possible. **What shall we explore?** 🌟`
+   787→      }
+   788→
+   789→      const fallbackMessage: ChatMessage = {
+   790→        id: (Date.now() + 1).toString(),
+   791→        role: 'assistant',
+   792→        content: fallbackResponse,
+   793→        timestamp: new Date()
+   794→      }
+   795→
+   796→      // Add empty fallback message first, then use typewriter effect
+   797→      const fallbackMessageId = (Date.now() + 1).toString()
+   798→      const emptyFallbackMessage: ChatMessage = {
+   799→        id: fallbackMessageId,
+   800→        role: 'assistant',
+   801→        content: '',
+   802→        timestamp: new Date()
+   803→      }
+   804→
+   805→      setSessions(prev => prev.map(s => 
+   806→        s.id === sessionId 
+   807→          ? { ...s, messages: [...s.messages, emptyFallbackMessage] }
+   808→          : s
+   809→      ))
+   810→      
+   811→      // Start typewriter effect for fallback response
+   812→      typeWriterEffect(sessionId, fallbackResponse, fallbackMessageId, 35)
+   813→    } finally {
+   814→      // Note: setIsLoading(false) is now handled by typeWriterEffect when typing completes
+   815→      
+   816→      // Increment chat count for guests
+   817→      if (!isLoggedIn) {
+   818→        const newCount = chatCount + 1
+   819→        setChatCount(newCount)
+   820→        localStorage.setItem('nexus_chat_count', newCount.toString())
+   821→        
+   822→        // Show modal if limit reached after this message
+   823→        if (newCount >= MAX_FREE_CHATS) {
+   824→          setTimeout(() => setShowAuthModal(true), 500)
+   825→        }
+   826→      }
+   827→    }
+   828→  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle, isLoggedIn, chatCount, MAX_FREE_CHATS, attachedFile, fileBase64])
+   829→
+   830→  // Copy code handler
+   831→  const copyToClipboard = (text: string) => {
+   832→    navigator.clipboard.writeText(text)
+   833→    setCopiedCode(true)
+   834→    setTimeout(() => setCopiedCode(false), 2000)
+   835→  }
+   836→
+   837→  // File attachment handler
+   838→  const handleFileAttach = (file: File) => {
+   839→    setAttachedFile(file)
+   840→    setInputValue('')
+   841→    
+   842→    // Convert image to base64 for API
+   843→    if (file.type.startsWith('image/')) {
+   844→      const reader = new FileReader()
+   845→      reader.onloadend = () => {
+   846→        // Get base64 string (remove data:image/xxx;base64, prefix)
+   847→        const base64 = (reader.result as string).split(',')[1]
+   848→        setFileBase64(base64)
+   849→      }
+   850→      reader.readAsDataURL(file)
+   851→    } else {
+   852→      setFileBase64(null)
+   853→    }
+   854→    
+   855→    console.log('File attached:', file)
+   856→  }
+   857→
+   858→  // Toggle theme
+   859→  const toggleTheme = () => {
+   860→    setIsDarkMode(!isDarkMode)
+   861→  }
+   862→
+   863→  // Render current view
+   864→  const renderCurrentView = () => {
+   865→    switch (currentView) {
+   866→      case 'chat':
+   867→        return (
+   868→          <FullScreenChat
+   869→            messages={getCurrentMessages()}
+   870→            inputValue={inputValue}
+   871→            setInputValue={setInputValue}
+   872→            isLoading={isLoading}
+   873→            onSubmit={handleSubmit}
+   874→            onStop={handleStop}
+   875→            copiedCode={copiedCode}
+   876→            onCopy={copyToClipboard}
+   877→            onFileAttach={handleFileAttach}
+   878→            isLoggedIn={isLoggedIn}
+   879→            onLoginRequired={() => { 
+   880→              console.log('🔐 onLoginRequired called! Setting modal to open...');
+   881→              setAuthModalReason('file_attach'); 
+   882→              setShowAuthModal(true);
+   883→              console.log('✅ Modal should be open now');
+   884→            }}
+   885→          />
+   886→        )
+   887→      
+   888→      case 'settings':
+   889→        return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+   890→
+   891→      case 'login':
+   892→        return (
+   893→          <LoginView 
+   894→            onLogin={handleLogin}
+   895→            onLogout={handleLogout}
+   896→            isLoggedIn={isLoggedIn}
+   897→            user={user}
+   898→          />
+   899→        )
+   900→
+   901→      case 'home':
+   902→        return (
+   903→          <>
+   904→            {/* Hero Section */}
+   905→            <section className="relative min-h-screen flex items-center justify-center px-4">
+   906→              <div className="max-w-5xl mx-auto text-center">
+   907→                <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-6">
+   908→                  <Rocket className="w-3 h-3 mr-1" />
+   909→                  Next Generation AI Platform
+   910→                </Badge>
+   911→                
+   912→                <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 font-[family-name:var(--font-orbitron)]">
+   913→                  <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400" />
+   914→                  <br />
+   915→                  <span className="text-3xl sm:text-4xl md:text-5xl text-white mt-4 block">AI</span>
+   916→                </h1>
+   917→                
+   918→                <p className="text-xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
+   919→                  Experience the future of artificial intelligence. NEXUS AI combines cutting-edge neural networks 
+   920→                  with intuitive design to deliver superhuman capabilities at your fingertips.
+   921→                </p>
+   922→
+   923→                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+   924→                  <Button 
+   925→                    size="lg"
+   926→                    onClick={() => setCurrentView('chat')}
+   927→                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 py-6 text-lg glow-cyan"
+   928→                  >
+   929→                    <MessageSquare className="w-5 h-5 mr-2" />
+   930→                    Try AI Chat Now
+   931→                  </Button>
+   932→                  <Button 
+   933→                    size="lg"
+   934→                    variant="outline"
+   935→                    onClick={() => setCurrentView('features')}
+   936→                    className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg"
+   937→                  >
+   938→                    <Sparkles className="w-5 h-5 mr-2" />
+   939→                    Explore Features
+   940→                  </Button>
+   941→                </div>
+   942→
+   943→                <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
+   944→                  <div className="flex items-center gap-2">
+   945→                    <Shield className="w-4 h-4 text-green-400" />
+   946→                    Enterprise Ready
+   947→                  </div>
+   948→                  <div className="flex items-center gap-2">
+   949→                    <Zap className="w-4 h-4 text-yellow-400" />
+   950→                    Lightning Fast
+   951→                  </div>
+   952→                  <div className="flex items-center gap-2">
+   953→                    <Heart className="w-4 h-4 text-red-400" />
+   954→                    Free to Use
+   955→                  </div>
+   956→                </div>
+   957→              </div>
+   958→            </section>
+   959→
+   960→            {/* Features Section */}
+   961→            <section id="features" className="relative py-24 px-4">
+   962→              <div className="max-w-6xl mx-auto">
+   963→                <div className="text-center mb-16">
+   964→                  <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+   965→                    <Layers className="w-3 h-3 mr-1" />
+   966→                    Capabilities
+   967→                  </Badge>
+   968→                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+   969→                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+   970→                      Powerful Features
+   971→                    </span>
+   972→                  </h2>
+   973→                  <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+   974→                    Built with cutting-edge technology to deliver unparalleled performance and intelligence.
+   975→                  </p>
+   976→                </div>
+   977→
+   978→                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+   979→                  {features.map((feature, index) => (
+   980→                    <FeatureCard key={index} feature={feature} index={index} />
+   981→                  ))}
+   982→                </div>
+   983→              </div>
+   984→            </section>
+   985→
+   986→            {/* Stats Section */}
+   987→            <section id="stats" className="relative py-24 px-4">
+   988→              <div className="max-w-6xl mx-auto">
+   989→                <div className="text-center mb-16">
+   990→                  <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+   991→                    <TrendingUp className="w-3 h-3 mr-1" />
+   992→                    By The Numbers
+   993→                  </Badge>
+   994→                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+   995→                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+   996→                      Impact at Scale
+   997→                    </span>
+   998→                  </h2>
+   999→                </div>
+  1000→
+  1001→                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+  1002→                  {stats.map((stat, index) => (
+  1003→                    <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+  1004→                      <CardContent className="p-6 text-center">
+  1005→                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+  1006→                          {stat.icon}
+  1007→                        </div>
+  1008→                        <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+  1009→                          <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+  1010→                        </div>
+  1011→                        <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+  1012→                      </CardContent>
+  1013→                    </Card>
+  1014→                  ))}
+  1015→                </div>
+  1016→              </div>
+  1017→            </section>
+  1018→
+  1019→            {/* CTA Section */}
+  1020→            <section className="relative py-24 px-4">
+  1021→              <div className="max-w-4xl mx-auto text-center">
+  1022→                <Card className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 backdrop-blur-xl">
+  1023→                  <CardContent className="p-12">
+  1024→                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-orbitron)]">
+  1025→                      Ready to Experience the Future?
+  1026→                    </h2>
+  1027→                    <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+  1028→                      Join millions of users already leveraging NEXUS AI to transform their workflow and unlock new possibilities.
+  1029→                    </p>
+  1030→                    <Button 
+  1031→                      size="lg"
+  1032→                      onClick={() => setCurrentView('chat')}
+  1033→                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 glow-cyan"
+  1034→                    >
+  1035→                      <Rocket className="w-5 h-5 mr-2" />
+  1036→                      Start Chatting Now
+  1037→                    </Button>
+  1038→                  </CardContent>
+  1039→                </Card>
+  1040→              </div>
+  1041→            </section>
+  1042→          </>
+  1043→        )
+  1044→
+  1045→      case 'features':
+  1046→        return (
+  1047→          <div className="h-full overflow-y-auto overflow-x-hidden px-4 py-12 custom-scrollbar">
+  1048→            <div className="max-w-6xl mx-auto">
+  1049→              <div className="text-center mb-16">
+  1050→                <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
+  1051→                  <Layers className="w-3 h-3 mr-1" />
+  1052→                  Capabilities
+  1053→                </Badge>
+  1054→                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+  1055→                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+  1056→                    Powerful Features
+  1057→                  </span>
+  1058→                </h2>
+  1059→                <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+  1060→                  Built with cutting-edge technology to deliver unparalleled performance and intelligence.
+  1061→                </p>
+  1062→              </div>
+  1063→
+  1064→              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  1065→                {features.map((feature, index) => (
+  1066→                  <FeatureCard key={index} feature={feature} index={index} />
+  1067→                ))}
+  1068→              </div>
+  1069→
+  1070→              <div className="mt-12 text-center">
+  1071→                <Button 
+  1072→                  onClick={() => setCurrentView('chat')}
+  1073→                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white glow-cyan"
+  1074→                >
+  1075→                  <MessageSquare className="w-4 h-4 mr-2" />
+  1076→                  Try AI Chat
+  1077→                </Button>
+  1078→              </div>
+  1079→            </div>
+  1080→          </div>
+  1081→        )
+  1082→
+  1083→      case 'stats':
+  1084→        return (
+  1085→          <div className="min-h-screen px-4 py-12">
+  1086→            <div className="max-w-6xl mx-auto">
+  1087→              <div className="text-center mb-16">
+  1088→                <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
+  1089→                  <TrendingUp className="w-3 h-3 mr-1" />
+  1090→                  By The Numbers
+  1091→                </Badge>
+  1092→                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
+  1093→                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
+  1094→                    Impact at Scale
+  1095→                  </span>
+  1096→                </h2>
+  1097→              </div>
+  1098→
+  1099→              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+  1100→                {stats.map((stat, index) => (
+  1101→                  <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
+  1102→                    <CardContent className="p-6 text-center">
+  1103→                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
+  1104→                        {stat.icon}
+  1105→                      </div>
+  1106→                      <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
+  1107→                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+  1108→                      </div>
+  1109→                      <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
+  1110→                    </CardContent>
+  1111→                  </Card>
+  1112→                ))}
+  1113→              </div>
+  1114→            </div>
+  1115→          </div>
+  1116→        )
+  1117→
+  1118→      default:
+  1119→        return (
+  1120→          <FullScreenChat
+  1121→            messages={getCurrentMessages()}
+  1122→            inputValue={inputValue}
+  1123→            setInputValue={setInputValue}
+  1124→            isLoading={isLoading}
+  1125→            onSubmit={handleSubmit}
+  1126→            onStop={handleStop}
+  1127→            copiedCode={copiedCode}
+  1128→            onCopy={copyToClipboard}
+  1129→            onFileAttach={handleFileAttach}
+  1130→            isLoggedIn={isLoggedIn}
+  1131→            onLoginRequired={() => { 
+  1132→              console.log('🔐 onLoginRequired called! Setting modal to open...');
+  1133→              setAuthModalReason('file_attach'); 
+  1134→              setShowAuthModal(true);
+  1135→              console.log('✅ Modal should be open now');
+  1136→            }}
+  1137→          />
+  1138→        )
+  1139→    }
+  1140→  }
+  1141→
+  1142→  return (
+  1143→    <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`}>
+  1144→      {/* Intro Animation - Shows on first visit */}
+  1145→      {showIntro && (
+  1146→        <IntroAnimation onComplete={() => {
+  1147→          setShowIntro(false)
+  1148→          setIntroComplete(true)
+  1149→          sessionStorage.setItem('nexus_intro_shown', 'true')
+  1150→        }} />
+  1151→      )}
+  1152→
+  1153→      {/* Main Content - Only show after intro completes */}
+  1154→      <div className={`transition-opacity duration-500 ${introComplete ? 'opacity-100' : 'opacity-0'}`}>
+  1155→      {/* Background Animation - Only on home view */}
+  1156→      {currentView === 'home' && <NeuralNetworkBackground />}
+  1157→
+  1158→      {/* Sidebar */}
+  1159→      <Sidebar
+  1160→        isOpen={sidebarOpen}
+  1161→        onClose={() => setSidebarOpen(false)}
+  1162→        onToggle={() => setSidebarOpen(!sidebarOpen)}
+  1163→        onNewChat={handleNewChat}
+  1164→        sessions={sessions}
+  1165→        activeSessionId={activeSessionId}
+  1166→        onSelectSession={handleSelectSession}
+  1167→        onDeleteSession={handleDeleteSession}
+  1168→        onViewChange={setCurrentView}
+  1169→        currentView={currentView}
+  1170→        isDarkMode={isDarkMode}
+  1171→        onToggleTheme={toggleTheme}
+  1172→        isLoggedIn={isLoggedIn}
+  1173→        user={user}
+  1174→        onLoginClick={() => setCurrentView('login')}
+  1175→        onSignupClick={() => setCurrentView('login')}
+  1176→        onLogoutClick={handleLogout}
+  1177→        chatCount={chatCount}
+  1178→        maxChats={MAX_FREE_CHATS}
+  1179→      />
+  1180→
+  1181→      {/* Main Content - FULL SCREEN */}
+  1182→      <main className="h-screen w-full flex flex-col overflow-hidden">
+  1183→        {/* Top Header Bar - Always visible with integrated Nav Button */}
+  1184→        <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 ${
+  1185→          currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
+  1186→        }`}>
+  1187→          <div className="flex items-center justify-between px-4 sm:px-6 h-[52px]">
+  1188→            {/* Left Side - Navigation Button + Title */}
+  1189→            <div className="flex items-center gap-3">
+  1190→              {/* Integrated Navigation Button - Part of Header */}
+  1191→              <button
+  1192→                onClick={() => setSidebarOpen(!sidebarOpen)}
+  1193→                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-200 ease-out hover:scale-105 active:scale-95 ${
+  1194→                  sidebarOpen 
+  1195→                    ? 'bg-red-500/15 border-red-500/40 shadow-sm shadow-red-500/10 rotate-90' 
+  1196→                    : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
+  1197→                }`}
+  1198→                title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
+  1199→              >
+  1200→                {sidebarOpen ? (
+  1201→                  <X className="w-[18px] h-[18px] text-red-400" strokeWidth={2} />
+  1202→                ) : (
+  1203→                  <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
+  1204→                )}
+  1205→              </button>
+  1206→              
+  1207→              {/* Title - Show only when not on home view */}
+  1208→              {currentView !== 'home' && (
+  1209→                <div className="flex items-center gap-2.5">
+  1210→                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+  1211→                    <Sparkles className="w-4 h-4 text-cyan-400" />
+  1212→                  </div>
+  1213→                  <span className="font-semibold text-white text-base hidden sm:block tracking-tight">
+  1214→                    {currentView === 'chat' ? 'AI Chat' : 
+  1215→                     currentView === 'settings' ? 'Settings' :
+  1216→                     currentView === 'features' ? 'Features' :
+  1217→                     currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
+  1218→                  </span>
+  1219→                </div>
+  1220→              )}
+  1221→            </div>
+  1222→
+  1223→            {/* Right Side - Actions */}
+  1224→            <div className="flex items-center gap-1.5">
+  1225→              {isLoggedIn ? (
+  1226→                  <>
+  1227→                    <Button
+  1228→                      variant="ghost"
+  1229→                      size="sm"
+  1230→                      onClick={handleNewChat}
+  1231→                      className="text-gray-400 hover:text-white hover:bg-gray-800/80 h-9 px-3 rounded-lg transition-all"
+  1232→                    >
+  1233→                      <Plus className="w-4 h-4 mr-1.5" />
+  1234→                      <span className="hidden sm:inline text-sm font-medium">New Chat</span>
+  1235→                    </Button>
+  1236→                    <Button
+  1237→                      variant="ghost"
+  1238→                      size="sm"
+  1239→                      onClick={handleLogout}
+  1240→                      className="text-red-400/80 hover:text-red-300 hover:bg-red-500/10 h-9 px-3 rounded-lg transition-all"
+  1241→                    >
+  1242→                      <LogOut className="w-4 h-4 mr-1.5" />
+  1243→                      <span className="hidden sm:inline text-sm font-medium">Logout</span>
+  1244→                    </Button>
+  1245→                  </>
+  1246→                ) : null}
+  1247→              </div>
+  1248→            </div>
+  1249→          </header>
+  1250→
+  1251→        {/* Content Area - Full height, fills remaining space */}
+  1252→        <div className="flex-1 min-h-0 overflow-hidden">
+  1253→          {renderCurrentView()}
+  1254→        </div>
+  1255→      </main>
+  1256→
+  1257→      {/* Auth Modal - Shows when free chat limit reached */}
+  1258→      <AuthModal
+  1259→        isOpen={showAuthModal}
+  1260→        onClose={() => setShowAuthModal(false)}
+  1261→        onLogin={handleLogin}
+  1262→        onSignup={handleLogin}
+  1263→        chatCount={chatCount}
+  1264→        maxChats={MAX_FREE_CHATS}
+  1265→        reason={authModalReason}
+  1266→      />
+  1267→      </div>
+  1268→    </div>
+  1269→  )
+  1270→}
+  1271→
