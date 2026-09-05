@@ -578,10 +578,9 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         left: 0,
         right: 0,
         bottom: 0,
-        display: 'flex',
-        flexDirection: 'column',
         overflowY: 'scroll',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch'
       }}
     >
       {/* Success Toast */}
@@ -594,8 +593,8 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       )}
 
-      {/* ===== HEADER SECTION (Fixed Height) ===== */}
-      <div className="flex-shrink-0">
+      {/* ===== HEADER SECTION ===== */}
+      <div>
         {/* Header Background */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10" />
@@ -793,8 +792,8 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       </div>
 
-      {/* ===== CONTENT SECTION (Scrollable) ===== */}
-      <div className="flex-1">
+      {/* ===== CONTENT SECTION ===== */}
+      <div>
       {/* Tabs & Content */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 pb-12">
         {/* Tab Navigation */}
@@ -1324,7 +1323,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
       </div>
 
       {/* ===== FOOTER SECTION ===== */}
-      <div className="flex-shrink-0 border-t border-gray-800 bg-gray-900/30 backdrop-blur-xl mt-8">
+      <div className="border-t border-gray-800 bg-gray-900/30 backdrop-blur-xl mt-8">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* Brand Section */}
