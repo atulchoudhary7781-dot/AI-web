@@ -956,7 +956,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                 </div>
               </div>
 
-              {/* 🔥 CREATOR BADGE - Built by User 🔥 */}
+              {/* 🔥 CREATOR BADGE - Built by Atul Choudhary 🔥 */}
               <div className="mt-12 max-w-2xl mx-auto">
                 <div 
                   className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-red-500/10 to-purple-500/10 p-1"
@@ -967,20 +967,22 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                 >
                   <div className="bg-black/60 backdrop-blur-xl rounded-xl p-6 md:p-8">
                     <div className="flex flex-col md:flex-row items-center gap-6">
-                      {/* Avatar with Glow */}
+                      {/* Avatar with Glow - Using Real Photo */}
                       <div className="relative flex-shrink-0">
                         <div 
-                          className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 animate-spin-slow opacity-75 blur-sm"
+                          className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 opacity-75 blur-sm"
                           style={{ animation: 'spin 3s linear infinite' }}
                         />
-                        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center border-4 border-black/50">
-                          <span className="text-2xl md:text-3xl font-bold text-white">
-                            {user?.name ? user.name.charAt(0).toUpperCase() : 'N'}
-                          </span>
+                        <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-black/50 shadow-2xl">
+                          <img 
+                            src="/creator-photo.jpg" 
+                            alt="Atul Choudhary - Creator of Nexus AI"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         {/* Verified Badge */}
-                        <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-black flex items-center justify-center shadow-lg shadow-green-500/50">
-                          <CheckCircle size={14} className="text-white" strokeWidth={3} />
+                        <div className="absolute -bottom-1 -right-1 w-9 h-9 bg-green-500 rounded-full border-4 border-black flex items-center justify-center shadow-lg shadow-green-500/50">
+                          <CheckCircle size={16} className="text-white" strokeWidth={3} />
                         </div>
                       </div>
 
@@ -993,21 +995,46 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                         </div>
                         
                         <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                          {user?.name || 'The Creator'} 👨‍💻
+                          Atul Choudhary 👨‍💻
                         </h3>
                         
                         <p className="text-cyan-400 font-semibold text-sm mb-3">
                           Founder & Developer of Nexus AI
                         </p>
                         
-                        <p className="text-gray-400 text-sm leading-relaxed max-w-md">
+                        <p className="text-gray-400 text-sm leading-relaxed max-w-md mb-4">
                           ✨ Built this AI platform with a mission to democratize technology for everyone, everywhere.
                           <br />
                           🌍 Serving users worldwide with cutting-edge AI capabilities.
                         </p>
 
+                        {/* Social Links - LinkedIn & Portfolio */}
+                        <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                          <a 
+                            href="https://www.linkedin.com/in/atul-choudhary-018037301/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0077b5]/20 border border-[#0077b5]/50 text-[#0077b5] hover:bg-[#0077b5]/30 hover:border-[#0077b5] transition-all duration-300 group"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                            <span className="text-xs font-semibold">LinkedIn</span>
+                          </a>
+                          
+                          <a 
+                            href="https://atul-portfolio-alpha.vercel.app/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-400 hover:bg-purple-500/30 hover:border-purple-400 transition-all duration-300 group"
+                          >
+                            <Globe size={14} />
+                            <span className="text-xs font-semibold">Portfolio</span>
+                          </a>
+                        </div>
+
                         {/* Stats Mini */}
-                        <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
+                        <div className="flex items-center justify-center md:justify-start gap-4">
                           {[
                             { label: 'Users', value: '10K+', icon: Globe, color: 'text-cyan-400' },
                             { label: 'Countries', value: '150+', icon: Star, color: 'text-purple-400' },
@@ -1027,7 +1054,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
                 
                 {/* Tagline below badge */}
                 <p className="text-center mt-4 text-sm font-semibold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  ⚡ Nexus AI — Crafted by {user?.name || 'Innovation'}, Used by the World 🌍
+                  ⚡ Nexus AI — Crafted by Atul Choudhary, Used by the World 🌍
                 </p>
               </div>
             </section>

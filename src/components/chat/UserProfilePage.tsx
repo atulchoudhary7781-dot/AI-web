@@ -1642,7 +1642,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
             gap: '36px',
             marginBottom: '36px'
           }}>
-            {/* Brand Column with Creator Credit */}
+            {/* Brand Column */}
             <div style={{ textAlign: window.innerWidth > 768 ? 'left' : 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center', gap: '12px', marginBottom: '18px' }}>
                 <div style={{
