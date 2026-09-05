@@ -629,25 +629,67 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
             </div>
           )}
 
-          {/* Navigation Bar - Compact */}
+          {/* Navigation Bar - Perfectly Centered Title */}
           <div className="relative max-w-6xl mx-auto px-4 md:px-8 py-4">
-            <div className="flex items-center justify-between">
+            {/* Desktop: 3-column grid for perfect centering */}
+            <div className="hidden md:grid md:grid-cols-3 md:items-center md:gap-4">
+              {/* Left - Back Button */}
+              <div className="flex justify-start">
+                <button
+                  onClick={onBack}
+                  className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm"
+                >
+                  <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                  <span>Back</span>
+                </button>
+              </div>
+
+              {/* Center - Title (Perfectly Centered) */}
+              <h1 className="text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)] text-center">
+                User Profile
+              </h1>
+
+              {/* Right - Edit Button */}
+              <div className="flex justify-end">
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    Edit Profile
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCancelEdit}
+                    className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile: Flex layout with centered title */}
+            <div className="md:hidden flex items-center justify-between relative">
               <button
                 onClick={onBack}
-                className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm"
+                className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group text-sm z-10"
               >
                 <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 <span>Back</span>
               </button>
 
-              <h1 className="text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)]">
+              {/* Mobile Title - Absolutely Centered */}
+              <h1 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold gradient-text font-[family-name:var(--font-orbitron)] whitespace-nowrap">
                 User Profile
               </h1>
 
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all z-10"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   Edit Profile
@@ -655,7 +697,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
               ) : (
                 <button
                   onClick={handleCancelEdit}
-                  className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+                  className="flex items-center gap-1 px-3 py-1.5 border border-gray-600 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all z-10"
                 >
                   <X className="w-3.5 h-3.5" />
                   Cancel
@@ -751,10 +793,10 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         </div>
       </div>
 
-      {/* ===== CONTENT SECTION (Fills Remaining Space) ===== */}
-      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-      {/* Tabs & Content - Must fill remaining space */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 pb-6 flex-1 flex flex-col min-h-0 overflow-hidden">
+      {/* ===== CONTENT SECTION (Scrollable) ===== */}
+      <div className="flex-1">
+      {/* Tabs & Content */}
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pb-12">
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 bg-gray-900/50 p-1 rounded-xl border border-gray-800 w-fit">
           {[
@@ -780,10 +822,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Profile Info Tab */}
         {activeTab === 'profile' && (
           <div 
-            className="profile-info-tab-scroll flex-1 min-h-0 overflow-y-auto"
-            style={{
-              paddingRight: '8px'
-            }}
+            className="profile-info-tab-scroll"
           >
             <div className="grid md:grid-cols-2 gap-6 pb-8">
             {/* Bio Card */}
@@ -908,10 +947,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
           <div 
-            className="subscription-tab-scroll flex-1 min-h-0 overflow-y-auto"
-            style={{
-              paddingRight: '8px'
-            }}
+            className="subscription-tab-scroll"
           >
             <div className="space-y-6 pb-8">
             {/* Current Plan Status */}
@@ -1072,10 +1108,7 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div 
-            className="settings-tab-scroll flex-1 min-h-0 overflow-y-auto"
-            style={{
-              paddingRight: '8px'
-            }}
+            className="settings-tab-scroll"
           >
             <div className="space-y-5 pb-8">
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-xl">
@@ -1288,6 +1321,65 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           </div>
         )}
       </div>
+      </div>
+
+      {/* ===== FOOTER SECTION ===== */}
+      <div className="flex-shrink-0 border-t border-gray-800 bg-gray-900/30 backdrop-blur-xl mt-8">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {/* Brand Section */}
+            <div>
+              <h3 className="text-lg font-bold gradient-text mb-2">Nexus AI</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Your intelligent AI assistant for productivity, creativity, and seamless communication.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-3">Quick Links</h4>
+              <ul className="space-y-2">
+                <li><a href="/dashboard" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</a></li>
+                <li><a href="/pricing" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Pricing Plans</a></li>
+                <li><a href="#" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Help Center</a></li>
+                <li><a href="#" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Privacy Policy</a></li>
+              </ul>
+            </div>
+
+            {/* Contact/Status */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-3">Account Status</h4>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${emailVerified ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                  <span className="text-xs text-gray-400">Email: {emailVerified ? 'Verified' : 'Not Verified'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Crown className={`w-4 h-4 ${currentPlan === 'pro' ? 'text-yellow-400' : currentPlan === 'normal' ? 'text-cyan-400' : 'text-gray-500'}`} />
+                  <span className="text-xs text-gray-400">Plan: {currentPlan.toUpperCase()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-violet-400" />
+                  <span className="text-xs text-gray-400">Member since: {new Date().toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-gray-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-gray-500">
+              © {new Date().getFullYear()} Nexus AI. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                System Online
+              </span>
+              <span className="text-xs text-gray-600">v2.0.1</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

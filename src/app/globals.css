@@ -623,16 +623,26 @@ header, nav, [role="navigation"] {
 /* Full viewport height fix for mobile browsers */
 html, body {
   height: 100%;
-  overflow: hidden;
 }
 
-/* Prevent pull-to-refresh on mobile */
-body {
-  overscroll-behavior-y: contain;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
+/* Prevent pull-to-refresh on mobile ONLY */
+@media (max-width: 768px) {
+  body {
+    overscroll-behavior-y: contain;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
+}
+
+/* Desktop: Allow normal scrolling */
+@media (min-width: 769px) {
+  body {
+    position: relative;
+    overflow: auto;
+  }
 }
 
 /* Allow scroll only in message container */
@@ -809,6 +819,40 @@ body {
     background: linear-gradient(180deg, #00ffff, #a855f7) !important;
     border-radius: 10px !important;
     border: 2px solid rgba(0, 255, 255, 0.3);
+  }
+}
+
+/* Desktop scrollbar for profile page - ENHANCED VISIBILITY */
+@media (min-width: 769px) {
+  .profile-page-container::-webkit-scrollbar {
+    display: block !important;
+    width: 14px !important;
+    background: rgba(20, 20, 40, 0.95) !important;
+  }
+  
+  .profile-page-container::-webkit-scrollbar-track {
+    background: rgba(20, 20, 40, 0.95) !important;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+  }
+  
+  .profile-page-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ffff, #a855f7) !important;
+    border-radius: 10px !important;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    min-height: 60px;
+  }
+  
+  .profile-page-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #33ccff, #c084fc) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+  
+  /* Ensure scrollbar is always visible on PC */
+  .profile-page-container {
+    scrollbar-width: thin;
+    scrollbar-color: #00ffff rgba(20, 20, 40, 0.95);
+    overflow-y: scroll !important;
   }
 }
 
