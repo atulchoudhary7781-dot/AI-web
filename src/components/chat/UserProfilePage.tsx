@@ -770,7 +770,6 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div 
             className="profile-info-tab-scroll"
             style={{
-              maxHeight: 'calc(100vh - 420px)',
               overflowY: 'auto',
               overflowX: 'hidden',
               paddingRight: '8px'
@@ -901,7 +900,6 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div 
             className="subscription-tab-scroll"
             style={{
-              maxHeight: 'calc(100vh - 420px)',
               overflowY: 'auto',
               overflowX: 'hidden',
               paddingRight: '8px'
@@ -1068,7 +1066,6 @@ export default function UserProfilePage({ user: initialUser, onBack, onLogout }:
           <div 
             className="settings-tab-scroll"
             style={{
-              maxHeight: 'calc(100vh - 420px)',
               overflowY: 'auto',
               overflowX: 'hidden',
               paddingRight: '8px'
