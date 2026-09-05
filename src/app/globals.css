@@ -133,10 +133,23 @@
 /* ============================================
    GLOBAL BODY STYLES - CYBERPUNK BACKGROUND
    ============================================ */
+html {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+}
+
 body {
   background: #0a0a1a !important;
   color: #ffffff;
   font-family: var(--font-sans), system-ui, sans-serif;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: relative !important;
 }
 
 /* Overlay removed for cyberpunk theme */
@@ -627,20 +640,24 @@ html, body {
 
 /* Mobile ONLY - Prevent bounce scroll but allow internal scrolling */
 @media (max-width: 768px) {
-  body {
+  html, body {
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
+    position: relative !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
   }
 }
 
 /* Desktop & Tablet: Ensure normal document flow scrolling */
 @media (min-width: 769px) {
   html, body {
-    position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: auto;
-    min-height: 100vh;
+    position: relative !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
   }
 }
 

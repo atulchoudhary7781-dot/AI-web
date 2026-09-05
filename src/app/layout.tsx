@@ -71,8 +71,8 @@ export default function RootLayout({
               style={{ background: 'rgba(0, 0, 0, 0.75)' }}
             />
             
-            {/* Main content */}
-            <div className="relative z-10">
+            {/* Main content - Ensure scrolling works on all devices */}
+            <div className="relative z-10 min-h-screen" style={{ minHeight: '100vh', position: 'relative', overflow: 'visible' }}>
               {children}
             </div>
             
