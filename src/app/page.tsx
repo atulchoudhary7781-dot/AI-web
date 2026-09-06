@@ -329,16 +329,9 @@ export default function NexusAI() {
   // Auth State
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
-  
-  // Subscription Button State - Client-side only (bypasses all cache)
-  const [showSubscriptionButton, setShowSubscriptionButton] = useState(false)
 
-  // Check for existing session on mount + Show subscription button immediately
+  // Check for existing session on mount
   useEffect(() => {
-    // FORCE SHOW subscription button - bypasses server cache completely
-    // This runs ONLY on client side, so cache cannot affect it
-    setShowSubscriptionButton(true)
-    
     const savedUser = localStorage.getItem('nexus_user')
     if (savedUser) {
       try {
@@ -1332,51 +1325,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions */}
             <div className="flex items-center gap-2">
-              {/* SUBSCRIPTION BUTTON - Premium Design */}
-              {showSubscriptionButton && (
-                <a 
-                  href="/pricing"
-                  className="relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm text-white overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 group"
-                  style={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4), 0 0 20px rgba(118, 75, 162, 0.2)'
-                  }}
-                >
-                  {/* Animated Background Shimmer */}
-                  <span 
-                    className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-300"
-                    style={{
-                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                      animation: 'shimmer 2s infinite'
-                    }}
-                  />
-                  
-                  {/* Glow Effect */}
-                  <span 
-                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{
-                      boxShadow: 'inset 0 0 20px rgba(255,255,255,0.2)'
-                    }}
-                  />
-                  
-                  {/* Content */}
-                  <Crown 
-                    className="w-4 h-4 relative z-10 fill-yellow-300 text-yellow-300 animate-pulse" 
-                    style={{ animationDuration: '2s' }}
-                  />
-                  <span className="relative z-10 hidden sm:inline">Upgrade</span>
-                  <span className="relative z-10 hidden md:inline font-black">Pro</span>
-                  
-                  {/* Pulsing Badge */}
-                  <span 
-                    className="relative z-10 flex items-center justify-center w-5 h-5 bg-white/20 rounded-full text-[10px] font-bold animate-pulse"
-                    style={{ animationDuration: '1.5s' }}
-                  >
-                    âœ¨
-                  </span>
-                </a>
-              )}
-              
               {isLoggedIn ? (
                   <>
                     <Button

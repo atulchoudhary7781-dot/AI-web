@@ -106,15 +106,6 @@ const nextConfig: NextConfig = {
           { key: 'Expires', value: '0' },
         ],
       },
-      // Main page - no cache (subscription button must show)
-      {
-        source: '/',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
-          { key: 'Pragma', value: 'no-cache' },
-          { key: 'Expires', value: '0' },
-        ],
-      },
       // API routes - no cache
       {
         source: '/api/(.*)',
