@@ -6,7 +6,7 @@ import {
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Plus, Trash2, Moon, Sun,
   ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut,
-  UserCircle
+  UserCircle, Crown
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -168,6 +168,22 @@ export default function Sidebar({
                 active={currentView === 'settings'}
                 onClick={() => { onViewChange('settings'); onClose(); }}
               />
+
+              {/* Subscription / Pro Button */}
+              <a
+                href="/pricing"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-purple-400 border border-purple-500/30 hover:from-purple-500/25 hover:to-pink-500/25 hover:border-purple-500/50 shadow-sm shadow-purple-500/10"
+              >
+                <Crown className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                <span className="text-sm font-medium">Upgrade Pro</span>
+                <span className="ml-auto text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold text-white">
+                  NEW
+                </span>
+              </a>
 
               {/* Profile Button - Only show when logged in */}
               {isLoggedIn && (

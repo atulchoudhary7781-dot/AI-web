@@ -1325,19 +1325,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions */}
             <div className="flex items-center gap-2">
-              {/* SUBSCRIPTION BUTTON - Always Visible in AI Chat Header */}
-              <a 
-                href="/pricing"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95 group"
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  animation: 'pro-button-pulse 2s ease-in-out infinite',
-                }}
-              >
-                <Crown className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
-                <span className="hidden sm:inline">Pro</span>
-              </a>
-              
               {isLoggedIn ? (
                   <>
                     <Button
