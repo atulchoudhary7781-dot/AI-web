@@ -171,7 +171,17 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="pricing-page-container min-h-screen bg-deep-black overflow-y-auto">
+    <div 
+      className="pricing-page-container"
+      style={{
+        minHeight: '100vh',
+        height: 'auto',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        position: 'relative',
+        background: '#0a0a1a'
+      }}
+    >
       {/* Hero Section */}
       <div className="pt-32 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">

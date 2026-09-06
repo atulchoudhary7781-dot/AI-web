@@ -767,10 +767,20 @@ html, body {
   .pricing-page-container {
     height: auto !important;
     min-height: 100vh !important;
-    overflow-y: auto !important;
+    max-height: none !important;
+    overflow-y: scroll !important;
     overflow-x: hidden !important;
     position: relative !important;
     scroll-behavior: smooth;
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  /* Ensure html/body allow scroll on pricing page */
+  html:has(.pricing-page-container),
+  html:has(.pricing-page-container) body {
+    overflow-y: auto !important;
+    height: auto !important;
   }
   
   .pricing-page-container::-webkit-scrollbar-track {
