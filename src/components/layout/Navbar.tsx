@@ -154,15 +154,21 @@ export function Navbar() {
                 <LanguageSwitcher />
               </div>
 
-              {/* Subscription Button - Shows on ALL pages */}
-              <Link href="/pricing" className="hidden md:flex items-center">
+              {/* Subscription Button - Shows on ALL pages - PROMINENT */}
+              <Link 
+                href="/pricing" 
+                className="flex items-center animate-pulse-slow"
+                style={{ animation: 'glow 2s ease-in-out infinite' }}
+              >
                 <Button 
                   size="sm" 
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105"
+                  className="bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 hover:from-amber-500 hover:via-orange-600 hover:to-red-600 text-white font-bold shadow-xl shadow-orange-500/40 hover:shadow-orange-500/60 transition-all duration-300 hover:scale-105 border border-amber-300/30 relative overflow-hidden group"
                 >
-                  <Crown className="w-4 h-4 mr-1.5" />
-                  <span className="hidden lg:inline">Upgrade Pro</span>
-                  <span className="lg:hidden">Pro</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <Crown className="w-4 h-4 mr-1.5 fill-current" />
+                  <span className="hidden sm:inline">Upgrade Pro</span>
+                  <span className="sm:hidden">Pro</span>
+                  <Sparkles className="w-3 h-3 ml-1.5 hidden sm:inline animate-spin-slow" style={{ animationDuration: '3s' }} />
                 </Button>
               </Link>
 
@@ -301,12 +307,14 @@ export function Navbar() {
           </nav>
 
           {/* Footer with auth & subscription buttons */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 glass-strong space-y-2">
-            {/* Subscription Button in Mobile */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 glass-strong space-y-3">
+            {/* Subscription Button in Mobile - PROMINENT */}
             <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
-              <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg">
-                <Crown className="w-4 h-4 mr-2" />
+              <Button className="w-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 hover:from-amber-500 hover:via-orange-600 hover:to-red-600 text-white font-bold shadow-xl shadow-orange-500/40 border border-amber-300/30 py-3 text-base relative overflow-hidden group">
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <Crown className="w-5 h-5 mr-2 fill-current" />
                 Upgrade to Pro
+                <Sparkles className="w-4 h-4 ml-2" style={{ animation: 'spin 3s linear infinite' }} />
               </Button>
             </Link>
             
