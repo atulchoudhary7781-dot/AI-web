@@ -9,7 +9,7 @@ import {
   Bell, Lock, Key, Eye, Moon,
   Sun, Monitor, Check, Star,
   Award, Zap, Sparkles,
-  Link2, FileText
+  Link2, FileText, MessageSquare
 } from 'lucide-react'
 
 // Types
