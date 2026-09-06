@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { 
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Plus, Trash2, Moon, Sun,
@@ -66,6 +67,12 @@ export default function Sidebar({
   maxChats = 6
 }: SidebarProps) {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  
+  // Fix hydration issue - only show dynamic content after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   // ESC key handler to close sidebar
   useEffect(() => {
@@ -169,21 +176,22 @@ export default function Sidebar({
                 onClick={() => { onViewChange('settings'); onClose(); }}
               />
 
-              {/* Subscription / Pro Button */}
-              <a
+              {/* Subscription / Pro Button - Always Visible */}
+              <Link
                 href="/pricing"
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-purple-400 border border-purple-500/30 hover:from-purple-500/25 hover:to-pink-500/25 hover:border-purple-500/50 shadow-sm shadow-purple-500/10"
+                className="!w-full !flex !items-center !gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-purple-400 border border-purple-500/30 hover:from-purple-500/25 hover:to-pink-500/25 hover:border-purple-500/50 shadow-sm shadow-purple-500/10"
+                style={{ visibility: 'visible', opacity: 1, display: 'flex' }}
               >
-                <Crown className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                <Crown className="w-4 h-4 fill-yellow-300 text-yellow-300 flex-shrink-0" />
                 <span className="text-sm font-medium">Upgrade Pro</span>
-                <span className="ml-auto text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold text-white">
+                <span className="ml-auto text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold text-white flex-shrink-0">
                   NEW
                 </span>
-              </a>
+              </Link>
 
               {/* Profile Button - Only show when logged in */}
               {isLoggedIn && (
