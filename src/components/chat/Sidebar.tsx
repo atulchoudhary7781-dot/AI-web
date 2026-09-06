@@ -107,6 +107,41 @@ export default function Sidebar({
             >
               <Plus className="w-4 h-4 mr-2" /> New Chat
             </Button>
+            
+            {/* Upgrade Pro Button - TOP POSITION, Always Visible on Mobile */}
+            <a
+              href="/pricing"
+              onClick={(e) => { e.preventDefault(); onClose(); window.location.href = '/pricing'; }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                gap: '10px',
+                padding: '12px 14px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(236, 72, 153, 0.35))',
+                border: '1.5px solid rgba(168, 85, 247, 0.6)',
+                color: '#ffffff',
+                textDecoration: 'none',
+                marginTop: '8px',
+                boxShadow: '0 4px 15px rgba(168, 85, 247, 0.25)'
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+                <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
+                <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
+              </svg>
+              <span style={{ fontSize: '14px', fontWeight: 700, flex: 1 }}>Upgrade Pro</span>
+              <span style={{
+                padding: '3px 10px',
+                borderRadius: '9999px',
+                fontSize: '11px',
+                fontWeight: 800,
+                background: 'linear-gradient(to right, #facc15, #f97316, #ef4444)',
+                color: '#ffffff',
+                textTransform: 'uppercase'
+              }}>⭐ PRO</span>
+            </a>
           </div>
 
           {/* Navigation */}
@@ -119,38 +154,6 @@ export default function Sidebar({
               <SidebarButton icon={<Layers className="w-4 h-4" />} label="Features" active={currentView === 'features'} onClick={() => { onViewChange('features'); onClose(); }} />
               <SidebarButton icon={<TrendingUp className="w-4 h-4" />} label="Statistics" active={currentView === 'stats'} onClick={() => { onViewChange('stats'); onClose(); }} />
               <SidebarButton icon={<Settings className="w-4 h-4" />} label="Settings" active={currentView === 'settings'} onClick={() => { onViewChange('settings'); onClose(); }} />
-
-              {/* Upgrade Pro Button - STATIC, No Hydration Issues */}
-              <a
-                href="/pricing"
-                onClick={(e) => { e.preventDefault(); onClose(); window.location.href = '/pricing'; }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                  gap: '12px',
-                  padding: '10px 12px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))',
-                  border: '1px solid rgba(168, 85, 247, 0.5)',
-                  color: '#ffffff',
-                  textDecoration: 'none'
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
-                  <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
-                  <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
-                </svg>
-                <span style={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>Upgrade Pro</span>
-                <span style={{
-                  padding: '2px 8px',
-                  borderRadius: '9999px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  background: 'linear-gradient(to right, #facc15, #f97316)',
-                  color: '#ffffff'
-                }}>PRO</span>
-              </a>
 
               {isLoggedIn && (
                 <SidebarButton icon={<UserCircle className="w-4 h-4" />} label="My Profile" active={false} onClick={() => { router.push('/profile'); onClose(); }} />

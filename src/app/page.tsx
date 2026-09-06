@@ -1338,34 +1338,29 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions */}
             <div className="flex items-center gap-2">
-              {/* Subscription Button - STATIC, No Hydration Issues */}
+              {/* Subscription Button - MOBILE FRIENDLY */}
               <a 
                 href="/pricing"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))',
-                  border: '1px solid rgba(168, 85, 247, 0.5)',
+                  padding: '8px 14px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4))',
+                  border: '1.5px solid rgba(168, 85, 247, 0.7)',
                   color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  textDecoration: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))';
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 10px rgba(168, 85, 247, 0.3)'
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
                   <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
                   <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
                 </svg>
-                <span className="hidden sm:inline">Pro</span>
+                <span>Pro</span>
               </a>
               
               {isLoggedIn ? (
