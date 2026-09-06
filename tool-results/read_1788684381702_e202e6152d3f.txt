@@ -1,0 +1,1431 @@
+     1→'use client'
+     2→
+     3→import { useState, useRef, useEffect, useCallback } from 'react'
+     4→import { 
+     5→  Search, Image, Mic, Code2, FileText, Languages, 
+     6→  X, Send, Loader2, Copy, Check, Download,
+     7→  Play, Square, Volume2, VolumeX, Upload,
+     8→  ExternalLink, Sparkles, AlertCircle, CheckCircle2,
+     9→  RefreshCw, FileImage, Zap, Lock, LogIn, Shield, Crown
+    10→} from 'lucide-react'
+    11→import { Button } from '@/components/ui/button'
+    12→
+    13→interface ToolsPanelProps {
+    14→  isOpen: boolean
+    15→  onClose: () => void
+    16→  onInsertToChat: (text: string) => void
+    17→  isLoggedIn?: boolean
+    18→  onLoginRequired?: () => void
+    19→}
+    20→
+    21→type ToolType = 'web-search' | 'image-gen' | 'voice-chat' | 'code-executor' | 'file-analyzer' | 'translator' | null
+    22→
+    23→export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn = false, onLoginRequired }: ToolsPanelProps) {
+    24→  const [activeTool, setActiveTool] = useState<ToolType>(null)
+    25→  
+    26→  // Tool states - Web Search
+    27→  const [searchQuery, setSearchQuery] = useState('')
+    28→  const [searchResults, setSearchResults] = useState<any[]>([])
+    29→  const [isSearching, setIsSearching] = useState(false)
+    30→  const [searchError, setSearchError] = useState<string>('')
+    31→  
+    32→  // Tool states - Image Generation
+    33→  const [imagePrompt, setImagePrompt] = useState('')
+    34→  const [imageSize, setImageSize] = useState('1024x1024')
+    35→  const [imageStyle, setImageStyle] = useState('natural')
+    36→  const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+    37→  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+    38→  const [imageError, setImageError] = useState<string>('')
+    39→  
+    40→  // Tool states - Voice Chat
+    41→  const [voiceText, setVoiceText] = useState('')
+    42→  const [isRecording, setIsRecording] = useState(false)
+    43→  const [isSpeaking, setIsSpeaking] = useState(false)
+    44→  const [selectedVoice, setSelectedVoice] = useState('alloy')
+    45→  const [voiceStatus, setVoiceStatus] = useState<string>('')
+    46→  
+    47→  // Tool states - Code Executor
+    48→  const [code, setCode] = useState('')
+    49→  const [codeLanguage, setCodeLanguage] = useState('javascript')
+    50→  const [codeOutput, setCodeOutput] = useState<string>('')
+    51→  const [codeError, setCodeError] = useState<string>('')
+    52→  const [isRunningCode, setIsRunningCode] = useState(false)
+    53→  
+    54→  // Tool states - File Analyzer
+    55→  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    56→  const [analysisResult, setAnalysisResult] = useState<any>(null)
+    57→  const [isAnalyzing, setIsAnalyzing] = useState(false)
+    58→  const [analysisType, setAnalysisType] = useState('summary')
+    59→  
+    60→  // Tool states - Translator
+    61→  const [translateText, setTranslateText] = useState('')
+    62→  const [sourceLang, setSourceLang] = useState('auto')
+    63→  const [targetLang, setTargetLang] = useState('hi')
+    64→  const [translatedText, setTranslatedText] = useState<string>('')
+    65→  const [isTranslating, setIsTranslating] = useState(false)
+    66→
+    67→  // Refs
+    68→  const fileInputRef = useRef<HTMLInputElement>(null)
+    69→  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+    70→  const audioRef = useRef<HTMLAudioElement | null>(null)
+    71→  const speechRecognitionRef = useRef<any>(null)
+    72→
+    73→  // Copy state
+    74→  const [copiedItem, setCopiedItem] = useState<string>('')
+    75→
+    76→  // Reset tool state when switching tools
+    77→  const resetToolState = useCallback(() => {
+    78→    setSearchResults([])
+    79→    setSearchError('')
+    80→    setGeneratedImage(null)
+    81→    setImageError('')
+    82→    setCodeOutput('')
+    83→    setCodeError('')
+    84→    setAnalysisResult(null)
+    85→    setTranslatedText('')
+    86→    setVoiceStatus('')
+    87→  }, [])
+    88→
+    89→  useEffect(() => {
+    90→    if (!isOpen) {
+    91→      setActiveTool(null)
+    92→      resetToolState()
+    93→    }
+    94→  }, [isOpen, resetToolState])
+    95→
+    96→  // Cleanup on unmount
+    97→  useEffect(() => {
+    98→    return () => {
+    99→      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+   100→        mediaRecorderRef.current.stop()
+   101→      }
+   102→      if (speechRecognitionRef.current) {
+   103→        speechRecognitionRef.current.stop()
+   104→      }
+   105→      if (audioRef.current) {
+   106→        audioRef.current.pause()
+   107→      }
+   108→    }
+   109→  }, [])
+   110→
+   111→  // Copy to clipboard helper
+   112→  const copyToClipboard = async (text: string, itemId: string) => {
+   113→    try {
+   114→      await navigator.clipboard.writeText(text)
+   115→      setCopiedItem(itemId)
+   116→      setTimeout(() => setCopiedItem(''), 2000)
+   117→    } catch (err) {
+   118→      console.error('Copy failed:', err)
+   119→    }
+   120→  }
+   121→
+   122→  if (!isOpen) return null
+   123→
+   124→  // ==================== AUTH LOCK SCREEN ====================
+   125→  if (!isLoggedIn) {
+   126→    return (
+   127→      <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm sm:bg-black/70 sm:backdrop-blur-md flex items-end sm:items-center justify-center animate-in fade-in duration-150">
+   128→        {/* Mobile: Full width bottom sheet | Desktop: Centered modal */}
+   129→        <div className="bg-gray-900/98 backdrop-blur-xl border border-gray-800/60 rounded-b-none sm:rounded-2xl w-full sm:w-auto sm:min-w-[420px] sm:max-w-md shadow-2xl shadow-black/50 animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-200 max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+   130→          
+   131→          {/* Lock Screen Header */}
+   132→          <div className="relative px-5 sm:px-7 py-6 sm:py-8 text-center bg-gradient-to-b from-cyan-500/10 via-purple-500/10 to-transparent flex-shrink-0">
+   133→            {/* Animated Lock Icon */}
+   134→            <div className="relative inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mb-4 sm:mb-5">
+   135→              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 animate-pulse" />
+   136→              <div className="absolute inset-1 rounded-full bg-gray-800/80 flex items-center justify-center">
+   137→                <Lock className="w-7 h-7 sm:w-9 sm:h-9 text-cyan-400" />
+   138→              </div>
+   139→              {/* Lock Badge */}
+   140→              <div className="absolute -top-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-yellow-500/30">
+   141→                <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+   142→              </div>
+   143→            </div>
+   144→            
+   145→            <h2 className="text-xl sm:text-2xl font-bold text-white mb-1.5 sm:mb-2">
+   146→              Premium Tools
+   147→            </h2>
+   148→            <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-[260px] sm:max-w-xs mx-auto">
+   149→              AI tools are exclusive for registered members. Create your free account to unlock all features.
+   150→            </p>
+   151→          </div>
+   152→
+   153→          {/* Features List - Scrollable when needed */}
+   154→          <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-2 sm:space-y-3 border-t border-gray-800/50 overflow-y-auto flex-1 min-h-0">
+   155→            {[
+   156→              { icon: Search, label: 'Web Search', desc: 'Real-time internet search' },
+   157→              { icon: Image, label: 'AI Images', desc: 'Generate stunning visuals' },
+   158→              { icon: Mic, label: 'Voice Chat', desc: 'Talk with AI assistant' },
+   159→              { icon: Code2, label: 'Code Runner', desc: 'Execute code instantly' },
+   160→              { icon: FileText, label: 'File Analyzer', desc: 'Analyze documents & files' },
+   161→              { icon: Languages, label: 'Translator', desc: '100+ languages supported' }
+   162→            ].map((feature, idx) => (
+   163→              <div key={idx} className="flex items-center gap-2.5 sm:gap-3 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg bg-gray-800/30 group hover:bg-gray-800/50 transition-colors">
+   164→                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center group-hover:from-cyan-500/20 group-hover:to-purple-500/20 transition-colors flex-shrink-0">
+   165→                  <feature.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-cyan-400 transition-colors" />
+   166→                </div>
+   167→                <div className="flex-1 min-w-0">
+   168→                  <p className="text-xs sm:text-sm font-medium text-white">{feature.label}</p>
+   169→                  <p className="text-[11px] sm:text-xs text-gray-500">{feature.desc}</p>
+   170→                </div>
+   171→                <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-500/60 flex-shrink-0" />
+   172→              </div>
+   173→            ))}
+   174→          </div>
+   175→
+   176→          {/* CTA Section - Fixed at bottom */}
+   177→          <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-t from-gray-800/40 to-transparent border-t border-gray-800/50 flex-shrink-0">
+   178→            <div className="flex items-center gap-2 mb-3 sm:mb-4 px-1">
+   179→              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" />
+   180→              <span className="text-[11px] sm:text-xs text-gray-400">Free account • No credit card required</span>
+   181→            </div>
+   182→            
+   183→            <button
+   184→              onClick={onLoginRequired}
+   185→              className="w-full flex items-center justify-center gap-2 sm:gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-sm sm:text-base"
+   186→            >
+   187→              <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
+   188→              Sign In to Unlock Tools
+   189→            </button>
+   190→            
+   191→            <button
+   192→              onClick={onClose}
+   193→              className="w-full mt-2.5 sm:mt-3 px-5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-xl transition-all"
+   194→            >
+   195→              Maybe Later
+   196→            </button>
+   197→          </div>
+   198→        </div>
+   199→      </div>
+   200→    )
+   201→  }
+   202→
+   203→  // ==================== TOOL HANDLERS ====================
+   204→
+   205→  // Web Search Handler
+   206→  const handleWebSearch = async () => {
+   207→    if (!searchQuery.trim()) return
+   208→    
+   209→    setIsSearching(true)
+   210→    setSearchError('')
+   211→    
+   212→    try {
+   213→      const response = await fetch('/api/tools/web-search', {
+   214→        method: 'POST',
+   215→        headers: { 'Content-Type': 'application/json' },
+   216→        body: JSON.stringify({ query: searchQuery, numResults: 8 })
+   217→      })
+   218→      
+   219→      const data = await response.json()
+   220→      
+   221→      if (data.success) {
+   222→        setSearchResults(data.results || [])
+   223→        if (data.fallback) {
+   224→          setSearchError('Showing cached results')
+   225→        }
+   226→      } else {
+   227→        setSearchError(data.error || 'Search failed')
+   228→      }
+   229→    } catch (error) {
+   230→      console.error('Search error:', error)
+   231→      setSearchError('Network error. Please try again.')
+   232→    }
+   233→    
+   234→    setIsSearching(false)
+   235→  }
+   236→
+   237→  // Image Generation Handler
+   238→  const handleGenerateImage = async () => {
+   239→    if (!imagePrompt.trim()) return
+   240→    
+   241→    setIsGeneratingImage(true)
+   242→    setImageError('')
+   243→    setGeneratedImage(null)
+   244→    
+   245→    try {
+   246→      const response = await fetch('/api/tools/generate-image', {
+   247→        method: 'POST',
+   248→        headers: { 'Content-Type': 'application/json' },
+   249→        body: JSON.stringify({ 
+   250→          prompt: imagePrompt, 
+   251→          size: imageSize,
+   252→          style: imageStyle 
+   253→        })
+   254→      })
+   255→      
+   256→      const data = await response.json()
+   257→      
+   258→      if (data.success && data.image) {
+   259→        setGeneratedImage(data.image)
+   260→        if (data.fallback) {
+   261→          setImageError('Using placeholder image')
+   262→        }
+   263→      } else {
+   264→        setImageError(data.error || 'Generation failed')
+   265→      }
+   266→    } catch (error) {
+   267→      console.error('Image generation error:', error)
+   268→      setImageError('Network error. Please try again.')
+   269→    }
+   270→    
+   271→    setIsGeneratingImage(false)
+   272→  }
+   273→
+   274→  // Download generated image
+   275→  const downloadImage = () => {
+   276→    if (!generatedImage) return
+   277→    
+   278→    const link = document.createElement('a')
+   279→    link.href = generatedImage
+   280→    link.download = `nexus-ai-${Date.now()}.png`
+   281→    document.body.appendChild(link)
+   282→    link.click()
+   283→    document.body.removeChild(link)
+   284→  }
+   285→
+   286→  // Voice Recording with browser Speech Recognition fallback
+   287→  const toggleRecording = async () => {
+   288→    if (!isRecording) {
+   289→      try {
+   290→        // Try browser Speech Recognition first (better UX)
+   291→        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+   292→        
+   293→        if (SpeechRecognition) {
+   294→          const recognition = new SpeechRecognition()
+   295→          recognition.continuous = true
+   296→          recognition.interimResults = true
+   297→          recognition.lang = targetLang === 'auto' ? 'en-US' : targetLang
+   298→          
+   299→          recognition.onresult = (event: any) => {
+   300→            let transcript = ''
+   301→            for (let i = event.resultIndex; i < event.results.length; i++) {
+   302→              transcript += event.results[i][0].transcript
+   303→            }
+   304→            setVoiceText(transcript)
+   305→          }
+   306→          
+   307→          recognition.onerror = (event: any) => {
+   308→            console.error('Speech recognition error:', event.error)
+   309→            setVoiceStatus(`Error: ${event.error}`)
+   310→            setIsRecording(false)
+   311→          }
+   312→          
+   313→          recognition.onend = () => {
+   314→            setIsRecording(false)
+   315→          }
+   316→          
+   317→          speechRecognitionRef.current = recognition
+   318→          recognition.start()
+   319→          setIsRecording(true)
+   320→          setVoiceStatus('Listening...')
+   321→        } else {
+   322→          // Fallback to MediaRecorder + API
+   323→          const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+   324→          mediaRecorderRef.current = new MediaRecorder(stream)
+   325→          const chunks: Blob[] = []
+   326→          
+   327→          mediaRecorderRef.current.ondataavailable = (e) => chunks.push(e.data)
+   328→          mediaRecorderRef.current.onstop = async () => {
+   329→            const blob = new Blob(chunks, { type: 'audio/webm' })
+   330→            
+   331→            try {
+   332→              const arrayBuffer = await blob.arrayBuffer()
+   333→              const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+   334→              
+   335→              const response = await fetch('/api/tools/voice-chat', {
+   336→                method: 'POST',
+   337→                headers: { 'Content-Type': 'application/json' },
+   338→                body: JSON.stringify({ action: 'stt', audioData: base64 })
+   339→              })
+   340→              
+   341→              const data = await response.json()
+   342→              
+   343→              if (data.success && data.text && !data.text.includes('[')) {
+   344→                setVoiceText(prev => prev + (prev ? ' ' : '') + data.text)
+   345→              }
+   346→            } catch (error) {
+   347→              console.error('STT error:', error)
+   348→            }
+   349→            
+   350→            stream.getTracks().forEach(track => track.stop())
+   351→          }
+   352→          
+   353→          mediaRecorderRef.current.start()
+   354→          setIsRecording(true)
+   355→          setVoiceStatus('Recording...')
+   356→        }
+   357→      } catch (error) {
+   358→        console.error('Microphone access denied:', error)
+   359→        setVoiceStatus('Microphone access denied')
+   360→        alert('Microphone access is required for voice input.')
+   361→      }
+   362→    } else {
+   363→      // Stop recording
+   364→      if (speechRecognitionRef.current) {
+   365→        speechRecognitionRef.current.stop()
+   366→      } else if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+   367→        mediaRecorderRef.current.stop()
+   368→      }
+   369→      setIsRecording(false)
+   370→      setVoiceStatus('')
+   371→    }
+   372→  }
+   373→
+   374→  // Text-to-Speech with browser fallback
+   375→  const handleSpeak = async () => {
+   376→    if (!voiceText.trim() || isSpeaking) return
+   377→    
+   378→    setIsSpeaking(true)
+   379→    setVoiceStatus('Speaking...')
+   380→    
+   381→    try {
+   382→      const response = await fetch('/api/tools/voice-chat', {
+   383→        method: 'POST',
+   384→        headers: { 'Content-Type': 'application/json' },
+   385→        body: JSON.stringify({ action: 'tts', text: voiceText, voice: selectedVoice })
+   386→      })
+   387→      
+   388→      const data = await response.json()
+   389→      
+   390→      if (data.success) {
+   391→        if (data.audioBase64) {
+   392→          // Play from base64 audio
+   393→          const audioBlob = new Blob(
+   394→            [Uint8Array.from(atob(data.audioBase64), c => c.charCodeAt(0))],
+   395→            { type: 'audio/mp3' }
+   396→          )
+   397→          const audioUrl = URL.createObjectURL(audioBlob)
+   398→          
+   399→          if (audioRef.current) {
+   400→            audioRef.current.pause()
+   401→          }
+   402→          
+   403→          audioRef.current = new Audio(audioUrl)
+   404→          audioRef.current.onended = () => {
+   405→            setIsSpeaking(false)
+   406→            setVoiceStatus('')
+   407→            URL.revokeObjectURL(audioUrl)
+   408→          }
+   409→          audioRef.current.onerror = () => {
+   410→            setIsSpeaking(false)
+   411→            setVoiceStatus('Playback failed')
+   412→          }
+   413→          await audioRef.current.play()
+   414→        } else if (data.useBrowserTTS) {
+   415→          // Fallback to browser TTS
+   416→          const utterance = new SpeechSynthesisUtterance(voiceText)
+   417→          utterance.voice = speechSynthesis.getVoices().find(v => v.name.toLowerCase().includes(selectedVoice)) || null
+   418→          utterance.onend = () => {
+   419→            setIsSpeaking(false)
+   420→            setVoiceStatus('')
+   421→          }
+   422→          utterance.onerror = () => {
+   423→            setIsSpeaking(false)
+   424→            setVoiceStatus('TTS failed')
+   425→          }
+   426→          speechSynthesis.speak(utterance)
+   427→        } else {
+   428→          setTimeout(() => {
+   429→            setIsSpeaking(false)
+   430→            setVoiceStatus('')
+   431→          }, 2000)
+   432→        }
+   433→      }
+   434→    } catch (error) {
+   435→      console.error('TTS error:', error)
+   436→      setIsSpeaking(false)
+   437→      setVoiceStatus('TTS failed')
+   438→    }
+   439→  }
+   440→
+   441→  // Stop speaking
+   442→  const stopSpeaking = () => {
+   443→    if (audioRef.current) {
+   444→      audioRef.current.pause()
+   445→      audioRef.current = null
+   446→    }
+   447→    speechSynthesis.cancel()
+   448→    setIsSpeaking(false)
+   449→    setVoiceStatus('')
+   450→  }
+   451→
+   452→  // Code Execution Handler
+   453→  const handleRunCode = async () => {
+   454→    if (!code.trim()) return
+   455→    
+   456→    setIsRunningCode(true)
+   457→    setCodeOutput('')
+   458→    setCodeError('')
+   459→    
+   460→    try {
+   461→      const response = await fetch('/api/tools/run-code', {
+   462→        method: 'POST',
+   463→        headers: { 'Content-Type': 'application/json' },
+   464→        body: JSON.stringify({ code, language: codeLanguage })
+   465→      })
+   466→      
+   467→      const data = await response.json()
+   468→      
+   469→      if (data.success) {
+   470→        setCodeOutput(data.output || '')
+   471→        setCodeError(data.error || '')
+   472→      } else {
+   473→        setCodeError(data.error || 'Execution failed')
+   474→      }
+   475→    } catch (error) {
+   476→      setCodeError('Network error. Failed to execute code.')
+   477→    }
+   478→    
+   479→    setIsRunningCode(false)
+   480→  }
+   481→
+   482→  // Load example code
+   483→  const loadExample = () => {
+   484→    const examples: Record<string, string> = {
+   485→      javascript: `// Example: Fibonacci sequence
+   486→const fibonacci = (n) => n <= 1 ? n : fibonacci(n-1) + fibonacci(n-2);
+   487→
+   488→console.log("Fibonacci numbers:");
+   489→for (let i = 0; i <= 10; i++) {
+   490→  console.log(\`F(\${i}) = \${fibonacci(i)}\`);
+   491→}`,
+   492→      python: `# Example: List comprehension
+   493→numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+   494→
+   495→squares = [x**2 for x in numbers if x % 2 == 0]
+   496→even_sum = sum(x for x in numbers if x % 2 == 0)
+   497→
+   498→print(f"Squares of evens: {squares}")
+   499→print(f"Sum of evens: {even_sum}")`,
+   500→      html: `<!DOCTYPE html>
+   501→<html>
+   502→<head>
+   503→  <style>
+   504→    body { 
+   505→      font-family: system-ui; 
+   506→      padding: 20px;
+   507→      background: linear-gradient(135deg, #667eea, #764ba2);
+   508→      color: white;
+   509→    }
+   510→    .card {
+   511→      background: rgba(255,255,255,0.1);
+   512→      backdrop-filter: blur(10px);
+   513→      border-radius: 16px;
+   514→      padding: 24px;
+   515→    }
+   516→  </style>
+   517→</head>
+   518→<body>
+   519→  <div class="card">
+   520→    <h1>Hello World! 🎉</h1>
+   521→    <p>This is a live HTML preview</p>
+   522→  </div>
+   523→</body>
+   524→</html>`,
+   525→      json: `{
+   526→  "name": "NEXUS AI",
+   527→  "version": "2.0",
+   528→  "features": ["chat", "tools", "ai"],
+   529→  "config": {
+   530→    "theme": "dark"
+   531→  }
+   532→}`
+   533→    }
+   534→    
+   535→    setCode(examples[codeLanguage] || '')
+   536→  }
+   537→
+   538→  // File Selection Handler
+   539→  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+   540→    const file = e.target.files?.[0]
+   541→    if (file) setSelectedFile(file)
+   542→  }
+   543→
+   544→  // File Analysis Handler
+   545→  const handleAnalyzeFile = async () => {
+   546→    if (!selectedFile) return
+   547→    
+   548→    setIsAnalyzing(true)
+   549→    setAnalysisResult(null)
+   550→    
+   551→    try {
+   552→      const formData = new FormData()
+   553→      formData.append('file', selectedFile)
+   554→      formData.append('analysisType', analysisType)
+   555→      
+   556→      const response = await fetch('/api/tools/analyze-file', {
+   557→        method: 'POST',
+   558→        body: formData
+   559→      })
+   560→      
+   561→      const data = await response.json()
+   562→      
+   563→      if (data.success) {
+   564→        setAnalysisResult(data.analysis)
+   565→      }
+   566→    } catch (error) {
+   567→      console.error('Analysis error:', error)
+   568→      setAnalysisResult({
+   569→        type: 'Error',
+   570→        summary: 'Failed to analyze file. Please try again.',
+   571→        error: true
+   572→      })
+   573→    }
+   574→    
+   575→    setIsAnalyzing(false)
+   576→  }
+   577→
+   578→  // Translation Handler
+   579→  const handleTranslate = async () => {
+   580→    if (!translateText.trim()) return
+   581→    
+   582→    setIsTranslating(true)
+   583→    setTranslatedText('')
+   584→    
+   585→    try {
+   586→      const response = await fetch('/api/tools/translate', {
+   587→        method: 'POST',
+   588→        headers: { 'Content-Type': 'application/json' },
+   589→        body: JSON.stringify({ text: translateText, sourceLang, targetLang })
+   590→      })
+   591→      
+   592→      const data = await response.json()
+   593→      
+   594→      if (data.success) {
+   595→        setTranslatedText(data.translatedText)
+   596→      } else {
+   597→        setTranslatedText(`Translation failed: ${data.error}`)
+   598→      }
+   599→    } catch (error) {
+   600→      console.error('Translation error:', error)
+   601→      setTranslatedText('Network error. Translation failed.')
+   602→    }
+   603→    
+   604→    setIsTranslating(false)
+   605→  }
+   606→
+   607→  // Swap languages
+   608→  const swapLanguages = () => {
+   609→    if (sourceLang === 'auto') return
+   610→    setSourceLang(targetLang)
+   611→    setTargetLang(sourceLang)
+   612→    setTranslatedText(translateText)
+   613→    setTranslateText(translatedText)
+   614→  }
+   615→
+   616→  // ==================== TOOLS CONFIGURATION ====================
+   617→  
+   618→  const tools = [
+   619→    { 
+   620→      id: 'web-search', 
+   621→      icon: Search, 
+   622→      label: 'Web Search', 
+   623→      color: 'from-blue-500 to-cyan-500', 
+   624→      description: 'Search the internet in real-time',
+   625→      badge: 'LIVE'
+   626→    },
+   627→    { 
+   628→      id: 'image-gen', 
+   629→      icon: Image, 
+   630→      label: 'AI Images', 
+   631→      color: 'from-purple-500 to-pink-500', 
+   632→      description: 'Generate stunning AI artwork',
+   633→      badge: 'AI'
+   634→    },
+   635→    { 
+   636→      id: 'voice-chat', 
+   637→      icon: Mic, 
+   638→      label: 'Voice Chat', 
+   639→      color: 'from-green-500 to-emerald-500', 
+   640→      description: 'Speak & listen to AI',
+   641→      badge: null
+   642→    },
+   643→    { 
+   644→      id: 'code-executor', 
+   645→      icon: Code2, 
+   646→      label: 'Code Runner', 
+   647→      color: 'from-neon-cyan to-neon-purple', 
+   648→      description: 'Execute code instantly',
+   649→      badge: '⚡'
+   650→    },
+   651→    { 
+   652→      id: 'file-analyzer', 
+   653→      icon: FileText, 
+   654→      label: 'File Analyzer', 
+   655→      color: 'from-red-500 to-rose-500', 
+   656→      description: 'Analyze documents & files',
+   657→      badge: 'AI'
+   658→    },
+   659→    { 
+   660→      id: 'translator', 
+   661→      icon: Languages, 
+   662→      label: 'Translator', 
+   663→      color: 'from-indigo-500 to-violet-500', 
+   664→      description: '40+ languages supported',
+   665→      badge: '40+'
+   666→    }
+   667→  ]
+   668→
+   669→  // Language options for translator
+   670→  const languageOptions = [
+   671→    { value: 'auto', label: '🔍 Auto Detect' },
+   672→    { value: 'en', label: '🇺🇸 English' },
+   673→    { value: 'es', label: '🇪🇸 Spanish' },
+   674→    { value: 'fr', label: '🇫🇷 French' },
+   675→    { value: 'de', label: '🇩🇪 German' },
+   676→    { value: 'it', label: '🇮🇹 Italian' },
+   677→    { value: 'pt', label: '🇵🇹 Portuguese' },
+   678→    { value: 'ru', label: '🇷🇺 Russian' },
+   679→    { value: 'ja', label: '🇯🇵 Japanese' },
+   680→    { value: 'ko', label: '🇰🇷 Korean' },
+   681→    { value: 'zh', label: '🇨🇳 Chinese' },
+   682→    { value: 'ar', label: '🇸🇦 Arabic' },
+   683→    { value: 'hi', label: '🇮🇳 Hindi' },
+   684→    { value: 'bn', label: '🇧🇩 Bengali' },
+   685→    { value: 'pa', label: '🇮🇳 Punjabi' },
+   686→    { value: 'ta', label: '🇮🇳 Tamil' },
+   687→    { value: 'te', label: '🇮🇳 Telugu' },
+   688→    { value: 'mr', label: '🇮🇳 Marathi' },
+   689→    { value: 'ur', label: '🇵🇰 Urdu' },
+   690→    { value: 'tr', label: '🇹🇷 Turkish' },
+   691→    { value: 'vi', label: '🇻🇳 Vietnamese' },
+   692→    { value: 'th', label: '🇹🇭 Thai' },
+   693→    { value: 'nl', label: '🇳🇱 Dutch' },
+   694→    { value: 'pl', label: '🇵🇱 Polish' },
+   695→    { value: 'uk', label: '🇺🇦 Ukrainian' }
+   696→  ]
+   697→
+   698→  // Image size options
+   699→  const sizeOptions = [
+   700→    { value: '512x512', label: 'Small' },
+   701→    { value: '1024x1024', label: 'Square' },
+   702→    { value: '1344x768', label: 'Landscape' },
+   703→    { value: '768x1344', label: 'Portrait' }
+   704→  ]
+   705→
+   706→  // Image style options
+   707→  const styleOptions = [
+   708→    { value: 'natural', label: 'Natural' },
+   709→    { value: 'vivid', label: 'Vivid' },
+   710→    { value: 'anime', label: 'Anime' },
+   711→    { value: 'photorealistic', label: 'Photo' },
+   712→    { value: 'digital-art', label: 'Digital Art' },
+   713→    { value: '3d-render', label: '3D Render' }
+   714→  ]
+   715→
+   716→  // Code language options
+   717→  const codeLanguages = [
+   718→    { value: 'javascript', label: 'JavaScript', icon: '⚡' },
+   719→    { value: 'typescript', label: 'TypeScript', icon: '💙' },
+   720→    { value: 'python', label: 'Python', icon: '🐍' },
+   721→    { value: 'html', label: 'HTML', icon: '🌐' },
+   722→    { value: 'json', label: 'JSON', icon: '📋' },
+   723→    { value: 'sql', label: 'SQL', icon: '🗄️' }
+   724→  ]
+   725→
+   726→  return (
+   727→    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm sm:bg-black/70 sm:backdrop-blur-md flex items-end sm:items-center justify-center animate-in fade-in duration-150">
+   728→      <div className="bg-gray-900/95 backdrop-blur-xl border border-gray-800/60 rounded-b-none sm:rounded-2xl w-full sm:max-w-4xl max-h-[100vh] sm:max-h-[92vh] shadow-2xl shadow-black/50 flex flex-col animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-300 overflow-hidden">
+   729→        
+   730→        {/* Header */}
+   731→        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-800/50 bg-gradient-to-r from-gray-900 to-gray-800/50 flex-shrink-0">
+   732→          <div className="flex items-center gap-2 sm:gap-3">
+   733→            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+   734→              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+   735→            </div>
+   736→            <div>
+   737→              <h2 className="text-base sm:text-lg font-semibold text-white">AI Tools</h2>
+   738→              <p className="text-[11px] sm:text-xs text-gray-400">Powered by NEXUS AI</p>
+   739→            </div>
+   740→          </div>
+   741→          <button 
+   742→            onClick={onClose} 
+   743→            className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-800 transition-all hover:rotate-90 duration-200"
+   744→          >
+   745→            <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-white" />
+   746→          </button>
+   747→        </div>
+   748→
+   749→        {!activeTool ? (
+   750→          /* Tool Selection Grid - Scrollable */
+   751→          <div className="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0">
+   752→            <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">Choose a tool to get started</p>
+   753→            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+   754→              {tools.map((tool) => (
+   755→                <button
+   756→                  key={tool.id}
+   757→                  onClick={() => setActiveTool(tool.id as ToolType)}
+   758→                  className="group relative p-4 rounded-xl bg-gray-800/40 hover:bg-gray-800/80 border border-gray-700/50 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 text-left overflow-hidden"
+   759→                >
+   760→                  {tool.badge && (
+   761→                    <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-cyan-500/20 text-cyan-400 rounded">
+   762→                      {tool.badge}
+   763→                    </span>
+   764→                  )}
+   765→                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shadow-lg`}>
+   766→                    <tool.icon className="w-5 h-5 text-white" />
+   767→                  </div>
+   768→                  <h3 className="text-sm font-semibold text-white mb-0.5">{tool.label}</h3>
+   769→                  <p className="text-xs text-gray-400 leading-relaxed">{tool.description}</p>
+   770→                </button>
+   771→              ))}
+   772→            </div>
+   773→          </div>
+   774→        ) : (
+   775→          /* Active Tool Panel - Scrollable */
+   776→          <div className="flex-1 overflow-y-auto min-h-0">
+   777→            {/* Back Button */}
+   778→            <button
+   779→              onClick={() => {
+   780→                setActiveTool(null)
+   781→                resetToolState()
+   782→              }}
+   783→              className="mx-4 sm:mx-5 mt-3 sm:mt-4 mb-1 flex items-center gap-2 text-xs sm:text-sm text-gray-400 hover:text-cyan-400 transition-colors group"
+   784→            >
+   785→              <span className="group-hover:-translate-x-1 transition-transform">←</span>
+   786→              Back to all tools
+   787→            </button>
+   788→
+   789→            {/* ==================== WEB SEARCH ==================== */}
+   790→            {activeTool === 'web-search' && (
+   791→              <div className="px-5 pb-5 space-y-4">
+   792→                <div className="relative">
+   793→                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+   794→                  <input
+   795→                    type="text"
+   796→                    value={searchQuery}
+   797→                    onChange={(e) => setSearchQuery(e.target.value)}
+   798→                    onKeyDown={(e) => e.key === 'Enter' && handleWebSearch()}
+   799→                    placeholder="Search anything on the internet..."
+   800→                    className="w-full pl-11 pr-24 py-3.5 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all"
+   801→                    autoFocus
+   802→                  />
+   803→                  <Button
+   804→                    onClick={handleWebSearch}
+   805→                    disabled={isSearching || !searchQuery.trim()}
+   806→                    size="sm"
+   807→                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white border-0"
+   808→                  >
+   809→                    {isSearching ? (
+   810→                      <Loader2 className="w-4 h-4 animate-spin" />
+   811→                    ) : (
+   812→                      'Search'
+   813→                    )}
+   814→                  </Button>
+   815→                </div>
+   816→
+   817→                {searchError && (
+   818→                  <div className="flex items-center gap-2 text-xs text-yellow-400 bg-yellow-500/10 px-3 py-2 rounded-lg">
+   819→                    <AlertCircle className="w-3 h-3" />
+   820→                    {searchError}
+   821→                  </div>
+   822→                )}
+   823→
+   824→                {searchResults.length > 0 && (
+   825→                  <div className="space-y-2">
+   826→                    <div className="flex items-center justify-between">
+   827→                      <p className="text-sm text-gray-400">
+   828→                        <CheckCircle2 className="w-4 h-4 inline mr-1 text-green-400" />
+   829→                        {searchResults.length} results found
+   830→                      </p>
+   831→                      <button 
+   832→                        onClick={() => setSearchResults([])}
+   833→                        className="text-xs text-gray-500 hover:text-white"
+   834→                      >
+   835→                        Clear
+   836→                      </button>
+   837→                    </div>
+   838→                    
+   839→                    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+   840→                      {searchResults.map((result, i) => (
+   841→                        <a
+   842→                          key={i}
+   843→                          href={result.url}
+   844→                          target="_blank"
+   845→                          rel="noopener noreferrer"
+   846→                          className="block p-3.5 rounded-xl bg-gray-800/40 hover:bg-gray-800/80 border border-gray-700/30 hover:border-cyan-500/30 transition-all group"
+   847→                        >
+   848→                          <div className="flex items-start justify-between gap-3">
+   849→                            <div className="flex-1 min-w-0">
+   850→                              <h4 className="text-sm font-medium text-white group-hover:text-cyan-400 line-clamp-1 transition-colors">
+   851→                                {result.title}
+   852→                              </h4>
+   853→                              <p className="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">
+   854→                                {result.snippet}
+   855→                              </p>
+   856→                              <div className="flex items-center gap-2 mt-2">
+   857→                                <span className="px-1.5 py-0.5 text-[10px] bg-cyan-500/10 text-cyan-400 rounded">
+   858→                                  {result.source}
+   859→                                </span>
+   860→                                {result.date && (
+   861→                                  <span className="text-[10px] text-gray-500">{result.date}</span>
+   862→                                )}
+   863→                              </div>
+   864→                            </div>
+   865→                            <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-cyan-400 flex-shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+   866→                          </div>
+   867→                        </a>
+   868→                      ))}
+   869→                    </div>
+   870→                  </div>
+   871→                )}
+   872→
+   873→                {!searchResults.length && !isSearching && !searchError && (
+   874→                  <div className="text-center py-8 text-gray-500">
+   875→                    <Search className="w-12 h-12 mx-auto mb-3 opacity-20" />
+   876→                    <p className="text-sm">Enter a query to search the web</p>
+   877→                    <p className="text-xs mt-1 text-gray-600">Real-time results from multiple sources</p>
+   878→                  </div>
+   879→                )}
+   880→              </div>
+   881→            )}
+   882→
+   883→            {/* ==================== IMAGE GENERATION ==================== */}
+   884→            {activeTool === 'image-gen' && (
+   885→              <div className="px-5 pb-5 space-y-4">
+   886→                <textarea
+   887→                  value={imagePrompt}
+   888→                  onChange={(e) => setImagePrompt(e.target.value)}
+   889→                  placeholder="Describe the image you want to create... Be detailed for better results!"
+   890→                  rows={3}
+   891→                  className="w-full px-4 py-3 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none resize-none transition-all"
+   892→                  autoFocus
+   893→                />
+   894→                
+   895→                {/* Size Options */}
+   896→                <div>
+   897→                  <label className="text-xs text-gray-400 block mb-2">Size</label>
+   898→                  <div className="flex gap-2 flex-wrap">
+   899→                    {sizeOptions.map(size => (
+   900→                      <button
+   901→                        key={size.value}
+   902→                        onClick={() => setImageSize(size.value)}
+   903→                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+   904→                          imageSize === size.value
+   905→                            ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
+   906→                            : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700 hover:text-white'
+   907→                        }`}
+   908→                      >
+   909→                        {size.label}
+   910→                      </button>
+   911→                    ))}
+   912→                  </div>
+   913→                </div>
+   914→
+   915→                {/* Style Options */}
+   916→                <div>
+   917→                  <label className="text-xs text-gray-400 block mb-2">Style</label>
+   918→                  <div className="flex gap-2 flex-wrap">
+   919→                    {styleOptions.map(style => (
+   920→                      <button
+   921→                        key={style.value}
+   922→                        onClick={() => setImageStyle(style.value)}
+   923→                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+   924→                          imageStyle === style.value
+   925→                            ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/25'
+   926→                            : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700 hover:text-white'
+   927→                        }`}
+   928→                      >
+   929→                        {style.label}
+   930→                      </button>
+   931→                    ))}
+   932→                  </div>
+   933→                </div>
+   934→
+   935→                <Button
+   936→                  onClick={handleGenerateImage}
+   937→                  disabled={isGeneratingImage || !imagePrompt.trim()}
+   938→                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 hover:opacity-90 text-white border-0 h-11"
+   939→                >
+   940→                  {isGeneratingImage ? (
+   941→                    <>
+   942→                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   943→                      Generating...
+   944→                    </>
+   945→                  ) : (
+   946→                    <>
+   947→                      <Zap className="w-4 h-4 mr-2" />
+   948→                      Generate Image
+   949→                    </>
+   950→                  )}
+   951→                </Button>
+   952→
+   953→                {imageError && (
+   954→                  <div className="flex items-center gap-2 text-xs text-yellow-400 bg-yellow-500/10 px-3 py-2 rounded-lg">
+   955→                    <AlertCircle className="w-3 h-3" />
+   956→                    {imageError}
+   957→                  </div>
+   958→                )}
+   959→
+   960→                {generatedImage && (
+   961→                  <div className="mt-4 space-y-3">
+   962→                    <div className="relative group rounded-xl overflow-hidden bg-gray-800/40 border border-gray-700/30">
+   963→                      <img 
+   964→                        src={generatedImage} 
+   965→                        alt="Generated by AI" 
+   966→                        className="w-full rounded-xl"
+   967→                      />
+   968→                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+   969→                        <Button 
+   970→                          size="sm" 
+   971→                          variant="secondary"
+   972→                          onClick={downloadImage}
+   973→                          className="bg-white/20 backdrop-blur border-0 text-white hover:bg-white/30"
+   974→                        >
+   975→                          <Download className="w-4 h-4 mr-1" /> Save
+   976→                        </Button>
+   977→                      </div>
+   978→                    </div>
+   979→                    
+   980→                    <div className="flex gap-2">
+   981→                      <Button 
+   982→                        variant="outline" 
+   983→                        size="sm" 
+   984→                        className="flex-1"
+   985→                        onClick={downloadImage}
+   986→                      >
+   987→                        <Download className="w-4 h-4 mr-2" /> Download
+   988→                      </Button>
+   989→                      <Button 
+   990→                        size="sm" 
+   991→                        className="flex-1 bg-gradient-to-r from-cyan-500 to-violet-500"
+   992→                        onClick={() => onInsertToChat(`[Generated Image: ${imagePrompt}]`)}
+   993→                      >
+   994→                        <Send className="w-4 h-4 mr-2" /> Insert to Chat
+   995→                      </Button>
+   996→                    </div>
+   997→                  </div>
+   998→                )}
+   999→              </div>
+  1000→            )}
+  1001→
+  1002→            {/* ==================== VOICE CHAT ==================== */}
+  1003→            {activeTool === 'voice-chat' && (
+  1004→              <div className="px-5 pb-5 space-y-4">
+  1005→                <textarea
+  1006→                  value={voiceText}
+  1007→                  onChange={(e) => setVoiceText(e.target.value)}
+  1008→                  placeholder="Type your message here or use voice input..."
+  1009→                  rows={3}
+  1010→                  className="w-full px-4 py-3 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none resize-none transition-all"
+  1011→                  autoFocus
+  1012→                />
+  1013→
+  1014→                {/* Voice Controls */}
+  1015→                <div className="grid grid-cols-2 gap-2">
+  1016→                  <Button
+  1017→                    onClick={toggleRecording}
+  1018→                    variant={isRecording ? "destructive" : "outline"}
+  1019→                    className={`h-auto py-3 ${isRecording ? 'animate-pulse' : ''}`}
+  1020→                  >
+  1021→                    {isRecording ? (
+  1022→                      <>
+  1023→                        <Square className="w-4 h-4 mr-2" /> Stop
+  1024→                      </>
+  1025→                    ) : (
+  1026→                      <>
+  1027→                        <Mic className="w-4 h-4 mr-2" /> Speak
+  1028→                      </>
+  1029→                    )}
+  1030→                  </Button>
+  1031→                  
+  1032→                  <Button
+  1033→                    onClick={isSpeaking ? stopSpeaking : handleSpeak}
+  1034→                    disabled={!voiceText.trim() && !isSpeaking}
+  1035→                    variant="outline"
+  1036→                    className="py-3"
+  1037→                  >
+  1038→                    {isSpeaking ? (
+  1039→                      <>
+  1040→                        <VolumeX className="w-4 h-4 mr-2" /> Stop
+  1041→                      </>
+  1042→                    ) : (
+  1043→                      <>
+  1044→                        <Volume2 className="w-4 h-4 mr-2" /> Listen
+  1045→                      </>
+  1046→                    )}
+  1047→                  </Button>
+  1048→                </div>
+  1049→
+  1050→                {voiceStatus && (
+  1051→                  <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 px-3 py-2 rounded-lg animate-pulse">
+  1052→                    <div className="w-2 h-2 bg-green-400 rounded-full animate-ping" />
+  1053→                    {voiceStatus}
+  1054→                  </div>
+  1055→                )}
+  1056→
+  1057→                {/* Voice Selection */}
+  1058→                <div className="p-3 rounded-xl bg-gray-800/40 border border-gray-700/30">
+  1059→                  <label className="text-xs text-gray-400 block mb-2">Voice Selection</label>
+  1060→                  <select
+  1061→                    value={selectedVoice}
+  1062→                    onChange={(e) => setSelectedVoice(e.target.value)}
+  1063→                    className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-green-500 outline-none"
+  1064→                  >
+  1065→                    <option value="alloy">Alloy (Neutral)</option>
+  1066→                    <option value="echo">Echo (Male, Deep)</option>
+  1067→                    <option value="fable">Fable (Warm)</option>
+  1068→                    <option value="onyx">Onyx (Serious)</option>
+  1069→                    <option value="nova">Nova (Female)</option>
+  1070→                    <option value="shimmer">Shimmer (Soft)</option>
+  1071→                    <option value="tongtong">TongTong (Chinese)</option>
+  1072→                  </select>
+  1073→                </div>
+  1074→
+  1075→                <Button 
+  1076→                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90 text-white border-0 h-11"
+  1077→                  onClick={() => onInsertToChat(voiceText)}
+  1078→                  disabled={!voiceText.trim()}
+  1079→                >
+  1080→                  <Send className="w-4 h-4 mr-2" /> Send to Chat
+  1081→                </Button>
+  1082→              </div>
+  1083→            )}
+  1084→
+  1085→            {/* ==================== CODE EXECUTOR ==================== */}
+  1086→            {activeTool === 'code-executor' && (
+  1087→              <div className="px-5 pb-5 space-y-4">
+  1088→                {/* Language Selector */}
+  1089→                <div className="flex gap-2 flex-wrap">
+  1090→                  {codeLanguages.map(lang => (
+  1091→                    <button
+  1092→                      key={lang.value}
+  1093→                      onClick={() => setCodeLanguage(lang.value)}
+  1094→                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+  1095→                        codeLanguage === lang.value
+  1096→                          ? 'bg-neon-cyan text-black shadow-lg shadow-neon-cyan/25'
+  1097→                          : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700 hover:text-white'
+  1098→                      }`}
+  1099→                    >
+  1100→                      <span className="mr-1">{lang.icon}</span>
+  1101→                      {lang.label}
+  1102→                    </button>
+  1103→                  ))}
+  1104→                </div>
+  1105→
+  1106→                {/* Code Editor */}
+  1107→                <div className="relative">
+  1108→                  <textarea
+  1109→                    value={code}
+  1110→                    onChange={(e) => setCode(e.target.value)}
+  1111→                    placeholder={`// Write ${codeLanguage} code here...`}
+  1112→                    rows={10}
+  1113→                    className="w-full px-4 py-3 bg-gray-950 border border-gray-700/80 rounded-xl text-emerald-400 placeholder:text-gray-600 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20 outline-none resize-none font-mono text-sm leading-relaxed"
+  1114→                    spellCheck={false}
+  1115→                    autoFocus
+  1116→                  />
+  1117→                  <Button
+  1118→                    variant="ghost"
+  1119→                    size="sm"
+  1120→                    onClick={loadExample}
+  1121→                    className="absolute top-2 right-2 text-xs text-gray-500 hover:text-neon-cyan h-7"
+  1122→                  >
+  1123→                    Example
+  1124→                  </Button>
+  1125→                </div>
+  1126→
+  1127→                <div className="flex gap-2">
+  1128→                  <Button
+  1129→                    onClick={handleRunCode}
+  1130→                    disabled={isRunningCode || !code.trim()}
+  1131→                    className="flex-1 bg-gradient-to-r from-neon-cyan to-neon-purple hover:opacity-90 text-white border-0 h-11"
+  1132→                  >
+  1133→                    {isRunningCode ? (
+  1134→                      <>
+  1135→                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Running...
+  1136→                      </>
+  1137→                    ) : (
+  1138→                      <>
+  1139→                        <Play className="w-4 h-4 mr-2" /> Run Code
+  1140→                      </>
+  1141→                    )}
+  1142→                  </Button>
+  1143→                  
+  1144→                  {(codeOutput || codeError) && (
+  1145→                    <Button
+  1146→                      variant="outline"
+  1147→                      size="sm"
+  1148→                      onClick={() => copyToClipboard(codeOutput || codeError, 'code-output')}
+  1149→                      className="px-3"
+  1150→                    >
+  1151→                      {copiedItem === 'code-output' ? (
+  1152→                        <Check className="w-4 h-4 text-green-400" />
+  1153→                      ) : (
+  1154→                        <Copy className="w-4 h-4" />
+  1155→                      )}
+  1156→                    </Button>
+  1157→                  )}
+  1158→                </div>
+  1159→
+  1160→                {/* Output Display */}
+  1161→                {(codeOutput || codeError) && (
+  1162→                  <div className={`rounded-xl overflow-hidden ${codeError ? 'border border-red-500/30' : 'border border-gray-700/30'}`}>
+  1163→                    <div className={`flex items-center justify-between px-4 py-2.5 ${codeError ? 'bg-red-500/10' : 'bg-gray-800/40'}`}>
+  1164→                      <span className={`text-xs font-medium flex items-center gap-1.5 ${codeError ? 'text-red-400' : 'text-green-400'}`}>
+  1165→                        {codeError ? (
+  1166→                          <><AlertCircle className="w-3.5 h-3.5" /> Error</>
+  1167→                        ) : (
+  1168→                          <><CheckCircle2 className="w-3.5 h-3.5" /> Output</>
+  1169→                        )}
+  1170→                      </span>
+  1171→                      <span className="text-[10px] text-gray-500">
+  1172→                        {codeLanguage.toUpperCase()} • {new Date().toLocaleTimeString()}
+  1173→                      </span>
+  1174→                    </div>
+  1175→                    <pre className={`px-4 py-3 text-xs font-mono max-h-48 overflow-auto ${codeError ? 'text-red-300 bg-red-500/5' : 'text-gray-300 bg-gray-900/50'} whitespace-pre-wrap`}>
+  1176→                      {codeError || codeOutput}
+  1177→                    </pre>
+  1178→                  </div>
+  1179→                )}
+  1180→              </div>
+  1181→            )}
+  1182→
+  1183→            {/* ==================== FILE ANALYZER ==================== */}
+  1184→            {activeTool === 'file-analyzer' && (
+  1185→              <div className="px-5 pb-5 space-y-4">
+  1186→                {/* Upload Area */}
+  1187→                <div
+  1188→                  onClick={() => fileInputRef.current?.click()}
+  1189→                  onDragOver={(e) => e.preventDefault()}
+  1190→                  onDrop={(e) => {
+  1191→                    e.preventDefault()
+  1192→                    const file = e.dataTransfer.files[0]
+  1193→                    if (file) setSelectedFile(file)
+  1194→                  }}
+  1195→                  className="border-2 border-dashed border-gray-700 hover:border-red-500/50 hover:bg-red-500/5 rounded-xl p-8 text-center cursor-pointer transition-all group"
+  1196→                >
+  1197→                  <Upload className="w-12 h-12 mx-auto mb-3 text-gray-500 group-hover:text-red-400 transition-colors" />
+  1198→                  <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+  1199→                    Click to upload or drag & drop
+  1200→                  </p>
+  1201→                  <p className="text-xs text-gray-500 mt-1">
+  1202→                    PDF, Excel, Word, Text, Code, Images • Max 10MB
+  1203→                  </p>
+  1204→                  <input
+  1205→                    ref={fileInputRef}
+  1206→                    type="file"
+  1207→                    onChange={handleFileSelect}
+  1208→                    accept=".pdf,.xlsx,.xls,.doc,.docx,.txt,.md,.json,.xml,.js,.ts,.py,.png,.jpg,.jpeg,.gif,.csv"
+  1209→                    className="hidden"
+  1210→                  />
+  1211→                </div>
+  1212→
+  1213→                {/* Analysis Type */}
+  1214→                <div className="flex gap-2">
+  1215→                  {[
+  1216→                    { id: 'summary', label: 'Summary' },
+  1217→                    { id: 'detailed', label: 'Detailed' },
+  1218→                    { id: 'extract', label: 'Extract' },
+  1219→                    { id: 'improve', label: 'Improve' }
+  1220→                  ].map(type => (
+  1221→                    <button
+  1222→                      key={type.id}
+  1223→                      onClick={() => setAnalysisType(type.id)}
+  1224→                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+  1225→                        analysisType === type.id
+  1226→                          ? 'bg-red-500 text-white'
+  1227→                          : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700'
+  1228→                      }`}
+  1229→                    >
+  1230→                      {type.label}
+  1231→                    </button>
+  1232→                  ))}
+  1233→                </div>
+  1234→
+  1235→                {/* Selected File */}
+  1236→                {selectedFile && (
+  1237→                  <div className="p-3.5 rounded-xl bg-gray-800/40 border border-gray-700/30">
+  1238→                    <div className="flex items-center justify-between">
+  1239→                      <div className="flex items-center gap-3 min-w-0">
+  1240→                        <div className="w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
+  1241→                          <FileImage className="w-4 h-4 text-red-400" />
+  1242→                        </div>
+  1243→                        <div className="min-w-0">
+  1244→                          <p className="text-sm text-white truncate">{selectedFile.name}</p>
+  1245→                          <p className="text-xs text-gray-500">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+  1246→                        </div>
+  1247→                      </div>
+  1248→                      <button 
+  1249→                        onClick={() => setSelectedFile(null)} 
+  1250→                        className="p-1.5 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-red-400 transition-colors"
+  1251→                      >
+  1252→                        <X className="w-4 h-4" />
+  1253→                      </button>
+  1254→                    </div>
+  1255→                    
+  1256→                    <Button
+  1257→                      onClick={handleAnalyzeFile}
+  1258→                      disabled={isAnalyzing}
+  1259→                      className="w-full mt-3 bg-gradient-to-r from-red-500 to-rose-500 hover:opacity-90 text-white border-0"
+  1260→                    >
+  1261→                      {isAnalyzing ? (
+  1262→                        <>
+  1263→                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing...
+  1264→                        </>
+  1265→                      ) : (
+  1266→                        <>
+  1267→                          <Sparkles className="w-4 h-4 mr-2" /> Analyze File
+  1268→                        </>
+  1269→                      )}
+  1270→                    </Button>
+  1271→                  </div>
+  1272→                )}
+  1273→
+  1274→                {/* Analysis Results */}
+  1275→                {analysisResult && (
+  1276→                  <div className="rounded-xl bg-gray-800/40 border border-gray-700/30 overflow-hidden">
+  1277→                    <div className="px-4 py-3 bg-gradient-to-r from-red-500/10 to-transparent border-b border-gray-700/30">
+  1278→                      <div className="flex items-center justify-between">
+  1279→                        <h4 className="font-medium text-white flex items-center gap-2">
+  1280→                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+  1281→                          {analysisResult.type}
+  1282→                        </h4>
+  1283→                        {analysisResult.aiPowered && (
+  1284→                          <span className="px-2 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded-full">
+  1285→                            AI Enhanced
+  1286→                          </span>
+  1287→                        )}
+  1288→                      </div>
+  1289→                    </div>
+  1290→                    
+  1291→                    <div className="p-4 space-y-3">
+  1292→                      <p className="text-sm text-gray-300">{analysisResult.summary}</p>
+  1293→                      
+  1294→                      {analysisResult.details && (
+  1295→                        <div className="text-xs space-y-2">
+  1296→                          {Object.entries(analysisResult.details).map(([key, val]) => (
+  1297→                            <div key={key} className="flex justify-between py-1.5 border-b border-gray-700/30 last:border-0">
+  1298→                              <span className="text-gray-400 capitalize">
+  1299→                                {key.replace(/([A-Z])/g, ' $1').trim()}:
+  1300→                              </span>
+  1301→                              <span className="text-white font-medium">
+  1302→                                {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+  1303→                              </span>
+  1304→                            </div>
+  1305→                          ))}
+  1306→                        </div>
+  1307→                      )}
+  1308→
+  1309→                      {analysisResult.aiInsights && (
+  1310→                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+  1311→                          <p className="text-xs text-purple-300 font-medium mb-1">AI Insights:</p>
+  1312→                          <p className="text-xs text-gray-300 whitespace-pre-wrap">{analysisResult.aiInsights}</p>
+  1313→                        </div>
+  1314→                      )}
+  1315→
+  1316→                      {analysisResult.capabilities && (
+  1317→                        <div className="pt-2 border-t border-gray-700/30">
+  1318→                          <p className="text-xs text-gray-400 mb-2">Available actions:</p>
+  1319→                          <div className="flex flex-wrap gap-1.5">
+  1320→                            {analysisResult.capabilities.map((cap: string, i: number) => (
+  1321→                              <span key={i} className="px-2 py-1 text-[10px] bg-cyan-500/10 text-cyan-400 rounded">
+  1322→                                {cap}
+  1323→                              </span>
+  1324→                            ))}
+  1325→                          </div>
+  1326→                        </div>
+  1327→                      )}
+  1328→                    </div>
+  1329→                  </div>
+  1330→                )}
+  1331→              </div>
+  1332→            )}
+  1333→
+  1334→            {/* ==================== TRANSLATOR ==================== */}
+  1335→            {activeTool === 'translator' && (
+  1336→              <div className="px-5 pb-5 space-y-4">
+  1337→                {/* Language Selectors */}
+  1338→                <div className="flex items-center gap-2">
+  1339→                  <select
+  1340→                    value={sourceLang}
+  1341→                    onChange={(e) => setSourceLang(e.target.value)}
+  1342→                    className="flex-1 px-3 py-2.5 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white text-sm focus:border-indigo-500 outline-none appearance-none cursor-pointer"
+  1343→                  >
+  1344→                    {languageOptions.slice(0, 13).map(lang => (
+  1345→                      <option key={lang.value} value={lang.value}>{lang.label}</option>
+  1346→                    ))}
+  1347→                  </select>
+  1348→                  
+  1349→                  <button
+  1350→                    onClick={swapLanguages}
+  1351→                    className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-indigo-400 transition-colors"
+  1352→                    title="Swap languages"
+  1353→                  >
+  1354→                    <RefreshCw className="w-4 h-4" />
+  1355→                  </button>
+  1356→                  
+  1357→                  <select
+  1358→                    value={targetLang}
+  1359→                    onChange={(e) => setTargetLang(e.target.value)}
+  1360→                    className="flex-1 px-3 py-2.5 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white text-sm focus:border-indigo-500 outline-none appearance-none cursor-pointer"
+  1361→                  >
+  1362→                    {languageOptions.map(lang => (
+  1363→                      <option key={lang.value} value={lang.value}>{lang.label}</option>
+  1364→                    ))}
+  1365→                  </select>
+  1366→                </div>
+  1367→
+  1368→                {/* Source Text */}
+  1369→                <textarea
+  1370→                  value={translateText}
+  1371→                  onChange={(e) => setTranslateText(e.target.value)}
+  1372→                  placeholder="Enter text to translate..."
+  1373→                  rows={4}
+  1374→                  className="w-full px-4 py-3 bg-gray-800/60 border border-gray-700/80 rounded-xl text-white placeholder:text-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none transition-all"
+  1375→                  autoFocus
+  1376→                />
+  1377→
+  1378→                <Button
+  1379→                  onClick={handleTranslate}
+  1380→                  disabled={isTranslating || !translateText.trim()}
+  1381→                  className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500 hover:opacity-90 text-white border-0 h-11"
+  1382→                >
+  1383→                  {isTranslating ? (
+  1384→                    <>
+  1385→                      <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Translating...
+  1386→                    </>
+  1387→                  ) : (
+  1388→                    <>
+  1389→                      <Languages className="w-4 h-4 mr-2" /> Translate Now
+  1390→                    </>
+  1391→                  )}
+  1392→                </Button>
+  1393→
+  1394→                {/* Translation Result */}
+  1395→                {translatedText && (
+  1396→                  <div className="rounded-xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/30 overflow-hidden">
+  1397→                    <div className="flex items-center justify-between px-4 py-2.5 bg-indigo-500/5 border-b border-indigo-500/20">
+  1398→                      <span className="text-xs font-medium text-indigo-400 flex items-center gap-1.5">
+  1399→                        <CheckCircle2 className="w-3.5 h-3.5" /> Translation
+  1400→                      </span>
+  1401→                      <div className="flex gap-1.5">
+  1402→                        <button
+  1403→                          onClick={() => copyToClipboard(translatedText, 'translation')}
+  1404→                          className="p-1.5 rounded hover:bg-indigo-500/20 text-gray-400 hover:text-white transition-colors"
+  1405→                        >
+  1406→                          {copiedItem === 'translation' ? (
+  1407→                            <Check className="w-3.5 h-3.5 text-green-400" />
+  1408→                          ) : (
+  1409→                            <Copy className="w-3.5 h-3.5" />
+  1410→                          )}
+  1411→                        </button>
+  1412→                        <button 
+  1413→                          onClick={() => onInsertToChat(translatedText)}
+  1414→                          className="px-2 py-1 text-xs text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/20 rounded transition-colors"
+  1415→                        >
+  1416→                          Insert
+  1417→                        </button>
+  1418→                      </div>
+  1419→                    </div>
+  1420→                    <p className="px-4 py-3 text-sm text-white leading-relaxed">{translatedText}</p>
+  1421→                  </div>
+  1422→                )}
+  1423→              </div>
+  1424→            )}
+  1425→          </div>
+  1426→        )}
+  1427→      </div>
+  1428→    </div>
+  1429→  )
+  1430→}
+  1431→
