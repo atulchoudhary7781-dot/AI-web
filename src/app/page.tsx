@@ -1338,6 +1338,15 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions */}
             <div className="flex items-center gap-2">
+              {/* Subscription Button - ALWAYS VISIBLE for ALL Users */}
+              <a
+                href="/pricing"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-500/25 to-pink-500/25 border border-purple-500/50 text-white text-xs font-semibold hover:from-purple-500/35 hover:to-pink-500/35 hover:border-purple-500/70 transition-all"
+              >
+                <Crown className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="hidden sm:inline">Pro</span>
+              </a>
+              
               {isLoggedIn ? (
                   <>
                     <Button
