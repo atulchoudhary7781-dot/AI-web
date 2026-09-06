@@ -1257,78 +1257,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
 
   return (
     <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`} style={{ position: 'relative' }}>
-      
-      {/* ‚≠ê SUBSCRIPTION BUTTON - IMMEDIATELY VISIBLE ON PAGE LOAD */}
-      {/* No conditions, no state dependency - renders on server AND client */}
-      <a
-        href="/pricing"
-        id="nexus-pro-button"
-        style={{
-          /* Position & Z-index */
-          position: 'fixed',
-          top: '8px',
-          left: '8px',
-          zIndex: 2147483647, /* Maximum z-index */
-          
-          /* Display - Force visible immediately */
-          display: 'inline-flex',
-          visibility: 'visible',
-          opacity: 1,
-          
-          /* Size - Small compact */
-          height: '28px',
-          width: 'auto',
-          minWidth: '28px',
-          padding: '5px 8px',
-          
-          /* Styling */
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '3px',
-          borderRadius: '6px',
-          background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-          border: '1px solid rgba(255,255,255,0.3)',
-          color: '#ffffff',
-          fontSize: '10px',
-          fontWeight: 700,
-          textDecoration: 'none',
-          boxShadow: '0 2px 8px rgba(168, 85, 247, 0.4)',
-          
-          /* Interaction */
-          cursor: 'pointer',
-          WebkitTapHighlightColor: 'transparent',
-          
-          /* Font */
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          lineHeight: 1,
-          boxSizing: 'border-box',
-          
-          /* Animation - subtle pulse to draw attention */
-          animation: 'proButtonPulse 2s ease-in-out infinite'
-        }}
-        aria-label="Upgrade to Pro"
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.05)'
-          e.currentTarget.style.boxShadow = '0 4px 16px rgba(168, 85, 247, 0.6)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)'
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(168, 85, 247, 0.4)'
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="3">
-          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-        </svg>
-        <span>PRO</span>
-      </a>
-      
-      {/* Inline keyframes for immediate animation */}
-      <style jsx>{`
-        @keyframes proButtonPulse {
-          0%, 100% { box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4); }
-          50% { box-shadow: 0 2px 16px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.3); }
-        }
-      `}</style>
 
       {/* Intro Animation - Shows on first visit (only after mount) */}
       {mounted && showIntro && (
@@ -1410,9 +1338,47 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
               )}
             </div>
 
-            {/* Right Side - Actions - VISIBLE ON ALL DEVICES */}
+            {/* ‚≠ê CENTER - PRO BUTTON (ALWAYS VISIBLE - Login/Logout/Signup sabpe) */}
+            <a
+              href="/pricing"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                padding: '6px 12px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#ffffff',
+                fontSize: '11px',
+                fontWeight: 800,
+                textDecoration: 'none',
+                boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5)',
+                cursor: 'pointer',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }}
+              aria-label="Upgrade to Pro"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)'
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.7)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(168, 85, 247, 0.5)'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+              <span>PRO</span>
+            </a>
+
+            {/* Right Side - Actions */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {/* Note: PRO button is now FLOATING (position: fixed) at top-right - see above */}
               
               {isLoggedIn ? (
                   <>
