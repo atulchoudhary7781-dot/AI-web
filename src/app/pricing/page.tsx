@@ -200,17 +200,22 @@ export default function PricingPage() {
             <button
               onClick={() => setBillingPeriod(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
               className={cn(
-                "relative w-14 h-7 rounded-full transition-colors duration-300",
-                billingPeriod === 'yearly' ? "bg-neon-cyan" : "bg-white/20"
+                "relative w-[60px] h-[32px] rounded-full transition-all duration-300 border-2 shadow-lg",
+                billingPeriod === 'yearly' 
+                  ? "bg-neon-cyan border-neon-cyan shadow-neon-cyan/30" 
+                  : "bg-gray-700 border-gray-600 shadow-gray-800/50"
               )}
               aria-label="Toggle billing period"
             >
               <span
                 className={cn(
-                  "absolute top-1 w-5 h-5 rounded-full bg-white transition-transform duration-300",
-                  billingPeriod === 'yearly' ? "translate-x-7" : "translate-x-1"
+                  "absolute top-[3px] w-[22px] h-[22px] rounded-full bg-white transition-all duration-300 shadow-md",
+                  billingPeriod === 'yearly' ? "translate-x-[28px]" : "translate-x-[3px]",
+                  "flex items-center justify-center text-[10px] font-bold text-gray-700"
                 )}
-              />
+              >
+                {billingPeriod === 'yearly' ? '✓' : ''}
+              </span>
             </button>
             
             <span className={cn(

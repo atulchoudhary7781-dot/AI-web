@@ -905,3 +905,40 @@ html, body {
                 0 -2px 10px rgba(0, 0, 0, 0.3);
   }
 }
+
+/* ============================================
+   SUBSCRIPTION BUTTON - FORCE VISIBLE
+   Ensure Upgrade Pro button shows for ALL users
+   ============================================ */
+
+/* Prevent hydration mismatch - ensure content is visible */
+.nexus-main-container {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure all buttons and links are visible */
+button, a, [role="button"] {
+  visibility: visible !important;
+}
+
+/* SUBSCRIPTION BUTTON - FORCE VISIBLE EVERYWHERE */
+button[aria-label*="Upgrade"],
+button[aria-label*="Pro"],
+a[href="/pricing"],
+a[href*="pricing"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  pointer-events: auto !important;
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Force all buttons in sidebar nav to be visible */
+aside nav button,
+aside nav [role="button"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+}

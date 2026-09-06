@@ -6,7 +6,7 @@ import {
   MessageSquare, Home, Layers, TrendingUp, Settings,
   Plus, Trash2, Moon, Sun,
   ChevronLeft, X, User, History, Sparkles, PanelLeftClose, LogIn, LogOut,
-  UserCircle
+  UserCircle, Crown
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -168,6 +168,62 @@ export default function Sidebar({
                 active={currentView === 'settings'}
                 onClick={() => { onViewChange('settings'); onClose(); }}
               />
+
+              {/* Subscription / Pro Button - ALWAYS VISIBLE for ALL Users */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                  setTimeout(() => {
+                    window.location.href = '/pricing';
+                  }, 150);
+                }}
+                aria-label="Upgrade to Pro"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  gap: '0.75rem',
+                  padding: '0.625rem 0.75rem',
+                  borderRadius: '0.75rem',
+                  background: 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))',
+                  border: '1.5px solid rgba(168, 85, 247, 0.5)',
+                  color: '#f0abfc',
+                  cursor: 'pointer',
+                  visibility: 'visible',
+                  opacity: 1,
+                  minHeight: '48px',
+                  position: 'relative',
+                  zIndex: 10,
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.35), rgba(236, 72, 153, 0.35))';
+                  e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.7)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(168, 85, 247, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))';
+                  e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.5)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Crown className="w-5 h-5 fill-yellow-400 text-yellow-400 flex-shrink-0" style={{ filter: 'drop-shadow(0 2px 4px rgba(250, 204, 21, 0.5))' }} />
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#ffffff', flex: 1 }}>Upgrade Pro</span>
+                <span style={{
+                  marginLeft: 'auto',
+                  padding: '0.125rem 0.5rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.625rem',
+                  fontWeight: 900,
+                  background: 'linear-gradient(to right, #facc15, #f97316, #ef4444)',
+                  color: '#ffffff',
+                  flexShrink: 0
+                }}>
+                  ⭐ PRO
+                </span>
+              </button>
 
               {/* Profile Button - Only show when logged in */}
               {isLoggedIn && (
