@@ -1331,17 +1331,49 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
 
             {/* Right Side - Actions */}
-            <div className="flex items-center gap-1.5">
-              {/* SUBSCRIPTION BUTTON - Client-side rendered to bypass cache */}
+            <div className="flex items-center gap-2">
+              {/* SUBSCRIPTION BUTTON - Premium Design */}
               {showSubscriptionButton && (
                 <a 
                   href="/pricing"
-                  className="flex items-center bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 hover:from-amber-500 hover:via-orange-600 hover:to-red-600 text-white font-bold shadow-lg shadow-orange-500/40 border border-amber-300/30 rounded-lg px-3 py-2 h-9 transition-all duration-300 hover:scale-105 group relative overflow-hidden animate-fadeIn"
+                  className="relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm text-white overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 group"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4), 0 0 20px rgba(118, 75, 162, 0.2)'
+                  }}
                 >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <Crown className="w-4 h-4 mr-1.5 fill-current" />
-                  <span className="hidden sm:inline text-sm">Pro</span>
-                  <Sparkles className="w-3 h-3 ml-1 hidden sm:inline animate-spin" style={{ animationDuration: '3s' }} />
+                  {/* Animated Background Shimmer */}
+                  <span 
+                    className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                      animation: 'shimmer 2s infinite'
+                    }}
+                  />
+                  
+                  {/* Glow Effect */}
+                  <span 
+                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      boxShadow: 'inset 0 0 20px rgba(255,255,255,0.2)'
+                    }}
+                  />
+                  
+                  {/* Content */}
+                  <Crown 
+                    className="w-4 h-4 relative z-10 fill-yellow-300 text-yellow-300 animate-pulse" 
+                    style={{ animationDuration: '2s' }}
+                  />
+                  <span className="relative z-10 hidden sm:inline">Upgrade</span>
+                  <span className="relative z-10 hidden md:inline font-black">Pro</span>
+                  
+                  {/* Pulsing Badge */}
+                  <span 
+                    className="relative z-10 flex items-center justify-center w-5 h-5 bg-white/20 rounded-full text-[10px] font-bold animate-pulse"
+                    style={{ animationDuration: '1.5s' }}
+                  >
+                    âœ¨
+                  </span>
                 </a>
               )}
               
