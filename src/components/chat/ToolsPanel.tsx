@@ -88,8 +88,11 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn
 
   useEffect(() => {
     if (!isOpen) {
-      setActiveTool(null)
-      resetToolState()
+      // Use requestAnimationFrame to avoid synchronous setState in effect
+      requestAnimationFrame(() => {
+        setActiveTool(null)
+        resetToolState()
+      })
     }
   }, [isOpen, resetToolState])
 

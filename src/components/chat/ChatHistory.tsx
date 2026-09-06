@@ -67,17 +67,13 @@ export function ChatHistory({
   currentChatId,
   className 
 }: ChatHistoryProps) {
-  const [conversations, setConversations] = useState<ChatConversation[]>([])
+  // Load conversations with lazy initialization (no useEffect needed)
+  const [conversations, setConversations] = useState<ChatConversation[]>(() => loadConversations())
   const [isExpanded, setIsExpanded] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const { t } = useI18n()
-
-  // Load conversations on mount
-  useEffect(() => {
-    setConversations(loadConversations())
-  }, [])
 
   // Add new conversation
   const addConversation = useCallback((conversation: ChatConversation) => {

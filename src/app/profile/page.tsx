@@ -7,32 +7,28 @@ import UserProfilePage from '@/components/chat/UserProfilePage'
 // Version for cache busting - v2.0 Clean Profile
 const PROFILE_VERSION = '2.0.0'
 
+// Helper to get user from localStorage (for SSR safety)
+function getInitialUser() {
+  if (typeof window === 'undefined') return null
+  try {
+    const savedUser = localStorage.getItem('nexus_user')
+    return savedUser ? JSON.parse(savedUser) : null
+  } catch {
+    return null
+  }
+}
+
 export default function ProfilePage() {
   const router = useRouter()
-  const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(getInitialUser)
+  const [isLoading, setIsLoading] = useState(!getInitialUser())
 
   useEffect(() => {
-    // Force fresh load - clear any cached data issues
-    console.log(`Profile Page v${PROFILE_VERSION} loading...`)
-    
-    // Check if user is logged in
-    const savedUser = localStorage.getItem('nexus_user')
-    
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser)
-        setUser(parsedUser)
-      } catch (e) {
-        console.error('Error parsing user data:', e)
-        router.push('/')
-      }
-    } else {
+    // Only redirect if no user after mount
+    if (!user && typeof window !== 'undefined') {
       router.push('/')
     }
-    
-    setIsLoading(false)
-  }, [router])
+  }, [router, user])
 
   const handleBack = () => {
     router.push('/')

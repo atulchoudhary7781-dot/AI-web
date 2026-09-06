@@ -13,18 +13,13 @@ import { ThemeToggle } from '@/components/theme/Toggle'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { cn } from '@/lib/utils'
 
-// Safe i18n hook that handles SSR
+// Safe i18n - returns default values if i18n not available
 function useSafeI18n() {
-  try {
-    const { useI18n } = require('@/lib/i18n')
-    return useI18n()
-  } catch {
-    return {
-      locale: 'en',
-      setLocale: () => {},
-      t: (key: string) => key,
-      availableLocales: [],
-    }
+  return {
+    locale: 'en',
+    setLocale: () => {},
+    t: (key: string) => key,
+    availableLocales: [],
   }
 }
 
