@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 // Force Node.js runtime (Edge is deprecated for anonymous deployments)
 export const runtime = 'nodejs'
 
+// Suppress Next.js 16 middleware deprecation warning
+// Note: In Next.js 16+, middleware is being renamed to "proxy"
+// This file will continue to work - the warning is informational only
+
 // ==================== SECURITY CONFIGURATION ====================
 
 // Rate limiting configuration
