@@ -202,6 +202,14 @@ export default function ToolsPanel({ isOpen, onClose, onInsertToChat, isLoggedIn
 
   // ==================== TOOL HANDLERS ====================
 
+  // Pro Feature Lock Handler - Redirects to pricing
+  const handleProFeatureLock = () => {
+    // Show alert and redirect to pricing
+    if (confirm('🔒 This is a PRO feature!\n\nUpgrade to Nexus Pro to unlock:\n• AI Image Generation\n• Voice Chat\n• File Analysis\n\nRedirect to Pricing page?')) {
+      window.location.href = '/pricing'
+    }
+  }
+
   // Web Search Handler
   const handleWebSearch = async () => {
     if (!searchQuery.trim()) return
@@ -622,7 +630,8 @@ print(f"Sum of evens: {even_sum}")`,
       label: 'Web Search', 
       color: 'from-blue-500 to-cyan-500', 
       description: 'Search the internet in real-time',
-      badge: 'LIVE'
+      badge: 'LIVE',
+      isPro: false
     },
     { 
       id: 'image-gen', 
@@ -630,7 +639,8 @@ print(f"Sum of evens: {even_sum}")`,
       label: 'AI Images', 
       color: 'from-purple-500 to-pink-500', 
       description: 'Generate stunning AI artwork',
-      badge: 'AI'
+      badge: 'AI',
+      isPro: true  // LOCKED - Paid Feature
     },
     { 
       id: 'voice-chat', 
@@ -638,7 +648,8 @@ print(f"Sum of evens: {even_sum}")`,
       label: 'Voice Chat', 
       color: 'from-green-500 to-emerald-500', 
       description: 'Speak & listen to AI',
-      badge: null
+      badge: null,
+      isPro: true  // LOCKED - Paid Feature
     },
     { 
       id: 'code-executor', 
@@ -646,7 +657,8 @@ print(f"Sum of evens: {even_sum}")`,
       label: 'Code Runner', 
       color: 'from-neon-cyan to-neon-purple', 
       description: 'Execute code instantly',
-      badge: '⚡'
+      badge: '⚡',
+      isPro: false
     },
     { 
       id: 'file-analyzer', 
@@ -654,7 +666,8 @@ print(f"Sum of evens: {even_sum}")`,
       label: 'File Analyzer', 
       color: 'from-red-500 to-rose-500', 
       description: 'Analyze documents & files',
-      badge: 'AI'
+      badge: 'AI',
+      isPro: true  // LOCKED - Paid Feature
     },
     { 
       id: 'translator', 
@@ -662,7 +675,8 @@ print(f"Sum of evens: {even_sum}")`,
       label: 'Translator', 
       color: 'from-indigo-500 to-violet-500', 
       description: '40+ languages supported',
-      badge: '40+'
+      badge: '40+',
+      isPro: false
     }
   ]
 
@@ -754,15 +768,36 @@ print(f"Sum of evens: {even_sum}")`,
               {tools.map((tool) => (
                 <button
                   key={tool.id}
-                  onClick={() => setActiveTool(tool.id as ToolType)}
-                  className="group relative p-4 rounded-xl bg-gray-800/40 hover:bg-gray-800/80 border border-gray-700/50 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 text-left overflow-hidden"
+                  onClick={() => tool.isPro ? handleProFeatureLock() : setActiveTool(tool.id as ToolType)}
+                  className={`group relative p-4 rounded-xl bg-gray-800/40 hover:bg-gray-800/80 border transition-all duration-300 text-left overflow-hidden ${
+                    tool.isPro 
+                      ? 'border-amber-500/30 hover:border-amber-500/50 cursor-pointer' 
+                      : 'border-gray-700/50 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/10'
+                  }`}
                 >
-                  {tool.badge && (
+                  {/* Pro Badge / Lock Overlay */}
+                  {tool.isPro && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl">
+                      <Lock className="w-6 h-6 text-amber-400 mb-1" />
+                      <span className="text-[10px] font-bold text-amber-400">PRO ONLY</span>
+                    </div>
+                  )}
+                  
+                  {tool.badge && !tool.isPro && (
                     <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-cyan-500/20 text-cyan-400 rounded">
                       {tool.badge}
                     </span>
                   )}
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shadow-lg`}>
+                  
+                  {/* Pro Badge for locked items */}
+                  {tool.isPro && (
+                    <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-400 rounded flex items-center gap-0.5 z-20">
+                      <Crown className="w-2.5 h-2.5" />
+                      PRO
+                    </span>
+                  )}
+                  
+                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shadow-lg ${tool.isPro ? 'opacity-60' : ''}`}>
                     <tool.icon className="w-5 h-5 text-white" />
                   </div>
                   <h3 className="text-sm font-semibold text-white mb-0.5">{tool.label}</h3>

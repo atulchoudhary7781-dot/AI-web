@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   Sparkles, Menu, X, Zap, Cpu, MessageSquare,
-  ChevronDown, LayoutDashboard, CreditCard, Settings
+  ChevronDown, LayoutDashboard, CreditCard, Settings, Crown
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme/Toggle'
@@ -154,8 +154,20 @@ export function Navbar() {
                 <LanguageSwitcher />
               </div>
 
+              {/* Subscription Button - Shows on ALL pages */}
+              <Link href="/pricing" className="hidden md:flex items-center">
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300 hover:scale-105"
+                >
+                  <Crown className="w-4 h-4 mr-1.5" />
+                  <span className="hidden lg:inline">Upgrade Pro</span>
+                  <span className="lg:hidden">Pro</span>
+                </Button>
+              </Link>
+
               {/* Desktop CTA Buttons */}
-              <div className="hidden md:flex items-center gap-3 ml-2">
+              <div className="hidden md:flex items-center gap-2 ml-2">
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
                     {t('nav.signIn')}
@@ -288,15 +300,23 @@ export function Navbar() {
             </div>
           </nav>
 
-          {/* Footer with auth buttons */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 glass-strong">
-            <div className="space-y-2">
-              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+          {/* Footer with auth & subscription buttons */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 glass-strong space-y-2">
+            {/* Subscription Button in Mobile */}
+            <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg">
+                <Crown className="w-4 h-4 mr-2" />
+                Upgrade to Pro
+              </Button>
+            </Link>
+            
+            <div className="flex gap-2">
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex-1">
                 <Button variant="outline" className="w-full">
                   {t('nav.signIn')}
                 </Button>
               </Link>
-              <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="flex-1">
                 <Button variant="neon" className="w-full">
                   {t('nav.getStarted')}
                 </Button>
