@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 import { sendPasswordResetEmail } from '@/lib/email'
 import { validateEmail, sanitizeString, checkForDangerousContent } from '@/lib/security'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 // Rate limiting for password reset (prevent email enumeration attacks)
 const resetAttempts = new Map<string, { count: number; lastAttempt: number }>()
@@ -53,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     })
 
@@ -72,12 +70,12 @@ export async function POST(request: NextRequest) {
     expiresAt.setHours(expiresAt.getHours() + 1) // Token expires in 1 hour
 
     // Delete any existing reset tokens for this user
-    await prisma.passwordReset.deleteMany({
+    await db.passwordReset.deleteMany({
       where: { userId: user.id }
     })
 
     // Create new password reset token
-    await prisma.passwordReset.create({
+    await db.passwordReset.create({
       data: {
         userId: user.id,
         token,

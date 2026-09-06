@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 import { sendVerificationEmail } from '@/lib/email'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     })
 
@@ -44,12 +42,12 @@ export async function POST(request: NextRequest) {
     expiresAt.setHours(expiresAt.getHours() + 24) // Token expires in 24 hours
 
     // Delete any existing verification tokens for this user
-    await prisma.emailVerification.deleteMany({
+    await db.emailVerification.deleteMany({
       where: { userId: user.id }
     })
 
     // Create new verification token
-    await prisma.emailVerification.create({
+    await db.emailVerification.create({
       data: {
         userId: user.id,
         token,

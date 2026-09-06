@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
-
-// Helper function to verify admin access
-async function verifyAdmin(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  if (!email) return null
-  
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user || user.role !== 'admin') return null
-  return user
-}
+import { db } from '@/lib/db'
+import { verifyAdmin } from '@/lib/auth'
 
 // GET /api/admin/users - List all users with pagination and filters
 export async function GET(request: NextRequest) {
@@ -62,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     // Get users with pagination
     const [users, totalCount] = await Promise.all([
-      prisma.user.findMany({
+      db.user.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
@@ -87,7 +76,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      prisma.user.count({ where })
+      db.user.count({ where })
     ])
 
     return NextResponse.json({
@@ -134,7 +123,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check target user exists
-    const targetUser = await prisma.user.findUnique({
+    const targetUser = await db.user.findUnique({
       where: { id: userId }
     })
 
@@ -155,13 +144,13 @@ export async function PUT(request: NextRequest) {
             { status: 400 }
           )
         }
-        updatedUser = await prisma.user.update({
+        updatedUser = await db.user.update({
           where: { id: userId },
           data: { role: updateData.role }
         })
 
         // Log admin action
-        await prisma.adminLog.create({
+        await db.adminLog.create({
           data: {
             adminId: adminUser.id,
             action: 'role_change',
@@ -178,7 +167,7 @@ export async function PUT(request: NextRequest) {
             { status: 400 }
           )
         }
-        updatedUser = await prisma.user.update({
+        updatedUser = await db.user.update({
           where: { id: userId },
           data: { 
             subscriptionPlan: updateData.plan,
@@ -187,7 +176,7 @@ export async function PUT(request: NextRequest) {
         })
 
         // Log admin action
-        await prisma.adminLog.create({
+        await db.adminLog.create({
           data: {
             adminId: adminUser.id,
             action: 'plan_change',
@@ -201,7 +190,7 @@ export async function PUT(request: NextRequest) {
         break
 
       case 'verify_email':
-        updatedUser = await prisma.user.update({
+        updatedUser = await db.user.update({
           where: { id: userId },
           data: {
             emailVerified: true,
@@ -209,7 +198,7 @@ export async function PUT(request: NextRequest) {
           }
         })
 
-        await prisma.adminLog.create({
+        await db.adminLog.create({
           data: {
             adminId: adminUser.id,
             action: 'manual_email_verify',
@@ -219,7 +208,7 @@ export async function PUT(request: NextRequest) {
         break
 
       case 'reset_chats':
-        updatedUser = await prisma.user.update({
+        updatedUser = await db.user.update({
           where: { id: userId },
           data: {
             chatsToday: 0,
@@ -227,7 +216,7 @@ export async function PUT(request: NextRequest) {
           }
         })
 
-        await prisma.adminLog.create({
+        await db.adminLog.create({
           data: {
             adminId: adminUser.id,
             action: 'chat_reset',
@@ -247,7 +236,7 @@ export async function PUT(request: NextRequest) {
           }
         })
 
-        updatedUser = await prisma.user.update({
+        updatedUser = await db.user.update({
           where: { id: userId },
           data: filteredData
         })
@@ -298,12 +287,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete user (cascade will handle related records)
-    await prisma.user.delete({
+    await db.user.delete({
       where: { id: userId }
     })
 
     // Log admin action
-    await prisma.adminLog.create({
+    await db.adminLog.create({
       data: {
         adminId: adminUser.id,
         action: 'user_delete',

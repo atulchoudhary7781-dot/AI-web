@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import Stripe from 'stripe'
-
-const prisma = new PrismaClient()
-
-// Initialize Stripe only if API key is available
-const getStripe = () => {
-  if (!process.env.STRIPE_SECRET_KEY) return null
-  return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2026-08-26.dahlia',
-  })
-}
-
-// Price IDs from Stripe Dashboard - Replace with your actual price IDs
-const STRIPE_PRICES = {
-  normal: process.env.STRIPE_PRICE_NORMAL || 'price_normal_id', // $10/month
-  pro: process.env.STRIPE_PRICE_PRO || 'price_pro_id',         // $20/month
-}
+import { db } from '@/lib/db'
+import { getStripe, STRIPE_PRICES } from '@/lib/stripe'
+import { findOrCreateUser } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,12 +37,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Find or create user
-    let user = await prisma.user.findUnique({
+    let user = await db.user.findUnique({
       where: { email }
     })
 
     if (!user) {
-      user = await prisma.user.create({
+      user = await db.user.create({
         data: {
           email,
           name: email.split('@')[0]
@@ -78,7 +64,7 @@ export async function POST(request: NextRequest) {
       customerId = customer.id
       
       // Update user with Stripe customer ID
-      await prisma.user.update({
+      await db.user.update({
         where: { id: user.id },
         data: { stripeCustomerId: customerId }
       })
@@ -144,7 +130,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     })
 

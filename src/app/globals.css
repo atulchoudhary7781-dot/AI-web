@@ -605,56 +605,37 @@ textarea::placeholder, input::placeholder {
 }
 
 /* ============================================
-   SCROLLBAR CUSTOMIZATION FOR ALL CONTAINERS
+   SCROLLBAR CUSTOMIZATION - Unified Selectors
    ============================================ */
 
-.dashboard-page-container::-webkit-scrollbar,
-.pricing-page-container::-webkit-scrollbar,
-.admin-page-container::-webkit-scrollbar,
-.login-page-container::-webkit-scrollbar,
-.signup-page-container::-webkit-scrollbar,
-.nexus-main-container::-webkit-scrollbar,
-.subscription-tab-scroll::-webkit-scrollbar,
-.settings-tab-scroll::-webkit-scrollbar,
-.profile-info-tab-scroll::-webkit-scrollbar,
-.settings-main-scroll::-webkit-scrollbar,
-.dashboard-page-container::-webkit-scrollbar,
-.pricing-page-container::-webkit-scrollbar,
-.admin-page-container::-webkit-scrollbar,
-.login-page-container::-webkit-scrollbar,
-.signup-page-container::-webkit-scrollbar,
-.nexus-main-container::-webkit-scrollbar,
-.subscription-tab-scroll::-webkit-scrollbar,
-.settings-tab-scroll::-webkit-scrollbar {
+/* Common scrollbar containers (deduplicated) */
+:is(.dashboard-page-container, .pricing-page-container, .admin-page-container, 
+    .login-page-container, .signup-page-container, .nexus-main-container,
+    .subscription-tab-scroll, .settings-tab-scroll, .profile-info-tab-scroll,
+    .settings-main-scroll)::-webkit-scrollbar {
   display: block !important;
   width: 6px !important;
 }
 
-.dashboard-page-container::-webkit-scrollbar-track,
-.pricing-page-container::-webkit-scrollbar-track,
-.admin-page-container::-webkit-scrollbar-track,
-.login-page-container::-webkit-scrollbar-track,
-.signup-page-container::-webkit-scrollbar-track {
+/* Scrollbar track - Dark theme */
+:is(.dashboard-page-container, .pricing-page-container, .admin-page-container, 
+    .login-page-container, .signup-page-container)::-webkit-scrollbar-track {
   background: rgba(20, 20, 40, 0.9);
   border-radius: 10px;
   border: 1px solid rgba(0, 255, 255, 0.1);
 }
 
-.dashboard-page-container::-webkit-scrollbar-thumb,
-.pricing-page-container::-webkit-scrollbar-thumb,
-.admin-page-container::-webkit-scrollbar-thumb,
-.login-page-container::-webkit-scrollbar-thumb,
-.signup-page-container::-webkit-scrollbar-thumb {
+/* Scrollbar thumb - Cyan to Purple gradient */
+:is(.dashboard-page-container, .pricing-page-container, .admin-page-container, 
+    .login-page-container, .signup-page-container)::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #00ffff, #a855f7);
   border-radius: 10px;
   border: 1px solid rgba(0, 255, 255, 0.3);
 }
 
-.dashboard-page-container::-webkit-scrollbar-thumb:hover,
-.pricing-page-container::-webkit-scrollbar-thumb:hover,
-.admin-page-container::-webkit-scrollbar-thumb:hover,
-.login-page-container::-webkit-scrollbar-thumb:hover,
-.signup-page-container::-webkit-scrollbar-thumb:hover {
+/* Scrollbar thumb hover state */
+:is(.dashboard-page-container, .pricing-page-container, .admin-page-container, 
+    .login-page-container, .signup-page-container)::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #00eeee, #9333ea);
 }
 

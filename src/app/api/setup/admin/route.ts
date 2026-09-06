@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 // POST /api/setup/admin - Set up first admin user
 export async function POST(request: NextRequest) {
@@ -28,12 +26,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Find or create user
-    let user = await prisma.user.findUnique({
+    let user = await db.user.findUnique({
       where: { email }
     })
 
     if (!user) {
-      user = await prisma.user.create({
+      user = await db.user.create({
         data: {
           email,
           name: name || email.split('@')[0],
@@ -43,14 +41,14 @@ export async function POST(request: NextRequest) {
       })
     } else {
       // Update existing user to admin
-      user = await prisma.user.update({
+      user = await db.user.update({
         where: { id: user.id },
         data: { role: 'admin' }
       })
     }
 
     // Log this action
-    await prisma.adminLog.create({
+    await db.adminLog.create({
       data: {
         adminId: user.id,
         action: 'admin_setup',
@@ -93,11 +91,11 @@ export async function POST(request: NextRequest) {
 // GET /api/setup/admin - Check current status
 export async function GET() {
   try {
-    const adminCount = await prisma.user.count({
+    const adminCount = await db.user.count({
       where: { role: 'admin' }
     })
 
-    const admins = await prisma.user.findMany({
+    const admins = await db.user.findMany({
       where: { role: 'admin' },
       select: {
         id: true,

@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
-
-// Helper function to verify admin access
-async function verifyAdmin(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  if (!email) return null
-  
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user || user.role !== 'admin') return null
-  return user
-}
+import { db } from '@/lib/db'
+import { verifyAdmin } from '@/lib/auth'
 
 // GET /api/admin/stats - Get dashboard statistics
 export async function GET(request: NextRequest) {
@@ -46,47 +35,47 @@ export async function GET(request: NextRequest) {
       recentUsers,
     ] = await Promise.all([
       // Total users count
-      prisma.user.count(),
+      db.user.count(),
       
       // New users this month
-      prisma.user.count({
+      db.user.count({
         where: { createdAt: { gte: thirtyDaysAgo } }
       }),
       
       // New users this week
-      prisma.user.count({
+      db.user.count({
         where: { createdAt: { gte: sevenDaysAgo } }
       }),
       
       // Total chats
-      prisma.chat.count(),
+      db.chat.count(),
       
       // Chats this month
-      prisma.chat.count({
+      db.chat.count({
         where: { createdAt: { gte: thirtyDaysAgo } }
       }),
       
       // Active users today (users who chatted today)
-      prisma.chat.groupBy({
+      db.chat.groupBy({
         by: ['userId'],
         where: { createdAt: { gte: todayStart } }
       }).then(groups => groups.length),
       
       // Subscription distribution
-      prisma.user.groupBy({
+      db.user.groupBy({
         by: ['subscriptionPlan'],
         _count: { id: true }
       }),
       
       // Total revenue data
-      prisma.payment.aggregate({
+      db.payment.aggregate({
         where: { status: 'succeeded' },
         _sum: { amount: true },
         _count: { id: true }
       }),
       
       // Monthly revenue data
-      prisma.payment.aggregate({
+      db.payment.aggregate({
         where: {
           status: 'succeeded',
           createdAt: { gte: thirtyDaysAgo }
@@ -96,13 +85,13 @@ export async function GET(request: NextRequest) {
       }),
       
       // Recent payments (last 10)
-      prisma.payment.findMany({
+      db.payment.findMany({
         take: 10,
         orderBy: { createdAt: 'desc' },
       }),
       
       // Recent users (last 10)
-      prisma.user.findMany({
+      db.user.findMany({
         take: 10,
         orderBy: { createdAt: 'desc' },
         select: {

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 // GET /api/profile - Get user profile
 export async function GET(request: NextRequest) {
@@ -16,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to find user in database
-    let user = await prisma.user.findUnique({
+    let user = await db.user.findUnique({
       where: { email },
       include: {
         chats: {
@@ -78,13 +76,13 @@ export async function PUT(request: NextRequest) {
     const { name, avatar, bio, phone, location, website } = body
 
     // Check if user exists
-    let user = await prisma.user.findUnique({
+    let user = await db.user.findUnique({
       where: { email }
     })
 
     if (!user) {
       // Create new user if doesn't exist
-      user = await prisma.user.create({
+      user = await db.user.create({
         data: {
           email,
           name: name || email.split('@')[0],
@@ -97,7 +95,7 @@ export async function PUT(request: NextRequest) {
       })
     } else {
       // Update existing user
-      user = await prisma.user.update({
+      user = await db.user.update({
         where: { email },
         data: {
           ...(name && { name }),
@@ -156,13 +154,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    let user = await prisma.user.findUnique({
+    let user = await db.user.findUnique({
       where: { email }
     })
 
     if (!user) {
       // Create user with avatar
-      user = await prisma.user.create({
+      user = await db.user.create({
         data: {
           email,
           name: email.split('@')[0],
@@ -171,7 +169,7 @@ export async function POST(request: NextRequest) {
       })
     } else {
       // Update avatar
-      user = await prisma.user.update({
+      user = await db.user.update({
         where: { email },
         data: { avatar }
       })

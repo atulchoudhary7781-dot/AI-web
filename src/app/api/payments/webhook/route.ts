@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import Stripe from 'stripe'
 import { headers } from 'next/headers'
-
-const prisma = new PrismaClient()
-
-// Initialize Stripe only if API key is available
-const getStripe = () => {
-  if (!process.env.STRIPE_SECRET_KEY) return null
-  return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2026-08-26.dahlia',
-  })
-}
+import { db } from '@/lib/db'
+import { getStripe } from '@/lib/stripe'
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET
@@ -97,7 +88,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   console.log(`Checkout completed for user ${userId}, plan: ${plan}`)
   
   // Update user's subscription info temporarily until subscription.created fires
-  await prisma.user.update({
+  await db.user.update({
     where: { id: userId },
     data: {
       subscriptionPlan: plan,
@@ -116,7 +107,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   const amount = subscription.items.data[0]?.price?.unit_amount || 0
 
   // Create subscription record in database
-  await prisma.subscription.create({
+  await db.subscription.create({
     data: {
       userId,
       plan,
@@ -130,7 +121,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   })
 
   // Update user record
-  await prisma.user.update({
+  await db.user.update({
     where: { id: userId },
     data: {
       subscriptionPlan: plan,
@@ -148,14 +139,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const stripeSubscriptionId = subscription.id
   
   // Find subscription in database
-  const subRecord = await prisma.subscription.findUnique({
+  const subRecord = await db.subscription.findUnique({
     where: { stripeSubscriptionId }
   })
 
   if (!subRecord) return
 
   // Update subscription record
-  await prisma.subscription.update({
+  await db.subscription.update({
     where: { id: subRecord.id },
     data: {
       status: subscription.status as string,
@@ -166,7 +157,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   })
 
   // Update user record
-  await prisma.user.update({
+  await db.user.update({
     where: { id: subRecord.userId },
     data: {
       subscriptionStatus: subscription.status as string,
@@ -181,18 +172,18 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const stripeSubscriptionId = subscription.id
   
   // Find and update subscription
-  const subRecord = await prisma.subscription.findUnique({
+  const subRecord = await db.subscription.findUnique({
     where: { stripeSubscriptionId }
   })
 
   if (subRecord) {
-    await prisma.subscription.update({
+    await db.subscription.update({
       where: { id: subRecord.id },
       data: { status: 'cancelled' }
     })
 
     // Downgrade user to free plan
-    await prisma.user.update({
+    await db.user.update({
       where: { id: subRecord.userId },
       data: {
         subscriptionPlan: 'free',
@@ -211,13 +202,13 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   if (!subscriptionId) return
 
   // Find subscription
-  const subRecord = await prisma.subscription.findUnique({
+  const subRecord = await db.subscription.findUnique({
     where: { stripeSubscriptionId: subscriptionId }
   })
 
   if (subRecord) {
     // Create payment record
-    await prisma.payment.create({
+    await db.payment.create({
       data: {
         userId: subRecord.userId,
         stripePaymentIntentId: (invoice as any).payment_intent as string,
@@ -229,7 +220,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     })
 
     // Ensure subscription is active
-    await prisma.user.update({
+    await db.user.update({
       where: { id: subRecord.userId },
       data: { subscriptionStatus: 'active' }
     })
@@ -243,13 +234,13 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   
   if (!subscriptionId) return
 
-  const subRecord = await prisma.subscription.findUnique({
+  const subRecord = await db.subscription.findUnique({
     where: { stripeSubscriptionId: subscriptionId }
   })
 
   if (subRecord) {
     // Create failed payment record
-    await prisma.payment.create({
+    await db.payment.create({
       data: {
         userId: subRecord.userId,
         stripePaymentIntentId: (invoice as any).payment_intent as string,
@@ -261,7 +252,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     })
 
     // Mark subscription as past due
-    await prisma.user.update({
+    await db.user.update({
       where: { id: subRecord.userId },
       data: { subscriptionStatus: 'past_due' }
     })

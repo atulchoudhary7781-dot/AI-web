@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
+import { PLAN_CONFIG, PlanType } from '@/lib/stripe'
+import { findOrCreateUser } from '@/lib/auth'
 
 // GET /api/subscription - Get user subscription status
 export async function GET(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find user with subscription info
-    let user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     })
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         plan: 'free',
         maxChatsPerDay: 10,
-        features: ['basic_ai', 'limited_chats', '7_day_history']
+        features: PLAN_CONFIG.free.features
       })
     }
 
@@ -62,42 +62,24 @@ export async function POST(request: NextRequest) {
     const { plan, paymentMethodId } = body
 
     // Validate plan
-    if (!['free', 'normal', 'pro'].includes(plan)) {
+    if (!plan || !(plan in PLAN_CONFIG)) {
       return NextResponse.json(
-        { error: 'Invalid plan' },
+        { error: 'Invalid plan. Must be free, normal, or pro' },
         { status: 400 }
       )
     }
 
-    // Find or create user
-    let user = await prisma.user.findUnique({
-      where: { email }
-    })
+    // Find or create user using shared helper
+    const user = await findOrCreateUser(email)
 
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email,
-          name: email.split('@')[0]
-        }
-      })
-    }
-
-    // Calculate subscription details
-    const planPrices = { free: 0, normal: 10, pro: 20 }
-    const price = planPrices[plan as keyof typeof planPrices]
+    const planType = plan as PlanType
+    const price = PLAN_CONFIG[planType].price
     
     const startDate = new Date()
     const endDate = new Date()
     endDate.setMonth(endDate.getMonth() + 1) // 1 month from now
 
-    // In production, you would:
-    // 1. Create payment intent with Stripe/Payment provider
-    // 2. Process payment
-    // 3. Store subscription in database
-    // 4. Webhook to handle payment confirmations
-
-    // For demo, return success
+    // For demo, return success (in production, integrate with Stripe)
     return NextResponse.json({
       success: true,
       subscription: {
@@ -106,7 +88,7 @@ export async function POST(request: NextRequest) {
         startDate: startDate.toISOString(),
         endDate: plan === 'free' ? null : endDate.toISOString(),
         status: 'active',
-        features: getPlanFeatures(plan)
+        features: PLAN_CONFIG[planType].features
       },
       message: `Successfully ${plan === 'free' ? 'downgraded to' : 'subscribed to'} ${plan.toUpperCase()} plan!`
     })
@@ -146,40 +128,5 @@ export async function DELETE(request: NextRequest) {
       { error: 'Failed to cancel subscription' },
       { status: 500 }
     )
-  }
-}
-
-// Helper function to get plan features
-function getPlanFeatures(plan: string): string[] {
-  switch (plan) {
-    case 'pro':
-      return [
-        'unlimited_chats',
-        'gpt4_claude_access',
-        'image_generation',
-        'voice_conversations',
-        'api_access',
-        'custom_ai_training',
-        'priority_queue',
-        'dedicated_support',
-        'infinite_history'
-      ]
-    case 'normal':
-      return [
-        'unlimited_chats',
-        'advanced_ai_models',
-        'file_attachments',
-        '30_day_history',
-        'data_export',
-        'priority_support'
-      ]
-    case 'free':
-    default:
-      return [
-        '10_chats_per_day',
-        'basic_ai_responses',
-        'community_support',
-        '7_day_history'
-      ]
   }
 }

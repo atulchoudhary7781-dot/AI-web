@@ -1,19 +1,17 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 export async function GET() {
   try {
     // Test database connection
-    await prisma.$queryRaw`SELECT 1`
+    await db.$queryRaw`SELECT 1`
     
     const startTime = Date.now()
     
     // Get basic stats
     const [userCount, chatCount] = await Promise.all([
-      prisma.user.count(),
-      prisma.chat.count()
+      db.user.count(),
+      db.chat.count()
     ])
     
     const responseTime = Date.now() - startTime

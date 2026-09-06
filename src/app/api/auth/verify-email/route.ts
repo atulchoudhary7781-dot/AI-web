@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 // GET /api/auth/verify-email?token=xxx
 export async function GET(request: NextRequest) {
@@ -16,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find verification token
-    const verification = await prisma.emailVerification.findUnique({
+    const verification = await db.emailVerification.findUnique({
       where: { token },
       include: { user: true }
     })
@@ -30,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Check if token has expired
     if (new Date() > verification.expiresAt) {
       // Delete expired token
-      await prisma.emailVerification.delete({
+      await db.emailVerification.delete({
         where: { id: verification.id }
       })
 
@@ -47,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Mark email as verified
-    await prisma.user.update({
+    await db.user.update({
       where: { id: verification.userId },
       data: {
         emailVerified: true,
@@ -56,7 +54,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Mark verification token as used
-    await prisma.emailVerification.update({
+    await db.emailVerification.update({
       where: { id: verification.id },
       data: { verifiedAt: new Date() }
     })
@@ -88,7 +86,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find verification token
-    const verification = await prisma.emailVerification.findUnique({
+    const verification = await db.emailVerification.findUnique({
       where: { token },
       include: { user: true }
     })
@@ -102,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     // Check if token has expired
     if (new Date() > verification.expiresAt) {
-      await prisma.emailVerification.delete({
+      await db.emailVerification.delete({
         where: { id: verification.id }
       })
 
@@ -122,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Mark email as verified
-    await prisma.user.update({
+    await db.user.update({
       where: { id: verification.userId },
       data: {
         emailVerified: true,
@@ -131,7 +129,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Mark verification token as used
-    await prisma.emailVerification.update({
+    await db.emailVerification.update({
       where: { id: verification.id },
       data: { verifiedAt: new Date() }
     })

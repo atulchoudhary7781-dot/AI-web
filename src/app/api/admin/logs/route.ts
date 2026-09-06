@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
-
-// Helper function to verify admin access
-async function verifyAdmin(request: NextRequest) {
-  const email = request.headers.get('x-user-email')
-  if (!email) return null
-  
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user || user.role !== 'admin') return null
-  return user
-}
+import { db } from '@/lib/db'
+import { verifyAdmin } from '@/lib/auth'
 
 // GET /api/admin/logs - Get admin activity logs
 export async function GET(request: NextRequest) {
@@ -41,13 +30,13 @@ export async function GET(request: NextRequest) {
 
     // Get logs with pagination
     const [logs, totalCount] = await Promise.all([
-      prisma.adminLog.findMany({
+      db.adminLog.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.adminLog.count({ where })
+      db.adminLog.count({ where })
     ])
 
     return NextResponse.json({

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-
-const prisma = new PrismaClient()
+import { db } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find reset token
-    const resetRecord = await prisma.passwordReset.findUnique({
+    const resetRecord = await db.passwordReset.findUnique({
       where: { token },
       include: { user: true }
     })
@@ -40,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Check if token has expired
     if (new Date() > resetRecord.expiresAt) {
       // Delete expired token
-      await prisma.passwordReset.delete({
+      await db.passwordReset.delete({
         where: { id: resetRecord.id }
       })
 
@@ -62,19 +60,19 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, 10)
 
     // Update user's password
-    await prisma.user.update({
+    await db.user.update({
       where: { id: resetRecord.userId },
       data: { password: hashedPassword }
     })
 
     // Mark reset token as used
-    await prisma.passwordReset.update({
+    await db.passwordReset.update({
       where: { id: resetRecord.id },
       data: { usedAt: new Date() }
     })
 
     // Delete all other reset tokens for this user
-    await prisma.passwordReset.deleteMany({
+    await db.passwordReset.deleteMany({
       where: {
         userId: resetRecord.userId,
         id: { not: resetRecord.id }
@@ -108,7 +106,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const resetRecord = await prisma.passwordReset.findUnique({
+    const resetRecord = await db.passwordReset.findUnique({
       where: { token }
     })
 
