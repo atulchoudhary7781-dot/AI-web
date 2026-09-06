@@ -1377,38 +1377,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions - VISIBLE ON ALL DEVICES */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {/* PRO BUTTON - FIXED FOR ALL DEVICES */}
-              <a 
-                href="/pricing"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '5px',
-                  padding: '8px 12px',
-                  minWidth: '44px',
-                  minHeight: '44px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.6), rgba(236, 72, 153, 0.6))',
-                  border: '2px solid rgba(168, 85, 247, 0.9)',
-                  color: '#ffffff',
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  boxShadow: '0 3px 15px rgba(168, 85, 247, 0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  flexShrink: 0,
-                  whiteSpace: 'nowrap',
-                  WebkitTapHighlightColor: 'rgba(168, 85, 247, 0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                aria-label="Upgrade to Pro"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-                <span className="hidden xs:inline">Pro</span>
-              </a>
+              {/* Note: PRO button is now FLOATING (position: fixed) at top-right - see above */}
               
               {isLoggedIn ? (
                   <>
