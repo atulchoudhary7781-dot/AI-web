@@ -6,8 +6,11 @@ import {
   MapPin, Phone, Globe, Edit3,
   Calendar, Settings, LogOut,
   ChevronLeft, Shield, ChevronRight,
-  Bell, Lock, Key, Eye, EyeOff,
-  Moon, Sun, Monitor, Check
+  Bell, Lock, Key, Eye, Moon,
+  Sun, Monitor, Check, Star,
+  Heart, Award, Zap, Sparkles,
+  Link2, FileText, Briefcase,
+  MessageSquare, Users
 } from 'lucide-react'
 
 // Types
@@ -21,15 +24,30 @@ interface UserProfileProps {
   onLogout?: () => void
 }
 
-// Toggle Component
+// Animated Toggle Component
 function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (val: boolean) => void }) {
   return (
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative w-12 h-6 rounded-full transition-colors ${enabled ? 'bg-purple-600' : 'bg-gray-600'}`}
+      className={`relative w-14 h-7 rounded-full transition-all duration-300 ${enabled ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30' : 'bg-slate-700'}`}
     >
-      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${enabled ? 'left-7' : 'left-1'}`} />
+      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${enabled ? 'left-8' : 'left-1'} flex items-center justify-center`}>
+        {enabled && <Check size={12} className="text-purple-600" />}
+      </div>
     </button>
+  )
+}
+
+// Stat Card Component
+function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
+  return (
+    <div className="flex-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all group">
+      <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+        <Icon size={20} className="text-white" />
+      </div>
+      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-xs text-gray-400 mt-1">{label}</p>
+    </div>
   )
 }
 
@@ -41,307 +59,196 @@ export default function UserProfilePage({ user, onBack, onLogout }: UserProfileP
   const [profileData, setProfileData] = useState({
     name: user.name || '',
     email: user.email || '',
-    phone: '',
-    location: '',
-    bio: '',
-    website: ''
+    phone: '+91 XXXXX XXXXX',
+    location: 'Mumbai, India',
+    bio: 'AI Enthusiast | Building the future 🚀',
+    website: 'https://atul-portfolio-alpha.vercel.app/'
   })
 
-  // Privacy & Security settings
+  // Settings states
   const [privacySettings, setPrivacySettings] = useState({
     twoFactorAuth: false,
     hideOnlineStatus: true,
-    privateProfile: false,
-    showEmail: false
+    privateProfile: false
   })
 
-  // Notification settings
   const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
     pushNotifications: true,
-    chatMessages: true,
-    updates: true,
-    marketing: false
+    emailNotifications: true,
+    chatMessages: true
   })
 
-  // Theme & Display
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('dark')
-  
-  // Language
   const [language, setLanguage] = useState('en')
 
   const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'hi', name: 'हिंदी (Hindi)' },
-    { code: 'es', name: 'Español' },
-    { code: 'fr', name: 'Français' },
-    { code: 'de', name: 'Deutsch' },
-    { code: 'zh', name: '中文' },
-    { code: 'ja', name: '日本語' },
-    { code: 'ar', name: 'العربية' }
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' }
   ]
 
   const handleSave = () => {
     setIsEditing(false)
-    // Save to localStorage
     localStorage.setItem('nexus_profile', JSON.stringify(profileData))
   }
 
-  const handleCancel = () => {
-    setIsEditing(false)
-    // Reset to original
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/30 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/20 rounded-full blur-[100px] animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
+      </div>
+
       {/* Header */}
-      <div className="bg-black/30 backdrop-blur-sm border-b border-white/10 sticky top-0 z-50">
+      <div className="relative bg-black/30 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
             onClick={activeSettingsPanel ? () => setActiveSettingsPanel(null) : onBack}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-3 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95"
           >
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-xl font-bold">
-            {activeSettingsPanel === 'privacy' && 'Privacy & Security'}
-            {activeSettingsPanel === 'language' && 'Language & Region'}
-            {activeSettingsPanel === 'notifications' && 'Notifications'}
-            {!activeSettingsPanel && 'Profile'}
+          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            {activeSettingsPanel === 'privacy' && '🔒 Privacy & Security'}
+            {activeSettingsPanel === 'language' && '🌍 Language & Region'}
+            {activeSettingsPanel === 'notifications' && '🔔 Notifications'}
+            {!activeSettingsPanel && '⭐ My Profile'}
           </h1>
         </div>
       </div>
 
-      {/* Profile Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Content */}
+      <div className="relative max-w-4xl mx-auto px-4 py-8">
         
-        {/* ===== PRIVACY & SECURITY PANEL ===== */}
+        {/* ===== PRIVACY PANEL ===== */}
         {activeSettingsPanel === 'privacy' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-            {/* Account Security */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Lock size={20} className="text-blue-400" />
-                Account Security
-              </h3>
-              
-              <div className="space-y-4">
-                {/* Two-Factor Authentication */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Key size={18} className="text-green-400" />
-                    <div>
-                      <p className="font-medium">Two-Factor Authentication</p>
-                      <p className="text-xs text-gray-400">Add extra security to your account</p>
-                    </div>
-                  </div>
-                  <Toggle 
-                    enabled={privacySettings.twoFactorAuth} 
-                    onChange={(val) => setPrivacySettings({...privacySettings, twoFactorAuth: val})}
-                  />
+            {/* Security Card */}
+            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/5 backdrop-blur-xl rounded-3xl border border-blue-500/20 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Shield size={24} />
                 </div>
-
-                {/* Change Password */}
-                <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <Key size={18} className="text-yellow-400" />
-                    <div className="text-left">
-                      <p className="font-medium">Change Password</p>
-                      <p className="text-xs text-gray-400">Update your password regularly</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-white" />
-                </button>
-
-                {/* Active Sessions */}
-                <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <Shield size={18} className="text-purple-400" />
-                    <div className="text-left">
-                      <p className="font-medium">Active Sessions</p>
-                      <p className="text-xs text-gray-400">Manage where you're logged in</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-white" />
-                </button>
+                <div>
+                  <h3 className="text-lg font-bold">Account Security</h3>
+                  <p className="text-sm text-gray-400">Keep your account protected</p>
+                </div>
               </div>
-            </div>
-
-            {/* Privacy Options */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Eye size={20} className="text-cyan-400" />
-                Privacy Options
-              </h3>
               
-              <div className="space-y-4">
-                {/* Hide Online Status */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div>
-                    <p className="font-medium">Hide Online Status</p>
-                    <p className="text-xs text-gray-400">Others won't see when you're online</p>
+              <div className="space-y-3">
+                {[
+                  { icon: Key, title: 'Two-Factor Auth', desc: 'Add extra layer of security', setting: 'twoFactorAuth' as const },
+                  { icon: Eye, title: 'Hide Online Status', desc: 'Appear offline to others', setting: 'hideOnlineStatus' as const },
+                  { icon: Lock, title: 'Private Profile', desc: 'Only followers can see', setting: 'privateProfile' as const },
+                ].map(({ icon: Icon, title, desc, setting }) => (
+                  <div key={setting} className="flex items-center justify-between p-4 bg-black/20 rounded-2xl hover:bg-black/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <Icon size={18} className="text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-xs text-gray-400">{desc}</p>
+                      </div>
+                    </div>
+                    <Toggle 
+                      enabled={privacySettings[setting]} 
+                      onChange={(val) => setPrivacySettings({...privacySettings, [setting]: val})}
+                    />
                   </div>
-                  <Toggle 
-                    enabled={privacySettings.hideOnlineStatus} 
-                    onChange={(val) => setPrivacySettings({...privacySettings, hideOnlineStatus: val})}
-                  />
-                </div>
-
-                {/* Private Profile */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div>
-                    <p className="font-medium">Private Profile</p>
-                    <p className="text-xs text-gray-400">Only approved followers can see your profile</p>
-                  </div>
-                  <Toggle 
-                    enabled={privacySettings.privateProfile} 
-                    onChange={(val) => setPrivacySettings({...privacySettings, privateProfile: val})}
-                  />
-                </div>
-
-                {/* Show Email */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div>
-                    <p className="font-medium">Show Email Publicly</p>
-                    <p className="text-xs text-gray-400">Allow others to see your email address</p>
-                  </div>
-                  <Toggle 
-                    enabled={privacySettings.showEmail} 
-                    onChange={(val) => setPrivacySettings({...privacySettings, showEmail: val})}
-                  />
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Danger Zone */}
-            <div className="bg-red-500/10 backdrop-blur-sm rounded-2xl border border-red-500/30 p-6">
-              <h3 className="text-lg font-semibold text-red-400 mb-4">Danger Zone</h3>
-              
-              <div className="space-y-3">
-                <button className="w-full p-4 bg-red-500/20 hover:bg-red-500/30 rounded-xl transition-colors text-left">
-                  <p className="font-medium text-red-300">Deactivate Account</p>
-                  <p className="text-xs text-red-400/70">Temporarily disable your account</p>
+            <div className="bg-gradient-to-br from-red-500/10 to-orange-500/5 backdrop-blur-xl rounded-3xl border border-red-500/20 p-6">
+              <h3 className="font-bold text-red-400 mb-4">⚠️ Danger Zone</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <button className="p-4 bg-red-500/20 hover:bg-red-500/30 rounded-2xl transition-colors text-left">
+                  <p className="font-medium text-red-300">Deactivate</p>
+                  <p className="text-xs text-red-400/70 mt-1">Temporarily disable</p>
                 </button>
-                
-                <button className="w-full p-4 bg-red-500/20 hover:bg-red-500/30 rounded-xl transition-colors text-left">
+                <button className="p-4 bg-red-500/20 hover:bg-red-500/30 rounded-2xl transition-colors text-left">
                   <p className="font-medium text-red-300">Delete Account</p>
-                  <p className="text-xs text-red-400/70">Permanently delete your account and data</p>
+                  <p className="text-xs text-red-400/70 mt-1">Permanently remove</p>
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ===== LANGUAGE & REGION PANEL ===== */}
+        {/* ===== LANGUAGE PANEL ===== */}
         {activeSettingsPanel === 'language' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             {/* Language Selection */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Globe size={20} className="text-green-400" />
-                Language
-              </h3>
-              
-              <p className="text-sm text-gray-400 mb-4">Choose your preferred language</p>
+            <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 backdrop-blur-xl rounded-3xl border border-green-500/20 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                  <Globe size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Language</h3>
+                  <p className="text-sm text-gray-400">Choose your preferred language</p>
+                </div>
+              </div>
               
               <div className="space-y-2">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => setLanguage(lang.code)}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
                       language === lang.code 
-                        ? 'bg-purple-600/30 border border-purple-500' 
-                        : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                        ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 border border-green-500/50 scale-[1.02]' 
+                        : 'bg-black/20 hover:bg-black/30 border border-transparent'
                     }`}
                   >
-                    <span>{lang.name}</span>
+                    <span className="flex items-center gap-3 text-lg">
+                      <span>{lang.flag}</span>
+                      <span>{lang.name}</span>
+                    </span>
                     {language === lang.code && (
-                      <Check size={18} className="text-purple-400" />
+                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                        <Check size={14} />
+                      </div>
                     )}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Region Settings */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <MapPin size={20} className="text-red-400" />
-                Region Settings
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-gray-400 block mb-2">Timezone</label>
-                  <select className="w-full p-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:border-purple-500">
-                    <option value="IST" className="bg-slate-800">India Standard Time (IST)</option>
-                    <option value="UTC" className="bg-slate-800">Coordinated Universal Time (UTC)</option>
-                    <option value="EST" className="bg-slate-800">Eastern Time (EST)</option>
-                    <option value="PST" className="bg-slate-800">Pacific Time (PST)</option>
-                    <option value="GMT" className="bg-slate-800">Greenwich Mean Time (GMT)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm text-gray-400 block mb-2">Date Format</label>
-                  <select className="w-full p-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:border-purple-500">
-                    <option value="DD/MM/YYYY" className="bg-slate-800">DD/MM/YYYY</option>
-                    <option value="MM/DD/YYYY" className="bg-slate-800">MM/DD/YYYY</option>
-                    <option value="YYYY-MM-DD" className="bg-slate-800">YYYY-MM-DD</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm text-gray-400 block mb-2">Number Format</label>
-                  <select className="w-full p-3 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:border-purple-500">
-                    <option value="1,234.56" className="bg-slate-800">1,234.56 (International)</option>
-                    <option value="1.234,56" className="bg-slate-800">1.234,56 (European)</option>
-                    <option value="1 234.56" className="bg-slate-800">1 234.56 (French)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
             {/* Theme Selection */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                {theme === 'dark' ? <Moon size={20} className="text-indigo-400" /> : 
-                 theme === 'light' ? <Sun size={20} className="text-yellow-400" /> :
-                 <Monitor size={20} className="text-gray-400" />}
+            <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl rounded-3xl border border-purple-500/20 p-6">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Sparkles size={20} className="text-purple-400" />
                 Appearance
               </h3>
               
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  onClick={() => setTheme('light')}
-                  className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-colors ${
-                    theme === 'light' ? 'bg-yellow-500/30 border border-yellow-500' : 'bg-white/5 hover:bg-white/10'
-                  }`}
-                >
-                  <Sun size={24} className="text-yellow-400" />
-                  <span className="text-sm">Light</span>
-                </button>
-                
-                <button
-                  onClick={() => setTheme('dark')}
-                  className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-colors ${
-                    theme === 'dark' ? 'bg-indigo-500/30 border border-indigo-500' : 'bg-white/5 hover:bg-white/10'
-                  }`}
-                >
-                  <Moon size={24} className="text-indigo-400" />
-                  <span className="text-sm">Dark</span>
-                </button>
-                
-                <button
-                  onClick={() => setTheme('system')}
-                  className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-colors ${
-                    theme === 'system' ? 'bg-gray-500/30 border border-gray-500' : 'bg-white/5 hover:bg-white/10'
-                  }`}
-                >
-                  <Monitor size={24} className="text-gray-400" />
-                  <span className="text-sm">System</span>
-                </button>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { value: 'light' as const, icon: Sun, label: 'Light', color: 'from-yellow-500 to-orange-500' },
+                  { value: 'dark' as const, icon: Moon, label: 'Dark', color: 'from-indigo-500 to-purple-500' },
+                  { value: 'system' as const, icon: Monitor, label: 'System', color: 'from-gray-500 to-slate-500' },
+                ].map(({ value, icon: Icon, label, color }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    className={`p-5 rounded-2xl flex flex-col items-center gap-3 transition-all ${
+                      theme === value 
+                        ? `bg-gradient-to-br ${color} scale-105 shadow-lg` 
+                        : 'bg-black/20 hover:bg-black/30'
+                    }`}
+                  >
+                    <Icon size={28} />
+                    <span className="text-sm font-medium">{label}</span>
+                    {theme === value && (
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -350,342 +257,288 @@ export default function UserProfilePage({ user, onBack, onLogout }: UserProfileP
         {/* ===== NOTIFICATIONS PANEL ===== */}
         {activeSettingsPanel === 'notifications' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-            {/* Notification Preferences */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Bell size={20} className="text-orange-400" />
-                Notification Preferences
-              </h3>
-              
-              <div className="space-y-4">
-                {/* Push Notifications */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div>
-                    <p className="font-medium">Push Notifications</p>
-                    <p className="text-xs text-gray-400">Receive notifications on your device</p>
-                  </div>
-                  <Toggle 
-                    enabled={notificationSettings.pushNotifications} 
-                    onChange={(val) => setNotificationSettings({...notificationSettings, pushNotifications: val})}
-                  />
+            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 backdrop-blur-xl rounded-3xl border border-orange-500/20 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                  <Bell size={24} />
                 </div>
-
-                {/* Email Notifications */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div>
-                    <p className="font-medium">Email Notifications</p>
-                    <p className="text-xs text-gray-400">Receive updates via email</p>
-                  </div>
-                  <Toggle 
-                    enabled={notificationSettings.emailNotifications} 
-                    onChange={(val) => setNotificationSettings({...notificationSettings, emailNotifications: val})}
-                  />
+                <div>
+                  <h3 className="text-lg font-bold">Notifications</h3>
+                  <p className="text-sm text-gray-400">Manage how you get notified</p>
                 </div>
               </div>
-            </div>
-
-            {/* What to Notify About */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold mb-4">Notify Me About</h3>
               
-              <div className="space-y-4">
-                {/* Chat Messages */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Mail size={18} className="text-blue-400" />
-                    <div>
-                      <p className="font-medium">Chat Messages</p>
-                      <p className="text-xs text-gray-400">New messages from users</p>
+              <div className="space-y-3">
+                {[
+                  { icon: Bell, title: 'Push Notifications', desc: 'On your device', setting: 'pushNotifications' as const },
+                  { icon: Mail, title: 'Email Updates', desc: 'In your inbox', setting: 'emailNotifications' as const },
+                  { icon: MessageSquare, title: 'Chat Messages', desc: 'New conversations', setting: 'chatMessages' as const },
+                ].map(({ icon: Icon, title, desc, setting }) => (
+                  <div key={setting} className="flex items-center justify-between p-4 bg-black/20 rounded-2xl hover:bg-black/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <Icon size={18} className="text-orange-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-xs text-gray-400">{desc}</p>
+                      </div>
                     </div>
+                    <Toggle 
+                      enabled={notificationSettings[setting]} 
+                      onChange={(val) => setNotificationSettings({...notificationSettings, [setting]: val})}
+                    />
                   </div>
-                  <Toggle 
-                    enabled={notificationSettings.chatMessages} 
-                    onChange={(val) => setNotificationSettings({...notificationSettings, chatMessages: val})}
-                  />
-                </div>
-
-                {/* Updates */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Calendar size={18} className="text-green-400" />
-                    <div>
-                      <p className="font-medium">Product Updates</p>
-                      <p className="text-xs text-gray-400">New features and improvements</p>
-                    </div>
-                  </div>
-                  <Toggle 
-                    enabled={notificationSettings.updates} 
-                    onChange={(val) => setNotificationSettings({...notificationSettings, updates: val})}
-                  />
-                </div>
-
-                {/* Marketing */}
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Globe size={18} className="text-pink-400" />
-                    <div>
-                      <p className="font-medium">Marketing & Offers</p>
-                      <p className="text-xs text-gray-400">Promotional content and deals</p>
-                    </div>
-                  </div>
-                  <Toggle 
-                    enabled={notificationSettings.marketing} 
-                    onChange={(val) => setNotificationSettings({...notificationSettings, marketing: val})}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Do Not Disturb */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Bell size={20} className="text-gray-400" />
-                Do Not Disturb
-              </h3>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <button className="p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left">
-                  <p className="font-medium">Quiet Hours</p>
-                  <p className="text-xs text-gray-400">10 PM - 7 AM</p>
-                </button>
-                <button className="p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left">
-                  <p className="font-medium">Mute All</p>
-                  <p className="text-xs text-gray-400">Until I turn it back on</p>
-                </button>
+                ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* ===== MAIN PROFILE VIEW (when no settings panel active) ===== */}
+        {/* ===== MAIN PROFILE VIEW ===== */}
         {!activeSettingsPanel && (
           <>
-            {/* Avatar Section */}
-            <div className="flex flex-col items-center mb-8">
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 p-1">
-                  <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <User size={64} className="text-gray-400" />
-                    )}
-                  </div>
-                </div>
-                <button className="absolute bottom-0 right-0 p-2 bg-purple-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera size={16} />
+            {/* Profile Hero Section */}
+            <div className="relative mb-8">
+              {/* Cover Gradient */}
+              <div className="h-32 sm:h-40 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLTIuNC00LTQtNHM0CAzMCAwIDMwIDRtMC00YzAtMiAyLjQtNCA0LTRzNCAgMCAwIDRtMC00YzAtMiAyLjQtNCA0LTRzNCAwIDAgNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+                
+                {/* Edit Cover Button */}
+                <button className="absolute bottom-3 right-3 px-4 py-2 bg-black/30 backdrop-blur-sm rounded-xl text-sm hover:bg-black/50 transition-colors flex items-center gap-2">
+                  <Camera size={14} />
+                  Edit Cover
                 </button>
               </div>
-              
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={profileData.name}
-                  onChange={(e) => setProfileData({...profileData, name: e.target.value})}
-                  className="mt-4 text-2xl font-bold bg-transparent border-b-2 border-purple-500 text-center focus:outline-none"
-                />
-              ) : (
-                <h2 className="mt-4 text-2xl font-bold">{profileData.name}</h2>
-              )}
-              <p className="text-gray-400 mt-1">{profileData.email}</p>
+
+              {/* Avatar */}
+              <div className="relative -mt-16 sm:-mt-20 px-6">
+                <div className="relative inline-block group">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-1 shadow-2xl shadow-purple-500/30">
+                    <div className="w-full h-full rounded-[22px] bg-slate-800 flex items-center justify-center overflow-hidden">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={64} className="text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Avatar Edit Button */}
+                  <button className="absolute bottom-2 right-2 w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-lg">
+                    <Camera size={18} />
+                  </button>
+
+                  {/* Verified Badge */}
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Check size={16} />
+                  </div>
+                </div>
+
+                {/* Name & Info */}
+                <div className="mt-4">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                      className="text-2xl sm:text-3xl font-bold bg-transparent border-b-2 border-purple-500 focus:outline-none pb-1"
+                    />
+                  ) : (
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                      {profileData.name}
+                    </h2>
+                  )}
+                  
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-gray-400">@{profileData.name.toLowerCase().replace(/\s/g, '')}</p>
+                    <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">PRO</span>
+                  </div>
+                  
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                      className="mt-2 text-sm text-gray-400 bg-transparent border-b border-white/20 focus:outline-none"
+                    />
+                  ) : (
+                    <p className="mt-2 text-sm text-gray-400 flex items-center gap-2">
+                      <Mail size={14} />
+                      {profileData.email}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Profile Info Card */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <User size={20} className="text-purple-400" />
-                  Personal Information
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <StatCard icon={Briefcase} label="Projects" value="12" color="bg-gradient-to-br from-blue-500 to-cyan-500" />
+              <StatCard icon={Users} label="Followers" value="1.2K" color="bg-gradient-to-br from-purple-500 to-pink-500" />
+              <StatCard icon={Heart} label="Likes" value="8.5K" color="bg-gradient-to-br from-red-500 to-pink-500" />
+            </div>
+
+            {/* Bio Section */}
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold flex items-center gap-2">
+                  <FileText size={18} className="text-purple-400" />
+                  About Me
                 </h3>
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-sm font-medium shadow-lg shadow-purple-500/25"
                   >
-                    <Edit3 size={16} />
-                    Edit
+                    <Edit3 size={14} />
+                    Edit Profile
                   </button>
                 ) : (
                   <div className="flex gap-2">
                     <button
                       onClick={handleSave}
-                      className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"
+                      className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-sm font-medium"
                     >
-                      <Save size={16} />
+                      <Save size={14} />
                       Save
                     </button>
                     <button
-                      onClick={handleCancel}
-                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+                      onClick={() => setIsEditing(false)}
+                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all flex items-center gap-2 text-sm"
                     >
-                      <X size={16} />
+                      <X size={14} />
                       Cancel
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Info Fields */}
-              <div className="space-y-4">
-                {/* Email */}
-                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
-                  <Mail size={20} className="text-blue-400" />
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-400">Email</label>
-                    {isEditing ? (
-                      <input
-                        type="email"
-                        value={profileData.email}
-                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                        className="w-full bg-transparent focus:outline-none"
-                      />
-                    ) : (
-                      <p>{profileData.email}</p>
-                    )}
-                  </div>
-                </div>
+              {/* Bio Text */}
+              {isEditing ? (
+                <textarea
+                  value={profileData.bio}
+                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                  placeholder="Tell us about yourself..."
+                  rows={3}
+                  className="w-full bg-black/20 border border-white/10 rounded-xl p-3 focus:outline-none focus:border-purple-500 resize-none"
+                />
+              ) : (
+                <p className="text-gray-300 leading-relaxed">{profileData.bio}</p>
+              )}
 
-                {/* Phone */}
-                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
-                  <Phone size={20} className="text-green-400" />
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-400">Phone</label>
-                    {isEditing ? (
-                      <input
-                        type="tel"
-                        value={profileData.phone}
-                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                        placeholder="Add phone number"
-                        className="w-full bg-transparent focus:outline-none placeholder:text-gray-500"
-                      />
-                    ) : (
-                      <p className="text-gray-400">{profileData.phone || 'Not added'}</p>
-                    )}
-                  </div>
-                </div>
-
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                 {/* Location */}
-                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
-                  <MapPin size={20} className="text-red-400" />
+                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+                    <MapPin size={18} className="text-red-400" />
+                  </div>
                   <div className="flex-1">
-                    <label className="text-xs text-gray-400">Location</label>
+                    <label className="text-xs text-gray-500">Location</label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={profileData.location}
                         onChange={(e) => setProfileData({...profileData, location: e.target.value})}
-                        placeholder="Add location"
-                        className="w-full bg-transparent focus:outline-none placeholder:text-gray-500"
+                        className="w-full bg-transparent focus:outline-none text-sm"
                       />
                     ) : (
-                      <p className="text-gray-400">{profileData.location || 'Not added'}</p>
+                      <p className="text-sm font-medium">{profileData.location}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl">
+                  <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                    <Phone size={18} className="text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Phone</label>
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                        className="w-full bg-transparent focus:outline-none text-sm"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium">{profileData.phone}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Website */}
-                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
-                  <Globe size={20} className="text-cyan-400" />
+                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl sm:col-span-2">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                    <Link2 size={18} className="text-cyan-400" />
+                  </div>
                   <div className="flex-1">
-                    <label className="text-xs text-gray-400">Website</label>
+                    <label className="text-xs text-gray-500">Website</label>
                     {isEditing ? (
                       <input
                         type="url"
                         value={profileData.website}
                         onChange={(e) => setProfileData({...profileData, website: e.target.value})}
-                        placeholder="Add website"
-                        className="w-full bg-transparent focus:outline-none placeholder:text-gray-500"
+                        className="w-full bg-transparent focus:outline-none text-sm"
                       />
                     ) : (
-                      <p className="text-gray-400">{profileData.website || 'Not added'}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Bio */}
-                <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-                  <Calendar size={20} className="text-yellow-400 mt-1" />
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-400">Bio</label>
-                    {isEditing ? (
-                      <textarea
-                        value={profileData.bio}
-                        onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
-                        placeholder="Tell us about yourself"
-                        rows={3}
-                        className="w-full bg-transparent focus:outline-none placeholder:text-gray-500 resize-none"
-                      />
-                    ) : (
-                      <p className="text-gray-400">{profileData.bio || 'No bio yet'}</p>
+                      <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors">
+                        {profileData.website.replace('https://', '')}
+                      </a>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Settings Section */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Settings size={20} className="text-purple-400" />
-                Settings
+            {/* Settings Cards */}
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 mb-6">
+              <h3 className="font-bold flex items-center gap-2 mb-4">
+                <Settings size={18} className="text-purple-400" />
+                Quick Settings
               </h3>
               
               <div className="space-y-3">
-                {/* Privacy & Security */}
-                <button 
-                  onClick={() => setActiveSettingsPanel('privacy')}
-                  className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group"
-                >
-                  <span className="flex items-center gap-3">
-                    <Shield size={18} className="text-blue-400" />
-                    <div className="text-left">
-                      <p className="font-medium">Privacy & Security</p>
-                      <p className="text-xs text-gray-400">Password, 2FA, visibility</p>
-                    </div>
-                  </span>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-white" />
-                </button>
-                
-                {/* Language & Region */}
-                <button 
-                  onClick={() => setActiveSettingsPanel('language')}
-                  className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group"
-                >
-                  <span className="flex items-center gap-3">
-                    <Globe size={18} className="text-green-400" />
-                    <div className="text-left">
-                      <p className="font-medium">Language & Region</p>
-                      <p className="text-xs text-gray-400">English, timezone, format</p>
-                    </div>
-                  </span>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-white" />
-                </button>
-                
-                {/* Notifications */}
-                <button 
-                  onClick={() => setActiveSettingsPanel('notifications')}
-                  className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group"
-                >
-                  <span className="flex items-center gap-3">
-                    <Bell size={18} className="text-orange-400" />
-                    <div className="text-left">
-                      <p className="font-medium">Notifications</p>
-                      <p className="text-xs text-gray-400">Push, email, preferences</p>
-                    </div>
-                  </span>
-                  <ChevronRight size={18} className="text-gray-400 group-hover:text-white" />
-                </button>
+                {[
+                  { id: 'privacy', icon: Shield, title: 'Privacy & Security', desc: 'Password, 2FA, visibility', gradient: 'from-blue-500 to-cyan-500' },
+                  { id: 'language', icon: Globe, title: 'Language & Region', desc: 'English, timezone, theme', gradient: 'from-green-500 to-emerald-500' },
+                  { id: 'notifications', icon: Bell, title: 'Notifications', desc: 'Push, email preferences', gradient: 'from-orange-500 to-amber-500' },
+                ].map(({ id, icon: Icon, title, desc, gradient }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveSettingsPanel(id)}
+                    className="w-full flex items-center justify-between p-4 bg-black/20 hover:bg-black/30 rounded-2xl transition-all group hover:scale-[1.02]"
+                  >
+                    <span className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                        <Icon size={20} />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-xs text-gray-400">{desc}</p>
+                      </div>
+                    </span>
+                    <ChevronRight size={20} className="text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-transform" />
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Logout Button */}
             <button
               onClick={onLogout}
-              className="w-full p-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-2xl transition-colors flex items-center justify-center gap-2 text-red-400"
+              className="w-full p-5 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/30 hover:to-pink-500/30 border border-red-500/30 hover:border-red-500/50 rounded-3xl transition-all flex items-center justify-center gap-3 text-red-400 hover:text-red-300 font-medium group hover:scale-[1.02] active:scale-[0.98]"
             >
-              <LogOut size={20} />
-              Logout
+              <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
+              Sign Out
             </button>
+
+            {/* Version Info */}
+            <p className="text-center text-xs text-gray-600 mt-6">
+              Nexus AI v2.0 • Made with ❤️
+            </p>
           </>
         )}
       </div>
