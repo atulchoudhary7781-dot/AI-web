@@ -89,6 +89,23 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Profile & Settings pages - no cache (always show fresh content)
+      {
+        source: '/profile',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+        ],
+      },
+      {
+        source: '/settings',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+        ],
+      },
       // API routes - no cache
       {
         source: '/api/(.*)',

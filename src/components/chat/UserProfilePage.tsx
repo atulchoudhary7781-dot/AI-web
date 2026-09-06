@@ -1,15 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import {
-  User, Mail, Camera, Save, X, CheckCircle,
-  MapPin, Phone, Globe, Edit3, Sparkles,
-  Calendar, MessageSquare, Settings, LogOut,
-  ChevronLeft, Shield, Award, Zap, Upload,
-  Download, Crown, Star, Clock, RefreshCw,
-  CreditCard, Check, AlertCircle,
-  Lock, Key, ShieldCheck, ExternalLink, Database, Heart
+  User, Mail, Camera, Save, X,
+  MapPin, Phone, Globe, Edit3,
+  Calendar, Settings, LogOut,
+  ChevronLeft, Shield, ChevronRight,
+  Bell, Lock, Key, Eye, Moon,
+  Sun, Monitor, Check, Star,
+  Award, Zap, Sparkles,
+  Link2, FileText, MessageSquare
 } from 'lucide-react'
 
 // Types
@@ -23,1625 +23,493 @@ interface UserProfileProps {
   onLogout?: () => void
 }
 
-interface SubscriptionPlan {
-  id: 'free' | 'normal' | 'pro'
-  name: string
-  price: number
-  period: string
-  features: string[]
-  popular?: boolean
-  color: string
-  gradient: string
-  locked?: boolean
-  lockMessage?: string
+// Animated Toggle Component
+function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (val: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!enabled)}
+      className={`relative w-14 h-7 rounded-full transition-all duration-300 ${enabled ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30' : 'bg-slate-700'}`}
+    >
+      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${enabled ? 'left-8' : 'left-1'} flex items-center justify-center`}>
+        {enabled && <Check size={12} className="text-purple-600" />}
+      </div>
+    </button>
+  )
 }
 
-// Subscription Plans Data - FREE ONLY AVAILABLE
-const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    period: 'forever',
-    features: [
-      '10 chats per day',
-      'Basic AI responses',
-      'Community support',
-      'Chat history (7 days)',
-      'Access to all basic features',
-      'Regular model updates'
-    ],
-    color: 'text-green-400',
-    gradient: 'from-green-500 to-emerald-600',
-    locked: false,
-    popular: true // Free is now the popular one!
-  },
-  {
-    id: 'normal',
-    name: 'Normal',
-    price: 10,
-    period: 'month',
-    features: [
-      'Unlimited chats',
-      'Advanced AI models',
-      'Priority support',
-      'Chat history (30 days)',
-      'File attachments',
-      'Export data'
-    ],
-    popular: false,
-    color: 'text-gray-500',
-    gradient: 'from-gray-600 to-gray-700',
-    locked: true,
-    lockMessage: '🔒 Locked - Coming Soon'
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 20,
-    period: 'month',
-    features: [
-      'Everything in Normal',
-      'GPT-4 & Claude access',
-      'Image generation',
-      'Voice conversations',
-      'API access',
-      'Custom AI training',
-      'Priority queue',
-      'Dedicated support'
-    ],
-    color: 'text-gray-500',
-    gradient: 'from-gray-600 to-gray-700',
-    locked: true,
-    lockMessage: '🔒 Locked - Coming Soon'
-  }
-]
-
-export default function UserProfilePage({ user: initialUser, onBack, onLogout }: UserProfileProps) {
-  const [user, setUser] = useState(initialUser)
+export default function UserProfilePage({ user, onBack, onLogout }: UserProfileProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [activeTab, setActiveTab] = useState<'profile' | 'subscription' | 'settings'>('profile')
+  const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null)
   
-  // Form states
-  const [name, setName] = useState(initialUser.name || '')
-  const [email] = useState(initialUser.email || '')
-  const [avatar, setAvatar] = useState(initialUser.avatar || '')
-  const [bio, setBio] = useState('')
-  const [phone, setPhone] = useState('')
-  const [location, setLocation] = useState('')
-  const [website, setWebsite] = useState('')
+  // Profile state
+  const [profileData, setProfileData] = useState({
+    name: user.name || '',
+    email: user.email || '',
+    phone: '+91 XXXXX XXXXX',
+    location: 'Mumbai, India',
+    bio: 'AI Enthusiast | Building the future 🚀',
+    website: 'https://atul-portfolio-alpha.vercel.app/'
+  })
 
-  // Subscription state
-  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
-  const [chatCountToday, setChatCountToday] = useState(0)
-  const [maxChatsForPlan, setMaxChatsForPlan] = useState(10)
-  const [chatResetTime, setChatResetTime] = useState<string>('12:00 AM')
+  // Settings states
+  const [privacySettings, setPrivacySettings] = useState({
+    twoFactorAuth: false,
+    hideOnlineStatus: true,
+    privateProfile: false
+  })
 
-  // States for various actions
-  const [isExporting, setIsExporting] = useState(false)
-  const [isImporting, setIsImporting] = useState(false)
-  const [isSyncingGmail, setIsSyncingGmail] = useState(false)
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
-  const [isSendingVerification, setIsSendingVerification] = useState(false)
-  const [emailVerified, setEmailVerified] = useState(false)
+  const [notificationSettings, setNotificationSettings] = useState({
+    pushNotifications: true,
+    emailNotifications: true,
+    chatMessages: true
+  })
 
-  const router = useRouter()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const importInputRef = useRef<HTMLInputElement>(null)
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('dark')
+  const [language, setLanguage] = useState('en')
 
-  // Load data on mount
-  useEffect(() => {
-    // Load user data
-    const savedUser = localStorage.getItem('nexus_user')
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser)
-        setUser(parsedUser)
-        setName(parsedUser.name || '')
-        setAvatar(parsedUser.avatar || '')
-      } catch (e) {
-        console.error('Error parsing user data:', e)
-      }
-    }
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' }
+  ]
 
-    // Load profile data
-    const savedProfile = localStorage.getItem('nexus_profile')
-    if (savedProfile) {
-      try {
-        const profile = JSON.parse(savedProfile)
-        setBio(profile.bio || '')
-        setPhone(profile.phone || '')
-        setLocation(profile.location || '')
-        setWebsite(profile.website || '')
-      } catch (e) {
-        console.error('Error parsing profile data:', e)
-      }
-    }
-
-    // Load subscription data
-    loadSubscriptionData()
-    loadChatCountForToday()
-
-    // Load verification status
-    const savedVerified = localStorage.getItem('nexus_email_verified')
-    setEmailVerified(savedVerified === 'true')
-
-    // Check URL params
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('success') === 'true') {
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
-      window.history.replaceState({}, '', window.location.pathname)
-    }
-  }, [])
-
-  // Helper functions
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'long', day: 'numeric'
-    })
-  }
-
-  const loadSubscriptionData = () => {
-    try {
-      const savedSubscription = localStorage.getItem('nexus_subscription')
-      if (savedSubscription) {
-        const subscription = JSON.parse(savedSubscription)
-        setCurrentPlan(subscription.plan || 'free')
-      }
-      
-      const savedChatCount = localStorage.getItem('nexus_chat_count_today')
-      if (savedChatCount) {
-        setChatCountToday(parseInt(savedChatCount, 10))
-      }
-    } catch (e) {
-      console.error('Error loading subscription data:', e)
-    }
-  }
-
-  const loadChatCountForToday = () => {
-    try {
-      const savedDate = localStorage.getItem('nexus_chat_count_date')
-      const today = new Date().toDateString()
-
-      if (savedDate === today) {
-        const count = localStorage.getItem('nexus_chat_count_today')
-        setChatCountToday(count ? parseInt(count, 10) : 0)
-      } else {
-        localStorage.setItem('nexus_chat_count_date', today)
-        localStorage.setItem('nexus_chat_count_today', '0')
-        setChatCountToday(0)
-      }
-    } catch (e) {
-      console.error('Error loading chat count:', e)
-    }
-  }
-
-  // Avatar upload handler
-  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setIsLoading(true)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        setAvatar(result)
-        const updatedUser = { ...user, avatar: result }
-        setUser(updatedUser)
-        localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
-        setIsLoading(false)
-        setShowSuccess(true)
-        setTimeout(() => setShowSuccess(false), 3000)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleRemoveAvatar = () => {
-    setAvatar('')
-    const updatedUser = { ...user, avatar: undefined }
-    setUser(updatedUser)
-    localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
-  }
-
-  // Save profile
-  const handleSaveProfile = async () => {
-    setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    const updatedUser = { ...user, name, avatar }
-    setUser(updatedUser)
-    localStorage.setItem('nexus_user', JSON.stringify(updatedUser))
-    
-    const profileData = { bio, phone, location, website }
+  const handleSave = () => {
+    setIsEditing(false)
     localStorage.setItem('nexus_profile', JSON.stringify(profileData))
-    
-    setIsLoading(false)
-    setIsEditing(false)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
   }
-
-  const handleCancelEdit = () => {
-    setName(user.name || '')
-    setAvatar(user.avatar || '')
-    setIsEditing(false)
-    
-    const savedProfile = localStorage.getItem('nexus_profile')
-    if (savedProfile) {
-      try {
-        const profile = JSON.parse(savedProfile)
-        setBio(profile.bio || '')
-        setPhone(profile.phone || '')
-        setLocation(profile.location || '')
-        setWebsite(profile.website || '')
-      } catch (e) {}
-    }
-  }
-
-  // Upgrade plan
-  const handleUpgrade = async (planId: string) => {
-    if (planId === 'free') return
-    setIsProcessingPayment(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    alert(`Redirecting to checkout for ${planId.toUpperCase()} plan...`)
-    setIsProcessingPayment(false)
-  }
-
-  // Export data
-  const handleExportData = async () => {
-    setIsExporting(true)
-    try {
-      const userData = {
-        user: localStorage.getItem('nexus_user'),
-        profile: localStorage.getItem('nexus_profile'),
-        chatHistory: localStorage.getItem('nexus_chat_history'),
-        exportDate: new Date().toISOString()
-      }
-      
-      const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `nexus-export-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
-    } catch (error) {
-      console.error('Export failed:', error)
-      alert('Export failed. Please try again.')
-    }
-    setIsExporting(false)
-  }
-
-  // Import data
-  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    
-    setIsImporting(true)
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string)
-        if (!data.user) throw new Error('Invalid format')
-        
-        if (data.user) localStorage.setItem('nexus_user', data.user)
-        if (data.profile) localStorage.setItem('nexus_profile', data.profile)
-        if (data.chatHistory) localStorage.setItem('nexus_chat_history', data.chatHistory)
-        
-        window.location.reload()
-      } catch (error) {
-        console.error('Import failed:', error)
-        alert('Import failed. Please check the file format.')
-      }
-      setIsImporting(false)
-    }
-    reader.readAsText(file)
-  }
-
-  // Gmail sync
-  const handleSyncGmail = async () => {
-    setIsSyncingGmail(true)
-    await new Promise(resolve => setTimeout(resolve, 3000))
-    setIsSyncingGmail(false)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-  }
-
-  // Send verification email
-  const handleSendVerification = async () => {
-    setIsSendingVerification(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsSendingVerification(false)
-    alert('Verification email sent! Please check your inbox.')
-  }
-
-  // Delete account
-  const handleDeleteAccount = () => {
-    if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
-      localStorage.clear()
-      if (onLogout) onLogout()
-      router.push('/')
-    }
-  }
-
-  // Clear history
-  const handleClearHistory = () => {
-    if (confirm('Are you sure you want to clear all chat history?')) {
-      localStorage.removeItem('nexus_chat_history')
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 3000)
-    }
-  }
-
-  const chatLimitPercentage = maxChatsForPlan === Infinity ? 100 : (chatCountToday / maxChatsForPlan) * 100
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #030712, #111827, #000000)',
-      color: '#ffffff',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
-      
-      {/* Success Toast */}
-      {showSuccess && (
-        <div style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          zIndex: 9999,
-          background: 'rgba(34, 197, 94, 0.2)',
-          border: '1px solid rgba(34, 197, 94, 0.3)',
-          backdropFilter: 'blur(12px)',
-          borderRadius: '12px',
-          padding: '16px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 8px 32px rgba(34, 197, 94, 0.2)'
-        }}>
-          <CheckCircle size={20} className="text-green-400" />
-          <span style={{ color: '#86efac', fontWeight: 500 }}>Action completed successfully!</span>
-        </div>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/30 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/20 rounded-full blur-[100px] animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
+      </div>
 
-      {/* ===== HEADER ===== */}
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        background: 'rgba(3, 7, 18, 0.95)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(55, 65, 81, 0.5)',
-        padding: '16px'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px'
-        }}>
-          {/* Back Button */}
+      {/* Header */}
+      <div className="relative bg-black/30 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
-            onClick={onBack}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: '#9ca3af',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 500,
-              padding: '8px 12px',
-              borderRadius: '8px',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.background = 'rgba(75, 85, 99, 0.3)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.background = 'transparent' }}
+            onClick={activeSettingsPanel ? () => setActiveSettingsPanel(null) : onBack}
+            className="p-3 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95"
           >
-            <ChevronLeft size={18} />
-            <span>Back</span>
+            <ChevronLeft size={24} />
           </button>
-
-          {/* Title - Centered */}
-          <h1 style={{
-            fontSize: '20px',
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #22d3ee, #a855f7)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            margin: 0,
-            position: window.innerWidth > 768 ? 'relative' : 'absolute',
-            left: window.innerWidth > 768 ? 'auto' : '50%',
-            transform: window.innerWidth > 768 ? 'none' : 'translateX(-50%)'
-          }}>
-            My Profile
+          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            {activeSettingsPanel === 'privacy' && '🔒 Privacy & Security'}
+            {activeSettingsPanel === 'language' && '🌍 Language & Region'}
+            {activeSettingsPanel === 'notifications' && '🔔 Notifications'}
+            {!activeSettingsPanel && '⭐ My Profile'}
           </h1>
-
-          {/* Edit/Cancel Button */}
-          {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
-                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#000000',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-            >
-              <Edit3 size={16} />
-              <span>Edit</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleCancelEdit}
-              style={{
-                padding: '8px 16px',
-                background: 'transparent',
-                border: '1px solid #4b5563',
-                borderRadius: '8px',
-                color: '#d1d5db',
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(75, 85, 99, 0.3)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              Cancel
-            </button>
-          )}
         </div>
-      </header>
+      </div>
 
-      {/* ===== MAIN CONTENT ===== */}
-      <main style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        padding: '24px 16px',
-        paddingBottom: '80px'
-      }}>
+      {/* Content */}
+      <div className="relative max-w-4xl mx-auto px-4 py-8">
         
-        {/* Chat Limit Banner */}
-        {currentPlan === 'free' && (
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1))',
-            border: '1px solid rgba(6, 182, 212, 0.2)',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '24px'
-          }}>
-            <div style={{
-              display: 'flex',
-              flexDirection: window.innerWidth > 640 ? 'row' : 'column',
-              alignItems: window.innerWidth > 640 ? 'center' : 'flex-start',
-              justifyContent: 'space-between',
-              gap: '12px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Clock size={18} className="text-cyan-400" style={{ animation: 'pulse 2s infinite' }} />
-                <span style={{ color: '#67e8f9', fontSize: '14px' }}>
-                  Daily Chat Limit: <strong>{chatCountToday}/{maxChatsForPlan}</strong> chats used
-                </span>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '12px',
-                width: window.innerWidth > 640 ? 'auto' : '100%'
-              }}>
-                <div style={{ 
-                  flex: 1,
-                  height: '8px',
-                  background: '#1f2937',
-                  borderRadius: '4px',
-                  overflow: 'hidden',
-                  width: window.innerWidth > 640 ? '128px' : '100%'
-                }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${Math.min(chatLimitPercentage, 100)}%`,
-                    background: chatLimitPercentage >= 90 ? '#ef4444' : chatLimitPercentage >= 70 ? '#eab308' : 'linear-gradient(90deg, #06b6d4, #a855f7)',
-                    transition: 'width 0.3s ease',
-                    borderRadius: '4px'
-                  }} />
+        {/* ===== PRIVACY PANEL ===== */}
+        {activeSettingsPanel === 'privacy' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            {/* Security Card */}
+            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/5 backdrop-blur-xl rounded-3xl border border-blue-500/20 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Shield size={24} />
                 </div>
-                <span style={{ fontSize: '12px', color: '#9ca3af' }}>Resets: {chatResetTime}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ===== PROFILE CARD ===== */}
-        <div style={{
-          background: 'rgba(17, 24, 39, 0.6)',
-          border: '1px solid rgba(55, 65, 81, 0.5)',
-          borderRadius: '16px',
-          padding: window.innerWidth > 768 ? '32px' : '24px',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
-            alignItems: window.innerWidth > 768 ? 'flex-start' : 'center',
-            gap: '24px',
-            textAlign: window.innerWidth > 768 ? 'left' : 'center'
-          }}>
-            
-            {/* Avatar Section */}
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <div style={{
-                width: window.innerWidth > 768 ? '128px' : '96px',
-                height: window.innerWidth > 768 ? '128px' : '96px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
-                padding: '3px'
-              }}>
-                <div style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: '50%',
-                  overflow: 'hidden',
-                  background: '#1f2937',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {avatar ? (
-                    <img src={avatar} alt={name || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ fontSize: window.innerWidth > 736 ? '32px' : '24px', fontWeight: 700, color: '#22d3ee' }}>
-                      {getInitials(name || 'U')}
-                    </span>
-                  )}
+                <div>
+                  <h3 className="text-lg font-bold">Account Security</h3>
+                  <p className="text-sm text-gray-400">Keep your account protected</p>
                 </div>
               </div>
               
-              {/* Online Status */}
-              <span style={{
-                position: 'absolute',
-                bottom: '4px',
-                right: '4px',
-                width: '16px',
-                height: '16px',
-                backgroundColor: '#22c55e',
-                borderRadius: '50%',
-                border: '3px solid #111827'
-              }} />
-
-              {/* Edit Avatar Overlay */}
-              {isEditing && (
-                <>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: window.innerWidth > 768 ? '128px' : '96px',
-                      height: window.innerWidth > 768 ? '128px' : '96px',
-                      borderRadius: '50%',
-                      background: 'rgba(0, 0, 0, 0.6)',
-                      opacity: 0,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'opacity 0.2s',
-                      border: 'none',
-                      padding: 0
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
-                  >
-                    <Camera size={28} color="white" />
-                  </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
-                </>
-              )}
-
-              {/* Remove Avatar Button */}
-              {isEditing && avatar && (
-                <button
-                  onClick={handleRemoveAvatar}
-                  style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '-8px',
-                    width: '28px',
-                    height: '28px',
-                    background: '#ef4444',
-                    borderRadius: '50%',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)'
-                  }}
-                >
-                  <X size={14} color="white" />
-                </button>
-              )}
-            </div>
-
-            {/* User Info */}
-            <div style={{ flex: 1 }}>
-              {isEditing ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
-                    style={{
-                      width: '100%',
-                      background: '#1f2937',
-                      border: '1px solid #374151',
-                      borderRadius: '8px',
-                      padding: '12px 16px',
-                      color: '#ffffff',
-                      fontSize: '16px',
-                      outline: 'none'
-                    }}
-                    onFocus={(e) => { e.target.style.borderColor = '#06b6d4'; e.target.style.boxShadow = '0 0 0 3px rgba(6, 182, 212, 0.2)' }}
-                    onBlur={(e) => { e.target.style.borderColor = '#374151'; e.target.style.boxShadow = 'none' }}
-                  />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '14px' }}>
-                    <Mail size={16} />
-                    <span>{email}</span>
-                    {emailVerified && <CheckCircle size={16} className="text-green-400" />}
-                  </div>
-                  
-                  {/* Additional Fields in Edit Mode */}
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: window.innerWidth > 640 ? 'repeat(3, 1fr)' : '1fr',
-                    gap: '12px',
-                    paddingTop: '16px',
-                    borderTop: '1px solid #374151'
-                  }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Bio</label>
-                      <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        placeholder="Tell us about yourself..."
-                        rows={2}
-                        style={{
-                          width: '100%',
-                          background: '#1f2937',
-                          border: '1px solid #374151',
-                          borderRadius: '8px',
-                          padding: '8px 12px',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          resize: 'none',
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Phone</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+1 234 567 890"
-                        style={{
-                          width: '100%',
-                          background: '#1f2937',
-                          border: '1px solid #374151',
-                          borderRadius: '8px',
-                          padding: '8px 12px',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Location</label>
-                      <input
-                        type="text"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="City, Country"
-                        style={{
-                          width: '100%',
-                          background: '#1f2937',
-                          border: '1px solid #374151',
-                          borderRadius: '8px',
-                          padding: '8px 12px',
-                          color: '#ffffff',
-                          fontSize: '14px',
-                          outline: 'none'
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Save Button */}
-                  <button
-                    onClick={handleSaveProfile}
-                    disabled={isLoading}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      padding: '12px 24px',
-                      background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: '#000000',
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      opacity: isLoading ? 0.7 : 1,
-                      alignSelf: 'flex-start'
-                    }}
-                  >
-                    {isLoading ? (
-                      <><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</>
-                    ) : (
-                      <><Save size={16} /> Save Changes</>
-                    )}
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {/* Name & Badge */}
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
-                    gap: '12px',
-                    flexWrap: 'wrap'
-                  }}>
-                    <h2 style={{ margin: 0, fontSize: window.innerWidth > 768 ? '28px' : '24px', fontWeight: 700, color: '#ffffff' }}>
-                      {name || 'User'}
-                    </h2>
-                    <span style={{
-                      padding: '4px 12px',
-                      borderRadius: '9999px',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      background: currentPlan === 'pro' ? 'rgba(234, 179, 8, 0.2)' : currentPlan === 'normal' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(107, 114, 128, 0.2)',
-                      color: currentPlan === 'pro' ? '#fbbf24' : currentPlan === 'normal' ? '#22d3ee' : '#9ca3af'
-                    }}>
-                      {currentPlan.toUpperCase()}
-                    </span>
-                  </div>
-                  
-                  {/* Email */}
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
-                    gap: '8px', 
-                    color: '#9ca3af', 
-                    fontSize: '14px' 
-                  }}>
-                    <Mail size={16} />
-                    <span>{email}</span>
-                    {emailVerified ? (
-                      <CheckCircle size={16} className="text-green-400" />
-                    ) : (
-                      <button
-                        onClick={handleSendVerification}
-                        disabled={isSendingVerification}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#22d3ee',
-                          cursor: isSendingVerification ? 'not-allowed' : 'pointer',
-                          fontSize: '12px',
-                          textDecoration: 'underline',
-                          padding: 0
-                        }}
-                      >
-                        {isSendingVerification ? 'Sending...' : 'Verify'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Bio */}
-                  {bio && (
-                    <p style={{ margin: '8px 0 0', color: '#d1d5db', fontSize: '14px', maxWidth: '400px' }}>
-                      {bio}
-                    </p>
-                  )}
-
-                  {/* Additional Info */}
-                  <div style={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap',
-                    alignItems: 'center', 
-                    justifyContent: window.innerWidth > 768 ? 'flex-start' : 'center',
-                    gap: '16px', 
-                    fontSize: '12px', 
-                    color: '#6b7280',
-                    marginTop: '8px'
-                  }}>
-                    {phone && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Phone size={12} /> {phone}
-                      </span>
-                    )}
-                    {location && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <MapPin size={12} /> {location}
-                      </span>
-                    )}
-                    {website && (
-                      <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer"
-                         style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', textDecoration: 'none' }}
-                         onMouseEnter={(e) => e.currentTarget.style.color = '#22d3ee'}
-                         onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}>
-                        <Globe size={12} /> Website
-                      </a>
-                    )}
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar size={12} /> Joined {formatDate(new Date().toISOString())}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ===== TABS NAVIGATION ===== */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          padding: '4px',
-          background: 'rgba(17, 24, 39, 0.6)',
-          border: '1px solid rgba(55, 65, 81, 0.5)',
-          borderRadius: '12px',
-          marginBottom: '24px'
-        }}>
-          {[
-            { id: 'profile' as const, label: 'Profile', icon: User },
-            { id: 'subscription' as const, label: 'Subscription', icon: Crown },
-            { id: 'settings' as const, label: 'Settings', icon: Settings }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '12px 16px',
-                background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))' : 'transparent',
-                border: activeTab === tab.id ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent',
-                borderRadius: '8px',
-                color: activeTab === tab.id ? '#22d3ee' : '#9ca3af',
-                fontSize: '14px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'rgba(55, 65, 81, 0.3)' }}
-              onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.background = 'transparent' }}
-            >
-              <tab.icon size={16} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* ===== TAB CONTENT ===== */}
-
-        {/* PROFILE TAB CONTENT */}
-        {activeTab === 'profile' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* Stats Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: window.innerWidth > 640 ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
-              gap: '16px'
-            }}>
-              {[
-                { icon: MessageSquare, value: chatCountToday.toString(), label: 'Chats Today', color: '#22d3ee' },
-                { icon: Calendar, value: currentPlan === 'free' ? '10' : '∞', label: 'Daily Limit', color: '#a855f7' },
-                { icon: Award, value: currentPlan.toUpperCase(), label: 'Current Plan', color: '#fbbf24' },
-                { icon: ShieldCheck, value: emailVerified ? 'Yes' : 'No', label: 'Verified', color: '#22c55e' }
-              ].map((stat, idx) => (
-                <div key={idx} style={{
-                  background: 'rgba(17, 24, 39, 0.6)',
-                  border: '1px solid rgba(55, 65, 81, 0.5)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'center'
-                }}>
-                  <stat.icon size={24} style={{ color: stat.color, margin: '0 auto 8px' }} />
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>{stat.value}</div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>{stat.label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Account Details */}
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.6)',
-              border: '1px solid rgba(55, 65, 81, 0.5)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Database size={20} style={{ color: '#22d3ee' }} />
-                Account Details
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="space-y-3">
                 {[
-                  { label: 'Account Status', value: 'Active', badge: true },
-                  { label: 'Member Since', value: formatDate(new Date().toISOString()), badge: false },
-                  { label: 'Plan Type', value: currentPlan, badge: false },
-                  { label: 'Email Verified', value: emailVerified ? 'Verified' : 'Pending', badge: false, highlight: !emailVerified }
-                ].map((item, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 0',
-                    borderBottom: idx < 3 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none'
-                  }}>
-                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>{item.label}</span>
-                    {item.badge ? (
-                      <span style={{
-                        padding: '4px 12px',
-                        background: 'rgba(34, 197, 94, 0.2)',
-                        color: '#4ade80',
-                        borderRadius: '9999px',
-                        fontSize: '12px',
-                        fontWeight: 600
-                      }}>
-                        {item.value}
-                      </span>
-                    ) : (
-                      <span style={{ color: item.highlight ? '#fbbf24' : '#ffffff', fontSize: '14px' }}>{item.value}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.6)',
-              border: '1px solid rgba(55, 65, 81, 0.5)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Zap size={20} style={{ color: '#a855f7' }} />
-                Quick Actions
-              </h3>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: window.innerWidth > 640 ? 'repeat(2, 1fr)' : '1fr',
-                gap: '12px'
-              }}>
-                {[
-                  { icon: Crown, title: 'Upgrade Plan', desc: 'Unlock more features', action: () => setActiveTab('subscription'), color: '#22d3ee' },
-                  { icon: Download, title: 'Export Data', desc: 'Download your chat history', action: handleExportData, loading: isExporting, color: '#22c55e' },
-                  { icon: Upload, title: 'Import Data', desc: 'Restore from backup', action: () => importInputRef.current?.click(), loading: isImporting, color: '#3b82f6' },
-                  { icon: RefreshCw, title: 'Clear History', desc: 'Delete all chat data', action: handleClearHistory, color: '#ef4444' }
-                ].map((action, idx) => (
-                  <button
-                    key={idx}
-                    onClick={action.action}
-                    disabled={action.loading}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '16px',
-                      background: 'rgba(31, 41, 55, 0.5)',
-                      border: '1px solid rgba(55, 65, 81, 0.3)',
-                      borderRadius: '8px',
-                      cursor: action.loading ? 'not-allowed' : 'pointer',
-                      textAlign: 'left',
-                      transition: 'background 0.2s',
-                      opacity: action.loading ? 0.6 : 1
-                    }}
-                    onMouseEnter={(e) => { if (!action.loading) e.currentTarget.style.background = 'rgba(55, 65, 81, 0.5)' }}
-                    onMouseLeave={(e) => { if (!action.loading) e.currentTarget.style.background = 'rgba(31, 41, 55, 0.5)' }}
-                  >
-                    <div style={{
-                      padding: '8px',
-                      background: `${action.color}20`,
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <action.icon size={20} style={{ color: action.color }} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>
-                        {action.title}
-                        {action.loading && <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite', marginLeft: '8px' }} />}
+                  { icon: Key, title: 'Two-Factor Auth', desc: 'Add extra layer of security', setting: 'twoFactorAuth' as const },
+                  { icon: Eye, title: 'Hide Online Status', desc: 'Appear offline to others', setting: 'hideOnlineStatus' as const },
+                  { icon: Lock, title: 'Private Profile', desc: 'Only followers can see', setting: 'privateProfile' as const },
+                ].map(({ icon: Icon, title, desc, setting }) => (
+                  <div key={setting} className="flex items-center justify-between p-4 bg-black/20 rounded-2xl hover:bg-black/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <Icon size={18} className="text-blue-400" />
                       </div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{action.desc}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <input ref={importInputRef} type="file" accept=".json" onChange={handleImportData} style={{ display: 'none' }} />
-            </div>
-          </div>
-        )}
-
-        {/* SUBSCRIPTION TAB CONTENT */}
-        {activeTab === 'subscription' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* Current Plan Status */}
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1))',
-              border: '1px solid rgba(6, 182, 212, 0.2)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Current Plan</h3>
-                <span style={{
-                  padding: '4px 12px',
-                  background: currentPlan === 'pro' ? 'rgba(251, 191, 36, 0.2)' : currentPlan === 'normal' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(107, 114, 128, 0.2)',
-                  color: currentPlan === 'pro' ? '#fbbf24' : currentPlan === 'normal' ? '#22d3ee' : '#9ca3af',
-                  borderRadius: '9999px',
-                  fontSize: '12px',
-                  fontWeight: 600
-                }}>
-                  {currentPlan.toUpperCase()}
-                </span>
-              </div>
-              
-              {currentPlan === 'free' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <p style={{ margin: 0, color: '#d1d5db', fontSize: '14px' }}>
-                    You're currently on the Free plan. Upgrade to unlock unlimited chats and premium features!
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#9ca3af' }}>
-                    <Clock size={16} style={{ color: '#22d3ee' }} />
-                    <span>{chatCountToday} of {maxChatsForPlan} chats used today</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <p style={{ margin: 0, color: '#d1d5db', fontSize: '14px' }}>
-                    Enjoy your {currentPlan.toUpperCase()} benefits! Unlimited access to premium features.
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#22c55e' }}>
-                    <CheckCircle size={16} />
-                    <span>Unlimited chats & premium features</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Plans Grid */}
-            <div>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Available Plans</h3>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: window.innerWidth > 768 ? 'repeat(3, 1fr)' : '1fr',
-                gap: '16px'
-              }}>
-                {SUBSCRIPTION_PLANS.map((plan) => (
-                  <div key={plan.id} style={{
-                    position: 'relative',
-                    background: 'rgba(17, 24, 39, 0.6)',
-                    border: plan.popular ? '1px solid #22d3ee' : plan.locked ? '1px solid rgba(55, 65, 81, 0.5)' : currentPlan === plan.id ? '1px solid #22c55e' : '1px solid rgba(55, 65, 81, 0.5)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    opacity: plan.locked ? 0.8 : 1
-                  }}>
-                    {plan.popular && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '-12px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        padding: '4px 16px',
-                        background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
-                        borderRadius: '9999px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        color: '#000000'
-                      }}>
-                        Most Popular
-                      </div>
-                    )}
-
-                    {currentPlan === plan.id && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '-12px',
-                        right: '-8px',
-                        padding: '4px 12px',
-                        background: 'rgba(34, 197, 94, 0.2)',
-                        border: '1px solid rgba(34, 197, 94, 0.3)',
-                        borderRadius: '9999px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        color: '#4ade80'
-                      }}>
-                        Current
-                      </div>
-                    )}
-
-                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                      <div style={{ fontSize: '24px', fontWeight: 700, color: plan.color === 'text-gray-400' ? '#9ca3af' : plan.color === 'text-cyan-400' ? '#22d3ee' : '#fbbf24' }}>
-                        {plan.name}
-                      </div>
-                      <div style={{ marginTop: '12px' }}>
-                        <span style={{ fontSize: '32px', fontWeight: 700, color: '#ffffff' }}>${plan.price}</span>
-                        <span style={{ color: '#9ca3af', fontSize: '14px' }}>/{plan.period}</span>
-                      </div>
-                    </div>
-
-                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#d1d5db' }}>
-                          <Check size={16} style={{ color: '#22c55e', flexShrink: 0, marginTop: '2px' }} />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {plan.locked ? (
-                      <button
-                        disabled
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          background: '#1f2937',
-                          border: '1px solid #374151',
-                          borderRadius: '8px',
-                          color: '#6b7280',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          cursor: 'not-allowed',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '8px'
-                        }}
-                      >
-                        <Lock size={16} />
-                        {plan.lockMessage}
-                      </button>
-                    ) : currentPlan === plan.id ? (
-                      <button
-                        disabled
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          background: 'rgba(34, 197, 94, 0.2)',
-                          border: '1px solid rgba(34, 197, 94, 0.3)',
-                          borderRadius: '8px',
-                          color: '#4ade80',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          cursor: 'not-allowed'
-                        }}
-                      >
-                        Current Plan
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleUpgrade(plan.id)}
-                        disabled={isProcessingPayment}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          background: 'linear-gradient(135deg, #06b6d4, #9333ea)',
-                          border: 'none',
-                          borderRadius: '8px',
-                          color: '#000000',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          cursor: isProcessingPayment ? 'not-allowed' : 'pointer',
-                          opacity: isProcessingPayment ? 0.7 : 1,
-                          transition: 'opacity 0.2s'
-                        }}
-                      >
-                        {isProcessingPayment ? (
-                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                            Processing...
-                          </span>
-                        ) : (
-                          `Upgrade to ${plan.name}`
-                        )}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Billing Info */}
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.6)',
-              border: '1px solid rgba(55, 65, 81, 0.5)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CreditCard size={20} style={{ color: '#22d3ee' }} />
-                Billing Information
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { label: 'Next Payment', value: currentPlan === 'free' ? 'N/A' : 'Monthly' },
-                  { label: 'Payment Method', value: currentPlan === 'free' ? 'Not configured' : '•••• 4242', icon: CreditCard },
-                  { label: 'Invoice History', value: 'View', link: true }
-                ].map((item, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 0',
-                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none'
-                  }}>
-                    <span style={{ color: '#9ca3af', fontSize: '14px' }}>{item.label}</span>
-                    {item.link ? (
-                      <button style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#22d3ee',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: 0
-                      }}>
-                        {item.value} <ExternalLink size={12} />
-                      </button>
-                    ) : (
-                      <span style={{ color: '#ffffff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {item.icon && <item.icon size={14} />}
-                        {item.value}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* SETTINGS TAB CONTENT */}
-        {activeTab === 'settings' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* Security Section */}
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.6)',
-              border: '1px solid rgba(55, 65, 81, 0.5)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Shield size={20} style={{ color: '#22d3ee' }} />
-                Security
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[
-                  { title: 'Password', desc: 'Last changed 30 days ago', btnText: 'Change', icon: Key, variant: 'default' },
-                  { title: 'Two-Factor Authentication', desc: 'Add an extra layer of security', btnText: 'Enable', variant: 'default' },
-                  { title: 'Active Sessions', desc: '2 devices currently active', btnText: 'Manage', variant: 'danger' }
-                ].map((item, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '16px 0',
-                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
-                    flexWrap: 'wrap',
-                    gap: '12px'
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff', marginBottom: '4px' }}>{item.title}</div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{item.desc}</div>
-                    </div>
-                    <button style={{
-                      padding: '8px 16px',
-                      background: item.variant === 'danger' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(31, 41, 55, 0.5)',
-                      border: item.variant === 'danger' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(55, 65, 81, 0.5)',
-                      borderRadius: '8px',
-                      color: item.variant === 'danger' ? '#ef4444' : '#d1d5db',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      transition: 'background 0.2s'
-                    }}>
-                      {item.btnText}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Integrations Section */}
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.6)',
-              border: '1px solid rgba(55, 65, 81, 0.5)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Sparkles size={20} style={{ color: '#a855f7' }} />
-                Integrations
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[
-                  { title: 'Gmail Integration', desc: 'Sync emails for context-aware responses', icon: Mail, color: '#ef4444', action: handleSyncGmail, loading: isSyncingGmail },
-                  { title: 'Google Calendar', desc: 'Schedule meetings and reminders', icon: Calendar, color: '#3b82f6', action: null, loading: false },
-                  { title: 'Cloud Storage', desc: 'Backup files to Google Drive/Dropbox', icon: Database, color: '#22c55e', action: null, loading: false }
-                ].map((item, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '16px 0',
-                    borderBottom: idx < 2 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
-                    flexWrap: 'wrap',
-                    gap: '12px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <item.icon size={20} style={{ color: item.color }} />
                       <div>
-                        <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{item.title}</div>
-                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>{item.desc}</div>
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-xs text-gray-400">{desc}</p>
                       </div>
                     </div>
-                    <button
-                      onClick={item.action || undefined}
-                      disabled={item.loading}
-                      style={{
-                        padding: '8px 16px',
-                        background: 'rgba(31, 41, 55, 0.5)',
-                        border: '1px solid rgba(55, 65, 81, 0.5)',
-                        borderRadius: '8px',
-                        color: '#d1d5db',
-                        fontSize: '13px',
-                        cursor: item.loading ? 'not-allowed' : 'pointer',
-                        opacity: item.loading ? 0.6 : 1
-                      }}
-                    >
-                      {item.loading ? (
-                        <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite', marginRight: '4px' }} /> Syncing...</>
-                      ) : (
-                        'Connect'
-                      )}
-                    </button>
+                    <Toggle 
+                      enabled={privacySettings[setting]} 
+                      onChange={(val) => setPrivacySettings({...privacySettings, [setting]: val})}
+                    />
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Preferences Section */}
-            <div style={{
-              background: 'rgba(17, 24, 39, 0.6)',
-              border: '1px solid rgba(55, 65, 81, 0.5)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Settings size={20} style={{ color: '#fbbf24' }} />
-                Preferences
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[
-                  { label: 'Theme', options: ['Cyberpunk Dark', 'Light Mode', 'System Default'] },
-                  { label: 'Language', options: ['English', 'Hindi', 'Spanish', 'French'] }
-                ].map((pref, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 0',
-                    borderBottom: idx < 1 ? '1px solid rgba(55, 65, 81, 0.3)' : 'none',
-                    flexWrap: 'wrap',
-                    gap: '12px'
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>{pref.label}</div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-                        {idx === 0 ? 'Customize appearance' : 'Interface language'}
-                      </div>
-                    </div>
-                    <select style={{
-                      background: '#1f2937',
-                      border: '1px solid #374151',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      color: '#ffffff',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      outline: 'none'
-                    }}>
-                      {pref.options.map(opt => (
-                        <option key={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
-
-                {/* Notifications Toggle */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingTop: '16px',
-                  borderTop: '1px solid rgba(55, 65, 81, 0.3)'
-                }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>Notifications</div>
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Email and push notifications</div>
-                  </div>
-                  <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '26px', cursor: 'pointer' }}>
-                    <input type="checkbox" defaultChecked style={{ opacity: 0, width: 0, height: 0 }} />
-                    <span style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: '#374151',
-                      borderRadius: '26px',
-                      transition: 'background 0.3s'
-                    }} />
-                    <span style={{
-                      position: 'absolute',
-                      left: '3px',
-                      bottom: '3px',
-                      width: '20px',
-                      height: '20px',
-                      background: '#ffffff',
-                      borderRadius: '50%',
-                      transition: 'transform 0.3s'
-                    }} />
-                  </label>
-                </div>
               </div>
             </div>
 
             {/* Danger Zone */}
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.05)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '12px',
-              padding: '24px'
-            }}>
-              <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 600, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AlertCircle size={20} />
-                Danger Zone
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '12px'
-                }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff' }}>Logout</div>
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Sign out of your account</div>
-                  </div>
-                  <button
-                    onClick={onLogout}
-                    style={{
-                      padding: '8px 16px',
-                      background: 'rgba(31, 41, 55, 0.5)',
-                      border: '1px solid rgba(55, 65, 81, 0.5)',
-                      borderRadius: '8px',
-                      color: '#d1d5db',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <LogOut size={14} /> Logout
-                  </button>
-                </div>
-
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingTop: '16px',
-                  borderTop: '1px solid rgba(239, 68, 68, 0.2)',
-                  flexWrap: 'wrap',
-                  gap: '12px'
-                }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#ef4444' }}>Delete Account</div>
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Permanently delete your account and data</div>
-                  </div>
-                  <button
-                    onClick={handleDeleteAccount}
-                    style={{
-                      padding: '8px 16px',
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '8px',
-                      color: '#ef4444',
-                      fontSize: '13px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
+            <div className="bg-gradient-to-br from-red-500/10 to-orange-500/5 backdrop-blur-xl rounded-3xl border border-red-500/20 p-6">
+              <h3 className="font-bold text-red-400 mb-4">⚠️ Danger Zone</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <button className="p-4 bg-red-500/20 hover:bg-red-500/30 rounded-2xl transition-colors text-left">
+                  <p className="font-medium text-red-300">Deactivate</p>
+                  <p className="text-xs text-red-400/70 mt-1">Temporarily disable</p>
+                </button>
+                <button className="p-4 bg-red-500/20 hover:bg-red-500/30 rounded-2xl transition-colors text-left">
+                  <p className="font-medium text-red-300">Delete Account</p>
+                  <p className="text-xs text-red-400/70 mt-1">Permanently remove</p>
+                </button>
               </div>
             </div>
           </div>
         )}
-      </main>
 
-      {/* Inline Styles for Animations */}
-      <style jsx global>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
-          50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.4); }
-        }
-      `}</style>
+        {/* ===== LANGUAGE PANEL ===== */}
+        {activeSettingsPanel === 'language' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            {/* Language Selection */}
+            <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 backdrop-blur-xl rounded-3xl border border-green-500/20 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                  <Globe size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Language</h3>
+                  <p className="text-sm text-gray-400">Choose your preferred language</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)}
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
+                      language === lang.code 
+                        ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 border border-green-500/50 scale-[1.02]' 
+                        : 'bg-black/20 hover:bg-black/30 border border-transparent'
+                    }`}
+                  >
+                    <span className="flex items-center gap-3 text-lg">
+                      <span>{lang.flag}</span>
+                      <span>{lang.name}</span>
+                    </span>
+                    {language === lang.code && (
+                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                        <Check size={14} />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Theme Selection */}
+            <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl rounded-3xl border border-purple-500/20 p-6">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <Sparkles size={20} className="text-purple-400" />
+                Appearance
+              </h3>
+              
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { value: 'light' as const, icon: Sun, label: 'Light', color: 'from-yellow-500 to-orange-500' },
+                  { value: 'dark' as const, icon: Moon, label: 'Dark', color: 'from-indigo-500 to-purple-500' },
+                  { value: 'system' as const, icon: Monitor, label: 'System', color: 'from-gray-500 to-slate-500' },
+                ].map(({ value, icon: Icon, label, color }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    className={`p-5 rounded-2xl flex flex-col items-center gap-3 transition-all ${
+                      theme === value 
+                        ? `bg-gradient-to-br ${color} scale-105 shadow-lg` 
+                        : 'bg-black/20 hover:bg-black/30'
+                    }`}
+                  >
+                    <Icon size={28} />
+                    <span className="text-sm font-medium">{label}</span>
+                    {theme === value && (
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== NOTIFICATIONS PANEL ===== */}
+        {activeSettingsPanel === 'notifications' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 backdrop-blur-xl rounded-3xl border border-orange-500/20 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                  <Bell size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Notifications</h3>
+                  <p className="text-sm text-gray-400">Manage how you get notified</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {[
+                  { icon: Bell, title: 'Push Notifications', desc: 'On your device', setting: 'pushNotifications' as const },
+                  { icon: Mail, title: 'Email Updates', desc: 'In your inbox', setting: 'emailNotifications' as const },
+                  { icon: MessageSquare, title: 'Chat Messages', desc: 'New conversations', setting: 'chatMessages' as const },
+                ].map(({ icon: Icon, title, desc, setting }) => (
+                  <div key={setting} className="flex items-center justify-between p-4 bg-black/20 rounded-2xl hover:bg-black/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <Icon size={18} className="text-orange-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-xs text-gray-400">{desc}</p>
+                      </div>
+                    </div>
+                    <Toggle 
+                      enabled={notificationSettings[setting]} 
+                      onChange={(val) => setNotificationSettings({...notificationSettings, [setting]: val})}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===== MAIN PROFILE VIEW ===== */}
+        {!activeSettingsPanel && (
+          <>
+            {/* Profile Hero Section */}
+            <div className="relative mb-8">
+              {/* Avatar */}
+              <div className="px-6 pt-4">
+                <div className="relative inline-block group">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-1 shadow-2xl shadow-purple-500/30">
+                    <div className="w-full h-full rounded-[22px] bg-slate-800 flex items-center justify-center overflow-hidden">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={64} className="text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Avatar Edit Button */}
+                  <button className="absolute bottom-2 right-2 w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-lg">
+                    <Camera size={18} />
+                  </button>
+
+                  {/* Verified Badge */}
+                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Check size={16} />
+                  </div>
+                </div>
+
+                {/* Name & Info */}
+                <div className="mt-4">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                      className="text-2xl sm:text-3xl font-bold bg-transparent border-b-2 border-purple-500 focus:outline-none pb-1"
+                    />
+                  ) : (
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                      {profileData.name}
+                    </h2>
+                  )}
+                  
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-gray-400">@{profileData.name.toLowerCase().replace(/\s/g, '')}</p>
+                    <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">PRO</span>
+                  </div>
+                  
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                      className="mt-2 text-sm text-gray-400 bg-transparent border-b border-white/20 focus:outline-none"
+                    />
+                  ) : (
+                    <p className="mt-2 text-sm text-gray-400 flex items-center gap-2">
+                      <Mail size={14} />
+                      {profileData.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bio Section */}
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold flex items-center gap-2">
+                  <FileText size={18} className="text-purple-400" />
+                  About Me
+                </h3>
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-sm font-medium shadow-lg shadow-purple-500/25"
+                  >
+                    <Edit3 size={14} />
+                    Edit Profile
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSave}
+                      className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-sm font-medium"
+                    >
+                      <Save size={14} />
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all flex items-center gap-2 text-sm"
+                    >
+                      <X size={14} />
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Bio Text */}
+              {isEditing ? (
+                <textarea
+                  value={profileData.bio}
+                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                  placeholder="Tell us about yourself..."
+                  rows={3}
+                  className="w-full bg-black/20 border border-white/10 rounded-xl p-3 focus:outline-none focus:border-purple-500 resize-none"
+                />
+              ) : (
+                <p className="text-gray-300 leading-relaxed">{profileData.bio}</p>
+              )}
+
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                {/* Location */}
+                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+                    <MapPin size={18} className="text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Location</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={profileData.location}
+                        onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                        className="w-full bg-transparent focus:outline-none text-sm"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium">{profileData.location}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl">
+                  <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                    <Phone size={18} className="text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Phone</label>
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                        className="w-full bg-transparent focus:outline-none text-sm"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium">{profileData.phone}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Website */}
+                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl sm:col-span-2">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                    <Link2 size={18} className="text-cyan-400" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500">Website</label>
+                    {isEditing ? (
+                      <input
+                        type="url"
+                        value={profileData.website}
+                        onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+                        className="w-full bg-transparent focus:outline-none text-sm"
+                      />
+                    ) : (
+                      <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors">
+                        {profileData.website.replace('https://', '')}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Settings Cards */}
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 mb-6">
+              <h3 className="font-bold flex items-center gap-2 mb-4">
+                <Settings size={18} className="text-purple-400" />
+                Quick Settings
+              </h3>
+              
+              <div className="space-y-3">
+                {[
+                  { id: 'privacy', icon: Shield, title: 'Privacy & Security', desc: 'Password, 2FA, visibility', gradient: 'from-blue-500 to-cyan-500' },
+                  { id: 'language', icon: Globe, title: 'Language & Region', desc: 'English, timezone, theme', gradient: 'from-green-500 to-emerald-500' },
+                  { id: 'notifications', icon: Bell, title: 'Notifications', desc: 'Push, email preferences', gradient: 'from-orange-500 to-amber-500' },
+                ].map(({ id, icon: Icon, title, desc, gradient }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveSettingsPanel(id)}
+                    className="w-full flex items-center justify-between p-4 bg-black/20 hover:bg-black/30 rounded-2xl transition-all group hover:scale-[1.02]"
+                  >
+                    <span className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                        <Icon size={20} />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold">{title}</p>
+                        <p className="text-xs text-gray-400">{desc}</p>
+                      </div>
+                    </span>
+                    <ChevronRight size={20} className="text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-transform" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={onLogout}
+              className="w-full p-5 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/30 hover:to-pink-500/30 border border-red-500/30 hover:border-red-500/50 rounded-3xl transition-all flex items-center justify-center gap-3 text-red-400 hover:text-red-300 font-medium group hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
+              Sign Out
+            </button>
+
+            {/* Version Info */}
+            <p className="text-center text-xs text-gray-600 mt-6">
+              Nexus AI v2.0 • Made with ❤️
+            </p>
+          </>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+// Force dynamic rendering - NO CACHE (handled by middleware & vercel.json)
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
@@ -301,6 +302,14 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
 
 // Main App Component
 export default function NexusAI() {
+  // Mounted state to prevent hydration mismatch
+  const [mounted, setMounted] = useState(false)
+  
+  // Use effect to set mounted state after hydration
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<string>('chat') // Start with chat (free mode)
@@ -325,26 +334,31 @@ export default function NexusAI() {
   // AbortController for stopping responses
   const abortControllerRef = useRef<AbortController | null>(null)
   
-  // Auth State
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
+  // Auth State - Use lazy initialization to avoid hydration mismatch
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // Check if we're on client side
+    if (typeof window === 'undefined') return false
+    return !!localStorage.getItem('nexus_user')
+  })
+  
+  const [user, setUser] = useState<User | null>(() => {
+    // Check if we're on client side
+    if (typeof window === 'undefined') return null
+    try {
+      const savedUser = localStorage.getItem('nexus_user')
+      return savedUser ? JSON.parse(savedUser) : null
+    } catch {
+      return null
+    }
+  })
 
-  // Check for existing session on mount
+  // Check for existing session on mount (only for sessions, not auth)
   useEffect(() => {
-    const savedUser = localStorage.getItem('nexus_user')
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser)
-        setIsLoggedIn(true)
-        setUser(parsedUser)
-        
-        // Load sessions only if logged in
-        const savedSessions = localStorage.getItem('nexus_sessions')
-        if (savedSessions) {
-          setSessions(JSON.parse(savedSessions))
-        }
-      } catch (e) {
-        console.error('Error parsing saved user:', e)
+    // Load sessions only if logged in
+    if (isLoggedIn) {
+      const savedSessions = localStorage.getItem('nexus_sessions')
+      if (savedSessions) {
+        setSessions(JSON.parse(savedSessions))
       }
     }
     
@@ -360,7 +374,7 @@ export default function NexusAI() {
       setShowIntro(false)
       setIntroComplete(true)
     }
-  }, [])
+  }, [isLoggedIn])
 
   // Save sessions to localStorage when they change (only if logged in)
   useEffect(() => {
@@ -1243,8 +1257,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
   return (
     <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`}>
-      {/* Intro Animation - Shows on first visit */}
-      {showIntro && (
+      {/* Intro Animation - Shows on first visit (only after mount) */}
+      {mounted && showIntro && (
         <IntroAnimation onComplete={() => {
           setShowIntro(false)
           setIntroComplete(true)
@@ -1252,10 +1266,10 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         }} />
       )}
 
-      {/* Main Content - Only show after intro completes */}
-      <div className={`transition-opacity duration-500 ${introComplete ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Main Content - Only show after intro completes OR if not showing intro */}
+      <div className={`transition-opacity duration-500 ${(introComplete || !showIntro || !mounted) ? 'opacity-100' : 'opacity-0'}`}>
       {/* Background Animation - Only on home view */}
-      {currentView === 'home' && <NeuralNetworkBackground />}
+      {currentView === 'home' && mounted && <NeuralNetworkBackground />}
 
       {/* Sidebar */}
       <Sidebar
@@ -1323,7 +1337,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             </div>
 
             {/* Right Side - Actions */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               {isLoggedIn ? (
                   <>
                     <Button

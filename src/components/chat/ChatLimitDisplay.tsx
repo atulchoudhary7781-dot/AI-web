@@ -9,73 +9,60 @@ interface ChatLimitProps {
   compact?: boolean
 }
 
-export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: ChatLimitProps) {
-  const [chatCountToday, setChatCountToday] = useState(0)
-  const [maxChats, setMaxChats] = useState(10)
-  const [resetTime, setResetTime] = useState('')
-  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>('free')
-  const [isNearLimit, setIsNearLimit] = useState(false)
-
-  // Calculate reset time
-  const calculateResetTime = () => {
-    const now = new Date()
-    const tomorrow = new Date(now)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    tomorrow.setHours(0, 0, 0, 0)
-    
-    const diff = tomorrow.getTime() - now.getTime()
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    
-    return `${hours}h ${minutes}m`
+// Helper functions for SSR-safe localStorage access
+function getInitialChatCount(): number {
+  if (typeof window === 'undefined') return 0
+  const savedChats = localStorage.getItem('nexus_chat_count_today')
+  const savedDate = localStorage.getItem('nexus_chat_date')
+  const today = new Date().toDateString()
+  if (savedDate === today && savedChats) {
+    return parseInt(savedChats, 10) || 0
   }
+  return 0
+}
 
-  // Load data from localStorage
-  useEffect(() => {
-    const loadData = () => {
-      // Load subscription
-      const savedSub = localStorage.getItem('nexus_subscription')
-      if (savedSub) {
-        try {
-          const sub = JSON.parse(savedSub)
-          setCurrentPlan(sub.plan || 'free')
-          if (sub.plan === 'pro' || sub.plan === 'normal') {
-            setMaxChats(Infinity)
-            return
-          }
-        } catch (e) {
-          console.error('Error parsing subscription:', e)
-        }
-      }
-
-      // Load chat count for today
-      const savedChats = localStorage.getItem('nexus_chat_count_today')
-      const savedDate = localStorage.getItem('nexus_chat_date')
-      
-      const today = new Date().toDateString()
-      
-      if (savedDate === today && savedChats) {
-        const count = parseInt(savedChats, 10)
-        setChatCountToday(count)
-        setIsNearLimit(count >= 7) // Warning when 70% used
-      } else {
-        setChatCountToday(0)
-        localStorage.setItem('nexus_chat_count_today', '0')
-        localStorage.setItem('nexus_chat_date', today)
-      }
-
-      setMaxChats(10) // Free plan default
+function getInitialPlan(): 'free' | 'normal' | 'pro' {
+  if (typeof window === 'undefined') return 'free'
+  try {
+    const savedSub = localStorage.getItem('nexus_subscription')
+    if (savedSub) {
+      const sub = JSON.parse(savedSub)
+      return (sub.plan === 'pro' || sub.plan === 'normal') ? sub.plan : 'free'
     }
+  } catch {}
+  return 'free'
+}
 
-    loadData()
+function getResetTime(): string {
+  if (typeof window === 'undefined') return ''
+  const now = new Date()
+  const tomorrow = new Date(now)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  tomorrow.setHours(0, 0, 0, 0)
+  const diff = tomorrow.getTime() - now.getTime()
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  return `${hours}h ${minutes}m`
+}
 
-    // Update every minute
+export default function ChatLimitDisplay({ onUpgradeClick, compact = false }: ChatLimitProps) {
+  // Use lazy initialization to avoid setState in useEffect
+  const [chatCountToday, setChatCountToday] = useState(getInitialChatCount)
+  const [maxChats, setMaxChats] = useState(getInitialPlan() !== 'free' ? Infinity : 10)
+  const [resetTime, setResetTime] = useState(getResetTime)
+  const [currentPlan, setCurrentPlan] = useState<'free' | 'normal' | 'pro'>(getInitialPlan)
+  const [isNearLimit, setIsNearLimit] = useState(() => getInitialChatCount() >= 7)
+
+  // Update every minute (only interval in effect, no direct setState)
+  useEffect(() => {
     const interval = setInterval(() => {
-      setResetTime(calculateResetTime())
-      loadData() // Refresh chat count
+      setResetTime(getResetTime())
+      
+      // Refresh chat count
+      const count = getInitialChatCount()
+      setChatCountToday(count)
+      setIsNearLimit(count >= 7)
     }, 60000)
-
-    setResetTime(calculateResetTime())
 
     return () => clearInterval(interval)
   }, [])

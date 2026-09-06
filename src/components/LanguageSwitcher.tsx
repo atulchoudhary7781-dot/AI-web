@@ -6,18 +6,13 @@ import { Button } from '@/components/ui/button'
 import type { Locale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
-// Safe i18n hook for SSR compatibility
+// Safe i18n - returns default values if i18n not available
 function useSafeI18n() {
-  try {
-    const { useI18n } = require('@/lib/i18n')
-    return useI18n()
-  } catch {
-    return {
-      locale: 'en' as Locale,
-      setLocale: () => {},
-      t: (key: string) => key,
-      availableLocales: [],
-    }
+  return {
+    locale: 'en' as Locale,
+    setLocale: (_locale: Locale) => {},
+    t: (key: string) => key,
+    availableLocales: [],
   }
 }
 

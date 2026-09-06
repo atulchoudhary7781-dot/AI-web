@@ -9,18 +9,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-// Safe i18n hook that handles SSR
+
+// Safe i18n - returns default values if i18n not available
 function useSafeI18n() {
-  try {
-    const { useI18n } = require('@/lib/i18n')
-    return useI18n()
-  } catch {
-    return {
-      locale: 'en',
-      setLocale: () => {},
-      t: (key: string) => key,
-      availableLocales: [],
-    }
+  return {
+    locale: 'en',
+    setLocale: () => {},
+    t: (key: string) => key,
+    availableLocales: [],
   }
 }
 
@@ -171,7 +167,17 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="pricing-page-container min-h-screen bg-deep-black overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
+    <div 
+      className="pricing-page-container"
+      style={{
+        minHeight: '100vh',
+        height: 'auto',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        position: 'relative',
+        background: '#0a0a1a'
+      }}
+    >
       {/* Hero Section */}
       <div className="pt-32 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">

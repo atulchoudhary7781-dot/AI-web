@@ -40,21 +40,16 @@ declare global {
 }
 
 export function VoiceInput({ onTranscript, disabled = false, className }: VoiceInputProps) {
+  // Check browser support with lazy initialization
   const [isListening, setIsListening] = useState(false)
-  const [isSupported, setIsSupported] = useState(true)
+  const [isSupported, setIsSupported] = useState(() => {
+    if (typeof window === 'undefined') return true // Default to true for SSR
+    return 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window
+  })
   const [transcript, setTranscript] = useState('')
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { t } = useI18n()
-
-  // Check browser support on mount
-  useEffect(() => {
-    const supported = typeof window !== 'undefined' && (
-      'SpeechRecognition' in window || 
-      'webkitSpeechRecognition' in window
-    )
-    setIsSupported(supported)
-  }, [])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -67,6 +62,26 @@ export function VoiceInput({ onTranscript, disabled = false, className }: VoiceI
       }
     }
   }, [])
+
+  // Stop listening function - defined BEFORE startListening to avoid reference error
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+    }
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+    
+    setIsListening(false)
+    
+    // Send transcript to parent
+    if (transcript.trim()) {
+      onTranscript(transcript.trim())
+      setTranscript('')
+    }
+  }, [transcript, onTranscript])
 
   const startListening = useCallback(() => {
     if (!isSupported || isListening || disabled) return
@@ -133,26 +148,7 @@ export function VoiceInput({ onTranscript, disabled = false, className }: VoiceI
       console.error('Failed to start speech recognition:', error)
       setIsSupported(false)
     }
-  }, [isSupported, isListening, disabled])
-
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
-    }
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
-    
-    setIsListening(false)
-    
-    // Send transcript to parent
-    if (transcript.trim()) {
-      onTranscript(transcript.trim())
-      setTranscript('')
-    }
-  }, [transcript, onTranscript])
+  }, [isSupported, isListening, disabled, stopListening])
 
   const toggleListening = () => {
     if (isListening) {

@@ -6,6 +6,37 @@
    Dark Mode with Cyan/Purple Neon Accents
    ============================================ */
 
+/* Prevent hydration mismatch - ensure content is visible */
+.nexus-main-container {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure all buttons and links are visible */
+button, a, [role="button"] {
+  visibility: visible !important;
+}
+
+/* SUBSCRIPTION BUTTON - FORCE VISIBLE EVERYWHERE */
+a[href="/pricing"],
+a[href*="pricing"],
+[class*="Upgrade"],
+[class*="Pro"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  pointer-events: auto !important;
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Sidebar - ensure content doesn't get hidden */
+aside nav a,
+aside nav [href] {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -119,6 +150,15 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(0, 255, 255, 0.2);
   --sidebar-ring: #00ffff;
+
+  /* Subscription Button in Sidebar - Always Visible Fix */
+  a[href="/pricing"],
+  a[href*="pricing"] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+    pointer-events: auto !important;
+  }
 
   /* Cyberpunk Theme Properties */
   --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.5);
@@ -761,6 +801,44 @@ html, body {
   .subscription-tab-scroll {
     scrollbar-width: thin;
     scrollbar-color: #a855f7 rgba(20, 20, 40, 0.9);
+  }
+
+  /* Pricing Page - Cyan scrollbar with proper scroll */
+  .pricing-page-container {
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    scroll-behavior: smooth;
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  /* Ensure html/body allow scroll on pricing page */
+  html:has(.pricing-page-container),
+  html:has(.pricing-page-container) body {
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+  
+  .pricing-page-container::-webkit-scrollbar-track {
+    background: rgba(20, 20, 40, 0.9);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+  }
+  .pricing-page-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ffff, #a855f7);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+  }
+  .pricing-page-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #00eeee, #9333ea);
+  }
+  .pricing-page-container {
+    scrollbar-width: thin;
+    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
   }
 
   /* Settings tab - Cyan-Purple scrollbar */

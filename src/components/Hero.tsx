@@ -10,24 +10,20 @@ import { Badge } from '@/components/ui/badge'
 
 // Floating particles component
 function Particles({ count = 30 }: { count?: number }) {
-  const [particles, setParticles] = useState<Array<{
+  // Generate particles with lazy initialization (no useEffect needed)
+  const [particles] = useState<Array<{
     id: number
     left: string
     delay: string
     duration: string
     size: string
-  }>>([])
-
-  useEffect(() => {
-    const newParticles = Array.from({ length: count }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      delay: `${Math.random() * 15}s`,
-      duration: `${15 + Math.random() * 20}s`,
-      size: `${2 + Math.random() * 3}px`,
-    }))
-    setParticles(newParticles)
-  }, [count])
+  }>>(() => Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 15}s`,
+    duration: `${15 + Math.random() * 20}s`,
+    size: `${2 + Math.random() * 3}px`,
+  })))
 
   return (
     <div className="particles-container">
