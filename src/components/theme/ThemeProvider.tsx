@@ -16,34 +16,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
 
+  // Initialize theme from localStorage IMMEDIATELY on client
   useEffect(() => {
-    setMounted(true)
-    // Check localStorage first, then system preference
+    // Prevent hydration mismatch - check localStorage immediately
     const stored = localStorage.getItem('nexus-theme') as Theme | null
-    if (stored) {
-      setThemeState(stored)
-      document.documentElement.classList.toggle('dark', stored === 'dark')
-    } else {
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      const defaultTheme = systemPrefersDark ? 'dark' : 'light'
-      setThemeState(defaultTheme)
-      document.documentElement.classList.toggle('dark', defaultTheme === 'dark')
-    }
+    const newTheme = stored || 'dark'
+    
+    setThemeState(newTheme)
+    document.documentElement.classList.toggle('dark', newTheme === 'dark')
+    document.documentElement.style.colorScheme = newTheme
+    
+    // Mark as mounted
+    setMounted(true)
   }, [])
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)
     localStorage.setItem('nexus-theme', newTheme)
     document.documentElement.classList.toggle('dark', newTheme === 'dark')
+    document.documentElement.style.colorScheme = newTheme
   }
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
-  }
-
-  // Prevent flash of wrong theme
-  if (!mounted) {
-    return <>{children}</>
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(newTheme)
   }
 
   return (
