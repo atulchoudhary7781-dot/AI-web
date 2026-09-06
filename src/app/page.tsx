@@ -1258,41 +1258,40 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
   return (
     <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`} style={{ position: 'relative' }}>
       
-      {/* FLOATING PRO BUTTON - ALWAYS VISIBLE (No Hydration Issues) */}
-      {/* This renders OUTSIDE all conditional/mounted logic */}
+      {/* SMALL PRO BUTTON - LEFT SIDE HEADER (Always Visible) */}
       <a
         href="/pricing"
         style={{
           position: 'fixed',
-          top: '12px',
-          right: '12px',
+          top: '10px',
+          left: '10px',
           zIndex: 99999,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '6px',
-          padding: '10px 16px',
-          minHeight: '46px',
-          minWidth: '46px',
-          borderRadius: '12px',
-          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.7), rgba(236, 72, 153, 0.7))',
-          border: '2px solid rgba(168, 85, 247, 1)',
+          gap: '4px',
+          padding: '6px 10px',
+          minHeight: '34px',
+          minWidth: '34px',
+          borderRadius: '8px',
+          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.8), rgba(236, 72, 153, 0.8))',
+          border: '1.5px solid rgba(168, 85, 247, 1)',
           color: '#ffffff',
-          fontSize: '14px',
+          fontSize: '11px',
           fontWeight: 800,
           textDecoration: 'none',
-          boxShadow: '0 4px 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.2), inset 0 1px 0 rgba(255,255,255,0.2)',
+          boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
           WebkitTapHighlightColor: 'rgba(168, 85, 247, 0.5)',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}
-        aria-label="Upgrade to Pro - Always Visible"
+        aria-label="Upgrade to Pro"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
         </svg>
-        <span style={{ letterSpacing: '0.5px' }}>‚≠ê PRO</span>
+        <span style={{ letterSpacing: '0.3px' }}>PRO</span>
       </a>
 
       {/* Intro Animation - Shows on first visit (only after mount) */}
