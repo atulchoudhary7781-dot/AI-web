@@ -329,9 +329,16 @@ export default function NexusAI() {
   // Auth State
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  
+  // Subscription Button State - Client-side only (bypasses all cache)
+  const [showSubscriptionButton, setShowSubscriptionButton] = useState(false)
 
-  // Check for existing session on mount
+  // Check for existing session on mount + Show subscription button immediately
   useEffect(() => {
+    // FORCE SHOW subscription button - bypasses server cache completely
+    // This runs ONLY on client side, so cache cannot affect it
+    setShowSubscriptionButton(true)
+    
     const savedUser = localStorage.getItem('nexus_user')
     if (savedUser) {
       try {
@@ -1325,16 +1332,18 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions */}
             <div className="flex items-center gap-1.5">
-              {/* SUBSCRIPTION BUTTON - Shows on ALL pages */}
-              <a 
-                href="/pricing"
-                className="flex items-center bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 hover:from-amber-500 hover:via-orange-600 hover:to-red-600 text-white font-bold shadow-lg shadow-orange-500/40 border border-amber-300/30 rounded-lg px-3 py-2 h-9 transition-all duration-300 hover:scale-105 group relative overflow-hidden"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <Crown className="w-4 h-4 mr-1.5 fill-current" />
-                <span className="hidden sm:inline text-sm">Pro</span>
-                <Sparkles className="w-3 h-3 ml-1 hidden sm:inline animate-spin" style={{ animationDuration: '3s' }} />
-              </a>
+              {/* SUBSCRIPTION BUTTON - Client-side rendered to bypass cache */}
+              {showSubscriptionButton && (
+                <a 
+                  href="/pricing"
+                  className="flex items-center bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 hover:from-amber-500 hover:via-orange-600 hover:to-red-600 text-white font-bold shadow-lg shadow-orange-500/40 border border-amber-300/30 rounded-lg px-3 py-2 h-9 transition-all duration-300 hover:scale-105 group relative overflow-hidden animate-fadeIn"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <Crown className="w-4 h-4 mr-1.5 fill-current" />
+                  <span className="hidden sm:inline text-sm">Pro</span>
+                  <Sparkles className="w-3 h-3 ml-1 hidden sm:inline animate-spin" style={{ animationDuration: '3s' }} />
+                </a>
+              )}
               
               {isLoggedIn ? (
                   <>
