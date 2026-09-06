@@ -8,9 +8,8 @@ import {
   ChevronLeft, Shield, ChevronRight,
   Bell, Lock, Key, Eye, Moon,
   Sun, Monitor, Check, Star,
-  Heart, Award, Zap, Sparkles,
-  Link2, FileText, Briefcase,
-  MessageSquare, Users
+  Award, Zap, Sparkles,
+  Link2, FileText
 } from 'lucide-react'
 
 // Types
@@ -35,19 +34,6 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (val: boole
         {enabled && <Check size={12} className="text-purple-600" />}
       </div>
     </button>
-  )
-}
-
-// Stat Card Component
-function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
-  return (
-    <div className="flex-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all group">
-      <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-        <Icon size={20} className="text-white" />
-      </div>
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs text-gray-400 mt-1">{label}</p>
-    </div>
   )
 }
 
@@ -370,13 +356,6 @@ export default function UserProfilePage({ user, onBack, onLogout }: UserProfileP
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <StatCard icon={Briefcase} label="Projects" value="12" color="bg-gradient-to-br from-blue-500 to-cyan-500" />
-              <StatCard icon={Users} label="Followers" value="1.2K" color="bg-gradient-to-br from-purple-500 to-pink-500" />
-              <StatCard icon={Heart} label="Likes" value="8.5K" color="bg-gradient-to-br from-red-500 to-pink-500" />
             </div>
 
             {/* Bio Section */}
