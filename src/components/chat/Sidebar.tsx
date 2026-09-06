@@ -80,9 +80,12 @@ export default function Sidebar({
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={onClose} />
       )}
       
-      <aside className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 flex flex-col ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+      <aside 
+        className={`fixed top-0 left-0 h-full w-72 sm:w-80 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 flex flex-col ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{ touchAction: 'pan-y' }}
+      >
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="flex-shrink-0 p-4 border-b border-gray-800/50">
@@ -108,38 +111,45 @@ export default function Sidebar({
               <Plus className="w-4 h-4 mr-2" /> New Chat
             </Button>
             
-            {/* Upgrade Pro Button - TOP POSITION, Always Visible on Mobile */}
+            {/* Upgrade Pro Button - ALWAYS VISIBLE ON ALL DEVICES */}
             <a
               href="/pricing"
-              onClick={(e) => { e.preventDefault(); onClose(); window.location.href = '/pricing'; }}
+              onClick={(e) => { e.preventDefault(); onClose(); setTimeout(() => window.location.href = '/pricing', 100); }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 width: '100%',
-                gap: '10px',
+                gap: '8px',
                 padding: '12px 14px',
+                minHeight: '48px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(236, 72, 153, 0.35))',
-                border: '1.5px solid rgba(168, 85, 247, 0.6)',
+                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(236, 72, 153, 0.45))',
+                border: '2px solid rgba(168, 85, 247, 0.75)',
                 color: '#ffffff',
                 textDecoration: 'none',
-                marginTop: '8px',
-                boxShadow: '0 4px 15px rgba(168, 85, 247, 0.25)'
+                marginTop: '10px',
+                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.35), 0 0 40px rgba(168, 85, 247, 0.15)',
+                boxSizing: 'border-box',
+                position: 'relative',
+                zIndex: 10,
+                touchAction: 'manipulation'
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
                 <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
                 <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
               </svg>
-              <span style={{ fontSize: '14px', fontWeight: 700, flex: 1 }}>Upgrade Pro</span>
+              <span style={{ fontSize: '14px', fontWeight: 800, flex: 1, letterSpacing: '0.3px' }}>Upgrade Pro</span>
               <span style={{
-                padding: '3px 10px',
+                padding: '4px 12px',
                 borderRadius: '9999px',
                 fontSize: '11px',
                 fontWeight: 800,
-                background: 'linear-gradient(to right, #facc15, #f97316, #ef4444)',
-                color: '#ffffff',
-                textTransform: 'uppercase'
+                background: 'linear-gradient(135deg, #facc15, #f97316, #ef4444)',
+                color: '#000000',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
               }}>⭐ PRO</span>
             </a>
           </div>

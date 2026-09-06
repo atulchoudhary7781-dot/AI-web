@@ -18,6 +18,16 @@ const config: Config = {
   
   theme: {
     extend: {
+      /* Mobile-first responsive breakpoints */
+      screens: {
+        'xs': '475px',  /* Small mobile */
+        'sm': '640px',  /* Mobile landscape / Tablet portrait */
+        'md': '768px',  /* Tablet landscape */
+        'lg': '1024px', /* Desktop */
+        'xl': '1280px', /* Large desktop */
+        '2xl': '1536px', /* Extra large desktop */
+      },
+      
       colors: {
         /* Base Theme Colors */
         background: 'var(--background)',

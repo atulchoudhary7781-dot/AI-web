@@ -17,24 +17,50 @@ button, a, [role="button"] {
   visibility: visible !important;
 }
 
+/* ============================================
+   MOBILE/TABLET/PC - ALL DEVICES SUPPORT
+   Every button visible & tappable everywhere
+   ============================================ */
+
 /* SUBSCRIPTION BUTTON - FORCE VISIBLE EVERYWHERE */
 a[href="/pricing"],
-a[href*="pricing"],
-[class*="Upgrade"],
-[class*="Pro"] {
+a[href*="pricing"] {
   visibility: visible !important;
   opacity: 1 !important;
-  display: flex !important;
+  display: inline-flex !important;
   pointer-events: auto !important;
   z-index: 999 !important;
   position: relative !important;
+  /* Mobile touch target - minimum 44px */
+  min-height: 44px !important;
+  min-width: 44px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* PRO badge and upgrade buttons */
+[class*="Upgrade"],
+[class*="Pro"],
+[style*="pricing"] {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Sidebar - ensure content doesn't get hidden */
 aside nav a,
-aside nav [href] {
+aside nav [href],
+aside a[href] {
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Header buttons - always visible on mobile */
+header a,
+header button {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 @custom-variant dark (&:is(.dark *));

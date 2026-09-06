@@ -1300,7 +1300,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 ${
           currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
         }`}>
-          <div className="flex items-center justify-between px-4 sm:px-6 h-[52px]">
+          {/* MOBILE/TABLET/PC - Responsive Header */}
+          <div className="flex items-center justify-between px-3 sm:px-6 min-h-[52px] h-auto py-2 sm:py-0 sm:h-[52px]">
             {/* Left Side - Navigation Button + Title */}
             <div className="flex items-center gap-3">
               {/* Integrated Navigation Button - Part of Header */}
@@ -1336,31 +1337,37 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
               )}
             </div>
 
-            {/* Right Side - Actions */}
-            <div className="flex items-center gap-2">
-              {/* Subscription Button - MOBILE FRIENDLY */}
+            {/* Right Side - Actions - VISIBLE ON ALL DEVICES */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* PRO BUTTON - ALWAYS VISIBLE (Mobile/Tablet/PC) */}
               <a 
                 href="/pricing"
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4))',
-                  border: '1.5px solid rgba(168, 85, 247, 0.7)',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  padding: '6px 10px',
+                  minWidth: 'auto',
+                  minHeight: '36px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5))',
+                  border: '1.5px solid rgba(168, 85, 247, 0.8)',
                   color: '#ffffff',
-                  fontSize: '13px',
+                  fontSize: '12px',
                   fontWeight: 700,
                   textDecoration: 'none',
-                  boxShadow: '0 2px 10px rgba(168, 85, 247, 0.3)'
+                  boxShadow: '0 2px 12px rgba(168, 85, 247, 0.4)',
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
                 }}
+                aria-label="Upgrade to Pro"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
                   <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
                   <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
                 </svg>
-                <span>Pro</span>
+                <span className="hidden xs:inline">Pro</span>
               </a>
               
               {isLoggedIn ? (
@@ -1369,25 +1376,27 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                       variant="ghost"
                       size="sm"
                       onClick={handleNewChat}
-                      className="text-gray-400 hover:text-white hover:bg-gray-800/80 h-9 px-3 rounded-lg transition-all"
+                      className="text-gray-400 hover:text-white hover:bg-gray-800/80 h-9 w-9 sm:w-auto sm:px-3 rounded-lg transition-all flex items-center justify-center"
+                      title="New Chat"
                     >
-                      <Plus className="w-4 h-4 mr-1.5" />
+                      <Plus className="w-4 h-4 sm:mr-1.5" />
                       <span className="hidden sm:inline text-sm font-medium">New Chat</span>
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleLogout}
-                      className="text-red-400/80 hover:text-red-300 hover:bg-red-500/10 h-9 px-3 rounded-lg transition-all"
+                      className="text-red-400/80 hover:text-red-300 hover:bg-red-500/10 h-9 w-9 sm:w-auto sm:px-3 rounded-lg transition-all flex items-center justify-center"
+                      title="Logout"
                     >
-                      <LogOut className="w-4 h-4 mr-1.5" />
+                      <LogOut className="w-4 h-4 sm:mr-1.5" />
                       <span className="hidden sm:inline text-sm font-medium">Logout</span>
                     </Button>
                   </>
                 ) : null}
-              </div>
             </div>
-          </header>
+          </div>
+        </header>
 
         {/* Content Area - Full height, fills remaining space */}
         <div className="flex-1 min-h-0 overflow-hidden">
