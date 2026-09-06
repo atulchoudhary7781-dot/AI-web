@@ -1,5 +1,6 @@
 'use client'
 
+// Force dynamic rendering - NO CACHE (handled by middleware & vercel.json)
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 

@@ -342,6 +342,16 @@ export function middleware(request: NextRequest) {
   
   // For non-API routes, just add security headers
   const response = NextResponse.next()
+  
+  // NO CACHE for main page - always show fresh content (subscription button)
+  if (pathname === '/' || pathname === '') {
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    // Add version header to force revalidation
+    response.headers.set('X-Nexus-Version', '3.0.1')
+  }
+  
   return addSecurityHeaders(response)
 }
 
