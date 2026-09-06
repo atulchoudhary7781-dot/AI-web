@@ -18,7 +18,6 @@ import FullScreenChat from '@/components/chat/FullScreenChat'
 import SettingsView from '@/components/chat/SettingsView'
 import LoginView from '@/components/chat/LoginView'
 import AuthModal from '@/components/chat/AuthModal'
-import IntroAnimation from '@/components/chat/IntroAnimation'
 
 // Types
 interface ChatMessage {
@@ -327,17 +326,9 @@ export default function NexusAI() {
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [fileBase64, setFileBase64] = useState<string | null>(null)
   
-  // Intro Animation State - Check sessionStorage IMMEDIATELY to prevent flash
-  const [showIntro, setShowIntro] = useState(() => {
-    // Prevent flash - check if intro was already shown
-    if (typeof window === 'undefined') return false
-    return !sessionStorage.getItem('nexus_intro_shown')
-  })
-  const [introComplete, setIntroComplete] = useState(() => {
-    // Prevent flash - if intro was shown, mark as complete immediately
-    if (typeof window === 'undefined') return false
-    return !!sessionStorage.getItem('nexus_intro_shown')
-  })
+  // Intro Animation State - DISABLED (Direct to New Interface)
+  const [showIntro, setShowIntro] = useState(false)  // ❌ No intro
+  const [introComplete, setIntroComplete] = useState(true)  // ✅ Always complete
   
   // AbortController for stopping responses
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -1260,17 +1251,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
   return (
     <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`} style={{ position: 'relative' }}>
 
-      {/* Intro Animation - Shows on first visit (only after mount) */}
-      {mounted && showIntro && (
-        <IntroAnimation onComplete={() => {
-          setShowIntro(false)
-          setIntroComplete(true)
-          sessionStorage.setItem('nexus_intro_shown', 'true')
-        }} />
-      )}
-
-      {/* Main Content - Only show after intro completes OR if not showing intro */}
-      <div className={`transition-opacity duration-500 ${(introComplete || !showIntro || !mounted) ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Main Content - Always Visible (No Intro Animation) */}
+      <div className="opacity-100">
       {/* Background Animation - Only on home view */}
       {currentView === 'home' && mounted && <NeuralNetworkBackground />}
 
