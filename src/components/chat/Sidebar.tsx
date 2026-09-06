@@ -111,44 +111,50 @@ export default function Sidebar({
               <Plus className="w-4 h-4 mr-2" /> New Chat
             </Button>
             
-            {/* Upgrade Pro Button - ALWAYS VISIBLE ON ALL DEVICES */}
+            {/* Upgrade Pro Button - FIXED FOR ALL DEVICES */}
             <a
               href="/pricing"
-              onClick={(e) => { e.preventDefault(); onClose(); setTimeout(() => window.location.href = '/pricing', 100); }}
+              onClick={(e) => { 
+                e.preventDefault(); 
+                onClose(); 
+                // Direct navigation without delay
+                window.location.href = '/pricing'; 
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 width: '100%',
-                gap: '8px',
-                padding: '12px 14px',
-                minHeight: '48px',
+                gap: '10px',
+                padding: '14px 16px',
+                minHeight: '52px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(236, 72, 153, 0.45))',
-                border: '2px solid rgba(168, 85, 247, 0.75)',
+                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5))',
+                border: '2px solid rgba(168, 85, 247, 0.8)',
                 color: '#ffffff',
                 textDecoration: 'none',
                 marginTop: '10px',
-                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.35), 0 0 40px rgba(168, 85, 247, 0.15)',
+                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.15), inset 0 1px 0 rgba(255,255,255,0.1)',
                 boxSizing: 'border-box',
                 position: 'relative',
                 zIndex: 10,
-                touchAction: 'manipulation'
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'rgba(168, 85, 247, 0.4)',
+                cursor: 'pointer'
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
-                <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
-                <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
               </svg>
-              <span style={{ fontSize: '14px', fontWeight: 800, flex: 1, letterSpacing: '0.3px' }}>Upgrade Pro</span>
+              <span style={{ fontSize: '15px', fontWeight: 800, flex: 1, letterSpacing: '0.5px' }}>Upgrade Pro</span>
               <span style={{
-                padding: '4px 12px',
+                padding: '5px 14px',
                 borderRadius: '9999px',
                 fontSize: '11px',
-                fontWeight: 800,
+                fontWeight: 900,
                 background: 'linear-gradient(135deg, #facc15, #f97316, #ef4444)',
                 color: '#000000',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px',
+                letterSpacing: '1px',
                 textShadow: '0 1px 2px rgba(0,0,0,0.3)'
               }}>⭐ PRO</span>
             </a>
