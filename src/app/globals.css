@@ -6,6 +6,17 @@
    Dark Mode with Cyan/Purple Neon Accents
    ============================================ */
 
+/* Prevent hydration mismatch - ensure content is visible */
+.nexus-main-container {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure all buttons and links are visible */
+button, a, [role="button"] {
+  visibility: visible !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
