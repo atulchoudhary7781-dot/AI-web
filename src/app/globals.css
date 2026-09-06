@@ -18,6 +18,43 @@ button, a, [role="button"] {
 }
 
 /* ============================================
+   RESPONSIVE UTILITIES (xs breakpoint < 375px)
+   ============================================ */
+
+@media (max-width: 374px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
+  .xs\:text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .xs\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .xs\:px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .xs\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .xs\:py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  .xs\:py-1\.5 {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+}
+
+/* ============================================
    MOBILE/TABLET/PC - ALL DEVICES SUPPORT
    Every button visible & tappable everywhere
    ============================================ */
@@ -547,465 +584,150 @@ textarea::placeholder, input::placeholder {
 }
 
 /* ============================================
-   NAVBAR & HEADER STYLES
+   LAYOUT FIXES FOR PAGES
    ============================================ */
-header, nav, [role="navigation"] {
-  background: rgba(10, 10, 30, 0.95) !important;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.2) !important;
-  backdrop-filter: blur(20px) !important;
-}
 
-/* ============================================
-   HERO SECTION - CYBERPUNK EFFECT
-   ============================================ */
-.hero-section {
-  background: linear-gradient(to bottom, rgba(10, 10, 30, 0.8), rgba(15, 15, 35, 0.95)) !important;
+.nexus-main-container {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, transparent 0%, rgba(10, 10, 30, 0.6) 100%);
-  pointer-events: none;
-}
-
-/* ============================================
-   SPECIAL EFFECTS
-   ============================================ */
-
-/* Text glow effect - Cyan */
-.text-glow-cyan {
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
-               0 0 20px rgba(0, 255, 255, 0.3),
-               0 0 40px rgba(0, 255, 255, 0.2);
-}
-
-.text-glow-purple {
-  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5),
-               0 0 20px rgba(168, 85, 247, 0.3);
-}
-
-/* Box glow effect - Cyan */
-.box-glow-cyan {
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4),
-              0 0 40px rgba(0, 255, 255, 0.2),
-              inset 0 0 20px rgba(0, 255, 255, 0.1);
-}
-
-/* Border glow animation */
-.border-glow-animated {
-  animation: borderGlow 2s ease-in-out infinite;
-}
-
-@keyframes borderGlow {
-  0%, 100% {
-    border-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-  }
-  50% {
-    border-color: rgba(0, 255, 255, 0.6);
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
-  }
-}
-
-/* Particle container for hero */
-.particles-container {
-  position: absolute;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
 }
 
-.particle {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: #00ffff;
-  border-radius: 50%;
-  box-shadow: 0 0 6px #00ffff;
-  animation: particleFloat 15s infinite linear;
+.dashboard-page-container,
+.pricing-page-container,
+.admin-page-container,
+.login-page-container,
+.signup-page-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-@keyframes particleFloat {
-  0% {
-    transform: translateY(100vh) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(100px);
-    opacity: 0;
+/* ============================================
+   SCROLLBAR CUSTOMIZATION FOR ALL CONTAINERS
+   ============================================ */
+
+.dashboard-page-container::-webkit-scrollbar,
+.pricing-page-container::-webkit-scrollbar,
+.admin-page-container::-webkit-scrollbar,
+.login-page-container::-webkit-scrollbar,
+.signup-page-container::-webkit-scrollbar,
+.nexus-main-container::-webkit-scrollbar,
+.subscription-tab-scroll::-webkit-scrollbar,
+.settings-tab-scroll::-webkit-scrollbar,
+.profile-info-tab-scroll::-webkit-scrollbar,
+.settings-main-scroll::-webkit-scrollbar,
+.dashboard-page-container::-webkit-scrollbar,
+.pricing-page-container::-webkit-scrollbar,
+.admin-page-container::-webkit-scrollbar,
+.login-page-container::-webkit-scrollbar,
+.signup-page-container::-webkit-scrollbar,
+.nexus-main-container::-webkit-scrollbar,
+.subscription-tab-scroll::-webkit-scrollbar,
+.settings-tab-scroll::-webkit-scrollbar {
+  display: block !important;
+  width: 6px !important;
+}
+
+.dashboard-page-container::-webkit-scrollbar-track,
+.pricing-page-container::-webkit-scrollbar-track,
+.admin-page-container::-webkit-scrollbar-track,
+.login-page-container::-webkit-scrollbar-track,
+.signup-page-container::-webkit-scrollbar-track {
+  background: rgba(20, 20, 40, 0.9);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.dashboard-page-container::-webkit-scrollbar-thumb,
+.pricing-page-container::-webkit-scrollbar-thumb,
+.admin-page-container::-webkit-scrollbar-thumb,
+.login-page-container::-webkit-scrollbar-thumb,
+.signup-page-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00ffff, #a855f7);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.dashboard-page-container::-webkit-scrollbar-thumb:hover,
+.pricing-page-container::-webkit-scrollbar-thumb:hover,
+.admin-page-container::-webkit-scrollbar-thumb:hover,
+.login-page-container::-webkit-scrollbar-thumb:hover,
+.signup-page-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00eeee, #9333ea);
+}
+
+/* Profile Info tab - Cyan scrollbar */
+.profile-info-tab-scroll::-webkit-scrollbar-track {
+  background: rgba(20, 20, 40, 0.9);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.profile-info-tab-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00ffff, #a855f7);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.profile-info-tab-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00eeee, #9333ea);
+}
+
+.profile-info-tab-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
+}
+
+/* Subscription tab - Purple-Pink scrollbar */
+.subscription-tab-scroll::-webkit-scrollbar-track {
+  background: rgba(20, 20, 40, 0.9);
+  border-radius: 10px;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.subscription-tab-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a855f7, #ec4899);
+  border-radius: 10px;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.subscription-tab-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #9333ea, #db2777);
+}
+
+.subscription-tab-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #a855f7 rgba(20, 20, 40, 0.9);
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 /* ============================================
-   RESPONSIVE ADJUSTMENTS
+   PRINT STYLES
    ============================================ */
-@media (max-width: 768px) {
+
+@media print {
   body {
-    background-size: cover !important;
-    /* Prevent bounce scroll on iOS */
-    overscroll-behavior: none;
-    /* Smooth scrolling */
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .glass-strong, .glass-light, .glass-subtle {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  
-  /* Mobile touch targets - minimum 44px */
-  button, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  /* Text selection disabled on UI elements for app-like feel */
-  .no-select, header, footer, [role="button"] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-}
-
-/* ============================================
-   MOBILE OPTIMIZATIONS - SAFE AREA & VIEWPORT
-   ============================================ */
-
-/* Safe area support for notched phones (iPhone X+) */
-.safe-area-top {
-  padding-top: env(safe-area-inset-top, 0);
-}
-
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-.h-safe-area-inset-bottom {
-  height: env(safe-area-inset-bottom, 0);
-}
-
-/* Full viewport height fix for mobile browsers */
-html, body {
-  height: 100%;
-}
-
-/* Mobile ONLY - Prevent bounce scroll but allow internal scrolling */
-@media (max-width: 768px) {
-  html, body {
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-    position: relative !important;
-    overflow-y: auto !important;
-    height: auto !important;
-    min-height: 100vh !important;
-  }
-}
-
-/* Desktop & Tablet: Ensure normal document flow scrolling */
-@media (min-width: 769px) {
-  html, body {
-    position: relative !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    height: auto !important;
-    min-height: 100vh !important;
-  }
-}
-
-/* Allow scroll only in message container */
-.overflow-y-auto {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* Mobile keyboard handling - don't push layout up */
-@supports (padding: max(0px)) {
-  .safe-area-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom), 16px);
-  }
-}
-
-/* Touch action optimization */
-.touch-manipulation {
-  touch-action: manipulation;
-}
-
-/* Scrollbar visible on ALL devices - sleek style for mobile */
-@media (max-width: 768px) {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 255, 255, 0.5) rgba(10, 10, 26, 0.8);
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 4px;  /* Thinner on mobile */
-    height: 4px;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(10, 10, 26, 0.8);
-    border-radius: 2px;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgba(0, 255, 255, 0.6), rgba(168, 85, 247, 0.6));
-    border-radius: 2px;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(0, 255, 255, 0.8), rgba(168, 85, 247, 0.8));
-  }
-  
-  /* Always show scrollbar on ALL pages with content */
-  .messages-container::-webkit-scrollbar,
-  .model-list-scroll::-webkit-scrollbar,
-  .history-list-scroll::-webkit-scrollbar,
-  .profile-page-container::-webkit-scrollbar,
-  .settings-page-container::-webkit-scrollbar,
-  .settings-main-scroll::-webkit-scrollbar,
-  .dashboard-page-container::-webkit-scrollbar,
-  .pricing-page-container::-webkit-scrollbar,
-  .admin-page-container::-webkit-scrollbar,
-  .login-page-container::-webkit-scrollbar,
-  .signup-page-container::-webkit-scrollbar,
-  .nexus-main-container::-webkit-scrollbar,
-  .subscription-tab-scroll::-webkit-scrollbar,
-  .settings-tab-scroll::-webkit-scrollbar,
-  .profile-info-tab-scroll::-webkit-scrollbar {
-    display: block !important;
-    width: 6px !important;
+    background: white;
   }
 
-  /* Profile Info tab - Cyan scrollbar */
-  .profile-info-tab-scroll::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.9);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.1);
-  }
-  .profile-info-tab-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00ffff, #a855f7);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.3);
-  }
-  .profile-info-tab-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #00eeee, #9333ea);
-  }
-  .profile-info-tab-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
-  }
-
-  /* Subscription tab - Purple-Pink scrollbar */
-  .subscription-tab-scroll::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.9);
-    border-radius: 10px;
-    border: 1px solid rgba(168, 85, 247, 0.2);
-  }
-  .subscription-tab-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #a855f7, #ec4899);
-    border-radius: 10px;
-    border: 1px solid rgba(168, 85, 247, 0.4);
-  }
-  .subscription-tab-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #9333ea, #db2777);
-  }
-  .subscription-tab-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #a855f7 rgba(20, 20, 40, 0.9);
-  }
-
-  /* Pricing Page - Cyan scrollbar with proper scroll */
-  .pricing-page-container {
-    height: auto !important;
-    min-height: 100vh !important;
-    max-height: none !important;
-    overflow-y: scroll !important;
-    overflow-x: hidden !important;
-    position: relative !important;
-    scroll-behavior: smooth;
-    display: block !important;
-    width: 100% !important;
-  }
-  
-  /* Ensure html/body allow scroll on pricing page */
-  html:has(.pricing-page-container),
-  html:has(.pricing-page-container) body {
-    overflow-y: auto !important;
-    height: auto !important;
-  }
-  
-  .pricing-page-container::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.9);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.1);
-  }
-  .pricing-page-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00ffff, #a855f7);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.3);
-  }
-  .pricing-page-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #00eeee, #9333ea);
-  }
-  .pricing-page-container {
-    scrollbar-width: thin;
-    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
-  }
-
-  /* Settings tab - Cyan-Purple scrollbar */
-  .settings-tab-scroll::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.9);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.15);
-  }
-  .settings-tab-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00ffff, #a855f7);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.3);
-  }
-  .settings-tab-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #00eeee, #9333ea);
-  }
-  .settings-tab-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
-  }
-
-  /* Settings Main Page - Purple scrollbar */
-  .settings-main-scroll::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.9);
-    border-radius: 10px;
-    border: 1px solid rgba(168, 85, 247, 0.2);
-  }
-  .settings-main-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #a855f7, #6366f1);
-    border-radius: 10px;
-    border: 1px solid rgba(168, 85, 247, 0.4);
-  }
-  .settings-main-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #9333ea, #4f46e5);
-  }
-  .settings-main-scroll {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Smooth scroll for all tabs */
-  .profile-info-tab-scroll,
-  .subscription-tab-scroll,
-  .settings-tab-scroll {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Force scrollbar visibility */
-  .profile-info-tab-scroll::-webkit-scrollbar,
-  .subscription-tab-scroll::-webkit-scrollbar,
-  .settings-tab-scroll::-webkit-scrollbar {
-    display: block !important;
-    width: 8px !important;
-    background: rgba(20, 20, 40, 0.95);
-    border-radius: 10px;
-  }
-
-  /* Main profile page scrollbar - ALWAYS VISIBLE */
-  .profile-page-container::-webkit-scrollbar {
-    display: block !important;
-    width: 12px !important;
-    background: rgba(20, 20, 40, 0.95) !important;
-  }
-  
-  .profile-page-container::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.95) !important;
-    border-radius: 10px;
-  }
-  
-  .profile-page-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00ffff, #a855f7) !important;
-    border-radius: 10px !important;
-    border: 2px solid rgba(0, 255, 255, 0.3);
-  }
-}
-
-/* Desktop scrollbar for main content area - ENHANCED VISIBILITY */
-@media (min-width: 769px) {
-  /* Main scrollbar styling for desktop browsers */
-  ::-webkit-scrollbar {
-    width: 12px;
-    background: rgba(20, 20, 40, 0.95);
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(20, 20, 40, 0.95);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.1);
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00ffff, #a855f7);
-    border-radius: 10px;
-    border: 2px solid rgba(0, 255, 255, 0.3);
-    min-height: 60px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #33ccff, #c084fc);
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-  }
-
-  /* Smooth scrolling for entire page */
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-/* Input focus state on mobile - prevent zoom */
-@media (max-width: 768px) {
-  input[type="text"],
-  textarea,
-  [contenteditable] {
-    font-size: 16px !important; /* Prevents iOS zoom on focus */
-  }
-}
-
-/* Animation utilities for mobile */
-.animate-in {
-  animation-duration: 200ms;
-  animation-timing-function: ease-out;
-  animation-fill-mode: both;
-}
-
-.slide-in-from-bottom-4 {
-  --tw-enter-translate-y: 1rem;
-}
-
-.fade-in {
-  --tw-enter-opacity: 0;
-}
-
-.zoom-in-95 {
-  --tw-enter-scale: 0.95;
-}
-
-/* Bottom sheet shadow for mobile model selector */
-@media (max-width: 640px) {
-  .rounded-t-2xl {
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5),
-                0 -2px 10px rgba(0, 0, 0, 0.3);
+  .no-print {
+    display: none !important;
   }
 }
