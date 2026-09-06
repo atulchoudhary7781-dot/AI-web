@@ -286,19 +286,8 @@ export default function UserProfilePage({ user, onBack, onLogout }: UserProfileP
           <>
             {/* Profile Hero Section */}
             <div className="relative mb-8">
-              {/* Cover Gradient */}
-              <div className="h-32 sm:h-40 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLTIuNC00LTQtNHM0CAzMCAwIDMwIDRtMC00YzAtMiAyLjQtNCA0LTRzNCAgMCAwIDRtMC00YzAtMiAyLjQtNCA0LTRzNCAwIDAgNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-                
-                {/* Edit Cover Button */}
-                <button className="absolute bottom-3 right-3 px-4 py-2 bg-black/30 backdrop-blur-sm rounded-xl text-sm hover:bg-black/50 transition-colors flex items-center gap-2">
-                  <Camera size={14} />
-                  Edit Cover
-                </button>
-              </div>
-
               {/* Avatar */}
-              <div className="relative -mt-16 sm:-mt-20 px-6">
+              <div className="px-6 pt-4">
                 <div className="relative inline-block group">
                   <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-1 shadow-2xl shadow-purple-500/30">
                     <div className="w-full h-full rounded-[22px] bg-slate-800 flex items-center justify-center overflow-hidden">
