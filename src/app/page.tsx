@@ -327,9 +327,17 @@ export default function NexusAI() {
   const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [fileBase64, setFileBase64] = useState<string | null>(null)
   
-  // Intro Animation State
-  const [showIntro, setShowIntro] = useState(true)
-  const [introComplete, setIntroComplete] = useState(false)
+  // Intro Animation State - Check sessionStorage IMMEDIATELY to prevent flash
+  const [showIntro, setShowIntro] = useState(() => {
+    // Prevent flash - check if intro was already shown
+    if (typeof window === 'undefined') return false
+    return !sessionStorage.getItem('nexus_intro_shown')
+  })
+  const [introComplete, setIntroComplete] = useState(() => {
+    // Prevent flash - if intro was shown, mark as complete immediately
+    if (typeof window === 'undefined') return false
+    return !!sessionStorage.getItem('nexus_intro_shown')
+  })
   
   // AbortController for stopping responses
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -367,13 +375,7 @@ export default function NexusAI() {
     if (savedChatCount) {
       setChatCount(parseInt(savedChatCount, 10))
     }
-    
-    // Check if intro was already shown in this session
-    const introShown = sessionStorage.getItem('nexus_intro_shown')
-    if (introShown) {
-      setShowIntro(false)
-      setIntroComplete(true)
-    }
+    // Note: Intro state is now initialized from sessionStorage in useState (prevents flash)
   }, [isLoggedIn])
 
   // Save sessions to localStorage when they change (only if logged in)
