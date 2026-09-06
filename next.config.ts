@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// FORCE REBUILD - v1.0.3 - Sun Sep 6 14:06 UTC 2026
 const nextConfig: NextConfig = {
   /* ==================== PERFORMANCE OPTIMIZATION ==================== */
   
