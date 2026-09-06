@@ -1298,17 +1298,18 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
       {/* Main Content - FULL SCREEN */}
       <main className="h-screen w-full flex flex-col overflow-hidden">
         {/* Top Header Bar - Always visible with integrated Nav Button */}
-        <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 ${
+        <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 relative ${
           currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
         }`}>
-          {/* MOBILE/TABLET/PC - Responsive Header */}
-          <div className="flex items-center justify-between px-3 sm:px-6 min-h-[52px] h-auto py-2 sm:py-0 sm:h-[52px]">
-            {/* Left Side - Navigation Button + Title */}
-            <div className="flex items-center gap-3">
+          {/* MOBILE/TABLET/PC - Responsive Header - GRID LAYOUT for TRUE CENTER */}
+          <div className="grid grid-cols-3 items-center px-3 sm:px-6 min-h-[52px] h-auto py-2 sm:py-0 sm:h-[52px]">
+            
+            {/* LEFT SIDE - Navigation Button + Title */}
+            <div className="flex items-center gap-3 justify-start min-w-0">
               {/* Integrated Navigation Button - Part of Header */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-200 ease-out hover:scale-105 active:scale-95 ${
+                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-200 ease-out hover:scale-105 active:scale-95 flex-shrink-0 ${
                   sidebarOpen 
                     ? 'bg-red-500/15 border-red-500/40 shadow-sm shadow-red-500/10 rotate-90' 
                     : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
@@ -1324,11 +1325,11 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
               
               {/* Title - Show only when not on home view */}
               {currentView !== 'home' && (
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-4 h-4 text-cyan-400" />
                   </div>
-                  <span className="font-semibold text-white text-base hidden sm:block tracking-tight">
+                  <span className="font-semibold text-white text-base hidden sm:block tracking-tight truncate">
                     {currentView === 'chat' ? 'AI Chat' : 
                      currentView === 'settings' ? 'Settings' :
                      currentView === 'features' ? 'Features' :
@@ -1338,47 +1339,52 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
               )}
             </div>
 
-            {/* ‚≠ê CENTER - PRO BUTTON (ALWAYS VISIBLE - Login/Logout/Signup sabpe) */}
-            <a
-              href="/pricing"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                padding: '6px 12px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-                border: '1px solid rgba(255,255,255,0.3)',
-                color: '#ffffff',
-                fontSize: '11px',
-                fontWeight: 800,
-                textDecoration: 'none',
-                boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5)',
-                cursor: 'pointer',
-                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s ease'
-              }}
-              aria-label="Upgrade to Pro"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)'
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.7)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)'
-                e.currentTarget.style.boxShadow = '0 2px 12px rgba(168, 85, 247, 0.5)'
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
-              <span>PRO</span>
-            </a>
+            {/* ‚≠ê CENTER - PRO BUTTON (ALWAYS VISIBLE - Login/Logout/Refresh sabpe FIXED CENTER) */}
+            <div className="flex items-center justify-center">
+              <a
+                href="/pricing"
+                id="header-pro-button"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  padding: '6px 12px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5)',
+                  cursor: 'pointer',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease',
+                  visibility: 'visible',
+                  opacity: 1
+                }}
+                aria-label="Upgrade to Pro"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.7)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(168, 85, 247, 0.5)'
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+                <span>PRO</span>
+              </a>
+            </div>
 
-            {/* Right Side - Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* RIGHT SIDE - Actions */}
+            <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
               
               {isLoggedIn ? (
                   <>

@@ -59,16 +59,15 @@ button, a, [role="button"] {
    Every button visible & tappable everywhere
    ============================================ */
 
-/* SUBSCRIPTION BUTTON - IMMEDIATE VISIBILITY (Maximum Priority) */
-#nexus-pro-button,
-a[href="/pricing"][id="nexus-pro-button"] {
+/* SUBSCRIPTION BUTTON - HEADER PRO BUTTON (Always Visible, True Center) */
+#header-pro-button,
+a[href="/pricing"][id="header-pro-button"] {
   visibility: visible !important;
   opacity: 1 !important;
   display: inline-flex !important;
   pointer-events: auto !important;
-  position: fixed !important;
-  z-index: 2147483647 !important; /* Maximum */
-  height: 28px !important;
+  z-index: 50 !important;
+  height: 32px !important;
   width: auto !important;
 }
 
