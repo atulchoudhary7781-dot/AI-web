@@ -303,6 +303,18 @@ body {
     animation: border-glow 2s ease-in-out infinite;
   }
 
+  /* Pro Button Pulse Animation */
+  @keyframes pro-button-pulse {
+    0%, 100% { 
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 4px 25px rgba(102, 126, 234, 0.8), 0 0 20px rgba(118, 75, 162, 0.4);
+      transform: scale(1.02);
+    }
+  }
+
   /* Slide up animation */
   @keyframes slide-up {
     from {
