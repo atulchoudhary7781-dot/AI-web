@@ -1,0 +1,548 @@
+     1→'use client'
+     2→
+     3→import { useState } from 'react'
+     4→import {
+     5→  User, Mail, Camera, Save, X,
+     6→  MapPin, Phone, Globe, Edit3,
+     7→  Calendar, Settings, LogOut,
+     8→  ChevronLeft, Shield, ChevronRight,
+     9→  Bell, Lock, Key, Eye, Moon,
+    10→  Sun, Monitor, Check, Star,
+    11→  Heart, Award, Zap, Sparkles,
+    12→  Link2, FileText, Briefcase,
+    13→  MessageSquare, Users
+    14→} from 'lucide-react'
+    15→
+    16→// Types
+    17→interface UserProfileProps {
+    18→  user: {
+    19→    name: string
+    20→    email: string
+    21→    avatar?: string
+    22→  }
+    23→  onBack?: () => void
+    24→  onLogout?: () => void
+    25→}
+    26→
+    27→// Animated Toggle Component
+    28→function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (val: boolean) => void }) {
+    29→  return (
+    30→    <button
+    31→      onClick={() => onChange(!enabled)}
+    32→      className={`relative w-14 h-7 rounded-full transition-all duration-300 ${enabled ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg shadow-purple-500/30' : 'bg-slate-700'}`}
+    33→    >
+    34→      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${enabled ? 'left-8' : 'left-1'} flex items-center justify-center`}>
+    35→        {enabled && <Check size={12} className="text-purple-600" />}
+    36→      </div>
+    37→    </button>
+    38→  )
+    39→}
+    40→
+    41→// Stat Card Component
+    42→function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
+    43→  return (
+    44→    <div className="flex-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all group">
+    45→      <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+    46→        <Icon size={20} className="text-white" />
+    47→      </div>
+    48→      <p className="text-2xl font-bold">{value}</p>
+    49→      <p className="text-xs text-gray-400 mt-1">{label}</p>
+    50→    </div>
+    51→  )
+    52→}
+    53→
+    54→export default function UserProfilePage({ user, onBack, onLogout }: UserProfileProps) {
+    55→  const [isEditing, setIsEditing] = useState(false)
+    56→  const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null)
+    57→  
+    58→  // Profile state
+    59→  const [profileData, setProfileData] = useState({
+    60→    name: user.name || '',
+    61→    email: user.email || '',
+    62→    phone: '+91 XXXXX XXXXX',
+    63→    location: 'Mumbai, India',
+    64→    bio: 'AI Enthusiast | Building the future 🚀',
+    65→    website: 'https://atul-portfolio-alpha.vercel.app/'
+    66→  })
+    67→
+    68→  // Settings states
+    69→  const [privacySettings, setPrivacySettings] = useState({
+    70→    twoFactorAuth: false,
+    71→    hideOnlineStatus: true,
+    72→    privateProfile: false
+    73→  })
+    74→
+    75→  const [notificationSettings, setNotificationSettings] = useState({
+    76→    pushNotifications: true,
+    77→    emailNotifications: true,
+    78→    chatMessages: true
+    79→  })
+    80→
+    81→  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('dark')
+    82→  const [language, setLanguage] = useState('en')
+    83→
+    84→  const languages = [
+    85→    { code: 'en', name: 'English', flag: '🇺🇸' },
+    86→    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
+    87→    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    88→    { code: 'fr', name: 'Français', flag: '🇫🇷' }
+    89→  ]
+    90→
+    91→  const handleSave = () => {
+    92→    setIsEditing(false)
+    93→    localStorage.setItem('nexus_profile', JSON.stringify(profileData))
+    94→  }
+    95→
+    96→  return (
+    97→    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white overflow-hidden">
+    98→      {/* Animated Background */}
+    99→      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+   100→        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/30 rounded-full blur-[100px] animate-pulse" />
+   101→        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500/20 rounded-full blur-[100px] animate-pulse delay-1000" />
+   102→        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
+   103→      </div>
+   104→
+   105→      {/* Header */}
+   106→      <div className="relative bg-black/30 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
+   107→        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
+   108→          <button
+   109→            onClick={activeSettingsPanel ? () => setActiveSettingsPanel(null) : onBack}
+   110→            className="p-3 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95"
+   111→          >
+   112→            <ChevronLeft size={24} />
+   113→          </button>
+   114→          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+   115→            {activeSettingsPanel === 'privacy' && '🔒 Privacy & Security'}
+   116→            {activeSettingsPanel === 'language' && '🌍 Language & Region'}
+   117→            {activeSettingsPanel === 'notifications' && '🔔 Notifications'}
+   118→            {!activeSettingsPanel && '⭐ My Profile'}
+   119→          </h1>
+   120→        </div>
+   121→      </div>
+   122→
+   123→      {/* Content */}
+   124→      <div className="relative max-w-4xl mx-auto px-4 py-8">
+   125→        
+   126→        {/* ===== PRIVACY PANEL ===== */}
+   127→        {activeSettingsPanel === 'privacy' && (
+   128→          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+   129→            {/* Security Card */}
+   130→            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/5 backdrop-blur-xl rounded-3xl border border-blue-500/20 p-6">
+   131→              <div className="flex items-center gap-3 mb-6">
+   132→                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+   133→                  <Shield size={24} />
+   134→                </div>
+   135→                <div>
+   136→                  <h3 className="text-lg font-bold">Account Security</h3>
+   137→                  <p className="text-sm text-gray-400">Keep your account protected</p>
+   138→                </div>
+   139→              </div>
+   140→              
+   141→              <div className="space-y-3">
+   142→                {[
+   143→                  { icon: Key, title: 'Two-Factor Auth', desc: 'Add extra layer of security', setting: 'twoFactorAuth' as const },
+   144→                  { icon: Eye, title: 'Hide Online Status', desc: 'Appear offline to others', setting: 'hideOnlineStatus' as const },
+   145→                  { icon: Lock, title: 'Private Profile', desc: 'Only followers can see', setting: 'privateProfile' as const },
+   146→                ].map(({ icon: Icon, title, desc, setting }) => (
+   147→                  <div key={setting} className="flex items-center justify-between p-4 bg-black/20 rounded-2xl hover:bg-black/30 transition-colors">
+   148→                    <div className="flex items-center gap-3">
+   149→                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+   150→                        <Icon size={18} className="text-blue-400" />
+   151→                      </div>
+   152→                      <div>
+   153→                        <p className="font-semibold">{title}</p>
+   154→                        <p className="text-xs text-gray-400">{desc}</p>
+   155→                      </div>
+   156→                    </div>
+   157→                    <Toggle 
+   158→                      enabled={privacySettings[setting]} 
+   159→                      onChange={(val) => setPrivacySettings({...privacySettings, [setting]: val})}
+   160→                    />
+   161→                  </div>
+   162→                ))}
+   163→              </div>
+   164→            </div>
+   165→
+   166→            {/* Danger Zone */}
+   167→            <div className="bg-gradient-to-br from-red-500/10 to-orange-500/5 backdrop-blur-xl rounded-3xl border border-red-500/20 p-6">
+   168→              <h3 className="font-bold text-red-400 mb-4">⚠️ Danger Zone</h3>
+   169→              <div className="grid grid-cols-2 gap-3">
+   170→                <button className="p-4 bg-red-500/20 hover:bg-red-500/30 rounded-2xl transition-colors text-left">
+   171→                  <p className="font-medium text-red-300">Deactivate</p>
+   172→                  <p className="text-xs text-red-400/70 mt-1">Temporarily disable</p>
+   173→                </button>
+   174→                <button className="p-4 bg-red-500/20 hover:bg-red-500/30 rounded-2xl transition-colors text-left">
+   175→                  <p className="font-medium text-red-300">Delete Account</p>
+   176→                  <p className="text-xs text-red-400/70 mt-1">Permanently remove</p>
+   177→                </button>
+   178→              </div>
+   179→            </div>
+   180→          </div>
+   181→        )}
+   182→
+   183→        {/* ===== LANGUAGE PANEL ===== */}
+   184→        {activeSettingsPanel === 'language' && (
+   185→          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+   186→            {/* Language Selection */}
+   187→            <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 backdrop-blur-xl rounded-3xl border border-green-500/20 p-6">
+   188→              <div className="flex items-center gap-3 mb-6">
+   189→                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+   190→                  <Globe size={24} />
+   191→                </div>
+   192→                <div>
+   193→                  <h3 className="text-lg font-bold">Language</h3>
+   194→                  <p className="text-sm text-gray-400">Choose your preferred language</p>
+   195→                </div>
+   196→              </div>
+   197→              
+   198→              <div className="space-y-2">
+   199→                {languages.map((lang) => (
+   200→                  <button
+   201→                    key={lang.code}
+   202→                    onClick={() => setLanguage(lang.code)}
+   203→                    className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
+   204→                      language === lang.code 
+   205→                        ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 border border-green-500/50 scale-[1.02]' 
+   206→                        : 'bg-black/20 hover:bg-black/30 border border-transparent'
+   207→                    }`}
+   208→                  >
+   209→                    <span className="flex items-center gap-3 text-lg">
+   210→                      <span>{lang.flag}</span>
+   211→                      <span>{lang.name}</span>
+   212→                    </span>
+   213→                    {language === lang.code && (
+   214→                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+   215→                        <Check size={14} />
+   216→                      </div>
+   217→                    )}
+   218→                  </button>
+   219→                ))}
+   220→              </div>
+   221→            </div>
+   222→
+   223→            {/* Theme Selection */}
+   224→            <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl rounded-3xl border border-purple-500/20 p-6">
+   225→              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+   226→                <Sparkles size={20} className="text-purple-400" />
+   227→                Appearance
+   228→              </h3>
+   229→              
+   230→              <div className="grid grid-cols-3 gap-4">
+   231→                {[
+   232→                  { value: 'light' as const, icon: Sun, label: 'Light', color: 'from-yellow-500 to-orange-500' },
+   233→                  { value: 'dark' as const, icon: Moon, label: 'Dark', color: 'from-indigo-500 to-purple-500' },
+   234→                  { value: 'system' as const, icon: Monitor, label: 'System', color: 'from-gray-500 to-slate-500' },
+   235→                ].map(({ value, icon: Icon, label, color }) => (
+   236→                  <button
+   237→                    key={value}
+   238→                    onClick={() => setTheme(value)}
+   239→                    className={`p-5 rounded-2xl flex flex-col items-center gap-3 transition-all ${
+   240→                      theme === value 
+   241→                        ? `bg-gradient-to-br ${color} scale-105 shadow-lg` 
+   242→                        : 'bg-black/20 hover:bg-black/30'
+   243→                    }`}
+   244→                  >
+   245→                    <Icon size={28} />
+   246→                    <span className="text-sm font-medium">{label}</span>
+   247→                    {theme === value && (
+   248→                      <div className="w-2 h-2 rounded-full bg-white" />
+   249→                    )}
+   250→                  </button>
+   251→                ))}
+   252→              </div>
+   253→            </div>
+   254→          </div>
+   255→        )}
+   256→
+   257→        {/* ===== NOTIFICATIONS PANEL ===== */}
+   258→        {activeSettingsPanel === 'notifications' && (
+   259→          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+   260→            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 backdrop-blur-xl rounded-3xl border border-orange-500/20 p-6">
+   261→              <div className="flex items-center gap-3 mb-6">
+   262→                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+   263→                  <Bell size={24} />
+   264→                </div>
+   265→                <div>
+   266→                  <h3 className="text-lg font-bold">Notifications</h3>
+   267→                  <p className="text-sm text-gray-400">Manage how you get notified</p>
+   268→                </div>
+   269→              </div>
+   270→              
+   271→              <div className="space-y-3">
+   272→                {[
+   273→                  { icon: Bell, title: 'Push Notifications', desc: 'On your device', setting: 'pushNotifications' as const },
+   274→                  { icon: Mail, title: 'Email Updates', desc: 'In your inbox', setting: 'emailNotifications' as const },
+   275→                  { icon: MessageSquare, title: 'Chat Messages', desc: 'New conversations', setting: 'chatMessages' as const },
+   276→                ].map(({ icon: Icon, title, desc, setting }) => (
+   277→                  <div key={setting} className="flex items-center justify-between p-4 bg-black/20 rounded-2xl hover:bg-black/30 transition-colors">
+   278→                    <div className="flex items-center gap-3">
+   279→                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+   280→                        <Icon size={18} className="text-orange-400" />
+   281→                      </div>
+   282→                      <div>
+   283→                        <p className="font-semibold">{title}</p>
+   284→                        <p className="text-xs text-gray-400">{desc}</p>
+   285→                      </div>
+   286→                    </div>
+   287→                    <Toggle 
+   288→                      enabled={notificationSettings[setting]} 
+   289→                      onChange={(val) => setNotificationSettings({...notificationSettings, [setting]: val})}
+   290→                    />
+   291→                  </div>
+   292→                ))}
+   293→              </div>
+   294→            </div>
+   295→          </div>
+   296→        )}
+   297→
+   298→        {/* ===== MAIN PROFILE VIEW ===== */}
+   299→        {!activeSettingsPanel && (
+   300→          <>
+   301→            {/* Profile Hero Section */}
+   302→            <div className="relative mb-8">
+   303→              {/* Cover Gradient */}
+   304→              <div className="h-32 sm:h-40 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 relative overflow-hidden">
+   305→                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLTIuNC00LTQtNHM0CAzMCAwIDMwIDRtMC00YzAtMiAyLjQtNCA0LTRzNCAgMCAwIDRtMC00YzAtMiAyLjQtNCA0LTRzNCAwIDAgNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+   306→                
+   307→                {/* Edit Cover Button */}
+   308→                <button className="absolute bottom-3 right-3 px-4 py-2 bg-black/30 backdrop-blur-sm rounded-xl text-sm hover:bg-black/50 transition-colors flex items-center gap-2">
+   309→                  <Camera size={14} />
+   310→                  Edit Cover
+   311→                </button>
+   312→              </div>
+   313→
+   314→              {/* Avatar */}
+   315→              <div className="relative -mt-16 sm:-mt-20 px-6">
+   316→                <div className="relative inline-block group">
+   317→                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-1 shadow-2xl shadow-purple-500/30">
+   318→                    <div className="w-full h-full rounded-[22px] bg-slate-800 flex items-center justify-center overflow-hidden">
+   319→                      {user.avatar ? (
+   320→                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+   321→                      ) : (
+   322→                        <User size={64} className="text-gray-400" />
+   323→                      )}
+   324→                    </div>
+   325→                  </div>
+   326→                  
+   327→                  {/* Avatar Edit Button */}
+   328→                  <button className="absolute bottom-2 right-2 w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-lg">
+   329→                    <Camera size={18} />
+   330→                  </button>
+   331→
+   332→                  {/* Verified Badge */}
+   333→                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
+   334→                    <Check size={16} />
+   335→                  </div>
+   336→                </div>
+   337→
+   338→                {/* Name & Info */}
+   339→                <div className="mt-4">
+   340→                  {isEditing ? (
+   341→                    <input
+   342→                      type="text"
+   343→                      value={profileData.name}
+   344→                      onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+   345→                      className="text-2xl sm:text-3xl font-bold bg-transparent border-b-2 border-purple-500 focus:outline-none pb-1"
+   346→                    />
+   347→                  ) : (
+   348→                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+   349→                      {profileData.name}
+   350→                    </h2>
+   351→                  )}
+   352→                  
+   353→                  <div className="flex items-center gap-2 mt-2">
+   354→                    <p className="text-gray-400">@{profileData.name.toLowerCase().replace(/\s/g, '')}</p>
+   355→                    <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">PRO</span>
+   356→                  </div>
+   357→                  
+   358→                  {isEditing ? (
+   359→                    <input
+   360→                      type="email"
+   361→                      value={profileData.email}
+   362→                      onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+   363→                      className="mt-2 text-sm text-gray-400 bg-transparent border-b border-white/20 focus:outline-none"
+   364→                    />
+   365→                  ) : (
+   366→                    <p className="mt-2 text-sm text-gray-400 flex items-center gap-2">
+   367→                      <Mail size={14} />
+   368→                      {profileData.email}
+   369→                    </p>
+   370→                  )}
+   371→                </div>
+   372→              </div>
+   373→            </div>
+   374→
+   375→            {/* Stats Cards */}
+   376→            <div className="grid grid-cols-3 gap-4 mb-8">
+   377→              <StatCard icon={Briefcase} label="Projects" value="12" color="bg-gradient-to-br from-blue-500 to-cyan-500" />
+   378→              <StatCard icon={Users} label="Followers" value="1.2K" color="bg-gradient-to-br from-purple-500 to-pink-500" />
+   379→              <StatCard icon={Heart} label="Likes" value="8.5K" color="bg-gradient-to-br from-red-500 to-pink-500" />
+   380→            </div>
+   381→
+   382→            {/* Bio Section */}
+   383→            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 mb-6">
+   384→              <div className="flex items-center justify-between mb-4">
+   385→                <h3 className="font-bold flex items-center gap-2">
+   386→                  <FileText size={18} className="text-purple-400" />
+   387→                  About Me
+   388→                </h3>
+   389→                {!isEditing ? (
+   390→                  <button
+   391→                    onClick={() => setIsEditing(true)}
+   392→                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-sm font-medium shadow-lg shadow-purple-500/25"
+   393→                  >
+   394→                    <Edit3 size={14} />
+   395→                    Edit Profile
+   396→                  </button>
+   397→                ) : (
+   398→                  <div className="flex gap-2">
+   399→                    <button
+   400→                      onClick={handleSave}
+   401→                      className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-sm font-medium"
+   402→                    >
+   403→                      <Save size={14} />
+   404→                      Save
+   405→                    </button>
+   406→                    <button
+   407→                      onClick={() => setIsEditing(false)}
+   408→                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all flex items-center gap-2 text-sm"
+   409→                    >
+   410→                      <X size={14} />
+   411→                      Cancel
+   412→                    </button>
+   413→                  </div>
+   414→                )}
+   415→              </div>
+   416→
+   417→              {/* Bio Text */}
+   418→              {isEditing ? (
+   419→                <textarea
+   420→                  value={profileData.bio}
+   421→                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+   422→                  placeholder="Tell us about yourself..."
+   423→                  rows={3}
+   424→                  className="w-full bg-black/20 border border-white/10 rounded-xl p-3 focus:outline-none focus:border-purple-500 resize-none"
+   425→                />
+   426→              ) : (
+   427→                <p className="text-gray-300 leading-relaxed">{profileData.bio}</p>
+   428→              )}
+   429→
+   430→              {/* Info Grid */}
+   431→              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+   432→                {/* Location */}
+   433→                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl">
+   434→                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+   435→                    <MapPin size={18} className="text-red-400" />
+   436→                  </div>
+   437→                  <div className="flex-1">
+   438→                    <label className="text-xs text-gray-500">Location</label>
+   439→                    {isEditing ? (
+   440→                      <input
+   441→                        type="text"
+   442→                        value={profileData.location}
+   443→                        onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+   444→                        className="w-full bg-transparent focus:outline-none text-sm"
+   445→                      />
+   446→                    ) : (
+   447→                      <p className="text-sm font-medium">{profileData.location}</p>
+   448→                    )}
+   449→                  </div>
+   450→                </div>
+   451→
+   452→                {/* Phone */}
+   453→                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl">
+   454→                  <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+   455→                    <Phone size={18} className="text-green-400" />
+   456→                  </div>
+   457→                  <div className="flex-1">
+   458→                    <label className="text-xs text-gray-500">Phone</label>
+   459→                    {isEditing ? (
+   460→                      <input
+   461→                        type="tel"
+   462→                        value={profileData.phone}
+   463→                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+   464→                        className="w-full bg-transparent focus:outline-none text-sm"
+   465→                      />
+   466→                    ) : (
+   467→                      <p className="text-sm font-medium">{profileData.phone}</p>
+   468→                    )}
+   469→                  </div>
+   470→                </div>
+   471→
+   472→                {/* Website */}
+   473→                <div className="flex items-center gap-3 p-4 bg-black/20 rounded-2xl sm:col-span-2">
+   474→                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+   475→                    <Link2 size={18} className="text-cyan-400" />
+   476→                  </div>
+   477→                  <div className="flex-1">
+   478→                    <label className="text-xs text-gray-500">Website</label>
+   479→                    {isEditing ? (
+   480→                      <input
+   481→                        type="url"
+   482→                        value={profileData.website}
+   483→                        onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+   484→                        className="w-full bg-transparent focus:outline-none text-sm"
+   485→                      />
+   486→                    ) : (
+   487→                      <a href={profileData.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors">
+   488→                        {profileData.website.replace('https://', '')}
+   489→                      </a>
+   490→                    )}
+   491→                  </div>
+   492→                </div>
+   493→              </div>
+   494→            </div>
+   495→
+   496→            {/* Settings Cards */}
+   497→            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 mb-6">
+   498→              <h3 className="font-bold flex items-center gap-2 mb-4">
+   499→                <Settings size={18} className="text-purple-400" />
+   500→                Quick Settings
+   501→              </h3>
+   502→              
+   503→              <div className="space-y-3">
+   504→                {[
+   505→                  { id: 'privacy', icon: Shield, title: 'Privacy & Security', desc: 'Password, 2FA, visibility', gradient: 'from-blue-500 to-cyan-500' },
+   506→                  { id: 'language', icon: Globe, title: 'Language & Region', desc: 'English, timezone, theme', gradient: 'from-green-500 to-emerald-500' },
+   507→                  { id: 'notifications', icon: Bell, title: 'Notifications', desc: 'Push, email preferences', gradient: 'from-orange-500 to-amber-500' },
+   508→                ].map(({ id, icon: Icon, title, desc, gradient }) => (
+   509→                  <button
+   510→                    key={id}
+   511→                    onClick={() => setActiveSettingsPanel(id)}
+   512→                    className="w-full flex items-center justify-between p-4 bg-black/20 hover:bg-black/30 rounded-2xl transition-all group hover:scale-[1.02]"
+   513→                  >
+   514→                    <span className="flex items-center gap-4">
+   515→                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+   516→                        <Icon size={20} />
+   517→                      </div>
+   518→                      <div className="text-left">
+   519→                        <p className="font-semibold">{title}</p>
+   520→                        <p className="text-xs text-gray-400">{desc}</p>
+   521→                      </div>
+   522→                    </span>
+   523→                    <ChevronRight size={20} className="text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-transform" />
+   524→                  </button>
+   525→                ))}
+   526→              </div>
+   527→            </div>
+   528→
+   529→            {/* Logout Button */}
+   530→            <button
+   531→              onClick={onLogout}
+   532→              className="w-full p-5 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/30 hover:to-pink-500/30 border border-red-500/30 hover:border-red-500/50 rounded-3xl transition-all flex items-center justify-center gap-3 text-red-400 hover:text-red-300 font-medium group hover:scale-[1.02] active:scale-[0.98]"
+   533→            >
+   534→              <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
+   535→              Sign Out
+   536→            </button>
+   537→
+   538→            {/* Version Info */}
+   539→            <p className="text-center text-xs text-gray-600 mt-6">
+   540→              Nexus AI v2.0 • Made with ❤️
+   541→            </p>
+   542→          </>
+   543→        )}
+   544→      </div>
+   545→    </div>
+   546→  )
+   547→}
+   548→
