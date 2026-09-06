@@ -59,15 +59,20 @@ button, a, [role="button"] {
    Every button visible & tappable everywhere
    ============================================ */
 
-/* SUBSCRIPTION BUTTON - Visible but don't force size */
-a[href="/pricing"],
-a[href*="pricing"] {
+/* SUBSCRIPTION BUTTON - IMMEDIATE VISIBILITY (Maximum Priority) */
+#nexus-pro-button,
+a[href="/pricing"][id="nexus-pro-button"] {
   visibility: visible !important;
   opacity: 1 !important;
+  display: inline-flex !important;
   pointer-events: auto !important;
-  z-index: 999 !important;
-  /* Don't force min-height/width or position - let inline styles work */
+  position: fixed !important;
+  z-index: 2147483647 !important; /* Maximum */
+  height: 28px !important;
+  width: auto !important;
 }
+
+/* Other pricing links - visible but don't force size */
 
 /* PRO badge and upgrade buttons */
 [class*="Upgrade"],
