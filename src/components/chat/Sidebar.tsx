@@ -170,19 +170,25 @@ export default function Sidebar({
                 onClick={() => { onViewChange('settings'); onClose(); }}
               />
 
-              {/* Subscription / Pro Button - Visible to Everyone */}
+              {/* Subscription / Pro Button - Visible to Everyone - FORCED VISIBLE */}
               <Link
                 href="/pricing"
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-purple-400 border border-purple-500/30 hover:from-purple-500/25 hover:to-pink-500/25 hover:border-purple-500/50 shadow-sm shadow-purple-500/10"
+                className="!w-full !flex !items-center !gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/40 hover:from-purple-500/30 hover:to-pink-500/30 hover:border-purple-500/60 hover:shadow-md hover:shadow-purple-500/20"
+                style={{ 
+                  display: 'flex',
+                  visibility: 'visible' as const,
+                  opacity: 1,
+                  minHeight: '44px'
+                }}
               >
-                <Crown className="w-4 h-4 fill-yellow-300 text-yellow-300 flex-shrink-0" />
-                <span className="text-sm font-medium">Upgrade Pro</span>
-                <span className="ml-auto text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full font-bold text-white flex-shrink-0">
-                  NEW
+                <Crown className="w-5 h-5 fill-yellow-400 text-yellow-400 flex-shrink-0 drop-shadow-lg" />
+                <span className="text-sm font-bold text-white">Upgrade Pro</span>
+                <span className="ml-auto px-2 py-0.5 rounded-full font-black text-[10px] bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white shadow-sm flex-shrink-0 animate-pulse">
+                  ⭐ PRO
                 </span>
               </Link>
 

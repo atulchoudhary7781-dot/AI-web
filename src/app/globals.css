@@ -17,6 +17,26 @@ button, a, [role="button"] {
   visibility: visible !important;
 }
 
+/* SUBSCRIPTION BUTTON - FORCE VISIBLE EVERYWHERE */
+a[href="/pricing"],
+a[href*="pricing"],
+[class*="Upgrade"],
+[class*="Pro"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  pointer-events: auto !important;
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Sidebar - ensure content doesn't get hidden */
+aside nav a,
+aside nav [href] {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
