@@ -120,15 +120,37 @@ export default function Sidebar({
               <SidebarButton icon={<TrendingUp className="w-4 h-4" />} label="Statistics" active={currentView === 'stats'} onClick={() => { onViewChange('stats'); onClose(); }} />
               <SidebarButton icon={<Settings className="w-4 h-4" />} label="Settings" active={currentView === 'settings'} onClick={() => { onViewChange('settings'); onClose(); }} />
 
-              {/* Upgrade Pro Button - SIMPLE & VISIBLE */}
-              <button
-                onClick={() => { onClose(); window.location.href = '/pricing'; }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-purple-500/25 to-pink-500/25 text-white border border-purple-500/50 hover:from-purple-500/35 hover:to-pink-500/35 hover:border-purple-500/70 transition-all"
+              {/* Upgrade Pro Button - STATIC, No Hydration Issues */}
+              <a
+                href="/pricing"
+                onClick={(e) => { e.preventDefault(); onClose(); window.location.href = '/pricing'; }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  gap: '12px',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))',
+                  border: '1px solid rgba(168, 85, 247, 0.5)',
+                  color: '#ffffff',
+                  textDecoration: 'none'
+                }}
               >
-                <Crown className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-semibold flex-1 text-left">Upgrade Pro</span>
-                <span className="text-[10px] font-bold bg-gradient-to-r from-yellow-400 to-orange-500 px-2 py-0.5 rounded-full text-white">PRO</span>
-              </button>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+                  <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
+                  <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
+                </svg>
+                <span style={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>Upgrade Pro</span>
+                <span style={{
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  background: 'linear-gradient(to right, #facc15, #f97316)',
+                  color: '#ffffff'
+                }}>PRO</span>
+              </a>
 
               {isLoggedIn && (
                 <SidebarButton icon={<UserCircle className="w-4 h-4" />} label="My Profile" active={false} onClick={() => { router.push('/profile'); onClose(); }} />

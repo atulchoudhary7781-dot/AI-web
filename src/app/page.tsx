@@ -1338,12 +1338,33 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
             {/* Right Side - Actions */}
             <div className="flex items-center gap-2">
-              {/* Subscription Button - ALWAYS VISIBLE for ALL Users */}
-              <a
+              {/* Subscription Button - STATIC, No Hydration Issues */}
+              <a 
                 href="/pricing"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-500/25 to-pink-500/25 border border-purple-500/50 text-white text-xs font-semibold hover:from-purple-500/35 hover:to-pink-500/35 hover:border-purple-500/70 transition-all"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))',
+                  border: '1px solid rgba(168, 85, 247, 0.5)',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  textDecoration: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(to right, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25))';
+                }}
               >
-                <Crown className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
+                  <path d="M2 10s3-5 10-5 10 5 10 5-3 5-10 5S2 10 2 10z"/>
+                  <path d="M12 15a5 5 0 0 1-5-5h10a5 5 0 0 1-5 5z" fill="#facc15"/>
+                </svg>
                 <span className="hidden sm:inline">Pro</span>
               </a>
               
