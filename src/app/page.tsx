@@ -1258,40 +1258,42 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
   return (
     <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`} style={{ position: 'relative' }}>
       
-      {/* SMALL PRO BUTTON - LEFT SIDE HEADER (Always Visible) */}
+      {/* SMALL PRO BUTTON - LEFT SIDE (Compact) */}
       <a
         href="/pricing"
         style={{
           position: 'fixed',
-          top: '10px',
-          left: '10px',
+          top: '8px',
+          left: '8px',
           zIndex: 99999,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '4px',
-          padding: '6px 10px',
-          minHeight: '34px',
-          minWidth: '34px',
-          borderRadius: '8px',
-          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.8), rgba(236, 72, 153, 0.8))',
-          border: '1.5px solid rgba(168, 85, 247, 1)',
+          gap: '3px',
+          padding: '5px 8px',
+          height: '28px',
+          width: 'auto',
+          minWidth: '28px',
+          borderRadius: '6px',
+          background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+          border: '1px solid rgba(255,255,255,0.3)',
           color: '#ffffff',
-          fontSize: '11px',
-          fontWeight: 800,
+          fontSize: '10px',
+          fontWeight: 700,
           textDecoration: 'none',
-          boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-          WebkitTapHighlightColor: 'rgba(168, 85, 247, 0.5)',
+          boxShadow: '0 2px 8px rgba(168, 85, 247, 0.4)',
+          WebkitTapHighlightColor: 'transparent',
           cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+          lineHeight: 1,
+          boxSizing: 'border-box'
         }}
-        aria-label="Upgrade to Pro"
+        aria-label="Pro"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="3">
           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
         </svg>
-        <span style={{ letterSpacing: '0.3px' }}>PRO</span>
+        <span>PRO</span>
       </a>
 
       {/* Intro Animation - Shows on first visit (only after mount) */}
