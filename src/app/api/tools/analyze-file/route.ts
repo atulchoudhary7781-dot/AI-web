@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
+import { detectLanguage as detectTextLanguage, getLanguageName } from '@/lib/language'
 
 // Supported file types
 const SUPPORTED_FORMATS = [
@@ -225,7 +226,7 @@ function analyzeDocumentBasic(file: File, content: string | null): any {
       charCount,
       lineCount,
       readingTime: Math.ceil(wordCount / 200) + ' min',
-      language: content ? detectLanguage(content) : 'Unknown'
+      language: content ? detectTextLanguage(content, { returnName: true }) : 'Unknown'
     },
     capabilities: [
       'Summarize content',
@@ -303,7 +304,7 @@ function analyzeTextBasic(file: File, content: string | null): any {
       wordCount: words,
       charCount: chars,
       lineCount: lines,
-      language: content ? detectLanguage(content) : 'Unknown',
+      language: content ? detectTextLanguage(content, { returnName: true }) : 'Unknown',
       encoding: 'UTF-8'
     },
     capabilities: [
@@ -406,38 +407,7 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-function detectLanguage(text: string): string {
-  const patterns: Record<string, RegExp> = {
-    'hi': /[\u0900-\u097F]/,
-    'zh': /[\u4e00-\u9fff]/,
-    'ja': /[\u3040-\u309f\u30a0-\u30ff]/,
-    'ko': /[\uac00-\ud7af]/,
-    'ar': /[\u0600-\u06FF]/,
-    'ru': /[\u0400-\u04FF]/,
-    'th': /[\u0e00-\u0e7f]/,
-    'vi': /[àáảạãăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i
-  }
-
-  for (const [lang, pattern] of Object.entries(patterns)) {
-    if (pattern.test(text)) return getLanguageName(lang)
-  }
-
-  return 'English'
-}
-
-function getLanguageName(code: string): string {
-  const names: Record<string, string> = {
-    'hi': 'Hindi',
-    'zh': 'Chinese',
-    'ja': 'Japanese',
-    'ko': 'Korean',
-    'ar': 'Arabic',
-    'ru': 'Russian',
-    'th': 'Thai',
-    'vi': 'Vietnamese'
-  }
-  return names[code] || code
-}
+// Language detection now imported from @/lib/language
 
 function detectCodeLanguage(filename: string, content: string): string | null {
   const ext = filename.split('.').pop()?.toLowerCase()

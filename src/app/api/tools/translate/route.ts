@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
+import { detectLanguage } from '@/lib/language'
 
 // Comprehensive language support
 const SUPPORTED_LANGUAGES: Record<string, { 
@@ -229,44 +230,7 @@ Translation:`
   }
 }
 
-function detectLanguage(text: string): string {
-  // Character-based detection for non-Latin scripts
-  const patterns: Record<string, RegExp> = {
-    'zh': /[\u4e00-\u9fff\u3400-\u4dbf]/,
-    'ja': /[\u3040-\u309f\u30a0-\u30ff]/,
-    'ko': /[\uac00-\ud7af\u1100-\u11ff]/,
-    'ar': /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufeff]/,
-    'hi': /[\u0900-\u097f]/,
-    'bn': /[\u0980-\u09ff]/,
-    'pa': /[\u0a00-\u0a7f]/,
-    'ta': /[\u0b80-\u0bff]/,
-    'te': /[\u0c00-\u0c7f]/,
-    'mr': /[\u0900-\u097f]/,
-    'gu': /[\u0a80-\u0aff]/,
-    'ur': /[\u0600-\u06ff]/,
-    'th': /[\u0e00-\u0e7f]/,
-    'ru': /[\u0400-\u04ff]/,
-    'el': /[\u0370-\u03ff]/,
-    'he': /[\u0590-\u05ff]/,
-    'vi': /[àáảạãăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i
-  }
-
-  // Check each pattern and count matches
-  let bestMatch = 'en'
-  let maxScore = 0
-
-  for (const [lang, pattern] of Object.entries(patterns)) {
-    const matches = (text.match(pattern) || []).length
-    const score = matches / text.length
-    
-    if (score > maxScore && score > 0.1) {
-      maxScore = score
-      bestMatch = lang
-    }
-  }
-
-  return bestMatch
-}
+// Language detection now imported from @/lib/language
 
 function generateAlternative(text: string, targetLang: string, altTone: string): string {
   // This is a placeholder - in production, would call AI again with different tone
