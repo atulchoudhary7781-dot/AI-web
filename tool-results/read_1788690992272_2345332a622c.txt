@@ -1,0 +1,986 @@
+     1→@import "tailwindcss";
+     2→@import "tw-animate-css";
+     3→
+     4→/* ============================================
+     5→   NEXUS AI - CYBERPUNK THEME ⚡
+     6→   Dark Mode with Cyan/Purple Neon Accents
+     7→   ============================================ */
+     8→
+     9→/* Prevent hydration mismatch - ensure content is visible */
+    10→.nexus-main-container {
+    11→  visibility: visible !important;
+    12→  opacity: 1 !important;
+    13→}
+    14→
+    15→/* Ensure all buttons and links are visible */
+    16→button, a, [role="button"] {
+    17→  visibility: visible !important;
+    18→}
+    19→
+    20→/* SUBSCRIPTION BUTTON - FORCE VISIBLE EVERYWHERE */
+    21→a[href="/pricing"],
+    22→a[href*="pricing"],
+    23→[class*="Upgrade"],
+    24→[class*="Pro"] {
+    25→  visibility: visible !important;
+    26→  opacity: 1 !important;
+    27→  display: flex !important;
+    28→  pointer-events: auto !important;
+    29→  z-index: 999 !important;
+    30→  position: relative !important;
+    31→}
+    32→
+    33→/* Sidebar - ensure content doesn't get hidden */
+    34→aside nav a,
+    35→aside nav [href] {
+    36→  visibility: visible !important;
+    37→  opacity: 1 !important;
+    38→}
+    39→
+    40→@custom-variant dark (&:is(.dark *));
+    41→
+    42→@theme inline {
+    43→  --color-background: var(--background);
+    44→  --color-foreground: var(--foreground);
+    45→  --font-sans: var(--font-space-grotesk);
+    46→  --font-mono: var(--font-orbitron);
+    47→  --font-display: var(--font-orbitron);
+    48→  --color-sidebar-ring: var(--sidebar-ring);
+    49→  --color-sidebar-border: var(--sidebar-border);
+    50→  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    51→  --color-sidebar-accent: var(--sidebar-accent);
+    52→  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    53→  --color-sidebar-primary: var(--sidebar-primary);
+    54→  --color-sidebar-foreground: var(--sidebar-foreground);
+    55→  --color-sidebar: var(--sidebar);
+    56→  --color-chart-5: var(--chart-5);
+    57→  --color-chart-4: var(--chart-4);
+    58→  --color-chart-3: var(--chart-3);
+    59→  --color-chart-2: var(--chart-2);
+    60→  --color-chart-1: var(--chart-1);
+    61→  --color-ring: var(--ring);
+    62→  --color-input: var(--input);
+    63→  --color-border: var(--border);
+    64→  --color-destructive: var(--destructive);
+    65→  --color-accent-foreground: var(--accent-foreground);
+    66→  --color-accent: var(--accent);
+    67→  --color-muted-foreground: var(--muted-foreground);
+    68→  --color-muted: var(--muted);
+    69→  --color-secondary-foreground: var(--secondary-foreground);
+    70→  --color-secondary: var(--secondary);
+    71→  --color-primary-foreground: var(--primary-foreground);
+    72→  --color-primary: var(--primary);
+    73→  --color-popover-foreground: var(--popover-foreground);
+    74→  --color-popover: var(--popover);
+    75→  --color-card-foreground: var(--card-foreground);
+    76→  --color-card: var(--card);
+    77→  --radius-sm: calc(var(--radius) - 4px);
+    78→  --radius-md: calc(var(--radius) - 2px);
+    79→  --radius-lg: var(--radius);
+    80→  --radius-xl: calc(var(--radius) + 4px);
+    81→
+    82→  /* CYBERPUNK THEME COLORS */
+    83→  --color-neon-cyan: #00ffff;
+    84→  --color-neon-purple: #a855f7;
+    85→  --color-electric-blue: #3b82f6;
+    86→  --color-deep-space: #0a0a1a;
+    87→  --color-dark-surface: #111118;
+    88→  --color-dark-card: #1a1a2e;
+    89→  --color-glass-bg: rgba(10, 10, 30, 0.85);
+    90→  --color-glow-cyan: rgba(0, 255, 255, 0.4);
+    91→  --color-glow-purple: rgba(168, 85, 247, 0.3);
+    92→}
+    93→
+    94→/* ============================================
+    95→   CYBERPUNK DARK MODE (Default)
+    96→   Dark theme with Cyan/Purple neon accents
+    97→   ============================================ */
+    98→:root {
+    99→  --radius: 0.75rem;
+   100→  
+   101→  /* Background - Deep Space */
+   102→  --background: #0a0a1a;
+   103→  --foreground: #ffffff;
+   104→  
+   105→  /* Card - Dark Glass */
+   106→  --card: rgba(20, 20, 40, 0.9);
+   107→  --card-foreground: #ffffff;
+   108→  
+   109→  /* Popover */
+   110→  --popover: rgba(15, 15, 35, 0.98);
+   111→  --popover-foreground: #ffffff;
+   112→  
+   113→  /* Primary - Neon Cyan */
+   114→  --primary: #00ffff;
+   115→  --primary-foreground: #000000;
+   116→  
+   117→  /* Secondary - Dark Purple */
+   118→  --secondary: #1a1a2e;
+   119→  --secondary-foreground: #ffffff;
+   120→  
+   121→  /* Muted */
+   122→  --muted: rgba(40, 40, 60, 0.9);
+   123→  --muted-foreground: #9ca3af;
+   124→  
+   125→  /* Accent - Purple */
+   126→  --accent: #a855f7;
+   127→  --accent-foreground: #ffffff;
+   128→  
+   129→  /* Destructive */
+   130→  --destructive: #ef4444;
+   131→  
+   132→  /* Borders - Subtle cyan */
+   133→  --border: rgba(0, 255, 255, 0.2);
+   134→  --input: rgba(0, 255, 255, 0.15);
+   135→  --ring: #00ffff;
+   136→  
+   137→  /* Chart colors - Cyberpunk palette */
+   138→  --chart-1: #00ffff;
+   139→  --chart-2: #a855f7;
+   140→  --chart-3: #3b82f6;
+   141→  --chart-4: #ec4899;
+   142→  --chart-5: #10b981;
+   143→  
+   144→  /* Sidebar */
+   145→  --sidebar: rgba(15, 15, 35, 0.98);
+   146→  --sidebar-foreground: #ffffff;
+   147→  --sidebar-primary: #00ffff;
+   148→  --sidebar-primary-foreground: #000000;
+   149→  --sidebar-accent: rgba(168, 85, 247, 0.15);
+   150→  --sidebar-accent-foreground: #ffffff;
+   151→  --sidebar-border: rgba(0, 255, 255, 0.2);
+   152→  --sidebar-ring: #00ffff;
+   153→
+   154→  /* Subscription Button in Sidebar - Always Visible Fix */
+   155→  a[href="/pricing"],
+   156→  a[href*="pricing"] {
+   157→    visibility: visible !important;
+   158→    opacity: 1 !important;
+   159→    display: flex !important;
+   160→    pointer-events: auto !important;
+   161→  }
+   162→
+   163→  /* Cyberpunk Theme Properties */
+   164→  --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.5);
+   165→  --glow-purple: 0 0 20px rgba(168, 85, 247, 0.4);
+   166→  --glow-intense: 0 0 30px rgba(0, 255, 255, 0.7), 0 0 60px rgba(168, 85, 247, 0.4);
+   167→  --glass-bg: rgba(10, 10, 30, 0.85);
+   168→  --glass-border: rgba(0, 255, 255, 0.25);
+   169→  --gradient-cyan: linear-gradient(135deg, #00ffff 0%, #3b82f6 100%);
+   170→  --gradient-purple: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+   171→}
+   172→
+   173→/* ============================================
+   174→   GLOBAL BODY STYLES - CYBERPUNK BACKGROUND
+   175→   ============================================ */
+   176→html {
+   177→  height: auto;
+   178→  min-height: 100%;
+   179→  overflow-x: hidden;
+   180→  overflow-y: auto;
+   181→  position: relative;
+   182→}
+   183→
+   184→body {
+   185→  background: #0a0a1a !important;
+   186→  color: #ffffff;
+   187→  font-family: var(--font-sans), system-ui, sans-serif;
+   188→  height: auto !important;
+   189→  min-height: 100vh !important;
+   190→  overflow-x: hidden !important;
+   191→  overflow-y: auto !important;
+   192→  position: relative !important;
+   193→}
+   194→
+   195→/* Overlay removed for cyberpunk theme */
+   196→
+   197→/* Make sure content is above overlay */
+   198→#__next, div[data-rk] {
+   199→  position: relative;
+   200→  z-index: 1;
+   201→}
+   202→
+   203→/* Custom scrollbar - Cyberpunk theme */
+   204→::-webkit-scrollbar {
+   205→  width: 8px;
+   206→  height: 8px;
+   207→}
+   208→
+   209→::-webkit-scrollbar-track {
+   210→  background: #0a0a1a;
+   211→  border-radius: 4px;
+   212→}
+   213→
+   214→::-webkit-scrollbar-thumb {
+   215→  background: linear-gradient(180deg, #00ffff, #a855f7);
+   216→  border-radius: 4px;
+   217→}
+   218→
+   219→::-webkit-scrollbar-thumb:hover {
+   220→  background: linear-gradient(180deg, #33ccff, #c084fc);
+   221→}
+   222→
+   223→/* Selection styling */
+   224→::selection {
+   225→  background: rgba(0, 255, 255, 0.4);
+   226→  color: #ffffff;
+   227→}
+   228→
+   229→/* ============================================
+   230→   ANIMATIONS
+   231→   ============================================ */
+   232→@layer utilities {
+   233→  /* FadeIn for action buttons */
+   234→  .animate-fadeIn {
+   235→    animation: fadeInSlide 0.3s ease-out forwards;
+   236→  }
+   237→
+   238→  @keyframes fadeInSlide {
+   239→    from { 
+   240→      opacity: 0; 
+   241→      transform: translateY(8px);
+   242→    }
+   243→    to { 
+   244→      opacity: 1; 
+   245→      transform: translateY(0);
+   246→    }
+   247→  }
+   248→
+   249→  /* Typing indicator */
+   250→  .animate-typing {
+   251→    animation: typing 1.5s ease-in-out infinite;
+   252→  }
+   253→
+   254→  @keyframes typing {
+   255→    0%, 60%, 100% { opacity: 0.3; }
+   256→    30% { opacity: 1; }
+   257→  }
+   258→
+   259→  /* Spin animation */
+   260→  @keyframes spin {
+   261→    from { transform: rotate(0deg); }
+   262→    to { transform: rotate(360deg); }
+   263→  }
+   264→
+   265→  /* Pulse ring */
+   266→  @keyframes pulse-ring {
+   267→    0% { transform: scale(0.8); opacity: 1; }
+   268→    100% { transform: scale(2); opacity: 0; }
+   269→  }
+   270→
+   271→  /* Chat message enter animation */
+   272→  @keyframes chat-message-enter {
+   273→    from {
+   274→      opacity: 0;
+   275→      transform: translateY(20px);
+   276→    }
+   277→    to {
+   278→      opacity: 1;
+   279→      transform: translateY(0);
+   280→    }
+   281→  }
+   282→
+   283→  .chat-message-enter {
+   284→    animation: chat-message-enter 0.4s ease-out forwards;
+   285→  }
+   286→
+   287→  /* Glow pulse animation */
+   288→  @keyframes glow-pulse {
+   289→    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+   290→    50% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.6); }
+   291→  }
+   292→
+   293→  .animate-glow-pulse {
+   294→    animation: glow-pulse 2s ease-in-out infinite;
+   295→  }
+   296→
+   297→  /* Gradient shift */
+   298→  @keyframes gradient-shift {
+   299→    0% { background-position: 0% 50%; }
+   300→    50% { background-position: 100% 50%; }
+   301→    100% { background-position: 0% 50%; }
+   302→  }
+   303→
+   304→  .animate-gradient {
+   305→    background-size: 200% 200%;
+   306→    animation: gradient-shift 3s ease infinite;
+   307→  }
+   308→
+   309→  /* Float animation */
+   310→  @keyframes float {
+   311→    0%, 100% { transform: translateY(0); }
+   312→    50% { transform: translateY(-10px); }
+   313→  }
+   314→
+   315→  .animate-float {
+   316→    animation: float 3s ease-in-out infinite;
+   317→  }
+   318→
+   319→  /* Shimmer effect */
+   320→  @keyframes shimmer {
+   321→    0% { background-position: -200% 0; }
+   322→    100% { background-position: 200% 0; }
+   323→  }
+   324→
+   325→  .animate-shimmer {
+   326→    background: linear-gradient(
+   327→      90deg,
+   328→      transparent,
+   329→      rgba(0, 255, 255, 0.1),
+   330→      transparent
+   331→    );
+   332→    background-size: 200% 100%;
+   333→    animation: shimmer 2s infinite;
+   334→  }
+   335→
+   336→  /* Border glow animation */
+   337→  @keyframes border-glow {
+   338→    0%, 100% { border-color: rgba(0, 255, 255, 0.3); }
+   339→    50% { border-color: rgba(0, 255, 255, 0.6); }
+   340→  }
+   341→
+   342→  .animate-border-glow {
+   343→    animation: border-glow 2s ease-in-out infinite;
+   344→  }
+   345→
+   346→  /* Slide up animation */
+   347→  @keyframes slide-up {
+   348→    from {
+   349→      opacity: 0;
+   350→      transform: translateY(30px);
+   351→    }
+   352→    to {
+   353→      opacity: 1;
+   354→      transform: translateY(0);
+   355→    }
+   356→  }
+   357→
+   358→  .animate-slide-up {
+   359→    animation: slide-up 0.5s ease-out forwards;
+   360→  }
+   361→
+   362→  /* Fade in */
+   363→  .animate-fade-in {
+   364→    animation: fade-in 0.5s ease-out forwards;
+   365→  }
+   366→
+   367→  @keyframes fade-in {
+   368→    from { opacity: 0; }
+   369→    to { opacity: 1; }
+   370→  }
+   371→
+   372→  /* Spin slow */
+   373→  .animate-spin-slow {
+   374→    animation: spin 3s linear infinite;
+   375→  }
+   376→
+   377→  /* Pulse ring */
+   378→  .animate-pulse-ring {
+   379→    animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+   380→  }
+   381→}
+   382→
+   383→/* ============================================
+   384→   GLASSMORPHISM UTILITIES - CYBERPUNK EDITION
+   385→   ============================================ */
+   386→.glass-strong {
+   387→  background: rgba(10, 10, 30, 0.9) !important;
+   388→  backdrop-filter: blur(20px) saturate(180%);
+   389→  -webkit-backdrop-filter: blur(20px) saturate(180%);
+   390→  border: 1px solid rgba(0, 255, 255, 0.2);
+   391→}
+   392→
+   393→.glass-light {
+   394→  background: rgba(15, 15, 35, 0.7) !important;
+   395→  backdrop-filter: blur(12px) saturate(150%);
+   396→  -webkit-backdrop-filter: blur(12px) saturate(150%);
+   397→  border: 1px solid rgba(0, 255, 255, 0.15);
+   398→}
+   399→
+   400→.glass-subtle {
+   401→  background: rgba(20, 20, 40, 0.5) !important;
+   402→  backdrop-filter: blur(8px);
+   403→  -webkit-backdrop-filter: blur(8px);
+   404→  border: 1px solid rgba(0, 255, 255, 0.1);
+   405→}
+   406→
+   407→/* ============================================
+   408→   MESSAGE BUBBLES - CYBERPUNK STYLE
+   409→   ============================================ */
+   410→
+   411→/* User message bubble */
+   412→.message-user {
+   413→  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
+   414→  border: 1px solid rgba(0, 255, 255, 0.4);
+   415→  border-radius: 16px 16px 4px 16px;
+   416→  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.15);
+   417→}
+   418→
+   419→/* AI message bubble */
+   420→.message-ai {
+   421→  background: linear-gradient(135deg, rgba(20, 20, 40, 0.95) 0%, rgba(15, 15, 35, 0.95) 100%);
+   422→  border: 1px solid rgba(168, 85, 247, 0.25);
+   423→  border-radius: 16px 16px 16px 4px;
+   424→  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+   425→}
+   426→
+   427→/* ============================================
+   428→   SCROLLBAR STYLING
+   429→   ============================================ */
+   430→.scrollbar-thin {
+   431→  scrollbar-width: thin;
+   432→  scrollbar-color: #00ffff #0a0a1a;
+   433→}
+   434→
+   435→.scrollbar-thin::-webkit-scrollbar {
+   436→  width: 6px;
+   437→}
+   438→
+   439→.scrollbar-thin::-webkit-scrollbar-track {
+   440→  background: #0a0a1a;
+   441→  border-radius: 3px;
+   442→}
+   443→
+   444→.scrollbar-thin::-webkit-scrollbar-thumb {
+   445→  background: linear-gradient(180deg, #00ffff, #a855f7);
+   446→  border-radius: 3px;
+   447→}
+   448→
+   449→.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+   450→  background: linear-gradient(180deg, #33ccff, #c084fc);
+   451→}
+   452→
+   453→/* ============================================
+   454→   BADGE & BUTTON STYLES
+   455→   ============================================ */
+   456→
+   457→/* Cyberpunk badge - Cyan/Purple edition */
+   458→.badge-cyberpunk, [data-slot="badge"].badge-cyberpunk {
+   459→  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(168, 85, 247, 0.2));
+   460→  border: 1px solid rgba(0, 255, 255, 0.4);
+   461→  color: #00ffff;
+   462→  font-weight: 600;
+   463→  text-transform: uppercase;
+   464→  letter-spacing: 0.05em;
+   465→  padding: 0.25rem 0.75rem;
+   466→  font-size: 0.7rem;
+   467→  border-radius: 9999px;
+   468→  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+   469→}
+   470→
+   471→/* Neon button variant - Cyan */
+   472→.button-neon, [data-slot="button"].variant-neon {
+   473→  background: linear-gradient(135deg, #00ffff 0%, #3b82f6 100%) !important;
+   474→  color: #000000 !important;
+   475→  font-weight: 700;
+   476→  border: none;
+   477→  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+   478→  transition: all 0.3s ease;
+   479→}
+   480→
+   481→.button-neon:hover, [data-slot="button"].variant-neon:hover {
+   482→  box-shadow: 0 0 30px rgba(0, 255, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+   483→  transform: translateY(-2px);
+   484→}
+   485→
+   486→/* Ghost button - visible on black */
+   487→[data-slot="button"].variant-ghost {
+   488→  color: #9ca3af;
+   489→}
+   490→
+   491→[data-slot="button"].variant-ghost:hover {
+   492→  color: #00ffff;
+   493→  background: rgba(0, 255, 255, 0.1);
+   494→}
+   495→
+   496→/* ============================================
+   497→   INPUT & TEXTAREA STYLES
+   498→   ============================================ */
+   499→textarea, input[type="text"], input[type="email"], input[type="password"] {
+   500→  background: rgba(10, 10, 30, 0.8) !important;
+   501→  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+   502→  color: #ffffff !important;
+   503→}
+   504→
+   505→textarea:focus, input:focus {
+   506→  border-color: #00ffff !important;
+   507→  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2) !important;
+   508→}
+   509→
+   510→textarea::placeholder, input::placeholder {
+   511→  color: #6b7280 !important;
+   512→}
+   513→
+   514→/* ============================================
+   515→   CARD & CONTAINER STYLES
+   516→   ============================================ */
+   517→.card, [data-slot="card"] {
+   518→  background: rgba(20, 20, 40, 0.95) !important;
+   519→  border: 1px solid rgba(0, 255, 255, 0.2) !important;
+   520→  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+   521→}
+   522→
+   523→/* ============================================
+   524→   NAVBAR & HEADER STYLES
+   525→   ============================================ */
+   526→header, nav, [role="navigation"] {
+   527→  background: rgba(10, 10, 30, 0.95) !important;
+   528→  border-bottom: 1px solid rgba(0, 255, 255, 0.2) !important;
+   529→  backdrop-filter: blur(20px) !important;
+   530→}
+   531→
+   532→/* ============================================
+   533→   HERO SECTION - CYBERPUNK EFFECT
+   534→   ============================================ */
+   535→.hero-section {
+   536→  background: linear-gradient(to bottom, rgba(10, 10, 30, 0.8), rgba(15, 15, 35, 0.95)) !important;
+   537→  min-height: 100vh;
+   538→  position: relative;
+   539→  overflow: hidden;
+   540→}
+   541→
+   542→.hero-section::before {
+   543→  content: '';
+   544→  position: absolute;
+   545→  top: 0;
+   546→  left: 0;
+   547→  right: 0;
+   548→  bottom: 0;
+   549→  background: radial-gradient(circle at center, transparent 0%, rgba(10, 10, 30, 0.6) 100%);
+   550→  pointer-events: none;
+   551→}
+   552→
+   553→/* ============================================
+   554→   SPECIAL EFFECTS
+   555→   ============================================ */
+   556→
+   557→/* Text glow effect - Cyan */
+   558→.text-glow-cyan {
+   559→  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
+   560→               0 0 20px rgba(0, 255, 255, 0.3),
+   561→               0 0 40px rgba(0, 255, 255, 0.2);
+   562→}
+   563→
+   564→.text-glow-purple {
+   565→  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5),
+   566→               0 0 20px rgba(168, 85, 247, 0.3);
+   567→}
+   568→
+   569→/* Box glow effect - Cyan */
+   570→.box-glow-cyan {
+   571→  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4),
+   572→              0 0 40px rgba(0, 255, 255, 0.2),
+   573→              inset 0 0 20px rgba(0, 255, 255, 0.1);
+   574→}
+   575→
+   576→/* Border glow animation */
+   577→.border-glow-animated {
+   578→  animation: borderGlow 2s ease-in-out infinite;
+   579→}
+   580→
+   581→@keyframes borderGlow {
+   582→  0%, 100% {
+   583→    border-color: rgba(0, 255, 255, 0.3);
+   584→    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+   585→  }
+   586→  50% {
+   587→    border-color: rgba(0, 255, 255, 0.6);
+   588→    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+   589→  }
+   590→}
+   591→
+   592→/* Particle container for hero */
+   593→.particles-container {
+   594→  position: absolute;
+   595→  width: 100%;
+   596→  height: 100%;
+   597→  overflow: hidden;
+   598→  pointer-events: none;
+   599→  z-index: 0;
+   600→}
+   601→
+   602→.particle {
+   603→  position: absolute;
+   604→  width: 2px;
+   605→  height: 2px;
+   606→  background: #00ffff;
+   607→  border-radius: 50%;
+   608→  box-shadow: 0 0 6px #00ffff;
+   609→  animation: particleFloat 15s infinite linear;
+   610→}
+   611→
+   612→@keyframes particleFloat {
+   613→  0% {
+   614→    transform: translateY(100vh) translateX(0);
+   615→    opacity: 0;
+   616→  }
+   617→  10% {
+   618→    opacity: 1;
+   619→  }
+   620→  90% {
+   621→    opacity: 1;
+   622→  }
+   623→  100% {
+   624→    transform: translateY(-100vh) translateX(100px);
+   625→    opacity: 0;
+   626→  }
+   627→}
+   628→
+   629→/* ============================================
+   630→   RESPONSIVE ADJUSTMENTS
+   631→   ============================================ */
+   632→@media (max-width: 768px) {
+   633→  body {
+   634→    background-size: cover !important;
+   635→    /* Prevent bounce scroll on iOS */
+   636→    overscroll-behavior: none;
+   637→    /* Smooth scrolling */
+   638→    -webkit-overflow-scrolling: touch;
+   639→  }
+   640→  
+   641→  .glass-strong, .glass-light, .glass-subtle {
+   642→    backdrop-filter: blur(12px);
+   643→    -webkit-backdrop-filter: blur(12px);
+   644→  }
+   645→  
+   646→  /* Mobile touch targets - minimum 44px */
+   647→  button, [role="button"] {
+   648→    min-height: 44px;
+   649→    min-width: 44px;
+   650→  }
+   651→  
+   652→  /* Text selection disabled on UI elements for app-like feel */
+   653→  .no-select, header, footer, [role="button"] {
+   654→    -webkit-user-select: none;
+   655→    user-select: none;
+   656→  }
+   657→}
+   658→
+   659→/* ============================================
+   660→   MOBILE OPTIMIZATIONS - SAFE AREA & VIEWPORT
+   661→   ============================================ */
+   662→
+   663→/* Safe area support for notched phones (iPhone X+) */
+   664→.safe-area-top {
+   665→  padding-top: env(safe-area-inset-top, 0);
+   666→}
+   667→
+   668→.safe-area-bottom {
+   669→  padding-bottom: env(safe-area-inset-bottom, 0);
+   670→}
+   671→
+   672→.h-safe-area-inset-bottom {
+   673→  height: env(safe-area-inset-bottom, 0);
+   674→}
+   675→
+   676→/* Full viewport height fix for mobile browsers */
+   677→html, body {
+   678→  height: 100%;
+   679→}
+   680→
+   681→/* Mobile ONLY - Prevent bounce scroll but allow internal scrolling */
+   682→@media (max-width: 768px) {
+   683→  html, body {
+   684→    overscroll-behavior-y: contain;
+   685→    -webkit-overflow-scrolling: touch;
+   686→    position: relative !important;
+   687→    overflow-y: auto !important;
+   688→    height: auto !important;
+   689→    min-height: 100vh !important;
+   690→  }
+   691→}
+   692→
+   693→/* Desktop & Tablet: Ensure normal document flow scrolling */
+   694→@media (min-width: 769px) {
+   695→  html, body {
+   696→    position: relative !important;
+   697→    overflow-x: hidden !important;
+   698→    overflow-y: auto !important;
+   699→    height: auto !important;
+   700→    min-height: 100vh !important;
+   701→  }
+   702→}
+   703→
+   704→/* Allow scroll only in message container */
+   705→.overflow-y-auto {
+   706→  -webkit-overflow-scrolling: touch;
+   707→  overscroll-behavior: contain;
+   708→}
+   709→
+   710→/* Mobile keyboard handling - don't push layout up */
+   711→@supports (padding: max(0px)) {
+   712→  .safe-area-bottom {
+   713→    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+   714→  }
+   715→}
+   716→
+   717→/* Touch action optimization */
+   718→.touch-manipulation {
+   719→  touch-action: manipulation;
+   720→}
+   721→
+   722→/* Scrollbar visible on ALL devices - sleek style for mobile */
+   723→@media (max-width: 768px) {
+   724→  .scrollbar-thin {
+   725→    scrollbar-width: thin;
+   726→    scrollbar-color: rgba(0, 255, 255, 0.5) rgba(10, 10, 26, 0.8);
+   727→  }
+   728→  
+   729→  .scrollbar-thin::-webkit-scrollbar {
+   730→    width: 4px;  /* Thinner on mobile */
+   731→    height: 4px;
+   732→  }
+   733→  
+   734→  .scrollbar-thin::-webkit-scrollbar-track {
+   735→    background: rgba(10, 10, 26, 0.8);
+   736→    border-radius: 2px;
+   737→  }
+   738→  
+   739→  .scrollbar-thin::-webkit-scrollbar-thumb {
+   740→    background: linear-gradient(180deg, rgba(0, 255, 255, 0.6), rgba(168, 85, 247, 0.6));
+   741→    border-radius: 2px;
+   742→  }
+   743→  
+   744→  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+   745→    background: linear-gradient(180deg, rgba(0, 255, 255, 0.8), rgba(168, 85, 247, 0.8));
+   746→  }
+   747→  
+   748→  /* Always show scrollbar on ALL pages with content */
+   749→  .messages-container::-webkit-scrollbar,
+   750→  .model-list-scroll::-webkit-scrollbar,
+   751→  .history-list-scroll::-webkit-scrollbar,
+   752→  .profile-page-container::-webkit-scrollbar,
+   753→  .settings-page-container::-webkit-scrollbar,
+   754→  .settings-main-scroll::-webkit-scrollbar,
+   755→  .dashboard-page-container::-webkit-scrollbar,
+   756→  .pricing-page-container::-webkit-scrollbar,
+   757→  .admin-page-container::-webkit-scrollbar,
+   758→  .login-page-container::-webkit-scrollbar,
+   759→  .signup-page-container::-webkit-scrollbar,
+   760→  .nexus-main-container::-webkit-scrollbar,
+   761→  .subscription-tab-scroll::-webkit-scrollbar,
+   762→  .settings-tab-scroll::-webkit-scrollbar,
+   763→  .profile-info-tab-scroll::-webkit-scrollbar {
+   764→    display: block !important;
+   765→    width: 6px !important;
+   766→  }
+   767→
+   768→  /* Profile Info tab - Cyan scrollbar */
+   769→  .profile-info-tab-scroll::-webkit-scrollbar-track {
+   770→    background: rgba(20, 20, 40, 0.9);
+   771→    border-radius: 10px;
+   772→    border: 1px solid rgba(0, 255, 255, 0.1);
+   773→  }
+   774→  .profile-info-tab-scroll::-webkit-scrollbar-thumb {
+   775→    background: linear-gradient(180deg, #00ffff, #a855f7);
+   776→    border-radius: 10px;
+   777→    border: 1px solid rgba(0, 255, 255, 0.3);
+   778→  }
+   779→  .profile-info-tab-scroll::-webkit-scrollbar-thumb:hover {
+   780→    background: linear-gradient(180deg, #00eeee, #9333ea);
+   781→  }
+   782→  .profile-info-tab-scroll {
+   783→    scrollbar-width: thin;
+   784→    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
+   785→  }
+   786→
+   787→  /* Subscription tab - Purple-Pink scrollbar */
+   788→  .subscription-tab-scroll::-webkit-scrollbar-track {
+   789→    background: rgba(20, 20, 40, 0.9);
+   790→    border-radius: 10px;
+   791→    border: 1px solid rgba(168, 85, 247, 0.2);
+   792→  }
+   793→  .subscription-tab-scroll::-webkit-scrollbar-thumb {
+   794→    background: linear-gradient(180deg, #a855f7, #ec4899);
+   795→    border-radius: 10px;
+   796→    border: 1px solid rgba(168, 85, 247, 0.4);
+   797→  }
+   798→  .subscription-tab-scroll::-webkit-scrollbar-thumb:hover {
+   799→    background: linear-gradient(180deg, #9333ea, #db2777);
+   800→  }
+   801→  .subscription-tab-scroll {
+   802→    scrollbar-width: thin;
+   803→    scrollbar-color: #a855f7 rgba(20, 20, 40, 0.9);
+   804→  }
+   805→
+   806→  /* Pricing Page - Cyan scrollbar with proper scroll */
+   807→  .pricing-page-container {
+   808→    height: auto !important;
+   809→    min-height: 100vh !important;
+   810→    max-height: none !important;
+   811→    overflow-y: scroll !important;
+   812→    overflow-x: hidden !important;
+   813→    position: relative !important;
+   814→    scroll-behavior: smooth;
+   815→    display: block !important;
+   816→    width: 100% !important;
+   817→  }
+   818→  
+   819→  /* Ensure html/body allow scroll on pricing page */
+   820→  html:has(.pricing-page-container),
+   821→  html:has(.pricing-page-container) body {
+   822→    overflow-y: auto !important;
+   823→    height: auto !important;
+   824→  }
+   825→  
+   826→  .pricing-page-container::-webkit-scrollbar-track {
+   827→    background: rgba(20, 20, 40, 0.9);
+   828→    border-radius: 10px;
+   829→    border: 1px solid rgba(0, 255, 255, 0.1);
+   830→  }
+   831→  .pricing-page-container::-webkit-scrollbar-thumb {
+   832→    background: linear-gradient(180deg, #00ffff, #a855f7);
+   833→    border-radius: 10px;
+   834→    border: 1px solid rgba(0, 255, 255, 0.3);
+   835→  }
+   836→  .pricing-page-container::-webkit-scrollbar-thumb:hover {
+   837→    background: linear-gradient(180deg, #00eeee, #9333ea);
+   838→  }
+   839→  .pricing-page-container {
+   840→    scrollbar-width: thin;
+   841→    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
+   842→  }
+   843→
+   844→  /* Settings tab - Cyan-Purple scrollbar */
+   845→  .settings-tab-scroll::-webkit-scrollbar-track {
+   846→    background: rgba(20, 20, 40, 0.9);
+   847→    border-radius: 10px;
+   848→    border: 1px solid rgba(0, 255, 255, 0.15);
+   849→  }
+   850→  .settings-tab-scroll::-webkit-scrollbar-thumb {
+   851→    background: linear-gradient(180deg, #00ffff, #a855f7);
+   852→    border-radius: 10px;
+   853→    border: 1px solid rgba(0, 255, 255, 0.3);
+   854→  }
+   855→  .settings-tab-scroll::-webkit-scrollbar-thumb:hover {
+   856→    background: linear-gradient(180deg, #00eeee, #9333ea);
+   857→  }
+   858→  .settings-tab-scroll {
+   859→    scrollbar-width: thin;
+   860→    scrollbar-color: #00ffff rgba(20, 20, 40, 0.9);
+   861→  }
+   862→
+   863→  /* Settings Main Page - Purple scrollbar */
+   864→  .settings-main-scroll::-webkit-scrollbar-track {
+   865→    background: rgba(20, 20, 40, 0.9);
+   866→    border-radius: 10px;
+   867→    border: 1px solid rgba(168, 85, 247, 0.2);
+   868→  }
+   869→  .settings-main-scroll::-webkit-scrollbar-thumb {
+   870→    background: linear-gradient(180deg, #a855f7, #6366f1);
+   871→    border-radius: 10px;
+   872→    border: 1px solid rgba(168, 85, 247, 0.4);
+   873→  }
+   874→  .settings-main-scroll::-webkit-scrollbar-thumb:hover {
+   875→    background: linear-gradient(180deg, #9333ea, #4f46e5);
+   876→  }
+   877→  .settings-main-scroll {
+   878→    scroll-behavior: smooth;
+   879→    -webkit-overflow-scrolling: touch;
+   880→  }
+   881→
+   882→  /* Smooth scroll for all tabs */
+   883→  .profile-info-tab-scroll,
+   884→  .subscription-tab-scroll,
+   885→  .settings-tab-scroll {
+   886→    scroll-behavior: smooth;
+   887→    -webkit-overflow-scrolling: touch;
+   888→  }
+   889→
+   890→  /* Force scrollbar visibility */
+   891→  .profile-info-tab-scroll::-webkit-scrollbar,
+   892→  .subscription-tab-scroll::-webkit-scrollbar,
+   893→  .settings-tab-scroll::-webkit-scrollbar {
+   894→    display: block !important;
+   895→    width: 8px !important;
+   896→    background: rgba(20, 20, 40, 0.95);
+   897→    border-radius: 10px;
+   898→  }
+   899→
+   900→  /* Main profile page scrollbar - ALWAYS VISIBLE */
+   901→  .profile-page-container::-webkit-scrollbar {
+   902→    display: block !important;
+   903→    width: 12px !important;
+   904→    background: rgba(20, 20, 40, 0.95) !important;
+   905→  }
+   906→  
+   907→  .profile-page-container::-webkit-scrollbar-track {
+   908→    background: rgba(20, 20, 40, 0.95) !important;
+   909→    border-radius: 10px;
+   910→  }
+   911→  
+   912→  .profile-page-container::-webkit-scrollbar-thumb {
+   913→    background: linear-gradient(180deg, #00ffff, #a855f7) !important;
+   914→    border-radius: 10px !important;
+   915→    border: 2px solid rgba(0, 255, 255, 0.3);
+   916→  }
+   917→}
+   918→
+   919→/* Desktop scrollbar for main content area - ENHANCED VISIBILITY */
+   920→@media (min-width: 769px) {
+   921→  /* Main scrollbar styling for desktop browsers */
+   922→  ::-webkit-scrollbar {
+   923→    width: 12px;
+   924→    background: rgba(20, 20, 40, 0.95);
+   925→  }
+   926→  
+   927→  ::-webkit-scrollbar-track {
+   928→    background: rgba(20, 20, 40, 0.95);
+   929→    border-radius: 10px;
+   930→    border: 1px solid rgba(0, 255, 255, 0.1);
+   931→  }
+   932→  
+   933→  ::-webkit-scrollbar-thumb {
+   934→    background: linear-gradient(180deg, #00ffff, #a855f7);
+   935→    border-radius: 10px;
+   936→    border: 2px solid rgba(0, 255, 255, 0.3);
+   937→    min-height: 60px;
+   938→  }
+   939→  
+   940→  ::-webkit-scrollbar-thumb:hover {
+   941→    background: linear-gradient(180deg, #33ccff, #c084fc);
+   942→    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+   943→  }
+   944→
+   945→  /* Smooth scrolling for entire page */
+   946→  html {
+   947→    scroll-behavior: smooth;
+   948→  }
+   949→}
+   950→
+   951→/* Input focus state on mobile - prevent zoom */
+   952→@media (max-width: 768px) {
+   953→  input[type="text"],
+   954→  textarea,
+   955→  [contenteditable] {
+   956→    font-size: 16px !important; /* Prevents iOS zoom on focus */
+   957→  }
+   958→}
+   959→
+   960→/* Animation utilities for mobile */
+   961→.animate-in {
+   962→  animation-duration: 200ms;
+   963→  animation-timing-function: ease-out;
+   964→  animation-fill-mode: both;
+   965→}
+   966→
+   967→.slide-in-from-bottom-4 {
+   968→  --tw-enter-translate-y: 1rem;
+   969→}
+   970→
+   971→.fade-in {
+   972→  --tw-enter-opacity: 0;
+   973→}
+   974→
+   975→.zoom-in-95 {
+   976→  --tw-enter-scale: 0.95;
+   977→}
+   978→
+   979→/* Bottom sheet shadow for mobile model selector */
+   980→@media (max-width: 640px) {
+   981→  .rounded-t-2xl {
+   982→    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5),
+   983→                0 -2px 10px rgba(0, 0, 0, 0.3);
+   984→  }
+   985→}
+   986→
