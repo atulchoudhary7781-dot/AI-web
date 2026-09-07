@@ -91,7 +91,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030712]">
+    <div className="page-wrapper min-h-screen bg-[#030712]">
       {/* Header */}
       <div className="border-b border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 md:px-8 py-6">

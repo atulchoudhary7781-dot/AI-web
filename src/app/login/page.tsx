@@ -91,10 +91,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#030712] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#030712] relative overflow-y-auto overflow-x-hidden">
       
       {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Gradient Orbs */}
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-[150px]" />
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-violet-500/10 rounded-full blur-[150px]" />
@@ -109,8 +109,8 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Main Card */}
-      <div className="relative z-10 w-full max-w-md">
+      {/* Main Card - Scrollable on small screens */}
+      <div className="relative z-10 w-full max-w-md my-8">
         <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
           
           {/* Logo */}

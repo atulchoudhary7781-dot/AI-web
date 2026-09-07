@@ -41,14 +41,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} antialiased bg-[#0a0a0f] text-white min-h-screen`}
-        style={{ background: '#0a0a0f' }}
+        className={`${inter.variable} antialiased bg-[#030712] text-white`}
+        style={{ background: '#030712' }}
       >
         {/* Providers for theme and i18n */}
         <ThemeProvider>
           <I18nProvider>
-            {/* Main Content - Full Screen for Chat Interface */}
-            {children}
+            {/* Main Content - Page Wrapper with Scroll Support */}
+            <div className="page-wrapper">
+              {children}
+            </div>
             
             <Toaster />
           </I18nProvider>

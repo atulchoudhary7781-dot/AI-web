@@ -24,7 +24,7 @@ export default function SignupPage() {
 
   // Password Strength Checker
   const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return { score: 0, label: '', color: '' }
+    if (!pwd) return { score: 0, label: '', color: '', textColor: '' }
     if (pwd.length < 6) return { score: 1, label: 'Too short', color: 'bg-red-500', textColor: 'text-red-400' }
     if (pwd.length < 8) return { score: 2, label: 'Weak', color: 'bg-orange-500', textColor: 'text-orange-400' }
     
@@ -104,10 +104,10 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#030712] relative overflow-hidden py-12">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#030712] relative overflow-y-auto overflow-x-hidden py-12">
       
       {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Gradient Orbs */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-violet-500/10 rounded-full blur-[150px]" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-500/10 rounded-full blur-[150px]" />
@@ -123,7 +123,7 @@ export default function SignupPage() {
       </div>
 
       {/* Main Card */}
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md my-8">
         <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
           
           {/* Logo */}

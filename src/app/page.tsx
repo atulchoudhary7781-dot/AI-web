@@ -65,7 +65,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col overflow-hidden relative">
+    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col relative overflow-hidden">
       
       {/* Subtle Background Gradient */}
       <div className="fixed inset-0 pointer-events-none">
@@ -102,7 +102,7 @@ export default function Home() {
       </header>
 
       {/* Main Content Area - Centered Welcome */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 relative z-10">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 relative z-10 overflow-y-auto">
         
         {/* Welcome Section */}
         <div className="text-center max-w-2xl mx-auto space-y-6 animate-fade-in">
@@ -316,7 +316,7 @@ export default function Home() {
           />
           
           {/* Sidebar Panel */}
-          <aside className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] z-50 bg-[#0a0a0f] border-r border-white/10 shadow-2xl">
+          <aside className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] z-50 bg-[#0a0a0f] border-r border-white/10 shadow-2xl overflow-y-auto">
             <div className="flex flex-col h-full">
               {/* Sidebar Header */}
               <div className="flex items-center justify-between p-4 border-b border-white/10">

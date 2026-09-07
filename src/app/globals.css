@@ -4,6 +4,7 @@
 /* ============================================
    NEXUS AI - PREMIUM DARK THEME
    Clean, Professional, Modern Design
+   With Smooth Custom Scrollbars for ALL Pages
    ============================================ */
 
 /* Base Reset */
@@ -41,13 +42,18 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   
-  /* Theme Colors */
+  /* Theme Colors - Cyberpunk Palette */
   --neon-cyan: #06b6d4;
   --neon-violet: #8b5cf6;
   --neon-pink: #ec4899;
   --deep-black: #030712;
   --dark-surface: #0f172a;
   --glass-bg: rgba(15, 23, 42, 0.8);
+  
+  /* Scrollbar Colors */
+  --scrollbar-track: rgba(15, 23, 42, 0.4);
+  --scrollbar-thumb: linear-gradient(180deg, var(--neon-cyan), var(--neon-violet));
+  --scrollbar-thumb-hover: linear-gradient(180deg, #22d3ee, #a78bfa);
 }
 
 /* Dark Mode (Default) */
@@ -56,10 +62,13 @@
   --foreground: #ffffff;
 }
 
-/* Base Styles */
+/* ============================================
+   BASE STYLES - HTML & BODY
+   ============================================ */
 html {
   height: 100%;
   scroll-behavior: smooth;
+  /* Enable smooth scrolling for all anchor links */
 }
 
 body {
@@ -70,9 +79,119 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Ensure body can scroll on all pages */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* App Container */
+/* ============================================
+   CUSTOM SCROLLBAR STYLES
+   Works on ALL pages - Desktop & Mobile
+   ============================================ */
+
+/* Webkit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 10px;
+  /* Subtle inner shadow for depth */
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+  /* Smooth gradient appearance */
+  background-size: 100% 100%;
+  /* Add subtle border for cleaner look */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  /* Transition for hover effect */
+  transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  /* Slightly larger on hover */
+  transform: scaleX(1.05);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #67e8f9, #c4b5fd);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Horizontal Scrollbar (for tables, etc.) */
+::-webkit-scrollbar-horizontal {
+  height: 10px;
+}
+
+/* Firefox Scrollbar Support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--neon-cyan) var(--scrollbar-track);
+}
+
+/* Firefox Hover State (via special selector) */
+*:hover {
+  scrollbar-color: #22d3ee var(--scrollbar-track);
+}
+
+/* ============================================
+   SCROLLABLE CONTAINER CLASSES
+   For specific scrollable areas
+   ============================================ */
+.scrollable-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
+}
+
+.scrollable-container-custom {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollable-container-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollable-container-custom::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 4px;
+}
+
+.scrollable-container-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-violet));
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Hide scrollbar but keep functionality (optional utility) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   APP CONTAINER CLASSES
+   ============================================ */
 .nexus-app {
   display: flex;
   width: 100vw;
@@ -99,32 +218,34 @@ body {
   background: var(--deep-black);
 }
 
-/* ============================================
-   CUSTOM SCROLLBAR
-   ============================================ */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Page wrapper for standard pages (not full-screen apps) */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 3px;
+.page-content {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+  margin: 0 auto;
 }
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-violet));
-  border-radius: 3px;
+@media (min-width: 640px) {
+  .page-content {
+    padding: 2rem;
+  }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #22d3ee, #a78bfa);
-}
-
-/* Firefox Scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--neon-cyan) rgba(15, 23, 42, 0.5);
+@media (min-width: 1024px) {
+  .page-content {
+    padding: 2rem 4rem;
+  }
 }
 
 /* ============================================
@@ -457,11 +578,47 @@ body {
 /* ============================================
    RESPONSIVE UTILITIES
    ============================================ */
+
+/* Extra Small Devices (<375px) */
 @media (max-width: 374px) {
   .xs\:text-xs { font-size: 0.75rem; }
   .xs\:text-sm { font-size: 0.875rem; }
   .xs\:px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
   .xs\:py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  
+  /* Smaller scrollbars on mobile */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  * {
+    scrollbar-width: thin;
+  }
+}
+
+/* Small Devices (375px - 639px) */
+@media (min-width: 375px) and (max-width: 639px) {
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+/* Tablet & Desktop (640px+) */
+@media (min-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Large Desktop (1280px+) - Slightly larger scrollbars */
+@media (min-width: 1280px) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 /* ============================================
@@ -472,6 +629,9 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    
+    /* Disable smooth scrolling for users who prefer reduced motion */
+    scroll-behavior: auto !important;
   }
 }
 
@@ -481,7 +641,7 @@ body {
   outline-offset: 2px;
 }
 
-/* Skip Link */
+/* Skip Link for Accessibility */
 .skip-link {
   position: absolute;
   top: -40px;
@@ -495,4 +655,24 @@ body {
 
 .skip-link:focus {
   top: 0;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  /* Hide scrollbars in print */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    scrollbar-width: none;
+  }
+  
+  /* Ensure content is visible */
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }

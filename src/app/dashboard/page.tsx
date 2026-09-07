@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const maxChats = Math.max(...weeklyData.map(d => d.chats))
 
   return (
-    <div className="dashboard-page-container min-h-screen bg-deep-black p-4 md:p-8 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent">
+    <div className="page-wrapper min-h-screen bg-[#030712] p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
