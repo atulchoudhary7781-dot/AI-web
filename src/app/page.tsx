@@ -1,1430 +1,401 @@
 'use client'
 
-// Force dynamic rendering - NO CACHE (handled by middleware & vercel.json)
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { 
-  Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
-  Cpu, Globe, Rocket, Star, Layers, Command, Shield,
-  TrendingUp, Users, Eye, Heart, ArrowRight, Send,
-  Menu, X, ChevronLeft, Plus, LogIn, LogOut, Crown, CheckCircle
+  Menu, Settings, Sparkles, Paperclip, Wrench,
+  Send, ChevronDown, Brain, Cpu
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 
-// Import chat components
-import Sidebar from '@/components/chat/Sidebar'
-import FullScreenChat from '@/components/chat/FullScreenChat'
-import SettingsView from '@/components/chat/SettingsView'
-import LoginView from '@/components/chat/LoginView'
-import AuthModal from '@/components/chat/AuthModal'
+// Model options for selector
+const models = [
+  { id: 'gpt-4o', name: 'GPT-4o', icon: Brain },
+  { id: 'nexus-ai', name: 'NEXUS AI', icon: Sparkles },
+  { id: 'llama-3.1', name: 'Llama 3.1', icon: Cpu },
+]
 
-// Types
-interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-  image?: string // Base64 image data
-  imageMimeType?: string
-  // Document support (PDF, DOC, TXT, etc.)
-  fileName?: string
-  fileType?: string
-  fileSize?: number
-}
-
-interface Feature {
-  icon: React.ReactNode
-  title: string
-  description: string
-  gradient: string
-}
-
-interface Stat {
-  label: string
-  value: number
-  suffix: string
-  icon: React.ReactNode
-}
-
-interface ChatSession {
-  id: string
-  title: string
-  date: Date
-  messages: ChatMessage[]
-}
-
-interface User {
-  name: string
-  email: string
-}
-
-// Neural Network Background Component
-function NeuralNetworkBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let animationFrameId: number
-    let mouseX = 0
-    let mouseY = 0
-
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-
-    resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-
-    // Nodes for neural network
-    interface Node {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      radius: number
-      opacity: number
-    }
-
-    const nodes: Node[] = []
-    const nodeCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 15000))
-
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1,
-        opacity: Math.random() * 0.5 + 0.3
-      })
-    }
-
-    const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 10, 0.1)'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      // Update and draw nodes
-      nodes.forEach((node, i) => {
-        // Mouse attraction
-        const dx = mouseX - node.x
-        const dy = mouseY - node.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        
-        if (dist < 200) {
-          node.vx += dx * 0.00005
-          node.vy += dy * 0.00005
-        }
-
-        node.x += node.vx
-        node.y += node.vy
-
-        // Bounce off edges
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1
-
-        // Draw connections
-        nodes.slice(i + 1).forEach(otherNode => {
-          const distance = Math.sqrt(
-            Math.pow(node.x - otherNode.x, 2) + Math.pow(node.y - otherNode.y, 2)
-          )
-          
-          if (distance < 150) {
-            const opacity = (1 - distance / 150) * 0.3
-            ctx.beginPath()
-            ctx.strokeStyle = `rgba(0, 245, 255, ${opacity})`
-            ctx.lineWidth = 0.5
-            ctx.moveTo(node.x, node.y)
-            ctx.lineTo(otherNode.x, otherNode.y)
-            ctx.stroke()
-          }
-        })
-
-        // Draw node
-        ctx.beginPath()
-        const gradient = ctx.createRadialGradient(
-          node.x, node.y, 0,
-          node.x, node.y, node.radius * 2
-        )
-        gradient.addColorStop(0, `rgba(0, 245, 255, ${node.opacity})`)
-        gradient.addColorStop(1, 'rgba(124, 58, 237, 0)')
-        ctx.fillStyle = gradient
-        ctx.arc(node.x, node.y, node.radius * 2, 0, Math.PI * 2)
-        ctx.fill()
-      })
-
-      animationFrameId = requestAnimationFrame(animate)
-    }
-
-    animate()
-
-    return () => {
-      window.removeEventListener('resize', resizeCanvas)
-      window.removeEventListener('mousemove', handleMouseMove)
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: '#00000a' }}
-    />
-  )
-}
-
-// Glitch Text Component
-function GlitchText({ text, className = '' }: { text: string; className?: string }) {
-  const [glitchActive, setGlitchActive] = useState(false)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGlitchActive(true)
-      setTimeout(() => setGlitchActive(false), 200)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <span className={`relative inline-block ${className}`}>
-      <span className={`relative z-10 ${glitchActive ? 'animate-pulse' : ''}`}>
-        {text}
-      </span>
-      {glitchActive && (
-        <>
-          <span className="absolute top-0 left-0.5 text-[#ff00aa] opacity-80 clip-text-glitch-1" aria-hidden="true">
-            {text}
-          </span>
-          <span className="absolute top-0 -left-0.5 text-[#00f5ff] opacity-80 clip-text-glitch-2" aria-hidden="true">
-            {text}
-          </span>
-        </>
-      )}
-    </span>
-  )
-}
-
-// Animated Counter Component
-function AnimatedCounter({ target, suffix = '', duration = 2000 }: { target: number; suffix?: string; duration?: number }) {
-  const [count, setCount] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [isVisible])
-
-  useEffect(() => {
-    if (!isVisible) return
-    
-    let start = 0
-    const increment = target / (duration / 16)
-    
-    const timer = setInterval(() => {
-      start += increment
-      if (start >= target) {
-        setCount(target)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(start))
-      }
-    }, 16)
-
-    return () => clearInterval(timer)
-  }, [isVisible, target, duration])
-
-  return <div ref={ref}>{count.toLocaleString()}{suffix}</div>
-}
-
-// Feature Card Component
-function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
-  const [isHovered, setIsHovered] = useState(false)
-
-  return (
-    <Card 
-      className="group relative bg-black/40 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-500 overflow-hidden"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        transform: isHovered ? 'translateY(-10px) rotateX(5deg)' : 'translateY(0)',
-        transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
-        transformStyle: 'preserve-3d',
-        perspective: '1000px'
-      }}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      <CardContent className="p-6 relative z-10">
-        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 transform transition-transform duration-500 ${isHovered ? 'scale-110 rotate-3' : ''}`}>
-          {feature.icon}
-        </div>
-        
-        <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-orbitron)]">
-          {feature.title}
-        </h3>
-        <p className="text-gray-400 text-sm leading-relaxed">
-          {feature.description}
-        </p>
-
-        <div className="mt-4 flex items-center gap-2 text-cyan-400 text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-          <span>Explore</span>
-          <ArrowRight className="w-4 h-4" />
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// Main App Component
-export default function NexusAI() {
-  // Mounted state to prevent hydration mismatch
-  const [mounted, setMounted] = useState(false)
-  
-  // Use effect to set mounted state after hydration
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  
-  const [sessions, setSessions] = useState<ChatSession[]>([])
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
-  const [currentView, setCurrentView] = useState<string>('chat') // Start with chat (free mode)
-  
-  // Chat Limit State
-  const [chatCount, setChatCount] = useState(0)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authModalReason, setAuthModalReason] = useState<'chat_limit' | 'file_attach'>('chat_limit')
-  const MAX_FREE_CHATS = 6 // Max chats without login
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(true)
-  const [copiedCode, setCopiedCode] = useState(false)
+export default function Home() {
+  const [message, setMessage] = useState('')
+  const [selectedModel, setSelectedModel] = useState(models[0])
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [inputValue, setInputValue] = useState('')
-  const [attachedFile, setAttachedFile] = useState<File | null>(null)
-  const [fileBase64, setFileBase64] = useState<string | null>(null)
   
-  // Intro Animation State - DISABLED (Direct to New Interface)
-  const [showIntro, setShowIntro] = useState(false)  // ❌ No intro
-  const [introComplete, setIntroComplete] = useState(true)  // ✅ Always complete
-  
-  // AbortController for stopping responses
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const modelDropdownRef = useRef<HTMLDivElement>(null)
 
-  // Toggle Sidebar Handler
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
-  
-  // Auth State - Use lazy initialization to avoid hydration mismatch
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // Check if we're on client side
-    if (typeof window === 'undefined') return false
-    return !!localStorage.getItem('nexus_user')
-  })
-  
-  const [user, setUser] = useState<User | null>(() => {
-    // Check if we're on client side
-    if (typeof window === 'undefined') return null
-    try {
-      const savedUser = localStorage.getItem('nexus_user')
-      return savedUser ? JSON.parse(savedUser) : null
-    } catch {
-      return null
-    }
-  })
-
-  // Check if user can chat (logged in or under limit)
-  const canChat = isLoggedIn || chatCount < MAX_FREE_CHATS
-
-  // Check for existing session on mount (only for sessions, not auth)
+  // Close dropdown when clicking outside
   useEffect(() => {
-    // Load sessions only if logged in
-    if (isLoggedIn) {
-      const savedSessions = localStorage.getItem('nexus_sessions')
-      if (savedSessions) {
-        setSessions(JSON.parse(savedSessions))
+    function handleClickOutside(event: MouseEvent) {
+      if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
+        setIsModelDropdownOpen(false)
       }
     }
     
-    // Load chat count for guests
-    const savedChatCount = localStorage.getItem('nexus_chat_count')
-    if (savedChatCount) {
-      setChatCount(parseInt(savedChatCount, 10))
-    }
-    // Note: Intro state is now initialized from sessionStorage in useState (prevents flash)
-  }, [isLoggedIn])
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
-  // Save sessions to localStorage when they change (only if logged in)
+  // Auto-resize textarea
   useEffect(() => {
-    if (isLoggedIn && sessions.length > 0) {
-      localStorage.setItem('nexus_sessions', JSON.stringify(sessions))
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 200) + 'px'
     }
-  }, [sessions, isLoggedIn])
+  }, [message])
 
-  // Login Handler
-  const handleLogin = (userData: User) => {
-    setIsLoggedIn(true)
-    setUser(userData)
-    setCurrentView('chat') // Redirect to chat after login
-    setShowAuthModal(false) // Close modal if open
-    setChatCount(0) // Reset chat count for logged in users
-    localStorage.removeItem('nexus_chat_count')
-  }
+  // Handle form submit
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!message.trim() || isLoading) return
 
-  // Logout Handler
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    setUser(null)
-    setSessions([])
-    setActiveSessionId(null)
-    setChatCount(0) // Reset chat count on logout
-    localStorage.removeItem('nexus_user')
-    localStorage.removeItem('nexus_sessions')
-    localStorage.removeItem('nexus_chat_count')
-  }
-
-  // Login Click Handler - Navigate to login view
-  const handleLoginClick = () => {
-    setCurrentView('login')
-  }
-
-  // Signup Click Handler - Navigate to login view (with signup mode)
-  const handleSignupClick = () => {
-    setCurrentView('login')
-  }
-
-  // Get current session messages
-  const getCurrentMessages = (): ChatMessage[] => {
-    if (activeSessionId) {
-      const session = sessions.find(s => s.id === activeSessionId)
-      return session?.messages || getDefaultMessages()
-    }
-    return getDefaultMessages()
-  }
-
-  const getDefaultMessages = (): ChatMessage[] => [
-    {
-      id: '1',
-      role: 'assistant',
-      content: '👋 Welcome to **NEXUS AI** — The Future of Intelligence!\n\nI\'m your advanced AI assistant powered by Llama 3.1. Ask me anything about:\n• 🤖 Artificial Intelligence & Machine Learning\n• 💻 Programming & Code\n• 🔬 Science & Technology\n• 🚀 Innovation & Future Trends\n\n*How can I help you today?*',
-      timestamp: new Date()
-    }
-  ]
-
-  // Features data
-  const features: Feature[] = [
-    {
-      icon: <Brain className="w-7 h-7 text-white" />,
-      title: 'Neural Processing',
-      description: 'Advanced deep learning algorithms that understand context, nuance, and intent like never before.',
-      gradient: 'from-violet-600 to-purple-600'
-    },
-    {
-      icon: <Code2 className="w-7 h-7 text-white" />,
-      title: 'Code Generation',
-      description: 'Generate production-ready code in 50+ languages with intelligent auto-completion and optimization.',
-      gradient: 'from-cyan-600 to-blue-600'
-    },
-    {
-      icon: <MessageSquare className="w-7 h-7 text-white" />,
-      title: 'Natural Conversations',
-      description: 'Human-like dialogue capabilities with emotional intelligence and contextual awareness.',
-      gradient: 'from-pink-600 to-rose-600'
-    },
-    {
-      icon: <Terminal className="w-7 h-7 text-white" />,
-      title: 'Command Center',
-      description: 'Powerful terminal interface for developers with real-time execution and debugging tools.',
-      gradient: 'from-neon-purple to-electric-blue'
-    },
-    {
-      icon: <Shield className="w-7 h-7 text-white" />,
-      title: 'Quantum Security',
-      description: 'Military-grade encryption with quantum-resistant protocols protecting your data.',
-      gradient: 'from-emerald-600 to-green-600'
-    },
-    {
-      icon: <Globe className="w-7 h-7 text-white" />,
-      title: 'Global Network',
-      description: 'Distributed computing across 200+ edge locations for lightning-fast responses worldwide.',
-      gradient: 'from-indigo-600 to-violet-600'
-    }
-  ]
-
-  // Stats data
-  const stats: Stat[] = [
-    { label: 'API Calls/Day', value: 50, suffix: 'M+', icon: <TrendingUp className="w-5 h-5" /> },
-    { label: 'Active Users', value: 10, suffix: 'M+', icon: <Users className="w-5 h-5" /> },
-    { label: 'Uptime', value: 99.9, suffix: '%', icon: <Shield className="w-5 h-5" /> },
-    { label: 'Response Time', value: 50, suffix: 'ms', icon: <Zap className="w-5 h-5" /> }
-  ]
-
-  // Create new chat session
-  const handleNewChat = useCallback(() => {
-    const newSession: ChatSession = {
-      id: Date.now().toString(),
-      title: 'New Chat',
-      date: new Date(),
-      messages: getDefaultMessages()
-    }
-    setSessions(prev => [newSession, ...prev])
-    setActiveSessionId(newSession.id)
-    setCurrentView('chat')
-    setInputValue('')
-  }, [])
-
-  // Select session
-  const handleSelectSession = useCallback((id: string) => {
-    setActiveSessionId(id)
-    setCurrentView('chat')
-  }, [])
-
-  // Delete session
-  const handleDeleteSession = useCallback((id: string) => {
-    setSessions(prev => prev.filter(s => s.id !== id))
-    if (activeSessionId === id) {
-      setActiveSessionId(null)
-    }
-  }, [activeSessionId])
-
-  // Update session title based on first message
-  const updateSessionTitle = useCallback((sessionId: string, firstMessage: string) => {
-    setSessions(prev => prev.map(s => 
-      s.id === sessionId 
-        ? { ...s, title: firstMessage.slice(0, 30) + (firstMessage.length > 30 ? '...' : '') }
-        : s
-    ))
-  }, [])
-
-  // Handle stop generating response
-  const handleStop = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = null
-    }
-    setIsLoading(false)
-    
-    // Add "stopped" message to show user that they stopped the response
-    const stoppedMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'assistant',
-      content: '⏹️ **You stopped the response**\n\nThe AI generation was interrupted. You can ask a new question or modify your prompt.',
-      timestamp: new Date()
-    }
-    
-    setSessions(prev => {
-      const activeId = activeSessionId || 'default'
-      return prev.map(s => 
-        s.id === activeId 
-          ? { ...s, messages: [...s.messages, stoppedMessage] }
-          : s
-      )
-    })
-  }, [activeSessionId])
-
-  // Typewriter effect for AI responses - word by word display
-  const typeWriterEffect = useCallback((sessionId: string, fullText: string, messageId: string, speed: number = 40) => {
-    const words = fullText.split(' ')
-    let currentIndex = 0
-    
-    const typeInterval = setInterval(() => {
-      if (currentIndex < words.length) {
-        currentIndex++
-        const displayedText = words.slice(0, currentIndex).join(' ')
-        
-        const partialMessage: ChatMessage = {
-          id: messageId,
-          role: 'assistant',
-          content: displayedText,
-          timestamp: new Date()
-        }
-        
-        setSessions(prev => prev.map(s => 
-          s.id === sessionId 
-            ? { ...s, messages: [...s.messages.filter(m => m.id !== messageId), partialMessage] }
-            : s
-        ))
-      } else {
-        clearInterval(typeInterval)
-        setIsLoading(false)
-      }
-    }, speed)
-    
-    // Return cleanup function to stop typing if user interrupts
-    return () => clearInterval(typeInterval)
-  }, [])
-
-  // Handle chat submission
-  const handleSubmit = useCallback(async () => {
-    // Allow sending if there's text OR an attached file
-    if ((!inputValue.trim() && !attachedFile) || isLoading) return
-
-    // Check if guest has reached chat limit
-    if (!isLoggedIn && chatCount >= MAX_FREE_CHATS) {
-      setShowAuthModal(true)
-      return
-    }
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: inputValue || (attachedFile ? `📎 ${attachedFile.name}` : ''),
-      timestamp: new Date(),
-      // Attach image data if available
-      ...(fileBase64 && attachedFile?.type.startsWith('image/') ? {
-        image: fileBase64,
-        imageMimeType: attachedFile.type
-      } : {}),
-      // Attach document info for non-image files
-      ...(attachedFile && !attachedFile?.type.startsWith('image/') ? {
-        fileName: attachedFile.name,
-        fileType: attachedFile.type,
-        fileSize: attachedFile.size
-      } : {})
-    }
-
-    // DEBUG: Log message to console
-    console.log('📤 User Message Created:', userMessage)
-    console.log('  - Has fileName:', !!userMessage.fileName)
-    console.log('  - Has image:', !!userMessage.image)
-    console.log('  - Content:', userMessage.content)
-
-    // If no active session, create one
-    let sessionId = activeSessionId
-    if (!sessionId) {
-      const newSession: ChatSession = {
-        id: Date.now().toString(),
-        title: inputValue.slice(0, 30),
-        date: new Date(),
-        messages: [...getDefaultMessages(), userMessage]
-      }
-      setSessions(prev => [newSession, ...prev])
-      sessionId = newSession.id
-      setActiveSessionId(sessionId)
-    } else {
-      // Update existing session
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId 
-          ? { ...s, messages: [...s.messages, userMessage] }
-          : s
-      ))
-      // Update title if it's "New Chat"
-      const session = sessions.find(s => s.id === sessionId)
-      if (session?.title === 'New Chat') {
-        updateSessionTitle(sessionId, inputValue)
-      }
-    }
-
-    setInputValue('')
     setIsLoading(true)
-
-    // Create new AbortController for this request
-    const controller = new AbortController()
-    abortControllerRef.current = controller
-
-    try {
-      // Prepare request body with optional image/document data
-      const requestBody: any = { message: inputValue }
-      
-      // Add image data if attached
-      if (attachedFile && fileBase64 && attachedFile.type.startsWith('image/')) {
-        requestBody.imageData = fileBase64
-        requestBody.imageMimeType = attachedFile.type
-      }
-      
-      // Add document info if non-image file is attached
-      if (attachedFile && !attachedFile.type.startsWith('image/')) {
-        requestBody.fileName = attachedFile.name
-        requestBody.fileType = attachedFile.type
-      }
-      
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-        signal: controller.signal
-      })
-
-      if (!response.ok) throw new Error('Failed to get response')
-
-      const data = await response.json()
-      const fullResponse = data.response || 'I apologize, but I encountered an error processing your request.'
-      
-      // Create message ID for typewriter effect
-      const assistantMessageId = (Date.now() + 1).toString()
-      
-      // Add empty message first
-      const emptyMessage: ChatMessage = {
-        id: assistantMessageId,
-        role: 'assistant',
-        content: '',
-        timestamp: new Date()
-      }
-      
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId 
-          ? { ...s, messages: [...s.messages, emptyMessage] }
-          : s
-      ))
-      
-      // Start typewriter effect - word by word (40ms per word)
-      typeWriterEffect(sessionId, fullResponse, assistantMessageId, 40)
-      
-      // Clear attached file after sending
-      setAttachedFile(null)
-      setFileBase64(null)
-    } catch (error) {
-      console.error('Chat error:', error)
-      
-      // Fallback responses based on keywords
-      let fallbackResponse = "I'm NEXUS AI, your advanced intelligence system. I can help you explore the frontiers of technology, generate code, analyze complex problems, and much more. What would you like to discover?"
-      
-      const lowerInput = inputValue.toLowerCase()
-      if (lowerInput.includes('ai') || lowerInput.includes('artificial intelligence')) {
-        fallbackResponse = `## 🤖 The Future of AI
-
-Artificial Intelligence is evolving at an unprecedented pace. Here's what's next:
-
-**Current Frontiers:**
-- **Large Language Models**: GPT-4, Claude, and beyond — systems that truly understand context
-- **Multimodal AI**: Vision, language, and reasoning combined in unified architectures
-- **Agentic AI**: Autonomous systems that can plan, execute, and iterate on complex tasks
-
-**Emerging Capabilities:**
-- Reasoning & planning at human-level or superhuman performance
-- Scientific discovery acceleration (protein folding, materials science)
-- Creative collaboration in art, music, and design
-
-**The NEXUS Advantage:**
-Our neural architecture processes information through 175B+ parameters, enabling nuanced understanding that bridges the gap between artificial and natural intelligence.
-
-*Would you like me to dive deeper into any specific area?*`
-      } else if (lowerInput.includes('code') || lowerInput.includes('programming') || lowerInput.includes('python')) {
-        fallbackResponse = `## 💻 Code Generation Example
-
-Here's a **Neural Network implementation in Python** using PyTorch:
-
-\`\`\`python
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-class NexusNet(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size):
-        super(NexusNet, self).__init__()
-        # Neural architecture layers
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, output_size)
-        self.dropout = nn.Dropout(0.3)
-        self.relu = nn.ReLU()
-        
-    def forward(self, x):
-        x = self.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.relu(self.fc2(x))
-        x = self.dropout(x)
-        x = self.fc3(x)
-        return x
-
-# Initialize model
-model = NexusNet(input_size=784, hidden_size=256, output_size=10)
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-criterion = nn.CrossEntropyLoss()
-
-print(f"NEXUS Neural Network initialized")
-print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
-\`\`\`
-
-**Key Features:**
-- 🧠 Deep architecture with dropout regularization
-- ⚡ Adam optimizer for fast convergence
-- 📊 Suitable for image classification, NLP, and more
-
-Need code in another language or for a specific use case?`
-      } else if (lowerInput.includes('quantum') || lowerInput.includes('computing')) {
-        fallbackResponse = `## ⚛️ Quantum Computing Explained
-
-**What is Quantum Computing?**
-
-Traditional computers use bits (0 or 1). Quantum computers use **qubits**, which can exist in **superposition** — being 0 AND 1 simultaneously.
-
-**Key Concepts:**
-
-| Concept | Description |
-|---------|-------------|
-| Superposition | Qubits exist in multiple states at once |
-| Entanglement | Correlated qubits affect each other instantly |
-| Interference | Amplify correct answers, cancel wrong ones |
-
-**Real-World Applications:**
-- 🔐 Breaking current encryption (Shor's algorithm)
-- 💊 Drug discovery & molecular simulation
-- 📈 Financial modeling & optimization
-- 🤖 Training better AI models
-
-**The Quantum Advantage:**
-A quantum computer with 300 perfect qubits could represent more states than there are atoms in the observable universe!
-
-*Want to explore quantum algorithms or hardware?*`
-      } else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('hey')) {
-        fallbackResponse = `## 👋 Hello, Human! Welcome to NEXUS AI
-
-I'm **NEXUS** — Next-Generation Universal Experience System.
-
-**What I Can Do For You:**
-- 🎯 Answer complex questions with detailed analysis
-- 💻 Generate code in any programming language
-- 📊 Explain technical concepts simply
-- 🚀 Brainstorm ideas and strategies
-- 📝 Write, edit, and improve content
-- 🔬 Research and summarize topics
-
-**Try asking me:**
-- *"Explain how transformers work"*
-- *"Write a React component for a dashboard"*
-- *"What are the latest advances in AI?"*
-
-I'm here to push the boundaries of what's possible. **What shall we explore?** 🌟`
-      }
-
-      const fallbackMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: fallbackResponse,
-        timestamp: new Date()
-      }
-
-      // Add empty fallback message first, then use typewriter effect
-      const fallbackMessageId = (Date.now() + 1).toString()
-      const emptyFallbackMessage: ChatMessage = {
-        id: fallbackMessageId,
-        role: 'assistant',
-        content: '',
-        timestamp: new Date()
-      }
-
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId 
-          ? { ...s, messages: [...s.messages, emptyFallbackMessage] }
-          : s
-      ))
-      
-      // Start typewriter effect for fallback response
-      typeWriterEffect(sessionId, fallbackResponse, fallbackMessageId, 35)
-    } finally {
-      // Note: setIsLoading(false) is now handled by typeWriterEffect when typing completes
-      
-      // Increment chat count for guests
-      if (!isLoggedIn) {
-        const newCount = chatCount + 1
-        setChatCount(newCount)
-        localStorage.setItem('nexus_chat_count', newCount.toString())
-        
-        // Show modal if limit reached after this message
-        if (newCount >= MAX_FREE_CHATS) {
-          setTimeout(() => setShowAuthModal(true), 500)
-        }
-      }
-    }
-  }, [inputValue, isLoading, activeSessionId, sessions, updateSessionTitle, isLoggedIn, chatCount, MAX_FREE_CHATS, attachedFile, fileBase64])
-
-  // Copy code handler
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    setCopiedCode(true)
-    setTimeout(() => setCopiedCode(false), 2000)
+    // Simulate sending message
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    console.log('Sending:', message)
+    setMessage('')
+    setIsLoading(false)
   }
 
-  // File attachment handler
-  const handleFileAttach = (file: File) => {
-    setAttachedFile(file)
-    setInputValue('')
-    
-    // Convert image to base64 for API
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        // Get base64 string (remove data:image/xxx;base64, prefix)
-        const base64 = (reader.result as string).split(',')[1]
-        setFileBase64(base64)
-      }
-      reader.readAsDataURL(file)
-    } else {
-      setFileBase64(null)
-    }
-    
-    console.log('File attached:', file)
-  }
-
-  // Toggle theme
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode)
-  }
-
-  // Render current view
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'chat':
-        return (
-          <FullScreenChat
-            onToggleSidebar={toggleSidebar}
-            onNewChat={handleNewChat}
-            sessionId={activeSessionId || undefined}
-            isLoggedIn={isLoggedIn}
-            canChat={canChat}
-            onLoginRequired={() => {
-              setAuthModalReason('chat_limit')
-              setShowAuthModal(true)
-            }}
-            onLoginClick={handleLoginClick}
-            onSignupClick={handleSignupClick}
-            onSettingsClick={() => setCurrentView('settings')}
-            userName={user?.name}
-          />
-        )
-      
-      case 'settings':
-        return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
-
-      case 'login':
-        return (
-          <LoginView 
-            onLogin={handleLogin}
-            onLogout={handleLogout}
-            isLoggedIn={isLoggedIn}
-            user={user}
-          />
-        )
-
-      case 'home':
-        return (
-          <>
-            {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center justify-center px-4">
-              <div className="max-w-5xl mx-auto text-center">
-                <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 mb-6">
-                  <Rocket className="w-3 h-3 mr-1" />
-                  Next Generation AI Platform
-                </Badge>
-                
-                <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 font-[family-name:var(--font-orbitron)]">
-                  <GlitchText text="NEXUS" className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400" />
-                  <br />
-                  <span className="text-3xl sm:text-4xl md:text-5xl text-white mt-4 block">AI</span>
-                </h1>
-                
-                <p className="text-xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  Experience the future of artificial intelligence. NEXUS AI combines cutting-edge neural networks 
-                  with intuitive design to deliver superhuman capabilities at your fingertips.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                  <Button 
-                    size="lg"
-                    onClick={() => setCurrentView('chat')}
-                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 py-6 text-lg glow-cyan"
-                  >
-                    <MessageSquare className="w-5 h-5 mr-2" />
-                    Try AI Chat Now
-                  </Button>
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    onClick={() => setCurrentView('features')}
-                    className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg"
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Explore Features
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-green-400" />
-                    Enterprise Ready
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-400" />
-                    Lightning Fast
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-red-400" />
-                    Free to Use
-                  </div>
-                </div>
-              </div>
-
-              {/* 🔥 CREATOR BADGE - Built by Atul Choudhary 🔥 */}
-              <div className="mt-12 max-w-2xl mx-auto">
-                <div 
-                  className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-red-500/10 to-purple-500/10 p-1"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(239, 68, 68, 0.15), rgba(168, 85, 247, 0.15))',
-                    boxShadow: '0 0 40px rgba(251, 191, 36, 0.2), 0 0 80px rgba(168, 85, 247, 0.1)'
-                  }}
-                >
-                  <div className="bg-black/60 backdrop-blur-xl rounded-xl p-6 md:p-8">
-                    <div className="flex flex-col md:flex-row items-center gap-6">
-                      {/* Avatar with Glow - Using Real Photo */}
-                      <div className="relative flex-shrink-0">
-                        <div 
-                          className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 opacity-75 blur-sm"
-                          style={{ animation: 'spin 3s linear infinite' }}
-                        />
-                        <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-black/50 shadow-2xl">
-                          <img 
-                            src="/creator-photo.jpg" 
-                            alt="Atul Choudhary - Creator of Nexus AI"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        {/* Verified Badge */}
-                        <div className="absolute -bottom-1 -right-1 w-9 h-9 bg-green-500 rounded-full border-4 border-black flex items-center justify-center shadow-lg shadow-green-500/50">
-                          <CheckCircle size={16} className="text-white" strokeWidth={3} />
-                        </div>
-                      </div>
-
-                      {/* Creator Info */}
-                      <div className="text-center md:text-left flex-1">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/20 to-red-500/20 border border-yellow-500/40 mb-3">
-                          <Heart size={14} className="text-red-500 animate-pulse" />
-                          <span className="text-xs font-bold text-yellow-400 tracking-wider">BUILT WITH ❤️ BY</span>
-                          <Crown size={14} className="text-yellow-400" />
-                        </div>
-                        
-                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                          Atul Choudhary 👨‍💻
-                        </h3>
-                        
-                        <p className="text-cyan-400 font-semibold text-sm mb-3">
-                          Founder & Developer of Nexus AI
-                        </p>
-                        
-                        <p className="text-gray-400 text-sm leading-relaxed max-w-md mb-4">
-                          ✨ Built this AI platform with a mission to democratize technology for everyone, everywhere.
-                          <br />
-                          🌍 Serving users worldwide with cutting-edge AI capabilities.
-                        </p>
-
-                        {/* Social Links - LinkedIn & Portfolio */}
-                        <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-                          <a 
-                            href="https://www.linkedin.com/in/atul-choudhary-018037301/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0077b5]/20 border border-[#0077b5]/50 text-[#0077b5] hover:bg-[#0077b5]/30 hover:border-[#0077b5] transition-all duration-300 group"
-                          >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                            </svg>
-                            <span className="text-xs font-semibold">LinkedIn</span>
-                          </a>
-                          
-                          <a 
-                            href="https://atul-portfolio-alpha.vercel.app/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/50 text-purple-400 hover:bg-purple-500/30 hover:border-purple-400 transition-all duration-300 group"
-                          >
-                            <Globe size={14} />
-                            <span className="text-xs font-semibold">Portfolio</span>
-                          </a>
-                        </div>
-
-                        {/* Stats Mini */}
-                        <div className="flex items-center justify-center md:justify-start gap-4">
-                          {[
-                            { label: 'Users', value: '10K+', icon: Globe, color: 'text-cyan-400' },
-                            { label: 'Countries', value: '150+', icon: Star, color: 'text-purple-400' },
-                            { label: 'AI Models', value: '50+', icon: Sparkles, color: 'text-pink-400' }
-                          ].map((stat, idx) => (
-                            <div key={idx} className="text-center">
-                              <stat.icon size={14} className={`mx-auto ${stat.color}`} />
-                              <div className="text-xs font-bold text-white">{stat.value}</div>
-                              <div className="text-[10px] text-gray-500">{stat.label}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Tagline below badge */}
-                <p className="text-center mt-4 text-sm font-semibold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  ⚡ Nexus AI — Crafted by Atul Choudhary, Used by the World 🌍
-                </p>
-              </div>
-            </section>
-
-            {/* Features Section */}
-            <section id="features" className="relative py-24 px-4">
-              <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
-                  <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
-                    <Layers className="w-3 h-3 mr-1" />
-                    Capabilities
-                  </Badge>
-                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
-                      Powerful Features
-                    </span>
-                  </h2>
-                  <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-                    Built with cutting-edge technology to deliver unparalleled performance and intelligence.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {features.map((feature, index) => (
-                    <FeatureCard key={index} feature={feature} index={index} />
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Stats Section */}
-            <section id="stats" className="relative py-24 px-4">
-              <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
-                  <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    By The Numbers
-                  </Badge>
-                  <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
-                      Impact at Scale
-                    </span>
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                  {stats.map((stat, index) => (
-                    <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
-                      <CardContent className="p-6 text-center">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
-                          {stat.icon}
-                        </div>
-                        <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
-                          <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                        </div>
-                        <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="relative py-24 px-4">
-              <div className="max-w-4xl mx-auto text-center">
-                <Card className="bg-gradient-to-br from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 backdrop-blur-xl">
-                  <CardContent className="p-12">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-orbitron)]">
-                      Ready to Experience the Future?
-                    </h2>
-                    <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-                      Join millions of users already leveraging NEXUS AI to transform their workflow and unlock new possibilities.
-                    </p>
-                    <Button 
-                      size="lg"
-                      onClick={() => setCurrentView('chat')}
-                      className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white px-8 glow-cyan"
-                    >
-                      <Rocket className="w-5 h-5 mr-2" />
-                      Start Chatting Now
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </section>
-          </>
-        )
-
-      case 'features':
-        return (
-          <div className="h-full overflow-y-auto overflow-x-hidden px-4 py-12 custom-scrollbar">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <Badge variant="outline" className="border-violet-500/50 text-violet-400 mb-4">
-                  <Layers className="w-3 h-3 mr-1" />
-                  Capabilities
-                </Badge>
-                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
-                    Powerful Features
-                  </span>
-                </h2>
-                <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-                  Built with cutting-edge technology to deliver unparalleled performance and intelligence.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {features.map((feature, index) => (
-                  <FeatureCard key={index} feature={feature} index={index} />
-                ))}
-              </div>
-
-              <div className="mt-12 text-center">
-                <Button 
-                  onClick={() => setCurrentView('chat')}
-                  className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white glow-cyan"
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Try AI Chat
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 'stats':
-        return (
-          <div className="min-h-screen px-4 py-12">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <Badge variant="outline" className="border-pink-500/50 text-pink-400 mb-4">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  By The Numbers
-                </Badge>
-                <h2 className="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-orbitron)]">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-gold-400">
-                    Impact at Scale
-                  </span>
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, index) => (
-                  <Card key={index} className="bg-black/40 backdrop-blur-xl border border-gray-800 hover:border-cyan-500/30 transition-all group">
-                    <CardContent className="p-6 text-center">
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 mb-4 group-hover:scale-110 transition-transform">
-                        {stat.icon}
-                      </div>
-                      <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-[family-name:var(--font-orbitron)]">
-                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                      </div>
-                      <p className="text-sm text-gray-400 mt-2">{stat.label}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-
-      default:
-        return (
-          <FullScreenChat
-            onToggleSidebar={toggleSidebar}
-            onNewChat={handleNewChat}
-            sessionId={activeSessionId || undefined}
-            isLoggedIn={isLoggedIn}
-            canChat={canChat}
-            onLoginRequired={() => {
-              setAuthModalReason('chat_limit')
-              setShowAuthModal(true)
-            }}
-            onLoginClick={handleLoginClick}
-            onSignupClick={handleSignupClick}
-            onSettingsClick={() => setCurrentView('settings')}
-            userName={user?.name}
-          />
-        )
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
     }
   }
 
   return (
-    <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`} style={{ position: 'relative' }}>
+    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col overflow-hidden relative">
+      
+      {/* Subtle Background Gradient */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-cyan-500/5 via-violet-500/5 to-pink-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_rgba(6,182,212,0.03)_0%,_transparent_50%)]" />
+      </div>
 
-      {/* Main Content - Always Visible (No Intro Animation) */}
-      <div className="opacity-100">
-      {/* Background Animation - Only on home view */}
-      {currentView === 'home' && mounted && <NeuralNetworkBackground />}
+      {/* Header - Simple & Clean */}
+      <header className="relative z-20 flex items-center justify-between px-4 py-3 border-b border-white/5 bg-black/30 backdrop-blur-sm">
+        {/* Left: Menu Button */}
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 rounded-xl hover:bg-white/10 transition-colors duration-200 text-gray-400 hover:text-white"
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
-      {/* Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-        onNewChat={handleNewChat}
-        sessions={sessions}
-        activeSessionId={activeSessionId}
-        onSelectSession={handleSelectSession}
-        onDeleteSession={handleDeleteSession}
-        onViewChange={setCurrentView}
-        currentView={currentView}
-        isDarkMode={isDarkMode}
-        onToggleTheme={toggleTheme}
-        isLoggedIn={isLoggedIn}
-        user={user}
-        onLoginClick={() => setCurrentView('login')}
-        onSignupClick={() => setCurrentView('login')}
-        onLogoutClick={handleLogout}
-        chatCount={chatCount}
-        maxChats={MAX_FREE_CHATS}
-      />
+        {/* Center: Title */}
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-500">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-base font-semibold text-white">AI Chat</h1>
+        </div>
 
-      {/* Main Content - FULL SCREEN */}
-      <main className="h-screen w-full flex flex-col overflow-hidden">
-        {/* Top Header Bar - Always visible with integrated Nav Button */}
-        <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 relative ${
-          currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
-        }`}>
-          {/* MOBILE/TABLET/PC - Responsive Header - GRID LAYOUT for TRUE CENTER */}
-          <div className="grid grid-cols-3 items-center px-3 sm:px-6 min-h-[52px] h-auto py-2 sm:py-0 sm:h-[52px]">
-            
-            {/* LEFT SIDE - Navigation Button + Title */}
-            <div className="flex items-center gap-3 justify-start min-w-0">
-              {/* Integrated Navigation Button - Part of Header */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-200 ease-out hover:scale-105 active:scale-95 flex-shrink-0 ${
-                  sidebarOpen 
-                    ? 'bg-red-500/15 border-red-500/40 shadow-sm shadow-red-500/10 rotate-90' 
-                    : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
-                }`}
-                title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
-              >
-                {sidebarOpen ? (
-                  <X className="w-[18px] h-[18px] text-red-400" strokeWidth={2} />
-                ) : (
-                  <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
-                )}
-              </button>
+        {/* Right: Settings */}
+        <button
+          className="p-2 rounded-xl hover:bg-white/10 transition-colors duration-200 text-gray-400 hover:text-cyan-400"
+          aria-label="Settings"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+      </header>
+
+      {/* Main Content Area - Centered Welcome */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 relative z-10">
+        
+        {/* Welcome Section */}
+        <div className="text-center max-w-2xl mx-auto space-y-6 animate-fade-in">
+          
+          {/* Logo Icon with Gradient Background */}
+          <div className="flex justify-center mb-8">
+            <div className="relative group">
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-violet-500 rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
               
-              {/* Title - Show only when not on home view */}
-              {currentView !== 'home' && (
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <span className="font-semibold text-white text-base hidden sm:block tracking-tight truncate">
-                    {currentView === 'chat' ? 'AI Chat' : 
-                     currentView === 'settings' ? 'Settings' :
-                     currentView === 'features' ? 'Features' :
-                     currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
-                  </span>
+              {/* Icon Container */}
+              <div className="relative p-6 bg-gradient-to-br from-cyan-400 via-violet-500 to-pink-500 rounded-3xl shadow-2xl shadow-violet-500/25 group-hover:shadow-violet-500/40 transition-shadow duration-300">
+                <Sparkles className="w-12 h-12 text-white" />
+                
+                {/* Animated Sparkles on Icon */}
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping opacity-75" />
+                <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-cyan-300 rounded-full animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="space-y-3">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+              <span className="text-white">Welcome to </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                NEXUS AI
+              </span>
+            </h2>
+            
+            <p className="text-gray-400 text-lg md:text-xl max-w-lg mx-auto leading-relaxed">
+              Your advanced AI assistant powered by Llama 3.1. Ask me anything — I'm here to help!
+            </p>
+          </div>
+
+          {/* Feature Pills/Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300">
+              <Brain className="w-4 h-4 text-cyan-400" />
+              Neural Processing
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300">
+              <Cpu className="w-4 h-4 text-violet-400" />
+              Lightning Fast
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300">
+              <Sparkles className="w-4 h-4 text-pink-400" />
+              Context Aware
+            </span>
+          </div>
+        </div>
+      </main>
+
+      {/* Bottom Input Area - Fixed at Bottom */}
+      <div className="relative z-20 pb-6 px-4">
+        <div className="max-w-4xl mx-auto space-y-3">
+          
+          {/* Status Bar */}
+          <div className="flex items-center justify-between px-1">
+            {/* Model Selector */}
+            <div className="relative" ref={modelDropdownRef}>
+              <button
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                className={cn(
+                  "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg",
+                  "bg-white/5 border border-white/10 text-sm text-gray-300",
+                  "hover:bg-white/10 hover:border-white/20 transition-all duration-200"
+                )}
+              >
+                <selectedModel.icon className="w-4 h-4 text-green-400" />
+                <span>{selectedModel.name}</span>
+                <ChevronDown className={cn(
+                  "w-3.5 h-3.5 transition-transform duration-200",
+                  isModelDropdownOpen && "rotate-180"
+                )} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isModelDropdownOpen && (
+                <div className={cn(
+                  "absolute bottom-full left-0 mb-2 py-2 min-w-[160px]",
+                  "bg-[#16161d] border border-white/10 rounded-xl shadow-2xl",
+                  "animate-slide-up origin-bottom"
+                )}>
+                  {models.map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => {
+                        setSelectedModel(model)
+                        setIsModelDropdownOpen(false)
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors",
+                        selectedModel.id === model.id 
+                          ? "text-white bg-white/10" 
+                          : "text-gray-400 hover:text-white hover:bg-white/5"
+                      )}
+                    >
+                      <model.icon className={cn(
+                        "w-4 h-4",
+                        selectedModel.id === model.id ? "text-green-400" : "text-gray-500"
+                      )} />
+                      <span>{model.name}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* ⭐ CENTER - PRO BUTTON (ALWAYS VISIBLE - Login/Logout/Refresh sabpe FIXED CENTER) */}
-            <div className="flex items-center justify-center">
-              <a
-                href="/pricing"
-                id="header-pro-button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                  padding: '6px 12px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5)',
-                  cursor: 'pointer',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease',
-                  visibility: 'visible',
-                  opacity: 1
-                }}
-                aria-label="Upgrade to Pro"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)'
-                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.7)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(168, 85, 247, 0.5)'
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-                <span>PRO</span>
-              </a>
-            </div>
-
-            {/* RIGHT SIDE - Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
-              
-              {isLoggedIn ? (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleNewChat}
-                      className="text-gray-400 hover:text-white hover:bg-gray-800/80 h-9 w-9 sm:w-auto sm:px-3 rounded-lg transition-all flex items-center justify-center"
-                      title="New Chat"
-                    >
-                      <Plus className="w-4 h-4 sm:mr-1.5" />
-                      <span className="hidden sm:inline text-sm font-medium">New Chat</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleLogout}
-                      className="text-red-400/80 hover:text-red-300 hover:bg-red-500/10 h-9 w-9 sm:w-auto sm:px-3 rounded-lg transition-all flex items-center justify-center"
-                      title="Logout"
-                    >
-                      <LogOut className="w-4 h-4 sm:mr-1.5" />
-                      <span className="hidden sm:inline text-sm font-medium">Logout</span>
-                    </Button>
-                  </>
-                ) : null}
+            {/* Status Indicator */}
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span>powerful</span>
+              <span className="mx-1 text-gray-600">•</span>
+              <span>Press Enter to send</span>
             </div>
           </div>
-        </header>
 
-        {/* Content Area - Full height, fills remaining space */}
-        <div className="flex-1 min-h-0 overflow-hidden">
-          {renderCurrentView()}
+          {/* Input Container */}
+          <form onSubmit={handleSubmit} className="relative">
+            <div className={cn(
+              "relative flex items-end gap-2 p-3 pr-4",
+              "bg-[#12121a] border border-white/10 rounded-2xl",
+              "focus-within:border-cyan-500/50 focus-within:ring-2 focus-within:ring-cyan-500/20",
+              "transition-all duration-200 shadow-lg shadow-black/20"
+            )}>
+              
+              {/* Left Tools */}
+              <div className="flex items-center gap-1 pb-0.5">
+                {/* Attachment Button */}
+                <button
+                  type="button"
+                  className="p-2 rounded-lg text-yellow-500/70 hover:text-yellow-500 hover:bg-white/5 transition-all duration-200"
+                  aria-label="Attach file"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                
+                {/* Tools Button */}
+                <button
+                  type="button"
+                  className="p-2 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-all duration-200"
+                  aria-label="Tools"
+                >
+                  <Wrench className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Text Input */}
+              <textarea
+                ref={inputRef}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask NEXUS AI anything..."
+                rows={1}
+                className={cn(
+                  "flex-1 bg-transparent text-white placeholder-gray-500",
+                  "resize-none outline-none text-base leading-relaxed",
+                  "max-h-[200px] py-1.5 px-2"
+                )}
+              />
+
+              {/* Send Button */}
+              <button
+                type="submit"
+                disabled={!message.trim() || isLoading}
+                className={cn(
+                  "p-2.5 rounded-xl transition-all duration-200 flex-shrink-0 pb-0.5",
+                  message.trim() && !isLoading
+                    ? "bg-gradient-to-r from-cyan-500 to-violet-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95"
+                    : "bg-white/5 text-gray-600 cursor-not-allowed"
+                )}
+                aria-label="Send message"
+              >
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Helper Text Below Input */}
+          <div className="flex items-center justify-between px-2 text-xs text-gray-600">
+            <div className="flex items-center gap-3">
+              <span>Press <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono">Enter</kbd> to send</span>
+              <span><kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono">Shift+Enter</kbd> for new line</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1 text-green-500/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                {selectedModel.name}
+              </span>
+              <span className="text-gray-600">•</span>
+              <span>NEXUS AI</span>
+            </div>
+          </div>
         </div>
-      </main>
-
-      {/* Auth Modal - Shows when free chat limit reached */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onLogin={handleLogin}
-        onSignup={handleLogin}
-        chatCount={chatCount}
-        maxChats={MAX_FREE_CHATS}
-        reason={authModalReason}
-      />
       </div>
+
+      {/* Sidebar Overlay (Optional) */}
+      {isSidebarOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          
+          {/* Sidebar Panel */}
+          <aside className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] z-50 bg-[#0a0a0f] border-r border-white/10 shadow-2xl">
+            <div className="flex flex-col h-full">
+              {/* Sidebar Header */}
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <h2 className="font-semibold text-white">Menu</h2>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {/* Sidebar Content */}
+              <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                <a href="#" className="block px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                  New Chat
+                </a>
+                <a href="#" className="block px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                  History
+                </a>
+                <a href="/dashboard" className="block px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                  Dashboard
+                </a>
+                <a href="/settings" className="block px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                  Settings
+                </a>
+                <a href="/pricing" className="block px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                  Pricing
+                </a>
+              </nav>
+              
+              {/* Sidebar Footer */}
+              <div className="p-4 border-t border-white/10">
+                <a href="/login" className="block w-full px-4 py-2.5 text-center rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 transition-colors">
+                  Sign In
+                </a>
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
+
+      {/* Custom Animations */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        @keyframes slideUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(10px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        .animate-slide-up {
+          animation: slideUp 0.2s ease-out forwards;
+        }
+      `}</style>
     </div>
   )
+}
+
+// Utility function for class names
+function cn(...classes: (string | boolean | undefined | null)[]) {
+  return classes.filter(Boolean).join(' ')
 }
