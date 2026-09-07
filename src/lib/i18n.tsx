@@ -391,11 +391,22 @@ export function I18nProvider({ children }: { children: React.ReactNode }): React
   )
 }
 
-export function useI18n() {
+export function useI18n(): I18nContextType {
   const context = useContext(I18nContext)
+  
+  // Return default values during SSR or when provider is not available
+  // This prevents build errors on static pages like /_not-found
   if (context === undefined) {
-    throw new Error('useI18n must be used within an I18nProvider')
+    return {
+      locale: 'en',
+      setLocale: () => {},
+      t: (key: TranslationKey): string => {
+        return translations.en[key] || String(key)
+      },
+      dir: 'ltr'
+    }
   }
+  
   return context
 }
 
