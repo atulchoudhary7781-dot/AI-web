@@ -3,12 +3,14 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  MessageSquare, Home, Layers, TrendingUp, Settings,
-  Plus, Trash2, X, User, History, Sparkles, LogIn, LogOut,
-  UserCircle, Crown
+  MessageSquare, Home, Settings,
+  Plus, Trash2, X, User, History, Sparkles, 
+  LogIn, LogOut, UserCircle, Crown
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
+// ============================================
+// TYPES
+// ============================================
 interface ChatSession {
   id: string
   title: string
@@ -33,7 +35,7 @@ interface SidebarProps {
   user?: User | null
   onLoginClick?: () => void
   onSignupClick?: () => void
-  onLogoutClick?: () => void
+  onLogoutClick: () => void
   chatCount?: number
   maxChats?: number
 }
@@ -43,10 +45,12 @@ interface User {
   email: string
 }
 
+// ============================================
+// SIDEBAR COMPONENT
+// ============================================
 export default function Sidebar({
   isOpen,
   onClose,
-  onToggle,
   onNewChat,
   sessions,
   activeSessionId,
@@ -54,8 +58,6 @@ export default function Sidebar({
   onDeleteSession,
   onViewChange,
   currentView,
-  isDarkMode,
-  onToggleTheme,
   isLoggedIn = false,
   user = null,
   onLoginClick,
@@ -66,183 +68,242 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter()
   
+  // Close sidebar on ESC key
   useEffect(() => {
     const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) onClose()
     }
+    
     document.addEventListener('keydown', handleEscKey)
     return () => document.removeEventListener('keydown', handleEscKey)
   }, [isOpen, onClose])
 
+  // Prevent body scroll when sidebar is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
+
   return (
     <>
+      {/* Backdrop */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={onClose} />
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={onClose}
+        />
       )}
       
+      {/* Sidebar Panel */}
       <aside 
-        className={`fixed top-0 left-0 h-full w-72 sm:w-80 bg-gradient-to-b from-gray-950 to-gray-900 backdrop-blur-xl border-r border-cyan-500/30 z-50 transform transition-all duration-300 flex flex-col ${
+        className={`fixed top-0 left-0 h-full w-72 sm:w-80 bg-gradient-to-b from-[#0f172a] to-[#1a1a2e] backdrop-blur-xl border-r border-white/[0.08] z-50 transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{ touchAction: 'pan-y' }}
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="flex-shrink-0 p-4 border-b border-gray-800/50">
-            <div className="flex items-center justify-between mb-4">
+          <div className="flex-shrink-0 p-4 border-b border-white/[0.06]">
+            {/* Logo & Close */}
+            <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">NEXUS AI</span>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-widest">Powered by Llama</p>
+                  <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                    NEXUS AI
+                  </span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Powered by Llama</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-red-500/20 rounded-xl">
-                <X className="w-5 h-5 text-gray-400" />
+              
+              <button 
+                onClick={onClose}
+                className="p-2 hover:bg-red-500/20 rounded-xl transition-colors"
+                aria-label="Close sidebar"
+              >
+                <X className="w-5 h-5 text-gray-400 hover:text-white" />
               </button>
             </div>
             
-            <Button 
-              onClick={() => { onNewChat(); onClose(); }}
-              className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white h-11"
+            {/* New Chat Button */}
+            <button
+              onClick={() => { 
+                onNewChat() 
+                onClose() 
+              }}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-200 active:scale-[0.98]"
             >
-              <Plus className="w-4 h-4 mr-2" /> New Chat
-            </Button>
+              <Plus className="w-5 h-5" />
+              New Chat
+            </button>
             
-            {/* Upgrade Pro Button - FIXED FOR ALL DEVICES */}
+            {/* Upgrade Pro Button */}
             <a
               href="/pricing"
               onClick={(e) => { 
-                e.preventDefault(); 
-                onClose(); 
-                // Direct navigation without delay
-                window.location.href = '/pricing'; 
+                e.preventDefault() 
+                onClose() 
+                window.location.href = '/pricing' 
               }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-                gap: '10px',
-                padding: '14px 16px',
-                minHeight: '52px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5))',
-                border: '2px solid rgba(168, 85, 247, 0.8)',
-                color: '#ffffff',
-                textDecoration: 'none',
-                marginTop: '10px',
-                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.15), inset 0 1px 0 rgba(255,255,255,0.1)',
-                boxSizing: 'border-box',
-                position: 'relative',
-                zIndex: 10,
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'rgba(168, 85, 247, 0.4)',
-                cursor: 'pointer'
-              }}
+              className="flex items-center gap-3 mt-3 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-pink-500/20 border border-violet-500/30 text-white hover:border-violet-500/50 transition-all duration-200 group"
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
-              <span style={{ fontSize: '15px', fontWeight: 800, flex: 1, letterSpacing: '0.5px' }}>Upgrade Pro</span>
-              <span style={{
-                padding: '5px 14px',
-                borderRadius: '9999px',
-                fontSize: '11px',
-                fontWeight: 900,
-                background: 'linear-gradient(135deg, #facc15, #f97316, #ef4444)',
-                color: '#000000',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
-              }}>⭐ PRO</span>
+              <Crown className="w-5 h-5 text-yellow-400 group-hover:scale-110 transition-transform" />
+              <span className="flex-1 font-semibold text-sm">Upgrade Pro</span>
+              <span className="px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-full">
+                PRO
+              </span>
             </a>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-            <div className="mb-6">
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 px-3 font-semibold">Main Menu</p>
+          <nav className="flex-1 overflow-y-auto p-3 space-y-6 scrollbar-thin">
+            {/* Main Menu Section */}
+            <div>
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-3 px-3 font-semibold">
+                Main Menu
+              </p>
               
-              <SidebarButton icon={<MessageSquare className="w-4 h-4" />} label="AI Chat" active={currentView === 'chat'} onClick={() => { onViewChange('chat'); onClose(); }} />
-              <SidebarButton icon={<Home className="w-4 h-4" />} label="Home" active={currentView === 'home'} onClick={() => { onViewChange('home'); onClose(); }} />
-              <SidebarButton icon={<Layers className="w-4 h-4" />} label="Features" active={currentView === 'features'} onClick={() => { onViewChange('features'); onClose(); }} />
-              <SidebarButton icon={<TrendingUp className="w-4 h-4" />} label="Statistics" active={currentView === 'stats'} onClick={() => { onViewChange('stats'); onClose(); }} />
-              <SidebarButton icon={<Settings className="w-4 h-4" />} label="Settings" active={currentView === 'settings'} onClick={() => { onViewChange('settings'); onClose(); }} />
+              <div className="space-y-1">
+                <SidebarButton
+                  icon={<MessageSquare className="w-4 h-4" />}
+                  label="AI Chat"
+                  active={currentView === 'chat'}
+                  onClick={() => { onViewChange('chat'); onClose(); }}
+                />
+                
+                <SidebarButton
+                  icon={<Home className="w-4 h-4" />}
+                  label="Home"
+                  active={currentView === 'home'}
+                  onClick={() => { onViewChange('home'); onClose(); }}
+                />
+                
+                <SidebarButton
+                  icon={<Settings className="w-4 h-4" />}
+                  label="Settings"
+                  active={currentView === 'settings'}
+                  onClick={() => { onViewChange('settings'); onClose(); }}
+                />
 
-              {isLoggedIn && (
-                <SidebarButton icon={<UserCircle className="w-4 h-4" />} label="My Profile" active={false} onClick={() => { router.push('/profile'); onClose(); }} />
-              )}
+                {isLoggedIn && (
+                  <SidebarButton
+                    icon={<UserCircle className="w-4 h-4" />}
+                    label="My Profile"
+                    active={false}
+                    onClick={() => { router.push('/profile'); onClose(); }}
+                  />
+                )}
+              </div>
             </div>
 
-            {/* Chat History */}
+            {/* Recent Chats Section */}
             {sessions.length > 0 && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between px-3 mb-2">
-                  <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Recent Chats</p>
-                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full">{sessions.length}</span>
+              <div>
+                <div className="flex items-center justify-between px-3 mb-3">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+                    Recent Chats
+                  </p>
+                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full font-medium">
+                    {sessions.length}
+                  </span>
                 </div>
+                
                 <div className="space-y-1">
                   {sessions.slice(0, 8).map((session) => (
-                    <div
+                    <ChatSessionItem
                       key={session.id}
-                      className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
-                        activeSessionId === session.id
-                          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30'
-                          : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent'
-                      }`}
-                      onClick={() => { onSelectSession(session.id); onClose(); }}
-                    >
-                      <History className="w-4 h-4 opacity-60" />
-                      <span className="text-sm truncate flex-1">{session.title}</span>
-                      <button onClick={(e) => { e.stopPropagation(); onDeleteSession(session.id); }} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-lg">
-                        <Trash2 className="w-3 h-3 text-red-400" />
-                      </button>
-                    </div>
+                      session={session}
+                      isActive={activeSessionId === session.id}
+                      onSelect={() => { onSelectSession(session.id); onClose(); }}
+                      onDelete={(e) => { 
+                        e.stopPropagation() 
+                        onDeleteSession(session.id) 
+                      }}
+                    />
                   ))}
                 </div>
               </div>
             )}
           </nav>
 
-          {/* Footer */}
-          <div className="flex-shrink-0 p-3 border-t border-gray-800/50">
+          {/* Footer - User Section */}
+          <div className="flex-shrink-0 p-3 border-t border-white/[0.06]">
             {isLoggedIn && user ? (
+              /* Logged In User */
               <div className="space-y-2">
-                <button onClick={() => { router.push('/profile'); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-800/50 rounded-xl">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center">
-                    {(user as any).avatar ? <img src={(user as any).avatar} alt={user.name} className="w-full h-full object-cover rounded-xl" /> : <User className="w-4 h-4 text-white" />}
+                <button
+                  onClick={() => { router.push('/profile'); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 text-white" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white font-medium truncate">{user.name}</p>
-                    <p className="text-xs text-green-400">✓ Unlimited Chats</p>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-medium text-white truncate">{user.name}</p>
+                    <p className="text-xs text-green-400">Unlimited Access</p>
                   </div>
                 </button>
-                {onLogoutClick && (
-                  <button onClick={() => { onLogoutClick(); onClose(); }} className="w-full flex items-center gap-2 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg text-sm">
-                    <LogOut className="w-4 h-4" /> Logout
-                  </button>
-                )}
+                
+                <button
+                  onClick={() => { onLogoutClick(); onClose(); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg text-sm transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
               </div>
             ) : (
+              /* Guest User */
               <div className="space-y-2">
-                <div className="px-3 py-2 bg-gray-800/50 rounded-lg">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-400">Free Chats</span>
-                    <span className={`font-medium ${chatCount >= maxChats ? 'text-red-400' : 'text-cyan-400'}`}>{chatCount}/{maxChats}</span>
+                {/* Usage Progress */}
+                <div className="px-3 py-2.5 bg-white/[0.03] rounded-xl border border-white/[0.05]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-400">Free Messages</span>
+                    <span className={`text-xs font-semibold ${chatCount >= maxChats ? 'text-red-400' : 'text-cyan-400'}`}>
+                      {chatCount}/{maxChats}
+                    </span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${chatCount >= maxChats ? 'bg-red-500' : 'bg-gradient-to-r from-cyan-500 to-violet-500'}`} style={{ width: `${Math.min((chatCount / maxChats) * 100, 100)}%` }} />
+                  
+                  <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        chatCount >= maxChats ? 'bg-red-500' : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                      }`}
+                      style={{ width: `${Math.min((chatCount / maxChats) * 100, 100)}%` }}
+                    />
                   </div>
                 </div>
-                <button onClick={() => { onLoginClick?.(); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-xl hover:bg-cyan-500/20">
+
+                {/* Login Button */}
+                <button
+                  onClick={() => { onLoginClick?.(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-xl hover:bg-cyan-500/20 transition-colors"
+                >
                   <LogIn className="w-5 h-5 text-cyan-400" />
-                  <div className="text-left"><p className="text-sm font-medium text-white">Login</p><p className="text-xs text-gray-500">Already have account</p></div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-white">Sign In</p>
+                    <p className="text-xs text-gray-500">Access all features</p>
+                  </div>
                 </button>
-                <button onClick={() => { onSignupClick?.(); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 bg-violet-500/10 border border-violet-500/30 rounded-xl hover:bg-violet-500/20">
+
+                {/* Signup Button */}
+                <button
+                  onClick={() => { onSignupClick?.(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-violet-500/10 border border-violet-500/30 rounded-xl hover:bg-violet-500/20 transition-colors"
+                >
                   <LogIn className="w-5 h-5 text-violet-400" />
-                  <div className="text-left"><p className="text-sm font-medium text-white">Create Account</p><p className="text-xs text-gray-500">Save history - Free</p></div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-white">Create Account</p>
+                    <p className="text-xs text-gray-500">Save your history</p>
+                  </div>
                 </button>
               </div>
             )}
@@ -253,19 +314,77 @@ export default function Sidebar({
   )
 }
 
-function SidebarButton({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
+// ============================================
+// SIDEBAR BUTTON COMPONENT
+// ============================================
+function SidebarButton({ 
+  icon, 
+  label, 
+  active, 
+  onClick 
+}: { 
+  icon: React.ReactNode
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
         active
           ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30'
-          : 'text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent'
+          : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
       }`}
     >
-      <div className={`${active ? 'text-cyan-400' : 'text-gray-500'}`}>{icon}</div>
+      <div className={`${active ? 'text-cyan-400' : 'text-gray-500'} transition-colors`}>
+        {icon}
+      </div>
       <span className="text-sm font-medium">{label}</span>
-      {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />}
+      
+      {/* Active Indicator */}
+      {active && (
+        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+      )}
     </button>
+  )
+}
+
+// ============================================
+// CHAT SESSION ITEM COMPONENT
+// ============================================
+function ChatSessionItem({
+  session,
+  isActive,
+  onSelect,
+  onDelete
+}: {
+  session: ChatSession
+  isActive: boolean
+  onSelect: () => void
+  onDelete: (e: React.MouseEvent) => void
+}) {
+  return (
+    <div
+      onClick={onSelect}
+      className={`group flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
+        isActive
+          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30'
+          : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
+      }`}
+    >
+      <History className="w-4 h-4 opacity-60 flex-shrink-0" />
+      
+      <span className="text-sm truncate flex-1">{session.title}</span>
+      
+      {/* Delete Button - Show on Hover */}
+      <button
+        onClick={onDelete}
+        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-md transition-all"
+        aria-label="Delete chat"
+      >
+        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+      </button>
+    </div>
   )
 }

@@ -332,6 +332,9 @@ export default function NexusAI() {
   
   // AbortController for stopping responses
   const abortControllerRef = useRef<AbortController | null>(null)
+
+  // Toggle Sidebar Handler
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   
   // Auth State - Use lazy initialization to avoid hydration mismatch
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -350,6 +353,9 @@ export default function NexusAI() {
       return null
     }
   })
+
+  // Check if user can chat (logged in or under limit)
+  const canChat = isLoggedIn || chatCount < MAX_FREE_CHATS
 
   // Check for existing session on mount (only for sessions, not auth)
   useEffect(() => {
@@ -396,6 +402,16 @@ export default function NexusAI() {
     localStorage.removeItem('nexus_user')
     localStorage.removeItem('nexus_sessions')
     localStorage.removeItem('nexus_chat_count')
+  }
+
+  // Login Click Handler - Navigate to login view
+  const handleLoginClick = () => {
+    setCurrentView('login')
+  }
+
+  // Signup Click Handler - Navigate to login view (with signup mode)
+  const handleSignupClick = () => {
+    setCurrentView('login')
   }
 
   // Get current session messages
@@ -873,22 +889,19 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
       case 'chat':
         return (
           <FullScreenChat
-            messages={getCurrentMessages()}
-            inputValue={inputValue}
-            setInputValue={setInputValue}
-            isLoading={isLoading}
-            onSubmit={handleSubmit}
-            onStop={handleStop}
-            copiedCode={copiedCode}
-            onCopy={copyToClipboard}
-            onFileAttach={handleFileAttach}
+            onToggleSidebar={toggleSidebar}
+            onNewChat={handleNewChat}
+            sessionId={activeSessionId || undefined}
             isLoggedIn={isLoggedIn}
-            onLoginRequired={() => { 
-              console.log('🔐 onLoginRequired called! Setting modal to open...');
-              setAuthModalReason('file_attach'); 
-              setShowAuthModal(true);
-              console.log('✅ Modal should be open now');
+            canChat={canChat}
+            onLoginRequired={() => {
+              setAuthModalReason('chat_limit')
+              setShowAuthModal(true)
             }}
+            onLoginClick={handleLoginClick}
+            onSignupClick={handleSignupClick}
+            onSettingsClick={() => setCurrentView('settings')}
+            userName={user?.name}
           />
         )
       
@@ -1227,22 +1240,19 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** �
       default:
         return (
           <FullScreenChat
-            messages={getCurrentMessages()}
-            inputValue={inputValue}
-            setInputValue={setInputValue}
-            isLoading={isLoading}
-            onSubmit={handleSubmit}
-            onStop={handleStop}
-            copiedCode={copiedCode}
-            onCopy={copyToClipboard}
-            onFileAttach={handleFileAttach}
+            onToggleSidebar={toggleSidebar}
+            onNewChat={handleNewChat}
+            sessionId={activeSessionId || undefined}
             isLoggedIn={isLoggedIn}
-            onLoginRequired={() => { 
-              console.log('🔐 onLoginRequired called! Setting modal to open...');
-              setAuthModalReason('file_attach'); 
-              setShowAuthModal(true);
-              console.log('✅ Modal should be open now');
+            canChat={canChat}
+            onLoginRequired={() => {
+              setAuthModalReason('chat_limit')
+              setShowAuthModal(true)
             }}
+            onLoginClick={handleLoginClick}
+            onSignupClick={handleSignupClick}
+            onSettingsClick={() => setCurrentView('settings')}
+            userName={user?.name}
           />
         )
     }
