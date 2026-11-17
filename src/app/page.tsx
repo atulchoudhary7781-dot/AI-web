@@ -906,7 +906,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         )
       
       case 'settings':
-        return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+        return <SettingsView isDarkMode={isDarkMode} onToggleTheme={toggleTheme} onBack={() => setCurrentView('chat')} />
 
       case 'login':
         return (
@@ -1302,14 +1302,30 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                 <Menu className="h-[18px] w-[18px] text-cyan-400" />
               )}
             </button>
-            <div className="flex min-w-0 items-center gap-2">
+            {currentView !== 'chat' && (
+              <button
+                type="button"
+                onClick={() => setCurrentView('chat')}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
+                title="Back to chat"
+                aria-label="Back to chat"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setCurrentView('chat')}
+              className="flex min-w-0 items-center gap-2 rounded-lg px-1 py-1 hover:opacity-90"
+              title="Open chat"
+            >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-600">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <span className="hidden truncate text-sm font-semibold tracking-tight text-white min-[380px]:inline sm:text-base">
                 NEXUS AI
               </span>
-            </div>
+            </button>
           </div>
 
           <a

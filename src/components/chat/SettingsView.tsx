@@ -1,20 +1,34 @@
 'use client'
 
-import { Settings, Shield, Cpu } from 'lucide-react'
+import { Settings, Shield, Cpu, ChevronLeft } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 interface SettingsProps {
   isDarkMode?: boolean
   onToggleTheme?: () => void
+  onBack?: () => void
 }
 
-export default function SettingsView({ isDarkMode, onToggleTheme }: SettingsProps) {
+export default function SettingsView({ isDarkMode, onToggleTheme, onBack }: SettingsProps) {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 h-full overflow-y-auto custom-scrollbar sidebar-scroll">
-      <h1 className="text-3xl font-bold text-white mb-8 font-[family-name:var(--font-orbitron)]">
-        ⚙️ Settings
-      </h1>
+      <div className="mb-8 flex items-center gap-3">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
+            aria-label="Back to chat"
+            title="Back to chat"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        )}
+        <h1 className="text-3xl font-bold text-white font-[family-name:var(--font-orbitron)]">
+          ⚙️ Settings
+        </h1>
+      </div>
 
       <div className="space-y-6 pb-8">
         {/* AI Model Info */}

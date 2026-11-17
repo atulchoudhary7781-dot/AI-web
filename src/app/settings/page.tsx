@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { 
   User, Mail, Shield, Bell, Palette,
   CheckCircle, Trash2, UserX, X,
-  Eye, Lock, Clock
+  Eye, Lock, Clock, ChevronLeft
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
 
@@ -99,11 +99,11 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4">
             <Link 
               href="/" 
-              className="p-2 hover:bg-white/[0.06] rounded-xl transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
+              aria-label="Back to chat"
+              title="Back to chat"
             >
-              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m7 7l-7-7m7 7v11" />
-              </svg>
+              <ChevronLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white">Settings</h1>
