@@ -404,24 +404,6 @@ export default function FullScreenChat({
             </p>
           )}
 
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <label className="flex min-w-0 items-center gap-2 text-[11px] text-slate-400">
-              <span className="shrink-0">Model</span>
-              <select
-                value={modelId}
-                onChange={(e) => setModelId(e.target.value)}
-                className="max-w-[220px] truncate rounded-lg border border-white/10 bg-[#0f1224] px-2 py-1 text-[11px] text-cyan-300 outline-none focus:border-cyan-400/50 sm:max-w-none sm:text-xs"
-                aria-label="Choose a working AI model"
-              >
-                {WORKING_MODELS.map((model) => (
-                  <option key={model.id} value={model.id}>
-                    {model.name} · {model.provider}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
           {attached && (
             <div className="mb-2 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
               {attached.preview ? (
@@ -491,7 +473,36 @@ export default function FullScreenChat({
               {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </button>
           </div>
-          <p className="mt-2 text-center text-[11px] text-slate-400 sm:text-xs">
+          <div className="mt-3">
+            <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Live models
+            </p>
+            <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center [&::-webkit-scrollbar]:hidden">
+              {WORKING_MODELS.map((model) => {
+                const active = modelId === model.id
+                return (
+                  <button
+                    key={model.id}
+                    type="button"
+                    onClick={() => setModelId(model.id)}
+                    className={`shrink-0 rounded-full px-3 py-1.5 text-left text-[11px] transition sm:text-xs ${
+                      active
+                        ? 'border border-cyan-400/70 bg-cyan-400/15 font-semibold text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.22)]'
+                        : 'border border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/25 hover:text-white'
+                    }`}
+                    aria-pressed={active}
+                    aria-label={`Use ${model.name}`}
+                  >
+                    <span className="block leading-tight">{model.name}</span>
+                    <span className={`block text-[9px] sm:text-[10px] ${active ? 'text-cyan-300/80' : 'text-slate-600'}`}>
+                      {model.provider}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <p className="mt-2.5 text-center text-[11px] text-slate-400 sm:text-xs">
             Nexus is AI and can make mistakes.
           </p>
         </div>
