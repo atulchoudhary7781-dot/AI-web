@@ -121,7 +121,7 @@ export default function Sidebar({
                   <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
                     NEXUS AI
                   </span>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Powered by Llama</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Live free models</p>
                 </div>
               </div>
               

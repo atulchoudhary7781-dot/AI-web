@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib/security'
 import { extractFileContent } from '@/lib/extractFile'
 import { creatorAnswer, isCreatorQuestion } from '@/lib/creator'
+import { isWorkingModel, workingModelIds } from '@/lib/models'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -290,11 +291,12 @@ Style:
         ]
       })
 
+      const requestedModel = typeof body.model === 'string' && isWorkingModel(body.model) ? body.model : null
       const visionModels = uniqueModels([
+        requestedModel,
         process.env.OPENROUTER_VISION_MODEL,
         process.env.OPENROUTER_MODEL,
-        'openrouter/free',
-        'google/gemma-4-26b-a4b-it:free',
+        ...workingModelIds(),
       ])
 
       try {
@@ -321,11 +323,11 @@ Style:
         return NextResponse.json({ response: responseCache.get(cacheKey) })
       }
 
+      const requestedModel = typeof body.model === 'string' && isWorkingModel(body.model) ? body.model : null
       const textModels = uniqueModels([
+        requestedModel,
         process.env.OPENROUTER_MODEL,
-        'openrouter/free',
-        'google/gemma-4-26b-a4b-it:free',
-        'meta-llama/llama-3.3-70b-instruct:free',
+        ...workingModelIds(),
       ])
 
       const aiResponse = await completeChat({

@@ -7,6 +7,7 @@ import {
   Sparkles, StopCircle, ThumbsDown, ThumbsUp, User, X
 } from 'lucide-react'
 import { isImageFile, isTextLikeFile } from '@/lib/fileTypes'
+import { DEFAULT_MODEL_ID, WORKING_MODELS } from '@/lib/models'
 
 interface ChatMessage {
   id: string
@@ -88,6 +89,7 @@ export default function FullScreenChat({
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [attached, setAttached] = useState<AttachedFile | null>(null)
   const [listening, setListening] = useState(false)
+  const [modelId, setModelId] = useState(DEFAULT_MODEL_ID)
   const [statusNote, setStatusNote] = useState('')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -259,7 +261,7 @@ export default function FullScreenChat({
       fileName: attached && !attached.preview ? attached.file.name : undefined,
     }
 
-    const payload: Record<string, string> = { message: content }
+    const payload: Record<string, string> = { message: content, model: modelId }
     if (attached?.base64) {
       payload.imageData = attached.base64
       payload.imageMimeType = attached.mime || attached.file.type || 'image/jpeg'
@@ -401,6 +403,24 @@ export default function FullScreenChat({
               {statusNote}
             </p>
           )}
+
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label className="flex min-w-0 items-center gap-2 text-[11px] text-slate-400">
+              <span className="shrink-0">Model</span>
+              <select
+                value={modelId}
+                onChange={(e) => setModelId(e.target.value)}
+                className="max-w-[220px] truncate rounded-lg border border-white/10 bg-[#0f1224] px-2 py-1 text-[11px] text-cyan-300 outline-none focus:border-cyan-400/50 sm:max-w-none sm:text-xs"
+                aria-label="Choose a working AI model"
+              >
+                {WORKING_MODELS.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name} · {model.provider}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
           {attached && (
             <div className="mb-2 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">

@@ -5,7 +5,7 @@ import {
   Send, Bot, User, Copy, Check, RefreshCw, 
   Sparkles, Trash2, Maximize2, Minimize2,
   History, Plus, ThumbsUp, ThumbsDown, Share2,
-  ChevronDown, Cpu, Zap, Brain, Star, Rocket, Lock,
+  ChevronDown, Cpu, Zap, Star, Rocket, Lock,
   X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -41,72 +41,60 @@ interface AIModel {
 // ==================== CONSTANTS ====================
 const AI_MODELS: AIModel[] = [
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    provider: 'OpenAI',
-    description: 'Most capable, best for complex tasks',
-    icon: Brain,
-    color: 'text-green-400',
-    speed: 'powerful',
-    isPopular: true,
-    isLocked: true,
-  },
-  {
-    id: 'gpt-4o-mini',
-    name: 'GPT-4o Mini',
-    provider: 'OpenAI',
-    description: 'Fast & affordable for everyday tasks',
-    icon: Zap,
-    color: 'text-blue-400',
+    id: 'openrouter/free',
+    name: 'NEXUS Auto',
+    provider: 'OpenRouter',
+    description: 'Routes to a live free model',
+    icon: Rocket,
+    color: 'text-cyan-400',
     speed: 'fast',
-    isNew: true,
-    isLocked: true,
+    isPopular: true,
+    isLocked: false,
   },
   {
-    id: 'claude-3.5-sonnet',
-    name: 'Claude 3.5 Sonnet',
-    provider: 'Anthropic',
-    description: 'Great at reasoning & coding',
+    id: 'google/gemma-4-31b-it:free',
+    name: 'Gemma 4 31B',
+    provider: 'Google',
+    description: 'Open model for writing and Q&A',
+    icon: Sparkles,
+    color: 'text-blue-400',
+    speed: 'balanced',
+    isNew: true,
+    isLocked: false,
+  },
+  {
+    id: 'google/gemma-4-26b-a4b-it:free',
+    name: 'Gemma 4 26B',
+    provider: 'Google',
+    description: 'Fast free Google model',
+    icon: Zap,
+    color: 'text-green-400',
+    speed: 'fast',
+    isLocked: false,
+  },
+  {
+    id: 'nvidia/nemotron-3.5-lightning:free',
+    name: 'Nemotron Lightning',
+    provider: 'NVIDIA',
+    description: 'Fast reasoning on NVIDIA',
+    icon: Cpu,
+    color: 'text-purple-300',
+    speed: 'fast',
+    isLocked: false,
+  },
+  {
+    id: 'baidu/ernie-5.5-flash-preview:free',
+    name: 'ERNIE 5.5 Flash',
+    provider: 'Baidu',
+    description: 'Free flash model',
     icon: Star,
     color: 'text-orange-400',
     speed: 'balanced',
-    isPopular: true,
-    isLocked: true,
-  },
-  {
-    id: 'claude-3-opus',
-    name: 'Claude 3 Opus',
-    provider: 'Anthropic',
-    description: 'Most intelligent for analysis',
-    icon: Cpu,
-    color: 'text-purple-400',
-    speed: 'powerful',
-    isLocked: true,
-  },
-  {
-    id: 'gemini-pro',
-    name: 'Gemini Pro',
-    provider: 'Google',
-    description: 'Multimodal & creative',
-    icon: Sparkles,
-    color: 'text-cyan-400',
-    speed: 'balanced',
-    isLocked: true,
-  },
-  {
-    id: 'llama-3.1',
-    name: 'Llama 3.1',
-    provider: 'Meta',
-    description: 'Open source & privacy focused - FREE',
-    icon: Rocket,
-    color: 'text-purple-300',
-    speed: 'fast',
-    isNew: true,
     isLocked: false,
   },
 ]
 
-const DEFAULT_MODEL = AI_MODELS.find(m => m.id === 'llama-3.1') || AI_MODELS[5]
+const DEFAULT_MODEL = AI_MODELS[0]
 
 // ==================== MEMOIZED SUB-COMPONENTS ====================
 
@@ -338,7 +326,7 @@ export function ChatInterface() {
   const [showHistory, setShowHistory] = useState(false)
   const [currentConversation, setCurrentConversation] = useState<ChatConversation | null>(null)
   
-  // AI Model State - Default to Llama 3.1 (FREE)
+  // AI Model State - only live free models
   const [selectedModel, setSelectedModel] = useState<AIModel>(DEFAULT_MODEL!)
   const [showModelSelector, setShowModelSelector] = useState(false)
   
@@ -658,7 +646,7 @@ export function ChatInterface() {
                         <Lock className="w-3 h-3" />
                         SELECT AI MODEL
                       </p>
-                      <p className="text-[10px] sm:text-xs text-white/80 mt-0.5">Llama 3.1 is FREE</p>
+                      <p className="text-[10px] sm:text-xs text-white/80 mt-0.5">Only models that are live now</p>
                     </div>
                     
                     {/* Close button for mobile */}

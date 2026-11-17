@@ -518,7 +518,7 @@ export default function AuthModal({
             <ul className="space-y-1 sm:space-y-1.5 text-[11px] sm:text-xs text-gray-400">
               <li className="flex items-center gap-1.5 sm:gap-2">
                 <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                Powerful AI models (GPT-4, Claude, Llama)
+                Live free models that actually run in chat
               </li>
               <li className="flex items-center gap-1.5 sm:gap-2">
                 <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
