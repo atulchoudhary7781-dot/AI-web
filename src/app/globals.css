@@ -406,6 +406,12 @@ button, a, [role="button"] {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+.input-dark.with-icon {
+  padding-left: 3rem;
+}
+.input-dark.with-icon-right {
+  padding-right: 3rem;
+}
 .input-dark:focus {
   border-color: rgba(0, 229, 255, 0.55);
   box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.12);

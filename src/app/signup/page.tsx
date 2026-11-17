@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
   Mail, Lock, Eye, EyeOff, User, Sparkles, 
-  ArrowRight, Github, Chrome, Check,
-  Loader2, AlertCircle, CheckCircle
+  ArrowRight, Check, Loader2, AlertCircle, CheckCircle
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
 import { saveSessionUser } from '@/lib/session'
@@ -70,32 +69,6 @@ export default function SignupPage() {
     }
   }
 
-  // Google OAuth Handler
-  const handleGoogleSignup = async () => {
-    setIsLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      saveSessionUser({ name: 'Google User', email: 'user@gmail.com' })
-      router.push('/')
-    } catch (err) {
-      setError('Google sign-up failed')
-      setIsLoading(false)
-    }
-  }
-
-  // GitHub OAuth Handler
-  const handleGithubSignup = async () => {
-    setIsLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      saveSessionUser({ name: 'GitHub User', email: 'user@github.com' })
-      router.push('/')
-    } catch (err) {
-      setError('GitHub sign-up failed')
-      setIsLoading(false)
-    }
-  }
-
   return (
     <div className="page-shell">
     <SiteHeader />
@@ -138,39 +111,6 @@ export default function SignupPage() {
             </p>
           </div>
 
-          {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <button
-              onClick={handleGoogleSignup}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2.5 h-12 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-white text-sm font-medium transition-all duration-200 disabled:opacity-50"
-            >
-              <Chrome className="w-5 h-5 text-gray-400" />
-              Google
-            </button>
-            
-            <button
-              onClick={handleGithubSignup}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2.5 h-12 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-white text-sm font-medium transition-all duration-200 disabled:opacity-50"
-            >
-              <Github className="w-5 h-5 text-gray-400" />
-              GitHub
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative my-7">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/[0.06]" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-[#0f172a] px-4 text-xs text-gray-500 uppercase tracking-wider font-medium">
-                or
-              </span>
-            </div>
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-6 animate-fade-in">
@@ -193,9 +133,9 @@ export default function SignupPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder="e.g. Atul Choudhary"
                   required
-                  className="input-dark pl-12"
+                  className="input-dark with-icon"
                 />
               </div>
             </div>
@@ -211,9 +151,9 @@ export default function SignupPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="e.g. atul@email.com"
                   required
-                  className="input-dark pl-12"
+                  className="input-dark with-icon"
                 />
               </div>
             </div>
@@ -229,10 +169,10 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="At least 6 characters"
                   required
                   minLength={6}
-                  className="input-dark pl-12 pr-12"
+                  className="input-dark with-icon with-icon-right"
                 />
                 <button
                   type="button"
@@ -274,9 +214,9 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Re-enter your password"
                   required
-                  className="input-dark pl-12 pr-12"
+                  className="input-dark with-icon with-icon-right"
                 />
                 {confirmPassword && confirmPassword === password && (
                   <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400" />

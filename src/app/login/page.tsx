@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
   Mail, Lock, Eye, EyeOff, Sparkles, 
-  ArrowRight, Chrome, Github,
-  Loader2, AlertCircle
+  ArrowRight, Loader2, AlertCircle
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
 import { saveSessionUser } from '@/lib/session'
@@ -57,32 +56,6 @@ export default function LoginPage() {
     }
   }
 
-  // Google OAuth Handler
-  const handleGoogleLogin = async () => {
-    setIsLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      saveSessionUser({ name: 'Google User', email: 'user@gmail.com' })
-      router.push('/')
-    } catch (err) {
-      setError('Google sign-in failed')
-      setIsLoading(false)
-    }
-  }
-
-  // GitHub OAuth Handler
-  const handleGithubLogin = async () => {
-    setIsLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      saveSessionUser({ name: 'GitHub User', email: 'user@github.com' })
-      router.push('/')
-    } catch (err) {
-      setError('GitHub sign-in failed')
-      setIsLoading(false)
-    }
-  }
-
   return (
     <div className="page-shell">
     <SiteHeader />
@@ -125,39 +98,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <button
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2.5 h-12 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-white text-sm font-medium transition-all duration-200 disabled:opacity-50"
-            >
-              <Chrome className="w-5 h-5 text-gray-400" />
-              Google
-            </button>
-            
-            <button
-              onClick={handleGithubLogin}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2.5 h-12 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-xl text-white text-sm font-medium transition-all duration-200 disabled:opacity-50"
-            >
-              <Github className="w-5 h-5 text-gray-400" />
-              GitHub
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative my-7">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/[0.06]" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-[#0f172a] px-4 text-xs text-gray-500 uppercase tracking-wider font-medium">
-                or
-              </span>
-            </div>
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-6 animate-fade-in">
@@ -180,10 +120,10 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="e.g. atul@email.com"
                   required
                   autoFocus
-                  className="input-dark pl-12"
+                  className="input-dark with-icon"
                 />
               </div>
             </div>
@@ -208,9 +148,9 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   required
-                  className="input-dark pl-12 pr-12"
+                  className="input-dark with-icon with-icon-right"
                 />
                 <button
                   type="button"

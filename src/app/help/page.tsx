@@ -159,8 +159,8 @@ export default function HelpPage() {
                 setSent(true)
               }}
             >
-              <input className="input-dark" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-              <input className="input-dark" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input className="input-dark" placeholder="e.g. Atul Choudhary" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input className="input-dark" type="email" placeholder="e.g. atul@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               <textarea
                 className="input-dark min-h-28 sm:col-span-2"
                 placeholder="How can we help?"

@@ -162,7 +162,7 @@ export default function PasswordResetForm({ onBackToLogin }: PasswordResetFormPr
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder="e.g. atul@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -219,7 +219,7 @@ export default function PasswordResetForm({ onBackToLogin }: PasswordResetFormPr
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       type="password"
-                      placeholder="••••••••"
+                      placeholder="Enter new password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
@@ -235,7 +235,7 @@ export default function PasswordResetForm({ onBackToLogin }: PasswordResetFormPr
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
                       type="password"
-                      placeholder="••••••••"
+                      placeholder="Re-enter new password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
