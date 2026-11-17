@@ -77,14 +77,43 @@ function normalizeAiContent(content: unknown): string {
 function pickAiText(data: unknown): string {
   const rec = data as {
     error?: { message?: string }
-    choices?: Array<{ message?: { content?: unknown; reasoning?: unknown } }>
+    choices?: Array<{
+      text?: unknown
+      message?: { content?: unknown; reasoning?: unknown; reasoning_content?: unknown }
+    }>
   }
-  const msg = rec?.choices?.[0]?.message
+  const choice = rec?.choices?.[0]
+  const msg = choice?.message
   const fromContent = normalizeAiContent(msg?.content)
   if (fromContent) return fromContent
-  const reasoning = typeof msg?.reasoning === 'string' ? msg.reasoning.trim() : ''
+  const reasoning =
+    (typeof msg?.reasoning === 'string' && msg.reasoning.trim()) ||
+    (typeof msg?.reasoning_content === 'string' && msg.reasoning_content.trim()) ||
+    ''
   if (reasoning) return reasoning
-  return ''
+  const fromText = typeof choice?.text === 'string' ? choice.text.trim() : ''
+  return fromText
+}
+
+function openRouterErrorText(data: unknown, raw: string): string {
+  const rec = data as { error?: { message?: string } | string }
+  if (typeof rec?.error === 'string' && rec.error.trim()) return rec.error.trim()
+  if (rec?.error && typeof rec.error === 'object' && rec.error.message) return rec.error.message
+  return raw.slice(0, 280)
+}
+
+function publicModelError(lastError: string): string {
+  const lower = lastError.toLowerCase()
+  if (lower.includes('free-models-per-day') || lower.includes('rate limit') || lower.includes('429')) {
+    return 'Free models hit a limit right now. Wait a minute, or pick another live model and send again.'
+  }
+  if (lower.includes('402') || lower.includes('credits') || lower.includes('can only afford')) {
+    return 'That model needs credits right now. Choose another live model in the chat box.'
+  }
+  if (lower.includes('empty response')) {
+    return 'The model returned an empty answer. Try NEXUS Auto or another live model.'
+  }
+  return 'The AI did not answer just now. Try again in a few seconds.'
 }
 
 async function completeChat(params: {
@@ -109,14 +138,16 @@ async function completeChat(params: {
           model,
           messages: params.messages,
           temperature: 0.4,
-          max_tokens: params.maxTokens ?? 900,
+          max_tokens: params.maxTokens ?? 1600,
+          provider: { allow_fallbacks: true, sort: 'throughput' },
         }),
+        signal: AbortSignal.timeout(28000),
       })
       const raw = await response.text()
       let data: unknown = null
       try { data = JSON.parse(raw) } catch { /* ignore */ }
       if (!response.ok) {
-        lastError = raw.slice(0, 400)
+        lastError = openRouterErrorText(data, raw)
         console.error('OpenRouter API Error:', model, response.status, lastError)
         continue
       }
@@ -240,19 +271,10 @@ export async function POST(request: NextRequest) {
     })
     
     if (!OPENROUTER_API_KEY) {
-      console.warn('⚠️ OpenRouter API key not configured. Using fallback responses.')
-      
-      // If image is attached, provide image analysis fallback
-      if (imageData) {
-        return getImageAnalysisFallback(message)
-      }
-      
-      // If document is attached, provide document analysis fallback
-      if (fileName) {
-        return getDocumentAnalysisFallback(message, fileName, fileType)
-      }
-      
-      return getFallbackResponse(message)
+      console.warn('⚠️ OpenRouter API key not configured.')
+      return NextResponse.json({
+        response: 'The chat API is missing OPENROUTER_API_KEY on the server. Add it in Vercel environment variables and redeploy.',
+      })
     }
 
     const systemPrompt = `You are NEXUS AI. Write like a top Arena benchmark model: direct, structured, and complete.
@@ -356,31 +378,17 @@ Style:
     // Return detailed error for debugging (in production, you may want to hide this)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     
-    // Try to return fallback, if that fails return error
-    try {
-      if (imageData) {
-        return getImageAnalysisFallback(message)
-      }
-      if (extractedFileText) {
-        return NextResponse.json({
-          response: `I read **${fileName || 'your file'}**, but the AI model did not return an answer just now.\n\n**Extracted preview:**\n\n${extractedFileText.slice(0, 1800)}`,
-        })
-      }
-      if (fileName) {
-        return getDocumentAnalysisFallback(message, fileName, fileType)
-      }
-      return getFallbackResponse(message)
-    } catch (fallbackError) {
-      console.error('Fallback also failed:', fallbackError)
-      return NextResponse.json(
-        { 
-          error: 'Error processing your request',
-          details: errorMessage,
-          debugInfo: process.env.NODE_ENV === 'development' ? errorMessage : undefined
-        },
-        { status: 500 }
-      )
+    if (imageData) {
+      return NextResponse.json({
+        response: publicModelError(errorMessage) + ' You can describe the image in text and send again.',
+      })
     }
+    if (extractedFileText) {
+      return NextResponse.json({
+        response: `I read **${fileName || 'your file'}**, but the AI model did not return an answer just now.\n\n**Extracted preview:**\n\n${extractedFileText.slice(0, 1800)}`,
+      })
+    }
+    return NextResponse.json({ response: publicModelError(errorMessage) })
   }
 }
 

@@ -4,13 +4,15 @@ export type WorkingModel = {
   provider: string
 }
 
-/** Only models currently served as free on OpenRouter. */
+/** Live OpenRouter free chat models only (no paid, deprecated, or audio). */
 export const WORKING_MODELS: WorkingModel[] = [
   { id: 'openrouter/free', name: 'NEXUS Auto', provider: 'OpenRouter' },
+  { id: 'inclusionai/ling-3.2-flash:free', name: 'Ling 3.2 Flash', provider: 'inclusionAI' },
   { id: 'google/gemma-4-31b-it:free', name: 'Gemma 4 31B', provider: 'Google' },
   { id: 'google/gemma-4-26b-a4b-it:free', name: 'Gemma 4 26B', provider: 'Google' },
   { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron Lightning', provider: 'NVIDIA' },
-  { id: 'baidu/ernie-5.5-flash-preview:free', name: 'ERNIE 5.5 Flash', provider: 'Baidu' },
+  { id: 'recursive/flint-v1.0:free', name: 'Flint', provider: 'Recursive' },
+  { id: 'liquid/lfm-3-1.7b:free', name: 'LFM 1.7B', provider: 'LiquidAI' },
 ]
 
 export const DEFAULT_MODEL_ID = WORKING_MODELS[0].id
