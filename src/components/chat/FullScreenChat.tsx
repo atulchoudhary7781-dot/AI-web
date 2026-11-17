@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { isImageFile, isTextLikeFile } from '@/lib/fileTypes'
 import { DEFAULT_MODEL_ID, WORKING_MODELS } from '@/lib/models'
+import { getSessionUser } from '@/lib/session'
 
 interface ChatMessage {
   id: string
@@ -30,6 +31,7 @@ interface FullScreenChatProps {
   onSettingsClick?: () => void
   onGuestMessageSent?: () => void
   userName?: string | null
+  userEmail?: string | null
 }
 
 interface AttachedFile {
@@ -85,6 +87,7 @@ export default function FullScreenChat({
   onLoginClick,
   onLoginRequired,
   onGuestMessageSent,
+  userEmail,
 }: FullScreenChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -96,6 +99,10 @@ export default function FullScreenChat({
   const [showModels, setShowModels] = useState(false)
   const [statusNote, setStatusNote] = useState('')
   const [dailyLimit, setDailyLimit] = useState(false)
+
+  useEffect(() => {
+    setDailyLimit(false)
+  }, [userEmail, isLoggedIn])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -277,6 +284,8 @@ export default function FullScreenChat({
     }
 
     const payload: Record<string, string> = { message: content, model: modelId }
+    const email = (userEmail || (isLoggedIn ? getSessionUser()?.email : '') || '').trim()
+    if (email) payload.userEmail = email
     if (attached?.base64) {
       payload.imageData = attached.base64
       payload.imageMimeType = attached.mime || attached.file.type || 'image/jpeg'
@@ -301,6 +310,7 @@ export default function FullScreenChat({
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify(payload),
       })
 

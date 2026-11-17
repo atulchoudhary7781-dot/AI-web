@@ -3,6 +3,7 @@ import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib
 import { extractFileContent } from '@/lib/extractFile'
 import { creatorAnswer, isCreatorQuestion } from '@/lib/creator'
 import { isOpenRouterFreeModel, isWorkingModel, workingModelIds } from '@/lib/models'
+import { consumeLoggedInChat, normalizeEmail } from '@/lib/userQuota'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -336,28 +337,16 @@ async function completeChat(params: {
     }
   }
 
-  const openRouterBlocked = skipFree || isDailyFreeQuotaError(lastError)
-  if (openRouterBlocked && Date.now() < groqQuotaBlockedUntil) {
-    throw new Error('DAILY_LIMIT')
-  }
-
   try {
     console.log('🤖 Overflow model path')
     return await completeGroq(params.messages, params.maxTokens)
   } catch (error) {
-    const backupError = error instanceof Error ? error.message : 'overflow failed'
-    if (openRouterBlocked && isGroqDailyLimitError(backupError)) {
-      groqQuotaBlockedUntil = Date.now() + 24 * 60 * 60 * 1000
-      throw new Error('DAILY_LIMIT')
-    }
     try {
       return await completeOverflow(params.messages)
     } catch (overflowError) {
+      const backupError = error instanceof Error ? error.message : 'overflow failed'
       const lastResort = overflowError instanceof Error ? overflowError.message : 'overflow failed'
       console.error('Overflow path failed:', backupError, lastResort)
-      if (openRouterBlocked && isGroqDailyLimitError(backupError)) {
-        throw new Error('DAILY_LIMIT')
-      }
       throw new Error(lastError || backupError || lastResort)
     }
   }
@@ -380,6 +369,11 @@ export async function POST(request: NextRequest) {
   let fileName: string | null = null
   let fileType: string | null = null
   let extractedFileText = ''
+  let quotaCookieValue: string | undefined
+  const withQuota = (res: NextResponse) => {
+    if (quotaCookieValue) res.headers.set('Set-Cookie', quotaCookieValue)
+    return res
+  }
   
   try {
     const body = await request.json()
@@ -406,6 +400,18 @@ export async function POST(request: NextRequest) {
 
     if (isCreatorQuestion(message)) {
       return NextResponse.json({ response: creatorAnswer(message) })
+    }
+
+    const userEmail = normalizeEmail(body.userEmail) || normalizeEmail(request.headers.get('x-user-email'))
+    if (userEmail) {
+      const quota = await consumeLoggedInChat(userEmail, request.headers.get('cookie'))
+      quotaCookieValue = quota.cookie
+      if (!quota.allowed) {
+        return withQuota(NextResponse.json({
+          response: dailyLimitMessage(),
+          dailyLimit: true,
+        }))
+      }
     }
     
     // Keep image bytes intact — do not HTML-escape base64 (that breaks / and +)
@@ -528,13 +534,10 @@ Style:
           messages,
           models: visionModels,
         })
-        return NextResponse.json({ response: aiResponse })
+        return withQuota(NextResponse.json({ response: aiResponse }))
       } catch (error) {
         console.error('All vision models failed:', error)
-        if (isDailyLimitError(error)) {
-          return NextResponse.json({ response: dailyLimitMessage(), dailyLimit: true })
-        }
-        return getVisionFallbackResponse(message)
+        return withQuota(getVisionFallbackResponse(message))
       }
     } else {
       // Regular text-only message
@@ -546,7 +549,7 @@ Style:
       // Check cache first for short text-only messages
       const cacheKey = message.toLowerCase().trim()
       if (!extractedFileText && responseCache.has(cacheKey)) {
-        return NextResponse.json({ response: responseCache.get(cacheKey) })
+        return withQuota(NextResponse.json({ response: responseCache.get(cacheKey) }))
       }
 
       const requestedModel = typeof body.model === 'string' && isWorkingModel(body.model) ? body.model : null
@@ -568,7 +571,7 @@ Style:
         responseCache.set(cacheKey, aiResponse)
       }
 
-      return NextResponse.json({ response: aiResponse })
+      return withQuota(NextResponse.json({ response: aiResponse }))
     }
 
   } catch (error) {
@@ -582,21 +585,17 @@ Style:
     // Return detailed error for debugging (in production, you may want to hide this)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
 
-    if (isDailyLimitError(error) || errorMessage.includes('DAILY_LIMIT')) {
-      return NextResponse.json({ response: dailyLimitMessage(), dailyLimit: true })
-    }
-    
     if (imageData) {
-      return NextResponse.json({
+      return withQuota(NextResponse.json({
         response: publicModelError(errorMessage) + ' You can describe the image in text and send again.',
-      })
+      }))
     }
     if (extractedFileText) {
-      return NextResponse.json({
+      return withQuota(NextResponse.json({
         response: `I read **${fileName || 'your file'}**, but the AI model did not return an answer just now.\n\n**Extracted preview:**\n\n${extractedFileText.slice(0, 1800)}`,
-      })
+      }))
     }
-    return NextResponse.json({ response: publicModelError(errorMessage) })
+    return withQuota(NextResponse.json({ response: publicModelError(errorMessage) }))
   }
 }
 

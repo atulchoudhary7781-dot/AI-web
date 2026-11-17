@@ -909,6 +909,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             onSignupClick={handleSignupClick}
             onSettingsClick={() => router.push('/settings')}
             userName={user?.name}
+            userEmail={user?.email}
           />
         )
       
@@ -1261,6 +1262,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             onSignupClick={handleSignupClick}
             onSettingsClick={() => router.push('/settings')}
             userName={user?.name}
+            userEmail={user?.email}
           />
         )
     }

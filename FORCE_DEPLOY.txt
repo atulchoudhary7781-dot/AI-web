@@ -1,1 +1,1 @@
-// English daily-limit copy redeploy - Tue Nov 17 16:58:15 UTC 2026
+// Per-user quota redeploy - Tue Nov 17 17:12:00 UTC 2026
