@@ -421,8 +421,8 @@ export default function FullScreenChat({
 
           {limitLocked && (
             <div className="mb-2 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2.5 text-center">
-              <p className="text-sm font-medium text-amber-200">Aaj ki NEXUS AI limit puri ho gayi hai.</p>
-              <p className="mt-0.5 text-xs text-amber-200/80">Reset hone mein 1 din lagega. Kal wapas aake chat kar sakte ho.</p>
+              <p className="text-sm font-medium text-amber-200">Today's NEXUS AI limit is full.</p>
+              <p className="mt-0.5 text-xs text-amber-200/80">It will take 1 day to reset. Please come back tomorrow to chat.</p>
             </div>
           )}
 
@@ -476,7 +476,7 @@ export default function FullScreenChat({
                 !canChat
                   ? 'Sign in to continue chatting'
                   : limitLocked
-                    ? 'Aaj ki limit puri hai — kal wapas aao'
+                    ? "Today's limit is full — come back tomorrow"
                     : 'Ask NEXUS AI anything…'
               }
               disabled={!canChat || limitLocked}

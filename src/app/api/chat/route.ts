@@ -104,9 +104,9 @@ function openRouterErrorText(data: unknown, raw: string): string {
 
 function dailyLimitMessage() {
   return [
-    'Aaj ki NEXUS AI limit puri ho gayi hai.',
-    "Today's limit is full. It will take 1 day to reset.",
-    'Kal wapas aake chat kar sakte ho.',
+    "Today's NEXUS AI limit is full.",
+    "It will take 1 day to reset.",
+    'Please come back tomorrow to chat.',
   ].join('\n\n')
 }
 
