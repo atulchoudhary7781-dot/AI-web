@@ -340,28 +340,32 @@ export default function NexusAI() {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   
   // Auth State - Use lazy initialization to avoid hydration mismatch
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!getSessionUser())
-  const [user, setUser] = useState<User | null>(() => getSessionUser())
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
 
   // Check if user can chat (logged in or under limit)
   const canChat = isLoggedIn || chatCount < MAX_FREE_CHATS
 
   // Check for existing session on mount (only for sessions, not auth)
   useEffect(() => {
-    // Load sessions only if logged in
-    if (isLoggedIn) {
-      const savedSessions = localStorage.getItem('nexus_sessions')
-      if (savedSessions) {
-        setSessions(JSON.parse(savedSessions))
-      }
+    const session = getSessionUser()
+    if (session) {
+      setIsLoggedIn(true)
+      setUser(session)
     }
-    
-    // Load chat count for guests
+
     const savedChatCount = localStorage.getItem('nexus_chat_count')
     if (savedChatCount) {
       setChatCount(parseInt(savedChatCount, 10))
     }
-    // Note: Intro state is now initialized from sessionStorage in useState (prevents flash)
+  }, [])
+
+  useEffect(() => {
+    if (!isLoggedIn) return
+    const savedSessions = localStorage.getItem('nexus_sessions')
+    if (savedSessions) {
+      setSessions(JSON.parse(savedSessions))
+    }
   }, [isLoggedIn])
 
   // Save sessions to localStorage when they change (only if logged in)
