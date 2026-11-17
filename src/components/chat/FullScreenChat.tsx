@@ -146,25 +146,25 @@ export default function FullScreenChat({
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {!hasMessages ? (
-          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-10">
-            <div className="relative mb-6">
+          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-10">
+            <div className="relative mb-5 sm:mb-6">
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-400 to-violet-500 opacity-40 blur-2xl" />
-              <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-glow-cyan">
-                <Sparkles className="h-8 w-8 text-white" />
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-glow-cyan sm:h-16 sm:w-16">
+                <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />
               </div>
             </div>
-            <h1 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <h1 className="px-2 text-center font-display text-2xl font-bold tracking-tight text-white sm:text-4xl">
               Welcome to <span className="gradient-text-nexus">NEXUS AI</span>
             </h1>
-            <p className="mt-3 max-w-xl text-center text-sm text-slate-400 sm:text-base">
+            <p className="mt-3 max-w-xl px-2 text-center text-sm text-slate-400 sm:text-base">
               Your advanced AI assistant. Ask anything — writing, code, research, or ideas.
             </p>
-            <div className="mt-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="mt-6 grid w-full grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-3">
               {SUGGESTIONS.map((item) => (
                 <button
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06]"
+                  className="min-h-11 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06] sm:p-4"
                 >
                   <p className="text-sm font-semibold text-white">{item.title}</p>
                   <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.prompt}</p>
@@ -173,7 +173,7 @@ export default function FullScreenChat({
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
+          <div className="mx-auto max-w-3xl space-y-5 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-6">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -188,7 +188,7 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="border-t border-white/8 bg-[#07071a]/80 px-4 py-4 backdrop-blur-xl">
+      <div className="nexus-composer border-t border-white/10 bg-[#07071a]/80 px-3 py-3 backdrop-blur-xl sm:px-4 sm:py-4">
         <div className="mx-auto max-w-3xl">
           {!isLoggedIn && (
             <p className="mb-2 text-center text-xs text-slate-500">
@@ -198,8 +198,8 @@ export default function FullScreenChat({
               to save chat history
             </p>
           )}
-          <div className="flex items-end gap-2 rounded-2xl border border-white/10 bg-[#0f1224] p-2 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]">
-            <button className="mb-0.5 rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white" aria-label="Attach file">
+          <div className="flex items-end gap-1.5 rounded-2xl border border-white/10 bg-[#0f1224] p-1.5 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)] sm:gap-2 sm:p-2">
+            <button className="mb-0.5 hidden rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white sm:inline-flex" aria-label="Attach file">
               <Paperclip className="h-5 w-5" />
             </button>
             <textarea
@@ -213,21 +213,21 @@ export default function FullScreenChat({
               placeholder={canChat ? 'Ask NEXUS AI anything…' : 'Sign in to continue chatting'}
               disabled={!canChat}
               rows={1}
-              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-sm text-white outline-none placeholder:text-slate-500"
+              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
             />
-            <button className="mb-0.5 rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white" aria-label="Voice input">
+            <button className="mb-0.5 hidden rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white sm:inline-flex" aria-label="Voice input">
               <Mic className="h-5 w-5" />
             </button>
             <button
               onClick={() => handleSend()}
               disabled={!inputValue.trim() || !canChat || isTyping}
-              className="mb-0.5 rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 p-2.5 text-slate-950 shadow-glow-cyan transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+              className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 shadow-glow-cyan transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Send message"
             >
               {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </button>
           </div>
-          <p className="mt-2 text-center text-[11px] text-slate-600">
+          <p className="mt-2 hidden text-center text-[11px] text-slate-600 sm:block">
             NEXUS AI can make mistakes. Check important information.
           </p>
         </div>
@@ -248,7 +248,7 @@ function MessageBubble({
   const isUser = message.role === 'user'
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-slide-up`}>
-      <div className={`flex max-w-[88%] items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+      <div className={`flex max-w-[92%] items-start gap-2 sm:max-w-[88%] sm:gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
         <div
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
             isUser
@@ -260,7 +260,7 @@ function MessageBubble({
         </div>
         <div className={`group relative ${isUser ? 'message-user' : 'message-ai'}`}>
           <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100">{message.content}</div>
-          <div className={`absolute -bottom-8 flex gap-1 opacity-0 transition group-hover:opacity-100 ${isUser ? 'right-0' : 'left-0'}`}>
+          <div className={`mt-2 flex gap-1 ${isUser ? 'justify-end' : 'justify-start'}`}>
             <button onClick={onCopy} className="rounded-md p-1.5 hover:bg-white/10" aria-label="Copy">
               {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-slate-400" />}
             </button>

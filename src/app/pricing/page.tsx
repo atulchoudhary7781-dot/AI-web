@@ -159,14 +159,14 @@ export default function PricingPage() {
   return (
     <div className="page-shell pricing-page-container">
       <SiteHeader />
-      <div className="pt-16 pb-16 px-4">
+      <div className="pt-8 sm:pt-14 pb-12 sm:pb-16 px-3 sm:px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-6">
             <Star className="w-4 h-4 text-neon-cyan" />
             <span className="text-sm font-medium text-neon-cyan">Simple, transparent pricing</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-display mb-4 sm:mb-6">
             <span className="gradient-text-nexus">Choose Your Plan</span>
           </h1>
           
@@ -217,14 +217,14 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 pb-20 overflow-visible">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 pt-6 overflow-visible">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 pb-16 sm:pb-20 overflow-visible">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 pt-4 sm:pt-6 overflow-visible">
           {plans.map((plan) => (
             <Card
               key={plan.id}
               variant={plan.locked ? 'locked' : (plan.popular ? 'neon' : 'glass')}
               className={cn(
-                "relative overflow-visible p-8 pt-10 transition-all duration-300",
+                "relative overflow-visible p-6 sm:p-8 pt-10 transition-all duration-300",
                 plan.locked ? "opacity-90" : "hover:scale-[1.02]",
                 plan.popular && !plan.locked && "ring-2 ring-neon-cyan shadow-lg shadow-neon-cyan/20",
                 plan.locked && "border-yellow-500/30 bg-gray-900/50"

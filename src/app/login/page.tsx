@@ -94,7 +94,7 @@ export default function LoginPage() {
   return (
     <div className="page-shell">
     <SiteHeader />
-    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center p-3 sm:p-4 relative overflow-x-hidden">
       
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -114,7 +114,7 @@ export default function LoginPage() {
 
       {/* Main Card */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
+        <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
           
           {/* Logo */}
           <Link href="/" className="flex justify-center mb-8 group">

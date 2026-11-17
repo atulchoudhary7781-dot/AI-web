@@ -103,9 +103,10 @@ export default function Sidebar({
       
       {/* Sidebar Panel */}
       <aside 
-        className={`fixed top-0 left-0 h-full w-72 sm:w-80 bg-gradient-to-b from-[#0f172a] to-[#1a1a2e] backdrop-blur-xl border-r border-white/[0.08] z-50 transform transition-transform duration-300 ease-out flex flex-col ${
+        className={`fixed top-0 left-0 h-full w-[min(20rem,88vw)] bg-gradient-to-b from-[#0f172a] to-[#1a1a2e] backdrop-blur-xl border-r border-white/[0.08] z-50 transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <div className="h-full flex flex-col">
           {/* Header */}

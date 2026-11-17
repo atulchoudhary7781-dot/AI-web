@@ -40,12 +40,12 @@ export default function HelpPage() {
   return (
     <div className="page-shell">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-        <div className="mb-10 text-center">
+      <main className="mx-auto max-w-6xl px-3 py-8 sm:px-4 sm:py-14">
+        <div className="mb-8 text-center sm:mb-10">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-glow-cyan">
             <HelpCircle className="h-7 w-7 text-white" />
           </div>
-          <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">
+          <h1 className="font-display text-2xl font-bold text-white sm:text-4xl">
             Welcome to <span className="gradient-text-nexus">NEXUS AI Support</span>
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-400 sm:text-base">

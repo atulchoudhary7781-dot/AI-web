@@ -95,7 +95,7 @@ export default function SettingsPage() {
     <div className="page-shell min-h-screen">
       <SiteHeader />
       <div className="border-b border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto px-4 md:px-8 py-6">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-5 sm:py-6">
           <div className="flex items-center gap-4">
             <Link 
               href="/" 
@@ -115,7 +115,7 @@ export default function SettingsPage() {
 
       {/* Success Message */}
       {showSuccessMessage && (
-        <div className="max-w-4xl mx-auto px-4 md:px-8 pt-6">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 pt-6">
           <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 animate-fade-in">
             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
             <p className="text-green-400">{showSuccessMessage}</p>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
       )}
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 md:px-8 py-8 pb-16">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Left Column - Main Settings */}

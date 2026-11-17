@@ -18,8 +18,8 @@ export default function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07071a]/85 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <header className="site-header sticky top-0 z-50 border-b border-white/10 bg-[#07071a]/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-glow-cyan">
             <Sparkles className="h-4 w-4 text-white" />
@@ -39,7 +39,7 @@ export default function SiteHeader() {
                 className={cn(
                   'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   active
-                    ? 'bg-white/8 text-cyan-300'
+                    ? 'bg-white/10 text-cyan-300'
                     : 'text-slate-300 hover:bg-white/5 hover:text-white'
                 )}
               >
@@ -65,7 +65,7 @@ export default function SiteHeader() {
         </div>
 
         <button
-          className="rounded-lg p-2 text-slate-300 hover:bg-white/10 md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-300 hover:bg-white/10 md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >

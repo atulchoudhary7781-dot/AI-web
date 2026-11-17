@@ -1285,11 +1285,11 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       />
 
       <div className="nexus-main">
-        <header className="z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#07071a]/90 px-3 backdrop-blur-xl sm:px-5">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className="nexus-topbar z-30 flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#07071a]/90 px-2 backdrop-blur-xl sm:gap-3 sm:px-5">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition ${
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition ${
                 sidebarOpen
                   ? 'rotate-90 border-red-500/40 bg-red-500/15'
                   : 'border-white/10 bg-white/5 hover:border-cyan-400/40'
@@ -1302,11 +1302,11 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                 <Menu className="h-[18px] w-[18px] text-cyan-400" />
               )}
             </button>
-            <div className="flex min-w-0 items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-600">
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-600">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
-              <span className="truncate text-sm font-semibold tracking-tight text-white sm:text-base">
+              <span className="hidden truncate text-sm font-semibold tracking-tight text-white min-[380px]:inline sm:text-base">
                 NEXUS AI
               </span>
             </div>
@@ -1314,13 +1314,13 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
           <a
             href="/pricing"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-pink-500 px-3 py-1.5 text-[11px] font-extrabold text-white shadow-[0_2px_12px_rgba(168,85,247,0.5)]"
+            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg bg-gradient-to-r from-violet-500 to-pink-500 px-2.5 text-[11px] font-extrabold text-white shadow-[0_2px_12px_rgba(168,85,247,0.5)] sm:gap-1.5 sm:px-3"
           >
             <Crown className="h-3.5 w-3.5 text-yellow-300" />
             PRO
           </a>
 
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-1.5">
             {isLoggedIn ? (
               <>
                 <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-9 text-slate-300">
