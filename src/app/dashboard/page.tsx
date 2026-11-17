@@ -10,16 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-
-// Safe i18n - returns default values if i18n not available
-function useSafeI18n() {
-  return {
-    locale: 'en',
-    setLocale: () => {},
-    t: (key: string) => key,
-    availableLocales: [],
-  }
-}
+import SiteHeader from '@/components/layout/SiteHeader'
 
 // Mock data for dashboard (will be replaced with real API data)
 const mockStats = {
@@ -49,20 +40,19 @@ const weeklyData = [
 ]
 
 export default function DashboardPage() {
-  const { t } = useSafeI18n()
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week')
 
   // Calculate max value for chart scaling
   const maxChats = Math.max(...weeklyData.map(d => d.chats))
 
   return (
-    <div className="dashboard-page-container min-h-screen bg-deep-black p-4 md:p-8 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
+    <div className="page-shell dashboard-page-container">
+      <SiteHeader />
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold font-display gradient-text-nexus">
-              {t('dashboard.title')}
+              Analytics Dashboard
             </h1>
             <p className="text-muted-foreground mt-1">
               Welcome back! Here's what's happening with NEXUS AI.
@@ -90,7 +80,7 @@ export default function DashboardPage() {
             
             <Link href="/pricing">
               <Button variant="neon" size="sm">
-                {t('pricing.upgrade')}
+                Upgrade
                 <ArrowUpRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
@@ -103,7 +93,7 @@ export default function DashboardPage() {
           <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">{t('dashboard.totalChats')}</p>
+                <p className="text-sm text-muted-foreground mb-1">Total Chats</p>
                 <p className="text-3xl font-bold text-foreground">{mockStats.totalChats.toLocaleString()}</p>
                 <div className="flex items-center gap-1 mt-2 text-green-400 text-sm">
                   <ArrowUpRight className="w-4 h-4" />
@@ -120,7 +110,7 @@ export default function DashboardPage() {
           <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">{t('dashboard.activeToday')}</p>
+                <p className="text-sm text-muted-foreground mb-1">Active Today</p>
                 <p className="text-3xl font-bold text-foreground">{mockStats.activeToday}</p>
                 <div className="flex items-center gap-1 mt-2 text-green-400 text-sm">
                   <ArrowUpRight className="w-4 h-4" />
@@ -137,7 +127,7 @@ export default function DashboardPage() {
           <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">{t('dashboard.totalUsers')}</p>
+                <p className="text-sm text-muted-foreground mb-1">Total Users</p>
                 <p className="text-3xl font-bold text-foreground">{mockStats.totalUsers}</p>
                 <div className="flex items-center gap-1 mt-2 text-green-400 text-sm">
                   <ArrowUpRight className="w-4 h-4" />
@@ -154,7 +144,7 @@ export default function DashboardPage() {
           <Card variant="neon" className="p-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">{t('dashboard.revenue')}</p>
+                <p className="text-sm text-muted-foreground mb-1">Revenue</p>
                 <p className="text-3xl font-bold text-foreground">${mockStats.revenue.toLocaleString()}</p>
                 <div className="flex items-center gap-1 mt-2 text-green-400 text-sm">
                   <ArrowUpRight className="w-4 h-4" />

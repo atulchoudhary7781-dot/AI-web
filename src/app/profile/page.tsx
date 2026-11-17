@@ -68,10 +68,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <UserProfilePage
-      user={user}
-      onBack={handleBack}
-      onLogout={handleLogout}
-    />
+    <div className="page-shell">
+      <UserProfilePage
+        user={user}
+        onBack={handleBack}
+        onLogout={handleLogout}
+      />
+    </div>
   )
 }

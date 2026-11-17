@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { 
   MessageSquare, Home, Settings,
   Plus, Trash2, X, User, History, Sparkles, 
-  LogIn, LogOut, UserCircle, Crown
+  LogIn, LogOut, UserCircle, Crown, HelpCircle, LayoutDashboard
 } from 'lucide-react'
 
 // ============================================
@@ -201,6 +201,20 @@ export default function Sidebar({
                     onClick={() => { router.push('/profile'); onClose(); }}
                   />
                 )}
+
+                <SidebarButton
+                  icon={<LayoutDashboard className="w-4 h-4" />}
+                  label="Dashboard"
+                  active={false}
+                  onClick={() => { router.push('/dashboard'); onClose(); }}
+                />
+
+                <SidebarButton
+                  icon={<HelpCircle className="w-4 h-4" />}
+                  label="Help & Support"
+                  active={false}
+                  onClick={() => { router.push('/help'); onClose(); }}
+                />
               </div>
             </div>
 

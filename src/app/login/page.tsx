@@ -8,6 +8,7 @@ import {
   ArrowRight, Chrome, Github,
   Loader2, AlertCircle
 } from 'lucide-react'
+import SiteHeader from '@/components/layout/SiteHeader'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -91,7 +92,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#030712] relative overflow-hidden">
+    <div className="page-shell">
+    <SiteHeader />
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center p-4 relative overflow-hidden">
       
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -289,6 +292,7 @@ export default function LoginPage() {
           <Link href="/privacy" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy Policy</Link>
         </p>
       </div>
+    </div>
     </div>
   )
 }

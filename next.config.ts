@@ -59,35 +59,8 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
-          // Prevent clickjacking
-          { key: 'X-Frame-Options', value: 'DENY' },
-          // Prevent MIME type sniffing
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          // Referrer Policy
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Permissions Policy
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-          },
-          // Content Security Policy
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https:",
-              "connect-src 'self'",
-              "frame-ancestors 'none'",
-            ].join('; '),
-          },
-          // Cache control for static assets
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
         ],
       },
       // Profile & Settings pages - no cache (always show fresh content)
@@ -176,12 +149,6 @@ const nextConfig: NextConfig = {
         },
       }
     }
-
-    // Support SVG imports
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack'],
-    })
 
     return config
   },

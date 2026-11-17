@@ -8,6 +8,7 @@ import {
   ArrowRight, Github, Chrome, Check,
   Loader2, AlertCircle, CheckCircle
 } from 'lucide-react'
+import SiteHeader from '@/components/layout/SiteHeader'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -104,7 +105,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#030712] relative overflow-hidden py-12">
+    <div className="page-shell">
+    <SiteHeader />
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center p-4 relative overflow-hidden py-12">
       
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -373,6 +376,7 @@ export default function SignupPage() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }

@@ -1259,14 +1259,9 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
   }
 
   return (
-    <div className={`nexus-main-container min-h-screen ${isDarkMode ? 'bg-[#00000a]' : 'bg-gray-50'} transition-colors duration-300 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent`} style={{ position: 'relative' }}>
-
-      {/* Main Content - Always Visible (No Intro Animation) */}
-      <div className="opacity-100">
-      {/* Background Animation - Only on home view */}
+    <div className="nexus-shell">
       {currentView === 'home' && mounted && <NeuralNetworkBackground />}
 
-      {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -1289,132 +1284,72 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
         maxChats={MAX_FREE_CHATS}
       />
 
-      {/* Main Content - FULL SCREEN */}
-      <main className="h-screen w-full flex flex-col overflow-hidden">
-        {/* Top Header Bar - Always visible with integrated Nav Button */}
-        <header className={`flex-shrink-0 z-30 border-b bg-gray-900/95 backdrop-blur-xl transition-all duration-300 relative ${
-          currentView === 'home' ? 'border-gray-800/50' : 'border-gray-800'
-        }`}>
-          {/* MOBILE/TABLET/PC - Responsive Header - GRID LAYOUT for TRUE CENTER */}
-          <div className="grid grid-cols-3 items-center px-3 sm:px-6 min-h-[52px] h-auto py-2 sm:py-0 sm:h-[52px]">
-            
-            {/* LEFT SIDE - Navigation Button + Title */}
-            <div className="flex items-center gap-3 justify-start min-w-0">
-              {/* Integrated Navigation Button - Part of Header */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all duration-200 ease-out hover:scale-105 active:scale-95 flex-shrink-0 ${
-                  sidebarOpen 
-                    ? 'bg-red-500/15 border-red-500/40 shadow-sm shadow-red-500/10 rotate-90' 
-                    : 'bg-gray-800/60 border-gray-700/50 hover:border-cyan-500/40 hover:bg-gray-800 hover:shadow-sm hover:shadow-cyan-500/10'
-                }`}
-                title={sidebarOpen ? 'Close sidebar (ESC)' : 'Open sidebar'}
-              >
-                {sidebarOpen ? (
-                  <X className="w-[18px] h-[18px] text-red-400" strokeWidth={2} />
-                ) : (
-                  <Menu className="w-[18px] h-[18px] text-cyan-400" strokeWidth={2} />
-                )}
-              </button>
-              
-              {/* Title - Show only when not on home view */}
-              {currentView !== 'home' && (
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <span className="font-semibold text-white text-base hidden sm:block tracking-tight truncate">
-                    {currentView === 'chat' ? 'AI Chat' : 
-                     currentView === 'settings' ? 'Settings' :
-                     currentView === 'features' ? 'Features' :
-                     currentView === 'stats' ? 'Statistics' : 'NEXUS AI'}
-                  </span>
-                </div>
+      <div className="nexus-main">
+        <header className="z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#07071a]/90 px-3 backdrop-blur-xl sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition ${
+                sidebarOpen
+                  ? 'rotate-90 border-red-500/40 bg-red-500/15'
+                  : 'border-white/10 bg-white/5 hover:border-cyan-400/40'
+              }`}
+              title={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+            >
+              {sidebarOpen ? (
+                <X className="h-[18px] w-[18px] text-red-400" />
+              ) : (
+                <Menu className="h-[18px] w-[18px] text-cyan-400" />
               )}
+            </button>
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-600">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <span className="truncate text-sm font-semibold tracking-tight text-white sm:text-base">
+                NEXUS AI
+              </span>
             </div>
+          </div>
 
-            {/* ‚≠ê CENTER - PRO BUTTON (ALWAYS VISIBLE - Login/Logout/Refresh sabpe FIXED CENTER) */}
-            <div className="flex items-center justify-center">
-              <a
-                href="/pricing"
-                id="header-pro-button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                  padding: '6px 12px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  boxShadow: '0 2px 12px rgba(168, 85, 247, 0.5)',
-                  cursor: 'pointer',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease',
-                  visibility: 'visible',
-                  opacity: 1
-                }}
-                aria-label="Upgrade to Pro"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)'
-                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.7)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(168, 85, 247, 0.5)'
-                }}
+          <a
+            href="/pricing"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-pink-500 px-3 py-1.5 text-[11px] font-extrabold text-white shadow-[0_2px_12px_rgba(168,85,247,0.5)]"
+          >
+            <Crown className="h-3.5 w-3.5 text-yellow-300" />
+            PRO
+          </a>
+
+          <div className="flex items-center justify-end gap-1.5">
+            {isLoggedIn ? (
+              <>
+                <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-9 text-slate-300">
+                  <Plus className="h-4 w-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">New Chat</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleLogout} className="h-9 text-red-400 hover:text-red-300">
+                  <LogOut className="h-4 w-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                onClick={handleLoginClick}
+                className="h-9 bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 hover:from-cyan-300 hover:to-violet-400"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#facc15" stroke="#facc15" strokeWidth="2.5">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-                <span>PRO</span>
-              </a>
-            </div>
-
-            {/* RIGHT SIDE - Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-2 justify-end">
-              
-              {isLoggedIn ? (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleNewChat}
-                      className="text-gray-400 hover:text-white hover:bg-gray-800/80 h-9 w-9 sm:w-auto sm:px-3 rounded-lg transition-all flex items-center justify-center"
-                      title="New Chat"
-                    >
-                      <Plus className="w-4 h-4 sm:mr-1.5" />
-                      <span className="hidden sm:inline text-sm font-medium">New Chat</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleLogout}
-                      className="text-red-400/80 hover:text-red-300 hover:bg-red-500/10 h-9 w-9 sm:w-auto sm:px-3 rounded-lg transition-all flex items-center justify-center"
-                      title="Logout"
-                    >
-                      <LogOut className="w-4 h-4 sm:mr-1.5" />
-                      <span className="hidden sm:inline text-sm font-medium">Logout</span>
-                    </Button>
-                  </>
-                ) : null}
-            </div>
+                <LogIn className="h-4 w-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Login</span>
+              </Button>
+            )}
           </div>
         </header>
 
-        {/* Content Area - Full height, fills remaining space */}
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className={`nexus-content ${currentView === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {renderCurrentView()}
         </div>
-      </main>
+      </div>
 
-      {/* Auth Modal - Shows when free chat limit reached */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -1424,7 +1359,6 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** 
         maxChats={MAX_FREE_CHATS}
         reason={authModalReason}
       />
-      </div>
     </div>
   )
 }

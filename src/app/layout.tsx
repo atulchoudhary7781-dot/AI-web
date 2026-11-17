@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { I18nProvider } from "@/lib/i18n";
 
-// Futuristic display font for headings
 const orbitron = Orbitron({
   variable: "--font-orbitron",
   subsets: ["latin"],
@@ -13,7 +12,6 @@ const orbitron = Orbitron({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
-// Clean modern font for body text
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
@@ -23,59 +21,29 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "NEXUS AI - Next Generation AI Platform",
-  description: "Pioneering the future of artificial intelligence. Building systems that understand, reason, and create at superhuman levels.",
-  keywords: ["NEXUS AI", "AI", "Chatbot", "Machine Learning", "Neural Network", "Next.js"],
+  description:
+    "Pioneering the future of artificial intelligence. Chat, create, and reason with NEXUS AI.",
+  keywords: ["NEXUS AI", "AI", "Chatbot", "Machine Learning", "Next.js"],
   authors: [{ name: "NEXUS AI Team" }],
-  icons: {
-    icon: "/nexus-logo.png",
-  },
+  icons: { icon: "/nexus-logo.png" },
   openGraph: {
     title: "NEXUS AI - Future of AI",
     description: "Next-generation artificial intelligence platform",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "NEXUS AI",
-    description: "Next-generation AI platform",
-  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased bg-black-hole text-foreground min-h-screen`}
-        style={{ background: '#000000' }}
+        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased min-h-screen bg-deep-black text-foreground`}
       >
-        {/* Feature E & J: Providers for theme and i18n */}
         <ThemeProvider>
           <I18nProvider>
-            {/* Black Hole Background Image */}
-            <div 
-              className="fixed inset-0 pointer-events-none z-0"
-              style={{
-                backgroundImage: 'url(/black-hole-bg.jpg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundAttachment: 'fixed'
-              }}
-            />
-            {/* Dark overlay */}
-            <div 
-              className="fixed inset-0 pointer-events-none z-0"
-              style={{ background: 'rgba(0, 0, 0, 0.75)' }}
-            />
-            
-            {/* Main content - Ensure scrolling works on all devices */}
-            <div className="relative z-10 min-h-screen" style={{ minHeight: '100vh', position: 'relative', overflow: 'visible' }}>
-              {children}
-            </div>
-            
+            {children}
             <Toaster />
           </I18nProvider>
         </ThemeProvider>

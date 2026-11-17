@@ -195,19 +195,8 @@ function detectSuspiciousContent(request: NextRequest): boolean {
  * Add security headers to response
  */
 function addSecurityHeaders(response: NextResponse): NextResponse {
-  // Prevent clickjacking
-  response.headers.set('X-Frame-Options', 'DENY')
-  
-  // Prevent MIME type sniffing
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  
-  // XSS Protection (legacy but still useful)
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-  
-  // Referrer Policy
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  
-  // Content Security Policy
   response.headers.set(
     'Content-Security-Policy',
     [
@@ -217,7 +206,6 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' https://openrouter.ai https://api.openrouter.ai",
-      "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join('; ')

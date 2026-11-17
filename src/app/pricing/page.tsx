@@ -9,16 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-
-// Safe i18n - returns default values if i18n not available
-function useSafeI18n() {
-  return {
-    locale: 'en',
-    setLocale: () => {},
-    t: (key: string) => key,
-    availableLocales: [],
-  }
-}
+import SiteHeader from '@/components/layout/SiteHeader'
 
 // Pricing plans data
 const plans = [
@@ -112,7 +103,6 @@ const faqs = [
 ]
 
 export default function PricingPage() {
-  const { t } = useSafeI18n()
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -167,19 +157,9 @@ export default function PricingPage() {
   }
 
   return (
-    <div 
-      className="pricing-page-container"
-      style={{
-        minHeight: '100vh',
-        height: 'auto',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        position: 'relative',
-        background: '#0a0a1a'
-      }}
-    >
-      {/* Hero Section */}
-      <div className="pt-32 pb-16 px-4">
+    <div className="page-shell pricing-page-container">
+      <SiteHeader />
+      <div className="pt-16 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 mb-6">
             <Star className="w-4 h-4 text-neon-cyan" />
@@ -187,7 +167,7 @@ export default function PricingPage() {
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display mb-6">
-            <span className="gradient-text-nexus">{t('pricing.title')}</span>
+            <span className="gradient-text-nexus">Choose Your Plan</span>
           </h1>
           
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
@@ -237,16 +217,15 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* Pricing Cards */}
-      <div className="max-w-6xl mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      <div className="max-w-6xl mx-auto px-4 pb-20 overflow-visible">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 pt-6 overflow-visible">
           {plans.map((plan) => (
             <Card
               key={plan.id}
               variant={plan.locked ? 'locked' : (plan.popular ? 'neon' : 'glass')}
               className={cn(
-                "relative p-8 transition-all duration-300",
-                plan.locked ? "opacity-75 cursor-not-allowed" : "hover:scale-[1.02]",
+                "relative overflow-visible p-8 pt-10 transition-all duration-300",
+                plan.locked ? "opacity-90" : "hover:scale-[1.02]",
                 plan.popular && !plan.locked && "ring-2 ring-neon-cyan shadow-lg shadow-neon-cyan/20",
                 plan.locked && "border-yellow-500/30 bg-gray-900/50"
               )}
@@ -350,7 +329,7 @@ export default function PricingPage() {
                     </>
                   ) : (
                     <>
-                      {t(plan.cta.toLowerCase() as any)}
+                      {plan.cta}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )}

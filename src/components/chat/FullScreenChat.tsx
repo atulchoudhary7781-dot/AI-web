@@ -1,16 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { 
-  Send, Copy, Check, Sparkles, User, Bot, 
-  ThumbsUp, ThumbsDown, RotateCcw, StopCircle,
-  Crown, LogIn, Settings, Menu, Mic, Paperclip,
-  X, Maximize2
+import { useEffect, useRef, useState } from 'react'
+import {
+  Bot, Check, Copy, Mic, Paperclip, RotateCcw, Send,
+  Sparkles, StopCircle, ThumbsDown, ThumbsUp, User
 } from 'lucide-react'
 
-// ============================================
-// TYPES
-// ============================================
 interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
@@ -31,87 +26,117 @@ interface FullScreenChatProps {
   userName?: string | null
 }
 
-// ============================================
-// MAIN COMPONENT
-// ============================================
+const SUGGESTIONS = [
+  { title: 'Explain a concept', prompt: 'Explain how large language models work in simple terms.' },
+  { title: 'Help me write', prompt: 'Help me write a professional email to follow up after an interview.' },
+  { title: 'Code assistance', prompt: 'Write a Python function that parses a CSV and returns a summary.' },
+  { title: 'Plan a project', prompt: 'Help me plan a 2-week launch for a new AI chatbot product.' },
+]
+
 export default function FullScreenChat({
-  onToggleSidebar,
-  onNewChat,
-  sessionId,
   isLoggedIn = false,
   canChat = true,
-  onLoginRequired,
   onLoginClick,
-  onSignupClick,
-  onSettingsClick,
-  userName
 }: FullScreenChatProps) {
-  // State
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [showUserMenu, setShowUserMenu] = useState(false)
-  
-  // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  
-  // Auto-scroll to bottom
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
-  
-  // Focus input on mount
+
   useEffect(() => {
-    if (inputRef.current && canChat) {
-      inputRef.current.focus()
-    }
+    if (canChat) inputRef.current?.focus()
   }, [canChat])
 
-  // Handle send message
-  const handleSend = async () => {
-    const trimmedInput = inputValue.trim()
-    if (!trimmedInput || !canChat) return
-    
-    // Add user message
+  const resizeInput = () => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  }
+
+  const handleSend = async (preset?: string) => {
+    const trimmed = (preset ?? inputValue).trim()
+    if (!trimmed || !canChat || isTyping) return
+
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: trimmedInput,
-      timestamp: new Date()
+      content: trimmed,
+      timestamp: new Date(),
     }
-    
-    setMessages(prev => [...prev, userMessage])
+
+    setMessages((prev) => [...prev, userMessage])
     setInputValue('')
+    if (inputRef.current) inputRef.current.style.height = 'auto'
     setIsTyping(true)
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `Thank you for your message! I'm NEXUS AI, your intelligent assistant. I'm here to help you with any questions or tasks you might have.\n\nYou said: "${trimmedInput}"\n\nHow can I assist you further?`,
-        timestamp: new Date()
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      })
+
+      let reply =
+        "I'm NEXUS AI — your assistant for writing, coding, research, and planning. How else can I help?"
+
+      if (res.ok) {
+        const data = await res.json().catch(() => null)
+        reply =
+          data?.content ||
+          data?.message ||
+          data?.reply ||
+          data?.text ||
+          reply
+      } else {
+        reply = `Got it: "${trimmed}"\n\nI'm running in local preview mode right now, but I can still help you draft, plan, and reason through the next step. What would you like to do with this?`
       }
-      
-      setMessages(prev => [...prev, aiMessage])
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: reply,
+          timestamp: new Date(),
+        },
+      ])
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `Thanks — I received: "${trimmed}"\n\nThe chat API isn't connected in this preview, but the interface is ready. Ask me to write, explain, or plan something next.`,
+          timestamp: new Date(),
+        },
+      ])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
-  // Handle copy message
   const handleCopy = async (content: string, id: string) => {
     try {
       await navigator.clipboard.writeText(content)
       setCopiedId(id)
-      setTimeout(() => setCopiedId(null), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
+      setTimeout(() => setCopiedId(null), 1800)
+    } catch {
+      /* ignore */
     }
   }
 
-  // Handle key down
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -119,116 +144,40 @@ export default function FullScreenChat({
     }
   }
 
-  // Check if chat has messages
   const hasMessages = messages.length > 0
 
   return (
-    <div className="flex flex-col h-full bg-[#030712]">
-      {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          {/* Menu Button */}
-          <button
-            onClick={onToggleSidebar}
-            className="p-2 hover:bg-white/[0.06] rounded-xl transition-colors"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="w-5 h-5 text-gray-400" />
-          </button>
-          
-          {/* Logo & Title */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <Sparkles className="w-5 h-5 text-white" />
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {!hasMessages ? (
+          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-10">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-400 to-violet-500 opacity-40 blur-2xl" />
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-glow-cyan">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-base font-semibold text-white">NEXUS AI</h1>
-              <p className="text-xs text-gray-500">Powered by Llama 3.1</p>
+            <h1 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Welcome to <span className="gradient-text-nexus">NEXUS AI</span>
+            </h1>
+            <p className="mt-3 max-w-xl text-center text-sm text-slate-400 sm:text-base">
+              Your advanced AI assistant. Ask anything — writing, code, research, or ideas.
+            </p>
+            <div className="mt-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+              {SUGGESTIONS.map((item) => (
+                <button
+                  key={item.title}
+                  onClick={() => handleSend(item.prompt)}
+                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06]"
+                >
+                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.prompt}</p>
+                </button>
+              ))}
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* New Chat Button */}
-          {onNewChat && (
-            <button
-              onClick={onNewChat}
-              className="p-2 hover:bg-white/[0.06] rounded-xl transition-colors"
-              aria-label="New chat"
-            >
-              <Maximize2 className="w-5 h-5 text-gray-400" />
-            </button>
-          )}
-          
-          {/* Settings Button */}
-          {onSettingsClick && (
-            <button
-              onClick={onSettingsClick}
-              className="p-2 hover:bg-white/[0.06] rounded-xl transition-colors"
-              aria-label="Settings"
-            >
-              <Settings className="w-5 h-5 text-gray-400" />
-            </button>
-          )}
-
-          {/* User Menu / Login */}
-          {isLoggedIn ? (
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 p-1.5 pr-3 hover:bg-white/[0.06] rounded-full transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-sm font-bold text-white">
-                  {userName?.charAt(0)?.toUpperCase() || 'U'}
-                </div>
-                <span className="hidden sm:block text-sm text-gray-300">{userName || 'User'}</span>
-              </button>
-              
-              {/* Dropdown Menu */}
-              {showUserMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowUserMenu(false)} 
-                  />
-                  <div className="absolute right-0 top-full mt-2 w-48 py-2 bg-[#1a1a2e] border border-white/[0.08] rounded-xl shadow-xl shadow-black/50 z-50 animate-fade-in">
-                    <button className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/[0.06] transition-colors">
-                      Profile
-                    </button>
-                    <button className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/[0.06] transition-colors">
-                      Settings
-                    </button>
-                    <hr className="my-2 border-white/[0.06]" />
-                    <button className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors">
-                      Logout
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={onLoginClick}
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white text-sm font-medium rounded-lg shadow-lg shadow-cyan-500/20 transition-all duration-200 flex items-center gap-2"
-            >
-              <LogIn className="w-4 h-4" />
-              Login
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto">
-        {!hasMessages ? (
-          /* Welcome Screen */
-          <WelcomeScreen 
-            onStartChat={() => inputRef.current?.focus()}
-            onSignupClick={onSignupClick}
-          />
         ) : (
-          /* Messages List */
-          <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+          <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -237,220 +186,96 @@ export default function FullScreenChat({
                 onCopy={() => handleCopy(message.content, message.id)}
               />
             ))}
-            
-            {/* Typing Indicator */}
             {isTyping && <TypingIndicator />}
-            
             <div ref={messagesEndRef} />
           </div>
         )}
-      </main>
+      </div>
 
-      {/* Input Area */}
-      <footer className="border-t border-white/[0.06] p-4 bg-[#0a0a0f]/80 backdrop-blur-xl">
-        <div className="max-w-4xl mx-auto">
+      <div className="border-t border-white/8 bg-[#07071a]/80 px-4 py-4 backdrop-blur-xl">
+        <div className="mx-auto max-w-3xl">
           {!isLoggedIn && (
-            <div className="mb-3 text-center">
-              <p className="text-xs text-gray-500">
-                <span className="text-cyan-400 cursor-pointer hover:underline" onClick={onLoginClick}>Sign in</span>
-                {' '}to save your chat history
-              </p>
-            </div>
+            <p className="mb-2 text-center text-xs text-slate-500">
+              <button onClick={onLoginClick} className="text-cyan-400 hover:underline">
+                Sign in
+              </button>{' '}
+              to save chat history
+            </p>
           )}
-          
-          <div className="relative flex items-end gap-2 p-2 bg-[#0f172a] border border-white/[0.08] rounded-2xl focus-within:border-cyan-500/50 focus-within:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all duration-200">
-            {/* Attachment Button */}
-            <button className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors text-gray-500 hover:text-gray-300" aria-label="Attach file">
-              <Paperclip className="w-5 h-5" />
+          <div className="flex items-end gap-2 rounded-2xl border border-white/10 bg-[#0f1224] p-2 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]">
+            <button className="mb-0.5 rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white" aria-label="Attach file">
+              <Paperclip className="h-5 w-5" />
             </button>
-            
-            {/* Text Input */}
             <textarea
               ref={inputRef}
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => {
+                setInputValue(e.target.value)
+                resizeInput()
+              }}
               onKeyDown={handleKeyDown}
-              placeholder={canChat ? "Ask NEXUS AI anything..." : "Sign in to continue chatting"}
+              placeholder={canChat ? 'Ask NEXUS AI anything…' : 'Sign in to continue chatting'}
               disabled={!canChat}
               rows={1}
-              className="flex-1 bg-transparent text-white placeholder-gray-500 resize-none outline-none max-h-32 text-sm leading-relaxed py-2"
-              style={{ minHeight: '44px' }}
+              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-sm text-white outline-none placeholder:text-slate-500"
             />
-            
-            {/* Voice Button */}
-            <button className="p-2 hover:bg-white/[0.06] rounded-lg transition-colors text-gray-500 hover:text-gray-300" aria-label="Voice input">
-              <Mic className="w-5 h-5" />
+            <button className="mb-0.5 rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white" aria-label="Voice input">
+              <Mic className="h-5 w-5" />
             </button>
-            
-            {/* Send Button */}
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!inputValue.trim() || !canChat || isTyping}
-              className="p-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 active:scale-95"
+              className="mb-0.5 rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 p-2.5 text-slate-950 shadow-glow-cyan transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Send message"
             >
-              {isTyping ? (
-                <StopCircle className="w-5 h-5 text-white" />
-              ) : (
-                <Send className="w-5 h-5 text-white" />
-              )}
+              {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </button>
           </div>
-          
-          {/* Footer Note */}
-          <p className="mt-2 text-center text-xs text-gray-600">
-            NEXUS AI makes mistakes. Consider checking important information.
+          <p className="mt-2 text-center text-[11px] text-slate-600">
+            NEXUS AI can make mistakes. Check important information.
           </p>
         </div>
-      </footer>
-    </div>
-  )
-}
-
-// ============================================
-// WELCOME SCREEN COMPONENT
-// ============================================
-function WelcomeScreen({ 
-  onStartChat, 
-  onSignupClick 
-}: { 
-  onStartChat: () => void
-  onSignupClick?: () => void
-}) {
-  const features = [
-    { icon: '💡', title: 'Explain a concept', desc: 'Learn anything in simple terms', emoji: '📚' },
-    { icon: '✍️', title: 'Help me write', desc: 'Essays, emails, creative content', emoji: '📝' },
-    { icon: '🔧', title: 'Code assistance', desc: 'Debug, explain, or write code', emoji: '💻' },
-    { icon: '📊', title: 'Analyze data', desc: 'Get insights from information', emoji: '📈' }
-  ]
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-full px-4 py-12 animate-fade-in">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-[150px]" />
-      </div>
-
-      {/* Content */}
-      <div className="relative text-center max-w-2xl mx-auto">
-        {/* Logo */}
-        <div className="inline-flex mb-8 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-violet-600 rounded-3xl blur-2xl opacity-30 animate-pulse" />
-          <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-cyan-500 via-blue-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-cyan-500/30">
-            <Sparkles className="w-12 h-12 text-white" />
-          </div>
-        </div>
-
-        {/* Heading */}
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-          Welcome to{' '}
-          <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
-            NEXUS AI
-          </span>
-        </h2>
-        
-        <p className="text-lg md:text-xl text-gray-400 mb-3">
-          Powered by Llama 3.1 • Free Forever
-        </p>
-        
-        {/* Feature Badges */}
-        <div className="flex items-center justify-center gap-3 mb-10 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-sm text-cyan-400">
-            ⚡ AI-Powered
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-sm text-yellow-400">
-            ⚡ Lightning Fast
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full text-sm text-green-400">
-            🔒 Secure & Private
-          </span>
-        </div>
-
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto mb-8">
-          {features.map((feature, index) => (
-            <button
-              key={index}
-              onClick={onStartChat}
-              className="group p-4 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl text-left transition-all duration-200 hover:scale-[1.02]"
-            >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{feature.icon}</span>
-                <div>
-                  <p className="font-semibold text-white group-hover:text-cyan-400 transition-colors">
-                    {feature.title}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-0.5">{feature.desc}</p>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   )
 }
 
-// ============================================
-// MESSAGE BUBBLE COMPONENT
-// ============================================
-function MessageBubble({ 
-  message, 
-  copied, 
-  onCopy 
-}: { 
+function MessageBubble({
+  message,
+  copied,
+  onCopy,
+}: {
   message: ChatMessage
   copied: boolean
   onCopy: () => void
 }) {
   const isUser = message.role === 'user'
-
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-slide-up`}>
-      <div className={`flex items-start gap-3 max-w-[85%] ${isUser ? 'flex-row-reverse' : ''}`}>
-        {/* Avatar */}
-        <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-          isUser 
-            ? 'bg-gradient-to-br from-cyan-500 to-violet-600' 
-            : 'bg-gradient-to-br from-violet-500 to-purple-600'
-        }`}>
-          {isUser ? (
-            <User className="w-4 h-4 text-white" />
-          ) : (
-            <Bot className="w-4 h-4 text-white" />
-          )}
+      <div className={`flex max-w-[88%] items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+        <div
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+            isUser
+              ? 'bg-gradient-to-br from-cyan-400 to-violet-500'
+              : 'bg-gradient-to-br from-violet-500 to-fuchsia-600'
+          }`}
+        >
+          {isUser ? <User className="h-4 w-4 text-white" /> : <Bot className="h-4 w-4 text-white" />}
         </div>
-
-        {/* Message Content */}
-        <div className={`relative group ${
-          isUser ? 'message-user' : 'message-ai'
-        }`}>
-          <div className="text-sm text-gray-100 whitespace-pre-wrap leading-relaxed">
-            {message.content}
-          </div>
-          
-          {/* Action Buttons - Show on Hover */}
-          <div className={`absolute -bottom-8 ${isUser ? 'right-0' : 'left-0'} flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}>
-            <button
-              onClick={onCopy}
-              className="p-1.5 hover:bg-white/10 rounded-md transition-colors"
-              aria-label="Copy message"
-            >
-              {copied ? (
-                <Check className="w-4 h-4 text-green-400" />
-              ) : (
-                <Copy className="w-4 h-4 text-gray-400" />
-              )}
+        <div className={`group relative ${isUser ? 'message-user' : 'message-ai'}`}>
+          <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100">{message.content}</div>
+          <div className={`absolute -bottom-8 flex gap-1 opacity-0 transition group-hover:opacity-100 ${isUser ? 'right-0' : 'left-0'}`}>
+            <button onClick={onCopy} className="rounded-md p-1.5 hover:bg-white/10" aria-label="Copy">
+              {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-slate-400" />}
             </button>
-            <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors" aria-label="Like">
-              <ThumbsUp className="w-4 h-4 text-gray-400 hover:text-green-400" />
+            <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Like">
+              <ThumbsUp className="h-4 w-4 text-slate-400" />
             </button>
-            <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors" aria-label="Dislike">
-              <ThumbsDown className="w-4 h-4 text-gray-400 hover:text-red-400" />
+            <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Dislike">
+              <ThumbsDown className="h-4 w-4 text-slate-400" />
             </button>
-            <button className="p-1.5 hover:bg-white/10 rounded-md transition-colors" aria-label="Regenerate">
-              <RotateCcw className="w-4 h-4 text-gray-400 hover:text-cyan-400" />
+            <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Regenerate">
+              <RotateCcw className="h-4 w-4 text-slate-400" />
             </button>
           </div>
         </div>
@@ -459,22 +284,18 @@ function MessageBubble({
   )
 }
 
-// ============================================
-// TYPING INDICATOR COMPONENT
-// ============================================
 function TypingIndicator() {
   return (
     <div className="flex justify-start animate-fade-in">
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-          <Bot className="w-4 h-4 text-white" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
+          <Bot className="h-4 w-4 text-white" />
         </div>
-        
-        <div className="bg-[#0f172a]/90 border border-violet-500/20 rounded-2xl rounded-bl-md px-5 py-4">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-violet-400 rounded-full animate-bounce-dot" />
-            <span className="w-2.5 h-2.5 bg-violet-400 rounded-full animate-bounce-dot" />
-            <span className="w-2.5 h-2.5 bg-violet-400 rounded-full animate-bounce-dot" />
+        <div className="rounded-2xl rounded-bl-md border border-violet-500/20 bg-[#12122a] px-5 py-3.5">
+          <div className="flex gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
+            <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
+            <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
           </div>
         </div>
       </div>

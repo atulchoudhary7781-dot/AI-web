@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils"
 
 function Card({ className, variant = "default", ...props }: React.ComponentProps<"div"> & { variant?: "default" | "glass" | "neon" | "locked" }) {
   const variantClasses = {
-    default: "glass text-card-foreground flex flex-col rounded-xl transition-all duration-300 hover-lift hover:border-neon-cyan/30 shadow-glass py-6",
-    glass: "glass text-card-foreground flex flex-col rounded-xl transition-all duration-300 hover-lift hover:border-neon-cyan/30 shadow-glass py-6",
-    neon: "glass-strong text-card-foreground flex flex-col rounded-xl transition-all duration-300 hover-lift shadow-glow-cyan py-6",
-    locked: "bg-gray-900/50 text-card-foreground flex flex-col rounded-xl transition-all duration-300 border border-yellow-500/30 opacity-75 py-6 cursor-not-allowed",
+    default: "glass text-card-foreground flex flex-col rounded-xl transition-all duration-300 hover-lift hover:border-neon-cyan/30 shadow-glass py-6 overflow-visible",
+    glass: "glass text-card-foreground flex flex-col rounded-xl transition-all duration-300 hover-lift hover:border-neon-cyan/30 shadow-glass py-6 overflow-visible",
+    neon: "glass-strong text-card-foreground flex flex-col rounded-xl transition-all duration-300 hover-lift shadow-glow-cyan py-6 overflow-visible",
+    locked: "bg-gray-900/50 text-card-foreground flex flex-col rounded-xl transition-all duration-300 border border-yellow-500/30 opacity-90 py-6 overflow-visible",
   }
 
   return (
