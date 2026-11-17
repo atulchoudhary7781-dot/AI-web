@@ -8,6 +8,34 @@ function getOpenRouterKey() {
   return process.env.OPENROUTER_API_KEY || ''
 }
 
+const ALLOWED_IMAGE_MIMES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+
+function asImageMime(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const mime = value.trim().toLowerCase()
+  return ALLOWED_IMAGE_MIMES.includes(mime) ? mime : null
+}
+
+function asImageBase64(value: unknown): string | null {
+  if (typeof value !== 'string' || !value) return null
+  const cleaned = value.replace(/\s/g, '')
+  if (cleaned.length < 32 || cleaned.length > 5_000_000) return null
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(cleaned)) return null
+  return cleaned
+}
+
+function uniqueModels(models: Array<string | undefined | null>): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const model of models) {
+    const id = (model || '').trim()
+    if (!id || seen.has(id)) continue
+    seen.add(id)
+    out.push(id)
+  }
+  return out
+}
+
 // AI Response cache for common questions
 const responseCache = new Map<string, string>()
 
@@ -27,7 +55,12 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json()
-    console.log('📝 Request body received:', { hasMessage: !!body.message })
+    console.log('📝 Request body received:', {
+      hasMessage: !!body.message,
+      hasImage: !!body.imageData,
+      imageMimeType: body.imageMimeType,
+      imageChars: typeof body.imageData === 'string' ? body.imageData.length : 0,
+    })
     
     // Validate and sanitize input
     const messageValidation = validateMessage(body.message)
@@ -41,16 +74,22 @@ export async function POST(request: NextRequest) {
     message = messageValidation.value
     console.log('✅ Message validated:', message.substring(0, 50))
     
-    // Sanitize optional fields
-    imageData = sanitizeString(body.imageData, { maxLength: 5000000 }) // 5MB base64 limit
-    imageMimeType = sanitizeString(body.imageMimeType, { maxLength: 100 })
-    fileName = sanitizeString(body.fileName, { maxLength: 255 })
-    fileType = sanitizeString(body.fileType, { maxLength: 50 })
+    // Keep image bytes intact — do not HTML-escape base64 (that breaks / and +)
+    imageData = asImageBase64(body.imageData)
+    imageMimeType = asImageMime(body.imageMimeType)
+    fileName = sanitizeString(body.fileName, { maxLength: 255, allowSpecialChars: true })
+    fileType = sanitizeString(body.fileType, { maxLength: 50, allowSpecialChars: true })
 
-    // Additional security checks
-    if (imageData && !['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(imageMimeType || '')) {
+    if (body.imageData && !imageData) {
       return NextResponse.json(
-        { error: 'Unsupported image format' },
+        { error: 'Invalid or too-large image. Use a PNG/JPG under 4MB.' },
+        { status: 400 }
+      )
+    }
+
+    if (imageData && !imageMimeType) {
+      return NextResponse.json(
+        { error: 'Unsupported image format. Use PNG, JPG, GIF or WebP.' },
         { status: 400 }
       )
     }
@@ -123,9 +162,6 @@ Always respond in a way that showcases advanced intelligence while being accessi
 
     // If image is provided, create vision message with image
     if (imageData && imageMimeType) {
-      // Use vision-capable model for image analysis
-      const visionModel = process.env.OPENROUTER_VISION_MODEL || 'openai/gpt-4o-mini'
-      
       messages.push({
         role: 'user',
         content: [
@@ -142,38 +178,48 @@ Always respond in a way that showcases advanced intelligence while being accessi
         ]
       })
 
-      // Call OpenRouter API with vision model
-      const response = await fetch(OPENROUTER_API_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
-          'X-Title': 'NEXUS AI'
-        },
-        body: JSON.stringify({
-          model: visionModel,
-          messages: messages,
-          temperature: 0.7,
-          max_tokens: 2000,
-          top_p: 0.9,
-          frequency_penalty: 0.3,
-          presence_penalty: 0.6
-        })
-      })
+      const visionModels = uniqueModels([
+        process.env.OPENROUTER_VISION_MODEL,
+        process.env.OPENROUTER_MODEL,
+        'openrouter/free',
+        'inclusionai/ling-3.2-flash:free',
+      ])
 
-      if (!response.ok) {
-        const errorData = await response.text()
-        console.error('OpenRouter Vision API Error:', errorData)
-        // Fallback to regular response if vision fails
-        return getVisionFallbackResponse(message)
+      let lastError = ''
+      for (const visionModel of visionModels) {
+        console.log('🖼️ Vision request with model:', visionModel)
+        const response = await fetch(OPENROUTER_API_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
+            'X-Title': 'NEXUS AI'
+          },
+          body: JSON.stringify({
+            model: visionModel,
+            messages,
+            temperature: 0.4,
+            max_tokens: 800,
+          })
+        })
+
+        if (!response.ok) {
+          lastError = await response.text()
+          console.error('OpenRouter Vision API Error:', visionModel, response.status, lastError.slice(0, 400))
+          continue
+        }
+
+        const data = await response.json()
+        const aiResponse = data.choices?.[0]?.message?.content
+        if (aiResponse) {
+          return NextResponse.json({ response: aiResponse })
+        }
+        lastError = 'Empty vision response'
       }
 
-      const data = await response.json()
-      const aiResponse = data.choices[0]?.message?.content || 
-        "I apologize, but I'm having trouble analyzing the image right now. Please try again."
-
-      return NextResponse.json({ response: aiResponse })
+      console.error('All vision models failed:', lastError.slice(0, 400))
+      return getVisionFallbackResponse(message)
     } else {
       // Regular text-only message
       messages.push({

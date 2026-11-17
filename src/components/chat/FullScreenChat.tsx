@@ -32,6 +32,38 @@ interface AttachedFile {
   file: File
   preview?: string
   base64?: string
+  mime?: string
+}
+
+async function compressImage(file: File): Promise<{ preview: string; base64: string; mime: string }> {
+  const bitmap = await createImageBitmap(file)
+  const max = 1280
+  const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height))
+  const width = Math.max(1, Math.round(bitmap.width * scale))
+  const height = Math.max(1, Math.round(bitmap.height * scale))
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    bitmap.close()
+    throw new Error('Canvas unavailable')
+  }
+  ctx.drawImage(bitmap, 0, 0, width, height)
+  bitmap.close()
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.82)
+  const base64 = dataUrl.split(',')[1] || ''
+  if (!base64) throw new Error('Could not encode image')
+  return { preview: dataUrl, base64, mime: 'image/jpeg' }
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result || ''))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
 }
 
 const SUGGESTIONS = [
@@ -92,13 +124,13 @@ export default function FullScreenChat({
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
 
-    if (file.size > 4 * 1024 * 1024) {
-      showNote('File must be under 4MB')
+    if (file.size > 8 * 1024 * 1024) {
+      showNote('File must be under 8MB')
       return
     }
 
@@ -108,13 +140,19 @@ export default function FullScreenChat({
         showNote('Use PNG, JPG, GIF or WebP images')
         return
       }
-      const reader = new FileReader()
-      reader.onload = () => {
-        const dataUrl = String(reader.result || '')
-        const base64 = dataUrl.split(',')[1] || ''
-        setAttached({ file, preview: dataUrl, base64 })
+      try {
+        const compressed = await compressImage(file)
+        setAttached({ file, ...compressed })
+        showNote('Image attached — send to analyze')
+      } catch {
+        try {
+          const dataUrl = await readFileAsDataUrl(file)
+          const base64 = dataUrl.split(',')[1] || ''
+          setAttached({ file, preview: dataUrl, base64, mime: file.type })
+        } catch {
+          showNote('Could not read that image')
+        }
       }
-      reader.readAsDataURL(file)
       return
     }
 
@@ -199,9 +237,9 @@ export default function FullScreenChat({
     }
 
     const payload: Record<string, string> = { message: content }
-    if (attached?.base64 && attached.file.type.startsWith('image/')) {
+    if (attached?.base64) {
       payload.imageData = attached.base64
-      payload.imageMimeType = attached.file.type
+      payload.imageMimeType = attached.mime || attached.file.type || 'image/jpeg'
     } else if (attached && !attached.preview) {
       payload.fileName = attached.file.name
       payload.fileType = attached.file.type || 'application/octet-stream'
@@ -222,11 +260,11 @@ export default function FullScreenChat({
       })
 
       let reply = "I'm NEXUS AI — how else can I help?"
+      const data = await res.json().catch(() => null)
       if (res.ok) {
-        const data = await res.json().catch(() => null)
         reply = data?.response || data?.content || data?.message || reply
       } else {
-        reply = 'I could not reach the AI service just now. Please try again.'
+        reply = data?.error || 'I could not reach the AI service just now. Please try again.'
       }
 
       setMessages((prev) => [

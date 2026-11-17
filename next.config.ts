@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
     ],
     // Enable server actions for better performance
     serverActions: {
-      bodySizeLimit: '2mb',
+      bodySizeLimit: '8mb',
     },
   },
   
