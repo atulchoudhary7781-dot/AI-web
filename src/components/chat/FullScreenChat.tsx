@@ -471,8 +471,8 @@ export default function FullScreenChat({
               {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </button>
           </div>
-          <p className="mt-2 hidden text-center text-[11px] text-slate-600 sm:block">
-            NEXUS AI can make mistakes. Check important information.
+          <p className="mt-2 text-center text-[11px] text-slate-400 sm:text-xs">
+            Nexus is AI and can make mistakes.
           </p>
         </div>
       </div>
