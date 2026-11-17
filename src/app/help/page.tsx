@@ -57,7 +57,7 @@ export default function HelpPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search for answers…"
-              className="input-dark pl-11"
+              className="w-full rounded-xl border border-cyan-400/50 bg-black/40 py-3 pl-12 pr-4 text-base text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]"
             />
           </div>
         </div>
