@@ -27,7 +27,6 @@ export default function SettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [notice, setNotice] = useState('')
-  const [darkTheme, setDarkTheme] = useState(true)
   const [notifications, setNotifications] = useState(true)
   const [language, setLanguage] = useState('English')
   const [currentPassword, setCurrentPassword] = useState('')
@@ -44,7 +43,6 @@ export default function SettingsPage() {
     const saved = readSavedUser()
     setUserName(saved.name)
     setUserEmail(saved.email)
-    setDarkTheme(localStorage.getItem('nexus_theme') !== 'light')
     setNotifications(localStorage.getItem('nexus_notifications') !== 'off')
     setLanguage(localStorage.getItem('nexus_language') || 'English')
     setTwoFactor(localStorage.getItem('nexus_2fa') === 'on')
@@ -84,14 +82,6 @@ export default function SettingsPage() {
       flash('Avatar updated')
     }
     reader.readAsDataURL(file)
-  }
-
-  const handleTheme = (on: boolean) => {
-    setDarkTheme(on)
-    localStorage.setItem('nexus_theme', on ? 'dark' : 'light')
-    document.documentElement.classList.toggle('dark', on)
-    document.documentElement.classList.toggle('light', !on)
-    flash(on ? 'Dark theme on' : 'Light theme on')
   }
 
   const handleNotifications = (on: boolean) => {
@@ -282,16 +272,6 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="flex items-center justify-between gap-4 py-2">
-                  <div>
-                    <p className="font-medium text-white">Theme</p>
-                    <p className="text-sm text-gray-500 mt-0.5">{darkTheme ? 'Dark mode' : 'Light mode'}</p>
-                  </div>
-                  <ToggleSwitch checked={darkTheme} onChange={handleTheme} label="Theme" />
-                </div>
-
-                <hr className="border-white/[0.08]" />
-
                 <div className="flex items-center justify-between gap-4 py-2">
                   <div>
                     <p className="font-medium text-white">Language</p>
