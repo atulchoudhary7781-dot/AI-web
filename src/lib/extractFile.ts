@@ -1,12 +1,23 @@
+import { inflateRawSync, inflateSync } from 'zlib'
 import { fileExtension, isTextLikeFile } from '@/lib/fileTypes'
 
-const MAX_CHARS = 16000
+const MAX_CHARS = 10000
 
 function clip(text: string, extra = ''): string {
-  const clean = text.replace(/\u0000/g, '').trim()
-  if (!clean) return extra
-  if (clean.length <= MAX_CHARS) return extra ? `${extra}\n\n${clean}` : clean
-  return `${extra ? extra + '\n\n' : ''}${clean.slice(0, MAX_CHARS)}\n\n[File truncated — first ${MAX_CHARS} characters shown]`
+  const clean = readable(text)
+  if (!clean) return ''
+  const body = extra ? `${extra}\n\n${clean}` : clean
+  if (body.length <= MAX_CHARS) return body
+  return `${body.slice(0, MAX_CHARS)}\n\n[File truncated — first ${MAX_CHARS} characters shown]`
+}
+
+function readable(text: string): string {
+  return text
+    .replace(/\u0000/g, '')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\uFFFF]/g, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 function stripXml(xml: string): string {
@@ -33,6 +44,72 @@ function looksLikeText(buf: Buffer): boolean {
     if (byte < 9 || (byte > 13 && byte < 32) || byte === 127) weird++
   }
   return weird / sample.length < 0.12
+}
+
+function decodePdfLiteral(raw: string): string {
+  return raw
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\([()\\])/g, '$1')
+    .replace(/\\(\d{1,3})/g, (_, oct: string) => String.fromCharCode(parseInt(oct, 8)))
+}
+
+function literalsFrom(src: string): string[] {
+  const out: string[] = []
+  const tj = /\((?:\\.|[^\\)])*\)\s*Tj/g
+  let match: RegExpExecArray | null
+  while ((match = tj.exec(src))) {
+    const inner = match[0].slice(1, match[0].lastIndexOf(')'))
+    out.push(decodePdfLiteral(inner))
+  }
+  const tjArray = /\[([\s\S]*?)\]\s*TJ/g
+  while ((match = tjArray.exec(src))) {
+    const parts = [...match[1].matchAll(/\((?:\\.|[^\\)])*\)/g)]
+    out.push(parts.map((p) => decodePdfLiteral(p[0].slice(1, -1))).join(''))
+  }
+  return out
+}
+
+function extractPdfLite(buf: Buffer): string {
+  const latin = buf.toString('latin1')
+  const bits: string[] = [...literalsFrom(latin)]
+
+  const streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g
+  let match: RegExpExecArray | null
+  while ((match = streamRe.exec(latin))) {
+    const raw = Buffer.from(match[1], 'latin1')
+    for (const unzip of [inflateSync, inflateRawSync]) {
+      try {
+        const out = unzip(raw)
+        const inflated = out.toString('latin1')
+        bits.push(...literalsFrom(inflated))
+        const utf = out.toString('utf8')
+        if (/[A-Za-z]{4,}/.test(utf) && !utf.includes('\u0000')) {
+          bits.push(utf)
+        }
+        break
+      } catch {
+        /* try the other inflater */
+      }
+    }
+  }
+
+  return readable(bits.join('\n'))
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
 }
 
 async function extractZipText(buf: Buffer, ext: string): Promise<string> {
@@ -76,13 +153,28 @@ async function extractZipText(buf: Buffer, ext: string): Promise<string> {
 }
 
 async function extractPdf(buf: Buffer): Promise<string> {
-  const { extractText } = await import('unpdf')
-  const result = await extractText(new Uint8Array(buf), { mergePages: true })
-  return (result.text || '').trim()
+  const lite = extractPdfLite(buf)
+  if (lite.replace(/\s/g, '').length > 60) return lite
+
+  try {
+    const { extractText } = await import('unpdf')
+    const result = await withTimeout(
+      extractText(new Uint8Array(buf), { mergePages: true }),
+      8000,
+      'PDF parser',
+    )
+    const text = readable(result.text || '')
+    if (text) return text
+  } catch (error) {
+    console.error('unpdf failed:', error instanceof Error ? error.message : error)
+  }
+
+  return lite
 }
 
 async function extractSpreadsheet(buf: Buffer): Promise<string> {
-  const XLSX = await import('xlsx')
+  const mod = await import('xlsx') as typeof import('xlsx') & { default?: typeof import('xlsx') }
+  const XLSX = mod.default || mod
   const workbook = XLSX.read(buf, { type: 'buffer' })
   const sheets = workbook.SheetNames.slice(0, 8).map((name) => {
     const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[name] || {})
@@ -112,7 +204,14 @@ export async function extractFileContent(params: {
 
   try {
     if (ext === 'pdf') {
-      return { text: clip(await extractPdf(buf), `PDF: ${fileName}`) }
+      const text = clip(await extractPdf(buf), `PDF: ${fileName}`)
+      if (!text.replace(`PDF: ${fileName}`, '').trim()) {
+        return {
+          text: '',
+          note: `${fileName} looks like a scanned/image PDF with no copyable text. Upload a screenshot or export it as a text PDF.`,
+        }
+      }
+      return { text }
     }
     if (['xlsx', 'xls', 'xlsm', 'xlsb', 'ods', 'csv', 'tsv'].includes(ext)) {
       if (ext === 'csv' || ext === 'tsv') {

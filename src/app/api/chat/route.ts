@@ -3,6 +3,7 @@ import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib
 import { extractFileContent } from '@/lib/extractFile'
 
 export const runtime = 'nodejs'
+export const maxDuration = 60
 
 // OpenRouter API Configuration - Using Environment Variables (SECURE!)
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
@@ -52,6 +53,82 @@ function asFileText(value: unknown): string | null {
   return value.slice(0, 20000)
 }
 
+function normalizeAiContent(content: unknown): string {
+  if (typeof content === 'string') return content.trim()
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === 'string') return part
+        if (part && typeof part === 'object') {
+          const rec = part as { text?: unknown; content?: unknown }
+          if (typeof rec.text === 'string') return rec.text
+          if (typeof rec.content === 'string') return rec.content
+        }
+        return ''
+      })
+      .join('\n')
+      .trim()
+  }
+  return ''
+}
+
+function pickAiText(data: unknown): string {
+  const rec = data as {
+    error?: { message?: string }
+    choices?: Array<{ message?: { content?: unknown; reasoning?: unknown } }>
+  }
+  const msg = rec?.choices?.[0]?.message
+  const fromContent = normalizeAiContent(msg?.content)
+  if (fromContent) return fromContent
+  const reasoning = typeof msg?.reasoning === 'string' ? msg.reasoning.trim() : ''
+  if (reasoning) return reasoning
+  return ''
+}
+
+async function completeChat(params: {
+  apiKey: string
+  messages: Array<{ role: string; content: unknown }>
+  models: string[]
+  maxTokens?: number
+}): Promise<string> {
+  let lastError = ''
+  for (const model of params.models) {
+    try {
+      console.log('🤖 OpenRouter model:', model)
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${params.apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
+          'X-Title': 'NEXUS AI',
+        },
+        body: JSON.stringify({
+          model,
+          messages: params.messages,
+          temperature: 0.4,
+          max_tokens: params.maxTokens ?? 900,
+        }),
+      })
+      const raw = await response.text()
+      let data: unknown = null
+      try { data = JSON.parse(raw) } catch { /* ignore */ }
+      if (!response.ok) {
+        lastError = raw.slice(0, 400)
+        console.error('OpenRouter API Error:', model, response.status, lastError)
+        continue
+      }
+      const text = pickAiText(data)
+      if (text) return text
+      lastError = `Empty response from ${model}`
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : 'network error'
+      console.error('OpenRouter call failed:', model, lastError)
+    }
+  }
+  throw new Error(lastError || 'All models failed')
+}
+
 // AI Response cache for common questions
 const responseCache = new Map<string, string>()
 
@@ -68,6 +145,7 @@ export async function POST(request: NextRequest) {
   // Document support
   let fileName: string | null = null
   let fileType: string | null = null
+  let extractedFileText = ''
   
   try {
     const body = await request.json()
@@ -121,7 +199,7 @@ export async function POST(request: NextRequest) {
 
     const incomingFileText = asFileText(body.fileText)
     const incomingFileData = asFileBase64(body.fileData)
-    let extractedFileText = incomingFileText || ''
+    extractedFileText = incomingFileText || ''
     let extractNote = ''
 
     if (!extractedFileText && incomingFileData && fileName) {
@@ -171,43 +249,14 @@ export async function POST(request: NextRequest) {
       return getFallbackResponse(message)
     }
 
-    // Create system prompt for NEXUS AI persona
-    const systemPrompt = `You are NEXUS AI (Next-Generation Universal Experience System), an advanced artificial intelligence assistant with a cyberpunk/futuristic personality.
-
-Your characteristics:
-- You are highly intelligent, helpful, and slightly futuristic in tone
-- You use emojis strategically to enhance communication
-- You format responses with markdown when appropriate
-- You provide detailed, accurate technical information
-- When asked about code, always include well-commented examples
-- You are knowledgeable about AI, machine learning, programming, science, and technology
-- You maintain a professional but engaging tone
-
-**IMAGE ANALYSIS CAPABILITY:**
-When an user provides an image, you MUST analyze it thoroughly:
-- Describe what you see in detail
-- Identify objects, text, people, scenes, colors, patterns
-- Read and transcribe any text visible in the image
-- Provide insights about the image content
-- Answer specific questions about the image
-- If it's a screenshot, code, document, or diagram - analyze its contents
-
-**FILE ANALYSIS CAPABILITY:**
-When a user attaches a file, the extracted text is included in the message after "Extracted content:".
-- Read and analyze that content. Do not say you cannot open the file if extracted content is present.
-- Summarize documents, answer questions, and point out important details
-- For code: explain, review, and suggest improvements
-- For spreadsheets: describe columns, notable values, and patterns
-- For PDFs/Word/PPT: outline sections and key points
-
-When users ask:
-- About AI/ML: Provide comprehensive explanations with current state-of-the-art info
-- For code: Generate clean, well-commented code in the requested language
-- General questions: Be thorough but concise
-- Creative tasks: Show innovation and originality
-- About images: Analyze and describe them in detail
-
-Always respond in a way that showcases advanced intelligence while being accessible. Use formatting like bold text, lists, code blocks, and headers to make responses readable.`
+    const systemPrompt = extractedFileText
+      ? `You are NEXUS AI. The user attached a file; its extracted text is in the message.
+Analyze that content directly. Summarize, extract key facts, and answer the user's question.
+Never say you cannot open or read the file if extracted content is present.
+Use markdown. Be specific and useful.`
+      : `You are NEXUS AI, a sharp, helpful assistant. Use markdown. Be accurate and concise.
+If an image is attached, describe it and answer questions about it.
+If a file's extracted content is present, analyze that content — do not say you cannot read the file.`
 
     // Prepare messages array
     const messages: any[] = [
@@ -236,44 +285,20 @@ Always respond in a way that showcases advanced intelligence while being accessi
         process.env.OPENROUTER_VISION_MODEL,
         process.env.OPENROUTER_MODEL,
         'openrouter/free',
-        'inclusionai/ling-3.2-flash:free',
+        'google/gemma-4-26b-a4b-it:free',
       ])
 
-      let lastError = ''
-      for (const visionModel of visionModels) {
-        console.log('🖼️ Vision request with model:', visionModel)
-        const response = await fetch(OPENROUTER_API_URL, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
-            'X-Title': 'NEXUS AI'
-          },
-          body: JSON.stringify({
-            model: visionModel,
-            messages,
-            temperature: 0.4,
-            max_tokens: 800,
-          })
+      try {
+        const aiResponse = await completeChat({
+          apiKey: OPENROUTER_API_KEY,
+          messages,
+          models: visionModels,
         })
-
-        if (!response.ok) {
-          lastError = await response.text()
-          console.error('OpenRouter Vision API Error:', visionModel, response.status, lastError.slice(0, 400))
-          continue
-        }
-
-        const data = await response.json()
-        const aiResponse = data.choices?.[0]?.message?.content
-        if (aiResponse) {
-          return NextResponse.json({ response: aiResponse })
-        }
-        lastError = 'Empty vision response'
+        return NextResponse.json({ response: aiResponse })
+      } catch (error) {
+        console.error('All vision models failed:', error)
+        return getVisionFallbackResponse(message)
       }
-
-      console.error('All vision models failed:', lastError.slice(0, 400))
-      return getVisionFallbackResponse(message)
     } else {
       // Regular text-only message
       messages.push({
@@ -287,35 +312,19 @@ Always respond in a way that showcases advanced intelligence while being accessi
         return NextResponse.json({ response: responseCache.get(cacheKey) })
       }
 
-      // Call OpenRouter API with regular model
-      const response = await fetch(OPENROUTER_API_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': process.env.NEXUS_APP_URL || 'https://nexus-ai.vercel.app',
-          'X-Title': 'NEXUS AI'
-        },
-        body: JSON.stringify({
-          model: process.env.OPENROUTER_MODEL || 'openrouter/free',
-          messages: messages,
-          temperature: 0.7,
-          max_tokens: 800,
-          top_p: 0.9,
-          frequency_penalty: 0.3,
-          presence_penalty: 0.6
-        })
+      const textModels = uniqueModels([
+        process.env.OPENROUTER_MODEL,
+        'openrouter/free',
+        'google/gemma-4-26b-a4b-it:free',
+        'meta-llama/llama-3.3-70b-instruct:free',
+      ])
+
+      const aiResponse = await completeChat({
+        apiKey: OPENROUTER_API_KEY,
+        messages,
+        models: textModels,
+        maxTokens: extractedFileText ? 1100 : 800,
       })
-
-      if (!response.ok) {
-        const errorData = await response.text()
-        console.error('OpenRouter API Error:', errorData)
-        throw new Error(`OpenRouter API error: ${response.status}`)
-      }
-
-      const data = await response.json()
-      const aiResponse = data.choices[0]?.message?.content || 
-        "I apologize, but I'm having trouble processing your request right now. Please try again."
 
       // Cache the response (optional - cache up to 100 entries)
       if (responseCache.size < 100) {
@@ -340,6 +349,14 @@ Always respond in a way that showcases advanced intelligence while being accessi
     try {
       if (imageData) {
         return getImageAnalysisFallback(message)
+      }
+      if (extractedFileText) {
+        return NextResponse.json({
+          response: `I read **${fileName || 'your file'}**, but the AI model did not return an answer just now.\n\n**Extracted preview:**\n\n${extractedFileText.slice(0, 1800)}`,
+        })
+      }
+      if (fileName) {
+        return getDocumentAnalysisFallback(message, fileName, fileType)
       }
       return getFallbackResponse(message)
     } catch (fallbackError) {

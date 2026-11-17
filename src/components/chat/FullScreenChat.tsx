@@ -130,8 +130,8 @@ export default function FullScreenChat({
     e.target.value = ''
     if (!file) return
 
-    if (file.size > 8 * 1024 * 1024) {
-      showNote('File must be under 8MB')
+    if (file.size > 3.5 * 1024 * 1024) {
+      showNote('File must be under 3.5MB')
       return
     }
 
