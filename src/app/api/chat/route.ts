@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib/security'
 import { extractFileContent } from '@/lib/extractFile'
 import { creatorAnswer, isCreatorQuestion } from '@/lib/creator'
-import { isWorkingModel, workingModelIds } from '@/lib/models'
+import { isOpenRouterFreeModel, isWorkingModel, workingModelIds } from '@/lib/models'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -105,7 +105,7 @@ function openRouterErrorText(data: unknown, raw: string): string {
 function publicModelError(lastError: string): string {
   const lower = lastError.toLowerCase()
   if (lower.includes('free-models-per-day') || lower.includes('rate limit') || lower.includes('429')) {
-    return 'Free models hit a limit right now. Wait a minute, or pick another live model and send again.'
+    return 'The AI is busy right now. Please send again in a few seconds.'
   }
   if (lower.includes('402') || lower.includes('credits') || lower.includes('can only afford')) {
     return 'That model needs credits right now. Choose another live model in the chat box.'
@@ -116,6 +116,58 @@ function publicModelError(lastError: string): string {
   return 'The AI did not answer just now. Try again in a few seconds.'
 }
 
+function isDailyFreeQuotaError(message: string) {
+  const lower = message.toLowerCase()
+  return lower.includes('free-models-per-day') || lower.includes('rate limit exceeded: free')
+}
+
+function flattenMessageContent(content: unknown): string {
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === 'string') return part
+        if (part && typeof part === 'object') {
+          const rec = part as { text?: unknown; type?: unknown }
+          if (typeof rec.text === 'string') return rec.text
+          if (rec.type === 'image_url') return '[image attached]'
+        }
+        return ''
+      })
+      .filter(Boolean)
+      .join('\n')
+  }
+  return ''
+}
+
+let freeQuotaBlockedUntil = 0
+
+async function completeOverflow(messages: Array<{ role: string; content: unknown }>): Promise<string> {
+  const payload = messages.map((item) => ({
+    role: item.role,
+    content: flattenMessageContent(item.content) || ' ',
+  }))
+  const response = await fetch('https://text.pollinations.ai/openai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'openai',
+      messages: payload,
+      temperature: 0.4,
+    }),
+    signal: AbortSignal.timeout(28000),
+  })
+  const raw = await response.text()
+  let data: unknown = null
+  try { data = JSON.parse(raw) } catch { /* ignore */ }
+  if (!response.ok) {
+    throw new Error(openRouterErrorText(data, raw) || `overflow ${response.status}`)
+  }
+  const text = pickAiText(data)
+  if (!text) throw new Error('Empty overflow response')
+  return text
+}
+
 async function completeChat(params: {
   apiKey: string
   messages: Array<{ role: string; content: unknown }>
@@ -123,7 +175,10 @@ async function completeChat(params: {
   maxTokens?: number
 }): Promise<string> {
   let lastError = ''
+  const skipFree = Date.now() < freeQuotaBlockedUntil
+
   for (const model of params.models) {
+    if (skipFree && isOpenRouterFreeModel(model)) continue
     try {
       console.log('🤖 OpenRouter model:', model)
       const response = await fetch(OPENROUTER_API_URL, {
@@ -149,6 +204,10 @@ async function completeChat(params: {
       if (!response.ok) {
         lastError = openRouterErrorText(data, raw)
         console.error('OpenRouter API Error:', model, response.status, lastError)
+        if (isDailyFreeQuotaError(lastError)) {
+          freeQuotaBlockedUntil = Date.now() + 15 * 60 * 1000
+          break
+        }
         continue
       }
       const text = pickAiText(data)
@@ -159,7 +218,15 @@ async function completeChat(params: {
       console.error('OpenRouter call failed:', model, lastError)
     }
   }
-  throw new Error(lastError || 'All models failed')
+
+  try {
+    console.log('🤖 Overflow model path')
+    return await completeOverflow(params.messages)
+  } catch (error) {
+    const overflowError = error instanceof Error ? error.message : 'overflow failed'
+    console.error('Overflow path failed:', overflowError)
+    throw new Error(lastError || overflowError)
+  }
 }
 
 // AI Response cache for common questions

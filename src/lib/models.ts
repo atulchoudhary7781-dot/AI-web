@@ -24,3 +24,7 @@ export function isWorkingModel(id: string) {
 export function workingModelIds() {
   return WORKING_MODELS.map((model) => model.id)
 }
+
+export function isOpenRouterFreeModel(id: string) {
+  return id === 'openrouter/free' || id.endsWith(':free')
+}
