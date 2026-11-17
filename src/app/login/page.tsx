@@ -48,7 +48,7 @@ export default function LoginPage() {
       // Save auth to localStorage
       saveSessionUser({ name: email.split('@')[0], email })
       
-      router.push('/')
+      router.push('/home')
     } catch (err) {
       setError('Invalid email or password')
     } finally {
@@ -82,7 +82,7 @@ export default function LoginPage() {
         <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
           
           {/* Logo */}
-          <Link href="/" className="flex justify-center mb-8 group">
+          <Link href="/home" className="flex justify-center mb-8 group">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-500 to-violet-600 flex items-center justify-center shadow-xl shadow-cyan-500/25 group-hover:shadow-cyan-500/40 group-hover:scale-105 transition-all duration-300">
               <Sparkles className="w-8 h-8 text-white" />
             </div>

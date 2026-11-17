@@ -7,8 +7,8 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const LINKS = [
-  { href: '/', label: 'Chat' },
   { href: '/home', label: 'Home' },
+  { href: '/chat', label: 'Chat' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/settings', label: 'Settings' },
@@ -22,7 +22,7 @@ export default function SiteHeader() {
   return (
     <header className="site-header sticky top-0 z-50 border-b border-white/10 bg-[#07071a]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/home" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-glow-cyan">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
@@ -33,7 +33,7 @@ export default function SiteHeader() {
 
         <nav className="hidden items-center gap-1 md:flex">
           {LINKS.map((link) => {
-            const active = link.href === '/' ? pathname === '/' : pathname === link.href || pathname.startsWith(`${link.href}/`)
+            const active = pathname === link.href || pathname.startsWith(`${link.href}/`)
             return (
               <Link
                 key={link.href}

@@ -87,7 +87,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     // Check if user is admin (in real app, verify server-side)
     if (!currentUser) {
-      router.push('/')
+      router.push('/home')
       return
     }
     

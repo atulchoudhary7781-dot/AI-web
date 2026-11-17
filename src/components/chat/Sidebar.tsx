@@ -177,7 +177,7 @@ export default function Sidebar({
                   icon={<MessageSquare className="w-4 h-4" />}
                   label="AI Chat"
                   active={currentView === 'chat'}
-                  onClick={() => { router.push('/'); onViewChange('chat'); onClose(); }}
+                  onClick={() => { router.push('/chat'); onViewChange('chat'); onClose(); }}
                 />
                 
                 <SidebarButton

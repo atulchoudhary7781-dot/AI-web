@@ -61,7 +61,7 @@ export default function SignupPage() {
       
       saveSessionUser({ name, email })
       
-      router.push('/')
+      router.push('/home')
     } catch (err) {
       setError('Failed to create account')
     } finally {
@@ -95,7 +95,7 @@ export default function SignupPage() {
         <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
           
           {/* Logo */}
-          <Link href="/" className="flex justify-center mb-8 group">
+          <Link href="/home" className="flex justify-center mb-8 group">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-pink-600 flex items-center justify-center shadow-xl shadow-violet-500/25 group-hover:shadow-violet-500/40 group-hover:scale-105 transition-all duration-300">
               <Sparkles className="w-8 h-8 text-white" />
             </div>

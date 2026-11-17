@@ -74,7 +74,7 @@ export default function HelpPage() {
               </div>
               <p className="text-sm text-slate-400">Chat with our support team in real-time.</p>
               <p className="mt-2 text-xs text-emerald-400">● Available · ~5 min response</p>
-              <Link href="/" className="mt-3 inline-flex text-sm font-medium text-cyan-400 hover:underline">
+              <Link href="/chat" className="mt-3 inline-flex text-sm font-medium text-cyan-400 hover:underline">
                 Start Chat ↗
               </Link>
             </article>

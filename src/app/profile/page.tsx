@@ -32,11 +32,11 @@ export default function ProfilePage() {
     <div className="page-shell">
       <UserProfilePage
         user={user}
-        onBack={() => router.push('/')}
+        onBack={() => router.push('/home')}
         onLogout={() => {
           clearSessionUser()
           localStorage.removeItem('nexus_profile')
-          router.push('/')
+          router.push('/home')
         }}
       />
     </div>

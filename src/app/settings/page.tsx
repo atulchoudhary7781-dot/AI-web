@@ -151,7 +151,7 @@ export default function SettingsPage() {
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-5 sm:py-6">
           <div className="flex items-center gap-4">
             <Link
-              href="/"
+              href="/chat"
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
               aria-label="Back to chat"
             >

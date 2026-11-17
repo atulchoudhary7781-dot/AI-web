@@ -42,7 +42,7 @@ export default function HomePage() {
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/"
+              href="/chat"
               className="inline-flex h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-6 text-sm font-semibold text-slate-950 shadow-glow-cyan"
             >
               <MessageSquare className="h-4 w-4" />
