@@ -397,6 +397,21 @@ export default function NexusAI() {
     localStorage.removeItem('nexus_chat_count')
   }
 
+  const handleGuestMessageSent = () => {
+    if (isLoggedIn) return
+    setChatCount((prev) => {
+      const newCount = prev + 1
+      localStorage.setItem('nexus_chat_count', newCount.toString())
+      if (newCount >= MAX_FREE_CHATS) {
+        setTimeout(() => {
+          setAuthModalReason('chat_limit')
+          setShowAuthModal(true)
+        }, 400)
+      }
+      return newCount
+    })
+  }
+
   const handleLoginClick = () => {
     router.push('/login')
   }
@@ -885,6 +900,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             sessionId={activeSessionId || undefined}
             isLoggedIn={isLoggedIn}
             canChat={canChat}
+            onGuestMessageSent={handleGuestMessageSent}
             onLoginRequired={() => {
               setAuthModalReason('chat_limit')
               setShowAuthModal(true)
@@ -1236,6 +1252,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             sessionId={activeSessionId || undefined}
             isLoggedIn={isLoggedIn}
             canChat={canChat}
+            onGuestMessageSent={handleGuestMessageSent}
             onLoginRequired={() => {
               setAuthModalReason('chat_limit')
               setShowAuthModal(true)

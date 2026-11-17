@@ -102,8 +102,40 @@ function openRouterErrorText(data: unknown, raw: string): string {
   return raw.slice(0, 280)
 }
 
+function dailyLimitMessage() {
+  return [
+    'Aaj ki NEXUS AI limit puri ho gayi hai.',
+    "Today's limit is full. It will take 1 day to reset.",
+    'Kal wapas aake chat kar sakte ho.',
+  ].join('\n\n')
+}
+
+function isDailyLimitError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || '')
+  return message.includes('DAILY_LIMIT')
+}
+
+function groqRemainingRequests(response: Response): number | null {
+  const raw = response.headers.get('x-ratelimit-remaining-requests')
+  if (raw == null || raw === '') return null
+  const value = Number(raw)
+  return Number.isFinite(value) ? value : null
+}
+
+function isGroqDailyLimitError(message: string, remainingRequests?: number | null) {
+  if (remainingRequests === 0) return true
+  const lower = message.toLowerCase()
+  if (lower.includes('groq-daily-limit') || lower.includes('daily_limit')) return true
+  if (lower.includes('per day') || lower.includes('requests per day')) return true
+  if (/try again in \d+\s*h/.test(lower) || /try again in \d+\s*hours/.test(lower)) return true
+  return false
+}
+
 function publicModelError(lastError: string): string {
   const lower = lastError.toLowerCase()
+  if (lower.includes('daily_limit') || lower.includes('groq-daily-limit')) {
+    return dailyLimitMessage()
+  }
   if (lower.includes('free-models-per-day') || lower.includes('rate limit') || lower.includes('429')) {
     return 'The AI is busy right now. Please send again in a few seconds.'
   }
@@ -141,6 +173,7 @@ function flattenMessageContent(content: unknown): string {
 }
 
 let freeQuotaBlockedUntil = 0
+let groqQuotaBlockedUntil = 0
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODELS = ['qwen/qwen3.8-27b', 'openai/gpt-oss-20b', 'openai/gpt-oss-120b'] as const
@@ -183,6 +216,7 @@ async function completeGroq(
   }
 
   let lastError = ''
+  let sawDailyLimit = false
   for (const attempt of attempts) {
     try {
       const body: Record<string, unknown> = {
@@ -210,6 +244,8 @@ async function completeGroq(
       try { data = JSON.parse(raw) } catch { /* ignore */ }
       if (!response.ok) {
         lastError = openRouterErrorText(data, raw)
+        const remaining = groqRemainingRequests(response)
+        if (isGroqDailyLimitError(lastError, remaining)) sawDailyLimit = true
         continue
       }
       const text = pickAiText(data)
@@ -218,6 +254,10 @@ async function completeGroq(
     } catch (error) {
       lastError = error instanceof Error ? error.message : 'network error'
     }
+  }
+  if (sawDailyLimit) {
+    groqQuotaBlockedUntil = Date.now() + 24 * 60 * 60 * 1000
+    throw new Error('groq-daily-limit')
   }
   throw new Error(lastError || 'overflow failed')
 }
@@ -296,16 +336,28 @@ async function completeChat(params: {
     }
   }
 
+  const openRouterBlocked = skipFree || isDailyFreeQuotaError(lastError)
+  if (openRouterBlocked && Date.now() < groqQuotaBlockedUntil) {
+    throw new Error('DAILY_LIMIT')
+  }
+
   try {
     console.log('🤖 Overflow model path')
     return await completeGroq(params.messages, params.maxTokens)
   } catch (error) {
+    const backupError = error instanceof Error ? error.message : 'overflow failed'
+    if (openRouterBlocked && isGroqDailyLimitError(backupError)) {
+      groqQuotaBlockedUntil = Date.now() + 24 * 60 * 60 * 1000
+      throw new Error('DAILY_LIMIT')
+    }
     try {
       return await completeOverflow(params.messages)
     } catch (overflowError) {
-      const backupError = error instanceof Error ? error.message : 'overflow failed'
       const lastResort = overflowError instanceof Error ? overflowError.message : 'overflow failed'
       console.error('Overflow path failed:', backupError, lastResort)
+      if (openRouterBlocked && isGroqDailyLimitError(backupError)) {
+        throw new Error('DAILY_LIMIT')
+      }
       throw new Error(lastError || backupError || lastResort)
     }
   }
@@ -479,6 +531,9 @@ Style:
         return NextResponse.json({ response: aiResponse })
       } catch (error) {
         console.error('All vision models failed:', error)
+        if (isDailyLimitError(error)) {
+          return NextResponse.json({ response: dailyLimitMessage(), dailyLimit: true })
+        }
         return getVisionFallbackResponse(message)
       }
     } else {
@@ -526,6 +581,10 @@ Style:
     
     // Return detailed error for debugging (in production, you may want to hide this)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+
+    if (isDailyLimitError(error) || errorMessage.includes('DAILY_LIMIT')) {
+      return NextResponse.json({ response: dailyLimitMessage(), dailyLimit: true })
+    }
     
     if (imageData) {
       return NextResponse.json({

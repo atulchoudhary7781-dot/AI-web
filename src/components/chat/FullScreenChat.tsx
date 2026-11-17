@@ -28,6 +28,7 @@ interface FullScreenChatProps {
   onLoginClick?: () => void
   onSignupClick?: () => void
   onSettingsClick?: () => void
+  onGuestMessageSent?: () => void
   userName?: string | null
 }
 
@@ -82,6 +83,8 @@ export default function FullScreenChat({
   isLoggedIn = false,
   canChat = true,
   onLoginClick,
+  onLoginRequired,
+  onGuestMessageSent,
 }: FullScreenChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -92,6 +95,7 @@ export default function FullScreenChat({
   const [modelId, setModelId] = useState(DEFAULT_MODEL_ID)
   const [showModels, setShowModels] = useState(false)
   const [statusNote, setStatusNote] = useState('')
+  const [dailyLimit, setDailyLimit] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -123,9 +127,11 @@ export default function FullScreenChat({
 
   const handleAttachClick = () => {
     if (!canChat) {
+      onLoginRequired?.()
       onLoginClick?.()
       return
     }
+    if (dailyLimit && isLoggedIn) return
     fileInputRef.current?.click()
   }
 
@@ -187,9 +193,11 @@ export default function FullScreenChat({
 
   const toggleVoice = () => {
     if (!canChat) {
+      onLoginRequired?.()
       onLoginClick?.()
       return
     }
+    if (dailyLimit && isLoggedIn) return
 
     if (listening) {
       try { recognitionRef.current?.stop() } catch { /* ignore */ }
@@ -245,7 +253,13 @@ export default function FullScreenChat({
 
   const handleSend = async (preset?: string) => {
     const trimmed = (preset ?? inputValue).trim()
-    if ((!trimmed && !attached) || !canChat || isTyping) return
+    if (isTyping) return
+    if (!canChat) {
+      onLoginRequired?.()
+      return
+    }
+    if (dailyLimit && isLoggedIn) return
+    if (!trimmed && !attached) return
 
     if (listening) {
       try { recognitionRef.current?.stop() } catch { /* ignore */ }
@@ -292,6 +306,9 @@ export default function FullScreenChat({
 
       let reply = "I'm NEXUS AI — how else can I help?"
       const data = await res.json().catch(() => null)
+      if (data?.dailyLimit && isLoggedIn) {
+        setDailyLimit(true)
+      }
       if (res.ok) {
         reply = data?.response || data?.content || data?.message || reply
       } else {
@@ -314,6 +331,7 @@ export default function FullScreenChat({
       ])
     } finally {
       setIsTyping(false)
+      if (!isLoggedIn) onGuestMessageSent?.()
     }
   }
 
@@ -333,7 +351,8 @@ export default function FullScreenChat({
   }
 
   const hasMessages = messages.length > 0
-  const canSend = canChat && !isTyping && (!!inputValue.trim() || !!attached)
+  const limitLocked = dailyLimit && isLoggedIn
+  const canSend = canChat && !limitLocked && !isTyping && (!!inputValue.trim() || !!attached)
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -357,7 +376,8 @@ export default function FullScreenChat({
                 <button
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
-                  className="min-h-11 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06] sm:p-4"
+                  disabled={!canChat || limitLocked}
+                  className="min-h-11 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40 sm:p-4"
                 >
                   <p className="text-sm font-semibold text-white">{item.title}</p>
                   <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.prompt}</p>
@@ -399,6 +419,13 @@ export default function FullScreenChat({
             </p>
           )}
 
+          {limitLocked && (
+            <div className="mb-2 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2.5 text-center">
+              <p className="text-sm font-medium text-amber-200">Aaj ki NEXUS AI limit puri ho gayi hai.</p>
+              <p className="mt-0.5 text-xs text-amber-200/80">Reset hone mein 1 din lagega. Kal wapas aake chat kar sakte ho.</p>
+            </div>
+          )}
+
           {statusNote && (
             <p className={`mb-2 text-center text-xs ${listening ? 'text-cyan-400' : 'text-amber-400'}`}>
               {statusNote}
@@ -430,7 +457,7 @@ export default function FullScreenChat({
             <button
               type="button"
               onClick={handleAttachClick}
-              disabled={!canChat || isTyping}
+              disabled={!canChat || limitLocked || isTyping}
               className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white disabled:opacity-40"
               aria-label="Attach any file"
               title="Attach any file — PDF, Word, Excel, code, images, and more"
@@ -445,8 +472,14 @@ export default function FullScreenChat({
                 resizeInput()
               }}
               onKeyDown={handleKeyDown}
-              placeholder={canChat ? 'Ask NEXUS AI anything…' : 'Sign in to continue chatting'}
-              disabled={!canChat}
+              placeholder={
+                !canChat
+                  ? 'Sign in to continue chatting'
+                  : limitLocked
+                    ? 'Aaj ki limit puri hai — kal wapas aao'
+                    : 'Ask NEXUS AI anything…'
+              }
+              disabled={!canChat || limitLocked}
               rows={1}
               className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
             />
@@ -502,7 +535,7 @@ export default function FullScreenChat({
             <button
               type="button"
               onClick={toggleVoice}
-              disabled={!canChat || isTyping}
+              disabled={!canChat || limitLocked || isTyping}
               className={`mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-40 ${
                 listening
                   ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
