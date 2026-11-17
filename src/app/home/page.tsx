@@ -19,6 +19,27 @@ export default function HomePage() {
           <p className="mx-auto mt-4 max-w-2xl text-sm text-slate-400 sm:text-lg">
             Your advanced AI assistant for writing, code, research, and file analysis — built for every device.
           </p>
+
+          <div className="mx-auto mt-10 w-full max-w-4xl">
+            <div className="relative overflow-hidden rounded-2xl border border-cyan-400/25 bg-black shadow-[0_0_80px_rgba(0,229,255,0.18)] sm:rounded-3xl">
+              <video
+                className="aspect-video w-full bg-black object-cover"
+                src="/NEXUS-AI-Promo.mp4"
+                poster="/nexus-promo-poster.jpg"
+                controls
+                playsInline
+                muted
+                autoPlay
+                loop
+                preload="metadata"
+                aria-label="NEXUS AI cinematic intro"
+              />
+            </div>
+            <p className="mt-3 text-center text-[11px] text-slate-500 sm:text-xs">
+              NEXUS AI intro · 60 fps · unmute to hear the voice
+            </p>
+          </div>
+
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/"
