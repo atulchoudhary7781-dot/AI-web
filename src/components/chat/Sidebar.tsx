@@ -177,21 +177,21 @@ export default function Sidebar({
                   icon={<MessageSquare className="w-4 h-4" />}
                   label="AI Chat"
                   active={currentView === 'chat'}
-                  onClick={() => { onViewChange('chat'); onClose(); }}
+                  onClick={() => { router.push('/'); onViewChange('chat'); onClose(); }}
                 />
                 
                 <SidebarButton
                   icon={<Home className="w-4 h-4" />}
                   label="Home"
-                  active={currentView === 'home'}
-                  onClick={() => { onViewChange('home'); onClose(); }}
+                  active={false}
+                  onClick={() => { router.push('/home'); onClose(); }}
                 />
                 
                 <SidebarButton
                   icon={<Settings className="w-4 h-4" />}
                   label="Settings"
-                  active={currentView === 'settings'}
-                  onClick={() => { onViewChange('settings'); onClose(); }}
+                  active={false}
+                  onClick={() => { router.push('/settings'); onClose(); }}
                 />
 
                 {isLoggedIn && (
@@ -299,7 +299,7 @@ export default function Sidebar({
 
                 {/* Login Button */}
                 <button
-                  onClick={() => { onLoginClick?.(); onClose(); }}
+                  onClick={() => { router.push('/login'); onClose(); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-xl hover:bg-cyan-500/20 transition-colors"
                 >
                   <LogIn className="w-5 h-5 text-cyan-400" />
@@ -311,7 +311,7 @@ export default function Sidebar({
 
                 {/* Signup Button */}
                 <button
-                  onClick={() => { onSignupClick?.(); onClose(); }}
+                  onClick={() => { router.push('/signup'); onClose(); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 bg-violet-500/10 border border-violet-500/30 rounded-xl hover:bg-violet-500/20 transition-colors"
                 >
                   <LogIn className="w-5 h-5 text-violet-400" />

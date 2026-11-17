@@ -8,8 +8,10 @@ import { cn } from '@/lib/utils'
 
 const LINKS = [
   { href: '/', label: 'Chat' },
+  { href: '/home', label: 'Home' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/settings', label: 'Settings' },
   { href: '/help', label: 'Help' },
 ]
 
@@ -31,7 +33,7 @@ export default function SiteHeader() {
 
         <nav className="hidden items-center gap-1 md:flex">
           {LINKS.map((link) => {
-            const active = pathname === link.href
+            const active = link.href === '/' ? pathname === '/' : pathname === link.href || pathname.startsWith(`${link.href}/`)
             return (
               <Link
                 key={link.href}

@@ -2,6 +2,7 @@
 
 // Force dynamic rendering - NO CACHE (handled by middleware & vercel.json)
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
   Cpu, Globe, Rocket, Star, Layers, Command, Shield,
@@ -301,6 +302,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
 
 // Main App Component
 export default function NexusAI() {
+  const router = useRouter()
   // Mounted state to prevent hydration mismatch
   const [mounted, setMounted] = useState(false)
   
@@ -404,14 +406,12 @@ export default function NexusAI() {
     localStorage.removeItem('nexus_chat_count')
   }
 
-  // Login Click Handler - Navigate to login view
   const handleLoginClick = () => {
-    setCurrentView('login')
+    router.push('/login')
   }
 
-  // Signup Click Handler - Navigate to login view (with signup mode)
   const handleSignupClick = () => {
-    setCurrentView('login')
+    router.push('/signup')
   }
 
   // Get current session messages
@@ -900,7 +900,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             }}
             onLoginClick={handleLoginClick}
             onSignupClick={handleSignupClick}
-            onSettingsClick={() => setCurrentView('settings')}
+            onSettingsClick={() => router.push('/settings')}
             userName={user?.name}
           />
         )
@@ -1251,7 +1251,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             }}
             onLoginClick={handleLoginClick}
             onSignupClick={handleSignupClick}
-            onSettingsClick={() => setCurrentView('settings')}
+            onSettingsClick={() => router.push('/settings')}
             userName={user?.name}
           />
         )
@@ -1277,8 +1277,8 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
         onToggleTheme={toggleTheme}
         isLoggedIn={isLoggedIn}
         user={user}
-        onLoginClick={() => setCurrentView('login')}
-        onSignupClick={() => setCurrentView('login')}
+        onLoginClick={handleLoginClick}
+        onSignupClick={handleSignupClick}
         onLogoutClick={handleLogout}
         chatCount={chatCount}
         maxChats={MAX_FREE_CHATS}
