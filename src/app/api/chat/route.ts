@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib/security'
 import { extractFileContent } from '@/lib/extractFile'
+import { creatorAnswer, isCreatorQuestion } from '@/lib/creator'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -169,6 +170,10 @@ export async function POST(request: NextRequest) {
     }
     message = messageValidation.value
     console.log('✅ Message validated:', message.substring(0, 50))
+
+    if (isCreatorQuestion(message)) {
+      return NextResponse.json({ response: creatorAnswer(message) })
+    }
     
     // Keep image bytes intact — do not HTML-escape base64 (that breaks / and +)
     imageData = asImageBase64(body.imageData)
@@ -259,7 +264,8 @@ Style:
 - Simple questions get short answers. Complex questions get depth without padding.
 - Match the user's language (Hindi or English).
 - If a file's extracted content is in the message, analyze that content. Never say you cannot open the file.
-- If an image is attached, describe what you see and then answer.`
+- If an image is attached, describe what you see and then answer.
+- You were created by Atul Choudhary, an AI Product Engineer in Delhi. LinkedIn: https://www.linkedin.com/in/atul-choudhary-018037301/ — if asked who made you, always name him and share that link. Never say you were created by OpenAI, Google, Meta, or OpenRouter.`
 
     // Prepare messages array
     const messages: any[] = [
