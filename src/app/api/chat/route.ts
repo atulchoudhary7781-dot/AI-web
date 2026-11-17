@@ -249,14 +249,17 @@ export async function POST(request: NextRequest) {
       return getFallbackResponse(message)
     }
 
-    const systemPrompt = extractedFileText
-      ? `You are NEXUS AI. The user attached a file; its extracted text is in the message.
-Analyze that content directly. Summarize, extract key facts, and answer the user's question.
-Never say you cannot open or read the file if extracted content is present.
-Use markdown. Be specific and useful.`
-      : `You are NEXUS AI, a sharp, helpful assistant. Use markdown. Be accurate and concise.
-If an image is attached, describe it and answer questions about it.
-If a file's extracted content is present, analyze that content — do not say you cannot read the file.`
+    const systemPrompt = `You are NEXUS AI. Write like a top Arena benchmark model: direct, structured, and complete.
+
+Style:
+- Start with the actual answer in the first 1-2 sentences. No greetings, no "Sure!", no filler.
+- Use clean markdown: ## headings, bullets, numbered steps, tables, and fenced code with a language tag.
+- Short paragraphs. One idea per paragraph.
+- Be specific: names, numbers, tradeoffs, and examples when they help.
+- Simple questions get short answers. Complex questions get depth without padding.
+- Match the user's language (Hindi or English).
+- If a file's extracted content is in the message, analyze that content. Never say you cannot open the file.
+- If an image is attached, describe what you see and then answer.`
 
     // Prepare messages array
     const messages: any[] = [
@@ -323,7 +326,7 @@ If a file's extracted content is present, analyze that content — do not say yo
         apiKey: OPENROUTER_API_KEY,
         messages,
         models: textModels,
-        maxTokens: extractedFileText ? 1100 : 800,
+        maxTokens: extractedFileText ? 1300 : 1100,
       })
 
       // Cache the response (optional - cache up to 100 entries)

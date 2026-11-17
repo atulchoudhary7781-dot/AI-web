@@ -307,10 +307,92 @@ button, a, [role="button"] {
   padding: 0.9rem 1.1rem;
 }
 .message-ai {
-  background: rgba(16, 16, 32, 0.85);
-  border: 1px solid rgba(168, 85, 247, 0.2);
-  border-radius: 1.1rem 1.1rem 1.1rem 0.3rem;
-  padding: 0.9rem 1.1rem;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
+.answer-prose {
+  width: 100%;
+  color: #e2e8f0;
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+.answer-prose > *:first-child { margin-top: 0; }
+.answer-prose p { margin: 0.65em 0; }
+.answer-prose h1,
+.answer-prose h2,
+.answer-prose h3 {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 1.15em 0 0.4em;
+}
+.answer-prose h1 { font-size: 1.35rem; }
+.answer-prose h2 { font-size: 1.18rem; }
+.answer-prose h3 { font-size: 1.05rem; }
+.answer-prose ul,
+.answer-prose ol {
+  margin: 0.45em 0 0.85em;
+  padding-left: 1.25em;
+}
+.answer-prose li { margin: 0.28em 0; }
+.answer-prose li::marker { color: #22d3ee; }
+.answer-prose strong { color: #fff; font-weight: 650; }
+.answer-prose a { color: #22d3ee; text-decoration: underline; text-underline-offset: 3px; }
+.answer-prose hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 1.1em 0;
+}
+.answer-prose code {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.35rem;
+  padding: 0.1em 0.38em;
+  font-size: 0.86em;
+  color: #a5f3fc;
+}
+.answer-prose pre {
+  background: #0b0b18;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.9rem;
+  padding: 0.95rem 1rem;
+  overflow-x: auto;
+  margin: 0.85em 0;
+}
+.answer-prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #e2e8f0;
+  font-size: 0.86rem;
+}
+.answer-prose blockquote {
+  border-left: 3px solid #22d3ee;
+  padding: 0.15rem 0 0.15rem 0.9rem;
+  color: #94a3b8;
+  margin: 0.8em 0;
+}
+.answer-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.85em 0;
+  font-size: 0.9rem;
+}
+.answer-prose th,
+.answer-prose td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+}
+.answer-prose th {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-weight: 650;
 }
 
 .input-dark {

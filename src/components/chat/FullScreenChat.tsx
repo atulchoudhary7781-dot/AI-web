@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import {
   Bot, Check, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
   Sparkles, StopCircle, ThumbsDown, ThumbsUp, User, X
@@ -362,7 +363,7 @@ export default function FullScreenChat({
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-3xl space-y-5 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-6">
+          <div className="mx-auto w-full max-w-3xl space-y-7 px-3 py-5 sm:space-y-8 sm:px-4 sm:py-8">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -479,6 +480,41 @@ export default function FullScreenChat({
   )
 }
 
+function MessageActions({
+  copied,
+  onCopy,
+  align = 'start',
+}: {
+  copied: boolean
+  onCopy: () => void
+  align?: 'start' | 'end'
+}) {
+  return (
+    <div className={`mt-3 flex gap-1 ${align === 'end' ? 'justify-end' : 'justify-start'}`}>
+      <button onClick={onCopy} className="rounded-md p-1.5 hover:bg-white/10" aria-label="Copy">
+        {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-slate-400" />}
+      </button>
+      <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Like">
+        <ThumbsUp className="h-4 w-4 text-slate-400" />
+      </button>
+      <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Dislike">
+        <ThumbsDown className="h-4 w-4 text-slate-400" />
+      </button>
+      <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Regenerate">
+        <RotateCcw className="h-4 w-4 text-slate-400" />
+      </button>
+    </div>
+  )
+}
+
+function MarkdownAnswer({ content }: { content: string }) {
+  return (
+    <div className="answer-prose">
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </div>
+  )
+}
+
 function MessageBubble({
   message,
   copied,
@@ -489,19 +525,27 @@ function MessageBubble({
   onCopy: () => void
 }) {
   const isUser = message.role === 'user'
-  return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-slide-up`}>
-      <div className={`flex max-w-[92%] items-start gap-2 sm:max-w-[88%] sm:gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
-        <div
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-            isUser
-              ? 'bg-gradient-to-br from-cyan-400 to-violet-500'
-              : 'bg-gradient-to-br from-violet-500 to-fuchsia-600'
-          }`}
-        >
-          {isUser ? <User className="h-4 w-4 text-white" /> : <Bot className="h-4 w-4 text-white" />}
+
+  if (!isUser) {
+    return (
+      <article className="mx-auto w-full max-w-3xl animate-slide-up">
+        <div className="flex items-start gap-3">
+          <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
+            <Bot className="h-4 w-4 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <MarkdownAnswer content={message.content} />
+            <MessageActions copied={copied} onCopy={onCopy} />
+          </div>
         </div>
-        <div className={`${isUser ? 'message-user' : 'message-ai'}`}>
+      </article>
+    )
+  }
+
+  return (
+    <div className="flex justify-end animate-slide-up">
+      <div className="flex max-w-[85%] items-start gap-2 sm:max-w-[70%]">
+        <div className="message-user">
           {message.image && (
             <img src={message.image} alt="attachment" className="mb-2 max-h-56 w-auto rounded-xl object-contain" />
           )}
@@ -512,20 +556,10 @@ function MessageBubble({
             </p>
           )}
           <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100">{message.content}</div>
-          <div className={`mt-2 flex gap-1 ${isUser ? 'justify-end' : 'justify-start'}`}>
-            <button onClick={onCopy} className="rounded-md p-1.5 hover:bg-white/10" aria-label="Copy">
-              {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-slate-400" />}
-            </button>
-            <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Like">
-              <ThumbsUp className="h-4 w-4 text-slate-400" />
-            </button>
-            <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Dislike">
-              <ThumbsDown className="h-4 w-4 text-slate-400" />
-            </button>
-            <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Regenerate">
-              <RotateCcw className="h-4 w-4 text-slate-400" />
-            </button>
-          </div>
+          <MessageActions copied={copied} onCopy={onCopy} align="end" />
+        </div>
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500">
+          <User className="h-4 w-4 text-white" />
         </div>
       </div>
     </div>
@@ -534,18 +568,14 @@ function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="flex justify-start animate-fade-in">
-      <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
-          <Bot className="h-4 w-4 text-white" />
-        </div>
-        <div className="rounded-2xl rounded-bl-md border border-violet-500/20 bg-[#12122a] px-5 py-3.5">
-          <div className="flex gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
-            <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
-            <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
-          </div>
-        </div>
+    <div className="mx-auto flex w-full max-w-3xl items-start gap-3 animate-fade-in">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
+        <Bot className="h-4 w-4 text-white" />
+      </div>
+      <div className="flex gap-1.5 pt-2">
+        <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
+        <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
+        <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
       </div>
     </div>
   )
