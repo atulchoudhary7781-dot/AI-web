@@ -142,11 +142,88 @@ function flattenMessageContent(content: unknown): string {
 
 let freeQuotaBlockedUntil = 0
 
-async function completeOverflow(messages: Array<{ role: string; content: unknown }>): Promise<string> {
-  const payload = messages.map((item) => ({
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_MODELS = ['qwen/qwen3.8-27b', 'openai/gpt-oss-20b', 'openai/gpt-oss-120b'] as const
+
+function getGroqKey() {
+  return process.env.GROQ_API_KEY || ''
+}
+
+function messageHasImage(messages: Array<{ role: string; content: unknown }>) {
+  return messages.some((item) => {
+    if (!Array.isArray(item.content)) return false
+    return item.content.some((part) => {
+      if (!part || typeof part !== 'object') return false
+      return (part as { type?: unknown }).type === 'image_url'
+    })
+  })
+}
+
+function asTextMessages(messages: Array<{ role: string; content: unknown }>) {
+  return messages.map((item) => ({
     role: item.role,
     content: flattenMessageContent(item.content) || ' ',
   }))
+}
+
+async function completeGroq(
+  messages: Array<{ role: string; content: unknown }>,
+  maxTokens?: number,
+): Promise<string> {
+  const apiKey = getGroqKey()
+  if (!apiKey) throw new Error('backup key missing')
+
+  const textMessages = asTextMessages(messages)
+  const attempts: Array<{ model: string; messages: Array<{ role: string; content: unknown }> }> = []
+  if (messageHasImage(messages)) {
+    attempts.push({ model: 'qwen/qwen3.8-27b', messages })
+  }
+  for (const model of GROQ_MODELS) {
+    attempts.push({ model, messages: textMessages })
+  }
+
+  let lastError = ''
+  for (const attempt of attempts) {
+    try {
+      const body: Record<string, unknown> = {
+        model: attempt.model,
+        messages: attempt.messages,
+        temperature: 0.4,
+        max_tokens: maxTokens ?? 1600,
+      }
+      if (attempt.model.startsWith('openai/gpt-oss')) {
+        body.reasoning_effort = 'low'
+      }
+      const response = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NEXUS-AI/1.0)',
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(28000),
+      })
+      const raw = await response.text()
+      let data: unknown = null
+      try { data = JSON.parse(raw) } catch { /* ignore */ }
+      if (!response.ok) {
+        lastError = openRouterErrorText(data, raw)
+        continue
+      }
+      const text = pickAiText(data)
+      if (text) return text
+      lastError = 'Empty overflow response'
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : 'network error'
+    }
+  }
+  throw new Error(lastError || 'overflow failed')
+}
+
+async function completeOverflow(messages: Array<{ role: string; content: unknown }>): Promise<string> {
+  const payload = asTextMessages(messages)
   const response = await fetch('https://text.pollinations.ai/openai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -221,11 +298,16 @@ async function completeChat(params: {
 
   try {
     console.log('🤖 Overflow model path')
-    return await completeOverflow(params.messages)
+    return await completeGroq(params.messages, params.maxTokens)
   } catch (error) {
-    const overflowError = error instanceof Error ? error.message : 'overflow failed'
-    console.error('Overflow path failed:', overflowError)
-    throw new Error(lastError || overflowError)
+    try {
+      return await completeOverflow(params.messages)
+    } catch (overflowError) {
+      const backupError = error instanceof Error ? error.message : 'overflow failed'
+      const lastResort = overflowError instanceof Error ? overflowError.message : 'overflow failed'
+      console.error('Overflow path failed:', backupError, lastResort)
+      throw new Error(lastError || backupError || lastResort)
+    }
   }
 }
 
