@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import {
-  Bot, Check, Copy, Mic, Paperclip, RotateCcw, Send,
-  Sparkles, StopCircle, ThumbsDown, ThumbsUp, User
+  Bot, Check, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
+  Sparkles, StopCircle, ThumbsDown, ThumbsUp, User, X
 } from 'lucide-react'
 
 interface ChatMessage {
@@ -11,6 +11,8 @@ interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  image?: string
+  fileName?: string
 }
 
 interface FullScreenChatProps {
@@ -26,12 +28,20 @@ interface FullScreenChatProps {
   userName?: string | null
 }
 
+interface AttachedFile {
+  file: File
+  preview?: string
+  base64?: string
+}
+
 const SUGGESTIONS = [
   { title: 'Explain a concept', prompt: 'Explain how large language models work in simple terms.' },
   { title: 'Help me write', prompt: 'Help me write a professional email to follow up after an interview.' },
   { title: 'Code assistance', prompt: 'Write a Python function that parses a CSV and returns a summary.' },
   { title: 'Plan a project', prompt: 'Help me plan a 2-week launch for a new AI chatbot product.' },
 ]
+
+const ACCEPTED_FILES = 'image/png,image/jpeg,image/gif,image/webp,.pdf,.txt,.md,.csv,.json,.doc,.docx'
 
 export default function FullScreenChat({
   isLoggedIn = false,
@@ -42,16 +52,25 @@ export default function FullScreenChat({
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [attached, setAttached] = useState<AttachedFile | null>(null)
+  const [listening, setListening] = useState(false)
+  const [statusNote, setStatusNote] = useState('')
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const recognitionRef = useRef<any>(null)
+  const baseInputRef = useRef('')
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
   useEffect(() => {
-    if (canChat) inputRef.current?.focus()
-  }, [canChat])
+    return () => {
+      try { recognitionRef.current?.stop() } catch { /* ignore */ }
+    }
+  }, [])
 
   const resizeInput = () => {
     const el = inputRef.current
@@ -60,19 +79,138 @@ export default function FullScreenChat({
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`
   }
 
+  const showNote = (text: string) => {
+    setStatusNote(text)
+    setTimeout(() => setStatusNote(''), 3500)
+  }
+
+  const handleAttachClick = () => {
+    if (!canChat) {
+      onLoginClick?.()
+      return
+    }
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+
+    if (file.size > 4 * 1024 * 1024) {
+      showNote('File must be under 4MB')
+      return
+    }
+
+    if (file.type.startsWith('image/')) {
+      const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+      if (!allowed.includes(file.type)) {
+        showNote('Use PNG, JPG, GIF or WebP images')
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = () => {
+        const dataUrl = String(reader.result || '')
+        const base64 = dataUrl.split(',')[1] || ''
+        setAttached({ file, preview: dataUrl, base64 })
+      }
+      reader.readAsDataURL(file)
+      return
+    }
+
+    setAttached({ file })
+  }
+
+  const toggleVoice = () => {
+    if (!canChat) {
+      onLoginClick?.()
+      return
+    }
+
+    if (listening) {
+      try { recognitionRef.current?.stop() } catch { /* ignore */ }
+      setListening(false)
+      return
+    }
+
+    const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechAPI) {
+      showNote('Voice input needs Chrome, Edge or Safari')
+      return
+    }
+
+    try {
+      const rec = new SpeechAPI()
+      rec.continuous = true
+      rec.interimResults = true
+      rec.lang = navigator.language || 'en-IN'
+      baseInputRef.current = inputValue
+
+      rec.onresult = (event: any) => {
+        let text = ''
+        for (let i = 0; i < event.results.length; i++) {
+          text += event.results[i][0].transcript
+        }
+        const prefix = baseInputRef.current.trim() ? `${baseInputRef.current.trim()} ` : ''
+        const next = prefix + text.trim()
+        setInputValue(next)
+        requestAnimationFrame(resizeInput)
+      }
+
+      rec.onerror = (event: any) => {
+        if (event.error === 'not-allowed') {
+          showNote('Microphone permission denied. Allow mic in the browser.')
+        } else if (event.error === 'no-speech') {
+          showNote('No speech heard. Try again.')
+        } else if (event.error !== 'aborted') {
+          showNote('Voice input failed. Try again.')
+        }
+        setListening(false)
+      }
+
+      rec.onend = () => setListening(false)
+
+      recognitionRef.current = rec
+      rec.start()
+      setListening(true)
+      setStatusNote('Listening… tap mic to stop')
+    } catch {
+      showNote('Could not start microphone')
+    }
+  }
+
   const handleSend = async (preset?: string) => {
     const trimmed = (preset ?? inputValue).trim()
-    if (!trimmed || !canChat || isTyping) return
+    if ((!trimmed && !attached) || !canChat || isTyping) return
 
+    if (listening) {
+      try { recognitionRef.current?.stop() } catch { /* ignore */ }
+      setListening(false)
+    }
+
+    const content = trimmed || `Please analyze this file: ${attached?.file.name}`
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: trimmed,
+      content,
       timestamp: new Date(),
+      image: attached?.preview,
+      fileName: attached && !attached.preview ? attached.file.name : undefined,
+    }
+
+    const payload: Record<string, string> = { message: content }
+    if (attached?.base64 && attached.file.type.startsWith('image/')) {
+      payload.imageData = attached.base64
+      payload.imageMimeType = attached.file.type
+    } else if (attached && !attached.preview) {
+      payload.fileName = attached.file.name
+      payload.fileType = attached.file.type || 'application/octet-stream'
     }
 
     setMessages((prev) => [...prev, userMessage])
     setInputValue('')
+    setAttached(null)
+    setStatusNote('')
     if (inputRef.current) inputRef.current.style.height = 'auto'
     setIsTyping(true)
 
@@ -80,33 +218,20 @@ export default function FullScreenChat({
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify(payload),
       })
 
-      let reply =
-        "I'm NEXUS AI — your assistant for writing, coding, research, and planning. How else can I help?"
-
+      let reply = "I'm NEXUS AI — how else can I help?"
       if (res.ok) {
         const data = await res.json().catch(() => null)
-        reply =
-          data?.response ||
-          data?.content ||
-          data?.message ||
-          data?.reply ||
-          data?.text ||
-          reply
+        reply = data?.response || data?.content || data?.message || reply
       } else {
-        reply = `Got it: "${trimmed}"\n\nI couldn't reach the AI service just now. Please try again in a moment.`
+        reply = 'I could not reach the AI service just now. Please try again.'
       }
 
       setMessages((prev) => [
         ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: reply,
-          timestamp: new Date(),
-        },
+        { id: (Date.now() + 1).toString(), role: 'assistant', content: reply, timestamp: new Date() },
       ])
     } catch {
       setMessages((prev) => [
@@ -114,7 +239,7 @@ export default function FullScreenChat({
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `Thanks — I received: "${trimmed}"\n\nThe chat API isn't connected in this preview, but the interface is ready. Ask me to write, explain, or plan something next.`,
+          content: 'Network error. Please try sending again.',
           timestamp: new Date(),
         },
       ])
@@ -128,9 +253,7 @@ export default function FullScreenChat({
       await navigator.clipboard.writeText(content)
       setCopiedId(id)
       setTimeout(() => setCopiedId(null), 1800)
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -141,6 +264,7 @@ export default function FullScreenChat({
   }
 
   const hasMessages = messages.length > 0
+  const canSend = canChat && !isTyping && (!!inputValue.trim() || !!attached)
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -190,6 +314,14 @@ export default function FullScreenChat({
 
       <div className="nexus-composer border-t border-white/10 bg-[#07071a]/80 px-3 py-3 backdrop-blur-xl sm:px-4 sm:py-4">
         <div className="mx-auto max-w-3xl">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPTED_FILES}
+            className="hidden"
+            onChange={handleFileChange}
+          />
+
           {!isLoggedIn && (
             <p className="mb-2 text-center text-xs text-slate-500">
               <button onClick={onLoginClick} className="text-cyan-400 hover:underline">
@@ -198,8 +330,43 @@ export default function FullScreenChat({
               to save chat history
             </p>
           )}
+
+          {statusNote && (
+            <p className={`mb-2 text-center text-xs ${listening ? 'text-cyan-400' : 'text-amber-400'}`}>
+              {statusNote}
+            </p>
+          )}
+
+          {attached && (
+            <div className="mb-2 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              {attached.preview ? (
+                <img src={attached.preview} alt="" className="h-10 w-10 rounded-lg object-cover" />
+              ) : (
+                <FileText className="h-5 w-5 text-cyan-400" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-white">{attached.file.name}</p>
+                <p className="text-[11px] text-slate-500">{Math.max(1, Math.round(attached.file.size / 1024))} KB</p>
+              </div>
+              <button
+                onClick={() => setAttached(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white"
+                aria-label="Remove file"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           <div className="flex items-end gap-1.5 rounded-2xl border border-white/10 bg-[#0f1224] p-1.5 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)] sm:gap-2 sm:p-2">
-            <button className="mb-0.5 hidden rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white sm:inline-flex" aria-label="Attach file">
+            <button
+              type="button"
+              onClick={handleAttachClick}
+              disabled={!canChat || isTyping}
+              className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white disabled:opacity-40"
+              aria-label="Attach file"
+              title="Attach file"
+            >
               <Paperclip className="h-5 w-5" />
             </button>
             <textarea
@@ -213,14 +380,26 @@ export default function FullScreenChat({
               placeholder={canChat ? 'Ask NEXUS AI anything…' : 'Sign in to continue chatting'}
               disabled={!canChat}
               rows={1}
-              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
+              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
             />
-            <button className="mb-0.5 hidden rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white sm:inline-flex" aria-label="Voice input">
-              <Mic className="h-5 w-5" />
+            <button
+              type="button"
+              onClick={toggleVoice}
+              disabled={!canChat || isTyping}
+              className={`mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-40 ${
+                listening
+                  ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
+              }`}
+              aria-label={listening ? 'Stop listening' : 'Speak to type'}
+              title={listening ? 'Stop listening' : 'Speak to type'}
+            >
+              {listening ? <StopCircle className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
             </button>
             <button
+              type="button"
               onClick={() => handleSend()}
-              disabled={!inputValue.trim() || !canChat || isTyping}
+              disabled={!canSend}
               className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 shadow-glow-cyan transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Send message"
             >
@@ -258,7 +437,16 @@ function MessageBubble({
         >
           {isUser ? <User className="h-4 w-4 text-white" /> : <Bot className="h-4 w-4 text-white" />}
         </div>
-        <div className={`group relative ${isUser ? 'message-user' : 'message-ai'}`}>
+        <div className={`${isUser ? 'message-user' : 'message-ai'}`}>
+          {message.image && (
+            <img src={message.image} alt="attachment" className="mb-2 max-h-56 w-auto rounded-xl object-contain" />
+          )}
+          {message.fileName && (
+            <p className="mb-1 flex items-center gap-1.5 text-xs text-cyan-300">
+              <FileText className="h-3.5 w-3.5" />
+              {message.fileName}
+            </p>
+          )}
           <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100">{message.content}</div>
           <div className={`mt-2 flex gap-1 ${isUser ? 'justify-end' : 'justify-start'}`}>
             <button onClick={onCopy} className="rounded-md p-1.5 hover:bg-white/10" aria-label="Copy">

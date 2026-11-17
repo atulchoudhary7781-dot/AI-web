@@ -215,8 +215,8 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set(
     'Permissions-Policy',
     [
-      'camera=()',
-      'microphone=()',
+      'camera=(self)',
+      'microphone=(self)',
       'geolocation=()',
       'payment=()',
       'usb=()',
