@@ -5,6 +5,7 @@ import {
   Bot, Check, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
   Sparkles, StopCircle, ThumbsDown, ThumbsUp, User, X
 } from 'lucide-react'
+import { isImageFile, isTextLikeFile } from '@/lib/fileTypes'
 
 interface ChatMessage {
   id: string
@@ -33,6 +34,8 @@ interface AttachedFile {
   preview?: string
   base64?: string
   mime?: string
+  fileText?: string
+  fileData?: string
 }
 
 async function compressImage(file: File): Promise<{ preview: string; base64: string; mime: string }> {
@@ -72,8 +75,6 @@ const SUGGESTIONS = [
   { title: 'Code assistance', prompt: 'Write a Python function that parses a CSV and returns a summary.' },
   { title: 'Plan a project', prompt: 'Help me plan a 2-week launch for a new AI chatbot product.' },
 ]
-
-const ACCEPTED_FILES = 'image/png,image/jpeg,image/gif,image/webp,.pdf,.txt,.md,.csv,.json,.doc,.docx'
 
 export default function FullScreenChat({
   isLoggedIn = false,
@@ -134,12 +135,7 @@ export default function FullScreenChat({
       return
     }
 
-    if (file.type.startsWith('image/')) {
-      const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
-      if (!allowed.includes(file.type)) {
-        showNote('Use PNG, JPG, GIF or WebP images')
-        return
-      }
+    if (isImageFile(file.name, file.type)) {
       try {
         const compressed = await compressImage(file)
         setAttached({ file, ...compressed })
@@ -148,7 +144,7 @@ export default function FullScreenChat({
         try {
           const dataUrl = await readFileAsDataUrl(file)
           const base64 = dataUrl.split(',')[1] || ''
-          setAttached({ file, preview: dataUrl, base64, mime: file.type })
+          setAttached({ file, preview: dataUrl, base64, mime: file.type || 'image/jpeg' })
         } catch {
           showNote('Could not read that image')
         }
@@ -156,7 +152,33 @@ export default function FullScreenChat({
       return
     }
 
-    setAttached({ file })
+    try {
+      if (isTextLikeFile(file.name, file.type)) {
+        const text = await file.text()
+        if (!text.trim()) {
+          showNote('File is empty')
+          return
+        }
+        setAttached({ file, fileText: text.slice(0, 20000), mime: file.type || 'text/plain' })
+        showNote('File attached — send to analyze')
+        return
+      }
+
+      const dataUrl = await readFileAsDataUrl(file)
+      const fileData = dataUrl.split(',')[1] || ''
+      if (!fileData) {
+        showNote('Could not read that file')
+        return
+      }
+      if (fileData.length > 6_000_000) {
+        showNote('File is too large to analyze (max ~4MB)')
+        return
+      }
+      setAttached({ file, fileData, mime: file.type || 'application/octet-stream' })
+      showNote('File attached — send to analyze')
+    } catch {
+      showNote('Could not read that file')
+    }
   }
 
   const toggleVoice = () => {
@@ -240,9 +262,14 @@ export default function FullScreenChat({
     if (attached?.base64) {
       payload.imageData = attached.base64
       payload.imageMimeType = attached.mime || attached.file.type || 'image/jpeg'
-    } else if (attached && !attached.preview) {
+    } else if (attached?.fileText) {
       payload.fileName = attached.file.name
-      payload.fileType = attached.file.type || 'application/octet-stream'
+      payload.fileType = attached.mime || attached.file.type || 'text/plain'
+      payload.fileText = attached.fileText
+    } else if (attached?.fileData) {
+      payload.fileName = attached.file.name
+      payload.fileType = attached.mime || attached.file.type || 'application/octet-stream'
+      payload.fileData = attached.fileData
     }
 
     setMessages((prev) => [...prev, userMessage])
@@ -355,7 +382,6 @@ export default function FullScreenChat({
           <input
             ref={fileInputRef}
             type="file"
-            accept={ACCEPTED_FILES}
             className="hidden"
             onChange={handleFileChange}
           />
@@ -402,8 +428,8 @@ export default function FullScreenChat({
               onClick={handleAttachClick}
               disabled={!canChat || isTyping}
               className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white disabled:opacity-40"
-              aria-label="Attach file"
-              title="Attach file"
+              aria-label="Attach any file"
+              title="Attach any file — PDF, Word, Excel, code, images, and more"
             >
               <Paperclip className="h-5 w-5" />
             </button>

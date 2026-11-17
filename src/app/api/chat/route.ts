@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib/security'
+import { extractFileContent } from '@/lib/extractFile'
+
+export const runtime = 'nodejs'
 
 // OpenRouter API Configuration - Using Environment Variables (SECURE!)
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
@@ -36,6 +39,19 @@ function uniqueModels(models: Array<string | undefined | null>): string[] {
   return out
 }
 
+function asFileBase64(value: unknown): string | null {
+  if (typeof value !== 'string' || !value) return null
+  const cleaned = value.replace(/\s/g, '')
+  if (cleaned.length < 8 || cleaned.length > 8_000_000) return null
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(cleaned)) return null
+  return cleaned
+}
+
+function asFileText(value: unknown): string | null {
+  if (typeof value !== 'string' || !value.trim()) return null
+  return value.slice(0, 20000)
+}
+
 // AI Response cache for common questions
 const responseCache = new Map<string, string>()
 
@@ -58,6 +74,8 @@ export async function POST(request: NextRequest) {
     console.log('📝 Request body received:', {
       hasMessage: !!body.message,
       hasImage: !!body.imageData,
+      hasFile: !!(body.fileData || body.fileText || body.fileName),
+      fileName: body.fileName,
       imageMimeType: body.imageMimeType,
       imageChars: typeof body.imageData === 'string' ? body.imageData.length : 0,
     })
@@ -99,6 +117,34 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid filename' },
         { status: 400 }
       )
+    }
+
+    const incomingFileText = asFileText(body.fileText)
+    const incomingFileData = asFileBase64(body.fileData)
+    let extractedFileText = incomingFileText || ''
+    let extractNote = ''
+
+    if (!extractedFileText && incomingFileData && fileName) {
+      const extracted = await extractFileContent({
+        fileName,
+        fileType,
+        base64: incomingFileData,
+      })
+      extractedFileText = extracted.text
+      extractNote = extracted.note || ''
+      console.log('📎 Extracted file:', {
+        fileName,
+        chars: extractedFileText.length,
+        note: extractNote || undefined,
+      })
+    }
+
+    if (extractedFileText || extractNote) {
+      const header = `Attached file: ${fileName || 'untitled'}${fileType ? ` (${fileType})` : ''}`
+      const bodyText = extractedFileText
+        ? `Extracted content:\n${extractedFileText}`
+        : extractNote
+      message = `${message}\n\n---\n${header}\n${bodyText}\n---`
     }
 
     const OPENROUTER_API_KEY = getOpenRouterKey()
@@ -145,6 +191,14 @@ When an user provides an image, you MUST analyze it thoroughly:
 - Provide insights about the image content
 - Answer specific questions about the image
 - If it's a screenshot, code, document, or diagram - analyze its contents
+
+**FILE ANALYSIS CAPABILITY:**
+When a user attaches a file, the extracted text is included in the message after "Extracted content:".
+- Read and analyze that content. Do not say you cannot open the file if extracted content is present.
+- Summarize documents, answer questions, and point out important details
+- For code: explain, review, and suggest improvements
+- For spreadsheets: describe columns, notable values, and patterns
+- For PDFs/Word/PPT: outline sections and key points
 
 When users ask:
 - About AI/ML: Provide comprehensive explanations with current state-of-the-art info
@@ -227,9 +281,9 @@ Always respond in a way that showcases advanced intelligence while being accessi
         content: message
       })
 
-      // Check cache first for text-only messages
+      // Check cache first for short text-only messages
       const cacheKey = message.toLowerCase().trim()
-      if (responseCache.has(cacheKey)) {
+      if (!extractedFileText && responseCache.has(cacheKey)) {
         return NextResponse.json({ response: responseCache.get(cacheKey) })
       }
 
