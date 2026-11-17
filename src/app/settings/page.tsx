@@ -418,6 +418,7 @@ export default function SettingsPage() {
               </div>
             </section>
 
+            {isLoggedIn && (
             <section className="bg-[#0f172a]/60 border border-red-500/20 rounded-2xl p-6">
               <h3 className="font-semibold text-red-400 mb-4">Danger Zone</h3>
               <div className="space-y-3">
@@ -439,6 +440,7 @@ export default function SettingsPage() {
                 </button>
               </div>
             </section>
+            )}
           </div>
         </div>
       </main>
