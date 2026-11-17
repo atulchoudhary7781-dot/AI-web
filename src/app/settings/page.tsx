@@ -8,6 +8,7 @@ import {
   Clock, ChevronLeft
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
+import { getSessionUser } from '@/lib/auth'
 
 function readSavedUser() {
   if (typeof window === 'undefined') return { name: '', email: '' }
@@ -37,10 +38,13 @@ export default function SettingsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeactivating, setIsDeactivating] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const saved = readSavedUser()
+    const session = getSessionUser()
+    setIsLoggedIn(!!session)
+    const saved = session || readSavedUser()
     setUserName(saved.name)
     setUserEmail(saved.email)
     setNotifications(localStorage.getItem('nexus_notifications') !== 'off')
@@ -181,6 +185,27 @@ export default function SettingsPage() {
                 <h2 className="text-lg font-semibold text-white">Profile</h2>
               </div>
 
+              {!isLoggedIn ? (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-center">
+                  <p className="text-sm text-slate-300">
+                    Login or create an account to set up your profile.
+                  </p>
+                  <div className="mt-4 flex justify-center gap-3">
+                    <Link
+                      href="/login"
+                      className="rounded-lg bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-slate-950"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium text-white hover:bg-white/5"
+                    >
+                      Create Account
+                    </Link>
+                  </div>
+                </div>
+              ) : (
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
@@ -261,6 +286,7 @@ export default function SettingsPage() {
                   {isSaving ? 'Saving…' : 'Save Changes'}
                 </button>
               </div>
+              )}
             </section>
 
             <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">

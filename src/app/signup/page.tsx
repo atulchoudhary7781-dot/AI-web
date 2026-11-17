@@ -9,6 +9,7 @@ import {
   Loader2, AlertCircle, CheckCircle
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
+import { saveSessionUser } from '@/lib/auth'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -59,10 +60,7 @@ export default function SignupPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500))
       
-      localStorage.setItem('nexus_auth', JSON.stringify({
-        isLoggedIn: true,
-        user: { name, email }
-      }))
+      saveSessionUser({ name, email })
       
       router.push('/')
     } catch (err) {
@@ -77,10 +75,7 @@ export default function SignupPage() {
     setIsLoading(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      localStorage.setItem('nexus_auth', JSON.stringify({
-        isLoggedIn: true,
-        user: { name: 'Google User', email: 'user@gmail.com' }
-      }))
+      saveSessionUser({ name: 'Google User', email: 'user@gmail.com' })
       router.push('/')
     } catch (err) {
       setError('Google sign-up failed')
@@ -93,10 +88,7 @@ export default function SignupPage() {
     setIsLoading(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      localStorage.setItem('nexus_auth', JSON.stringify({
-        isLoggedIn: true,
-        user: { name: 'GitHub User', email: 'user@github.com' }
-      }))
+      saveSessionUser({ name: 'GitHub User', email: 'user@github.com' })
       router.push('/')
     } catch (err) {
       setError('GitHub sign-up failed')

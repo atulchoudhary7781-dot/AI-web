@@ -9,6 +9,7 @@ import {
   Loader2, AlertCircle
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
+import { saveSessionUser } from '@/lib/auth'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,10 +47,7 @@ export default function LoginPage() {
       await new Promise(resolve => setTimeout(resolve, 1200))
       
       // Save auth to localStorage
-      localStorage.setItem('nexus_auth', JSON.stringify({
-        isLoggedIn: true,
-        user: { name: email.split('@')[0], email }
-      }))
+      saveSessionUser({ name: email.split('@')[0], email })
       
       router.push('/')
     } catch (err) {
@@ -64,10 +62,7 @@ export default function LoginPage() {
     setIsLoading(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      localStorage.setItem('nexus_auth', JSON.stringify({
-        isLoggedIn: true,
-        user: { name: 'Google User', email: 'user@gmail.com' }
-      }))
+      saveSessionUser({ name: 'Google User', email: 'user@gmail.com' })
       router.push('/')
     } catch (err) {
       setError('Google sign-in failed')
@@ -80,10 +75,7 @@ export default function LoginPage() {
     setIsLoading(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      localStorage.setItem('nexus_auth', JSON.stringify({
-        isLoggedIn: true,
-        user: { name: 'GitHub User', email: 'user@github.com' }
-      }))
+      saveSessionUser({ name: 'GitHub User', email: 'user@github.com' })
       router.push('/')
     } catch (err) {
       setError('GitHub sign-in failed')

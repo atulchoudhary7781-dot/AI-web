@@ -3,6 +3,7 @@
 // Force dynamic rendering - NO CACHE (handled by middleware & vercel.json)
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { clearSessionUser, getSessionUser, saveSessionUser } from '@/lib/auth'
 import { 
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
   Cpu, Globe, Rocket, Star, Layers, Command, Shield,
@@ -339,22 +340,8 @@ export default function NexusAI() {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   
   // Auth State - Use lazy initialization to avoid hydration mismatch
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // Check if we're on client side
-    if (typeof window === 'undefined') return false
-    return !!localStorage.getItem('nexus_user')
-  })
-  
-  const [user, setUser] = useState<User | null>(() => {
-    // Check if we're on client side
-    if (typeof window === 'undefined') return null
-    try {
-      const savedUser = localStorage.getItem('nexus_user')
-      return savedUser ? JSON.parse(savedUser) : null
-    } catch {
-      return null
-    }
-  })
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!getSessionUser())
+  const [user, setUser] = useState<User | null>(() => getSessionUser())
 
   // Check if user can chat (logged in or under limit)
   const canChat = isLoggedIn || chatCount < MAX_FREE_CHATS
@@ -386,22 +373,22 @@ export default function NexusAI() {
 
   // Login Handler
   const handleLogin = (userData: User) => {
+    saveSessionUser(userData)
     setIsLoggedIn(true)
     setUser(userData)
-    setCurrentView('chat') // Redirect to chat after login
-    setShowAuthModal(false) // Close modal if open
-    setChatCount(0) // Reset chat count for logged in users
+    setCurrentView('chat')
+    setShowAuthModal(false)
+    setChatCount(0)
     localStorage.removeItem('nexus_chat_count')
   }
 
-  // Logout Handler
   const handleLogout = () => {
     setIsLoggedIn(false)
     setUser(null)
     setSessions([])
     setActiveSessionId(null)
-    setChatCount(0) // Reset chat count on logout
-    localStorage.removeItem('nexus_user')
+    setChatCount(0)
+    clearSessionUser()
     localStorage.removeItem('nexus_sessions')
     localStorage.removeItem('nexus_chat_count')
   }
