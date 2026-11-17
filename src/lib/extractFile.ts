@@ -76,14 +76,9 @@ async function extractZipText(buf: Buffer, ext: string): Promise<string> {
 }
 
 async function extractPdf(buf: Buffer): Promise<string> {
-  const { extractText, getDocumentProxy } = await import('unpdf')
-  const pdf = await getDocumentProxy(new Uint8Array(buf))
-  const result = await extractText(pdf, { mergePages: true })
-  if (typeof result === 'string') return result
-  if (Array.isArray((result as { text?: unknown }).text)) {
-    return ((result as { text: string[] }).text).join('\n')
-  }
-  return String((result as { text?: unknown }).text || result || '')
+  const { extractText } = await import('unpdf')
+  const result = await extractText(new Uint8Array(buf), { mergePages: true })
+  return (result.text || '').trim()
 }
 
 async function extractSpreadsheet(buf: Buffer): Promise<string> {

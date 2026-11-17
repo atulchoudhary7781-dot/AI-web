@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   
   // Turbopack configuration (Next.js 16 default - faster builds)
   turbopack: {},
+
+  // Keep heavy file parsers out of the serverless bundle graph
+  serverExternalPackages: ['unpdf', 'xlsx', 'jszip'],
   
   // ==================== BUNDLE OPTIMIZATION ====================
   
