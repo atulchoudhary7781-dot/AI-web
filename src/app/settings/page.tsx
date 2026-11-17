@@ -8,7 +8,7 @@ import {
   Clock, ChevronLeft
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
-import { getSessionUser } from '@/lib/auth'
+import { getSessionUser } from '@/lib/session'
 
 function readSavedUser() {
   if (typeof window === 'undefined') return { name: '', email: '' }

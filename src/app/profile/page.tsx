@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import UserProfilePage from '@/components/chat/UserProfilePage'
-import { clearSessionUser, getSessionUser } from '@/lib/auth'
+import { clearSessionUser, getSessionUser } from '@/lib/session'
 
 export default function ProfilePage() {
   const router = useRouter()

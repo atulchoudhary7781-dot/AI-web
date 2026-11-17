@@ -3,7 +3,7 @@
 // Force dynamic rendering - NO CACHE (handled by middleware & vercel.json)
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { clearSessionUser, getSessionUser, saveSessionUser } from '@/lib/auth'
+import { clearSessionUser, getSessionUser, saveSessionUser } from '@/lib/session'
 import { 
   Sparkles, Zap, Brain, Code2, MessageSquare, Terminal, 
   Cpu, Globe, Rocket, Star, Layers, Command, Shield,

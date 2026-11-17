@@ -9,7 +9,7 @@ import {
   Loader2, AlertCircle
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
-import { saveSessionUser } from '@/lib/auth'
+import { saveSessionUser } from '@/lib/session'
 
 export default function LoginPage() {
   const router = useRouter()
