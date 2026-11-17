@@ -1,95 +1,154 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { 
-  User, Mail, Shield, Bell, Palette,
+import {
+  User, Shield, Bell, Palette,
   CheckCircle, Trash2, UserX, X,
-  Eye, Lock, Clock, ChevronLeft
+  Clock, ChevronLeft
 } from 'lucide-react'
 import SiteHeader from '@/components/layout/SiteHeader'
 
-// ============================================
-// TYPES
-// ============================================
-interface UserData {
-  name: string
-  email: string
-  avatar?: string | null
+function readSavedUser() {
+  if (typeof window === 'undefined') return { name: '', email: '' }
+  try {
+    const raw = localStorage.getItem('nexus_user')
+    if (!raw) return { name: '', email: '' }
+    const parsed = JSON.parse(raw) as { name?: string; email?: string }
+    return { name: parsed.name || '', email: parsed.email || '' }
+  } catch {
+    return { name: '', email: '' }
+  }
 }
 
-// Mock user data
-const mockUser: UserData = {
-  name: 'John Doe',
-  email: 'john@example.com',
-  avatar: null
-}
-
-// ============================================
-// SETTINGS PAGE COMPONENT
-// ============================================
 export default function SettingsPage() {
-  // State
-  const [userName, setUserName] = useState(mockUser.name)
-  const [userEmail, setUserEmail] = useState(mockUser.email)
+  const [userName, setUserName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [isSaving, setIsSaving] = useState(false)
-  const [showSuccessMessage, setShowSuccessMessage] = useState('')
-  
-  // Danger Zone states
+  const [notice, setNotice] = useState('')
+  const [darkTheme, setDarkTheme] = useState(true)
+  const [notifications, setNotifications] = useState(true)
+  const [language, setLanguage] = useState('English')
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [twoFactor, setTwoFactor] = useState(false)
+  const [emailVerified, setEmailVerified] = useState(false)
   const [showDeactivateModal, setShowDeactivateModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeactivating, setIsDeactivating] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
 
-  // Handle profile save
-  const handleSaveProfile = async () => {
-    setIsSaving(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setShowSuccessMessage('Profile updated successfully!')
-    setIsSaving(false)
-    setTimeout(() => setShowSuccessMessage(''), 3000)
+  useEffect(() => {
+    const saved = readSavedUser()
+    setUserName(saved.name)
+    setUserEmail(saved.email)
+    setDarkTheme(localStorage.getItem('nexus_theme') !== 'light')
+    setNotifications(localStorage.getItem('nexus_notifications') !== 'off')
+    setLanguage(localStorage.getItem('nexus_language') || 'English')
+    setTwoFactor(localStorage.getItem('nexus_2fa') === 'on')
+    setEmailVerified(localStorage.getItem('nexus_email_verified') === '1')
+    const avatar = localStorage.getItem('nexus_avatar')
+    if (avatar) setAvatarUrl(avatar)
+  }, [])
+
+  const flash = (text: string) => {
+    setNotice(text)
+    setTimeout(() => setNotice(''), 3000)
   }
 
-  // Handle deactivate account
+  const handleSaveProfile = () => {
+    const name = userName.trim()
+    const email = userEmail.trim()
+    if (!name) return flash('Please enter your name')
+    if (!email.includes('@')) return flash('Please enter a valid email')
+    setIsSaving(true)
+    const existing = readSavedUser()
+    localStorage.setItem('nexus_user', JSON.stringify({ ...existing, name, email }))
+    setTimeout(() => {
+      setIsSaving(false)
+      flash('Profile updated successfully')
+    }, 400)
+  }
+
+  const handleAvatar = (file?: File) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) return flash('Choose a JPG, PNG or GIF')
+    if (file.size > 2 * 1024 * 1024) return flash('Avatar must be under 2MB')
+    const reader = new FileReader()
+    reader.onload = () => {
+      const url = String(reader.result || '')
+      setAvatarUrl(url)
+      localStorage.setItem('nexus_avatar', url)
+      flash('Avatar updated')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleTheme = (on: boolean) => {
+    setDarkTheme(on)
+    localStorage.setItem('nexus_theme', on ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', on)
+    document.documentElement.classList.toggle('light', !on)
+    flash(on ? 'Dark theme on' : 'Light theme on')
+  }
+
+  const handleNotifications = (on: boolean) => {
+    setNotifications(on)
+    localStorage.setItem('nexus_notifications', on ? 'on' : 'off')
+    flash(on ? 'Notifications on' : 'Notifications off')
+  }
+
+  const handleLanguage = (value: string) => {
+    setLanguage(value)
+    localStorage.setItem('nexus_language', value)
+    flash(`Language set to ${value}`)
+  }
+
+  const handleUpdatePassword = () => {
+    if (currentPassword.length < 4) return flash('Enter your current password')
+    if (newPassword.length < 4) return flash('New password must be at least 4 characters')
+    setCurrentPassword('')
+    setNewPassword('')
+    flash('Password updated')
+  }
+
+  const handleVerifyEmail = () => {
+    if (!userEmail.includes('@')) return flash('Enter an email first')
+    localStorage.setItem('nexus_email_verified', '1')
+    setEmailVerified(true)
+    flash(`Verification sent to ${userEmail}`)
+  }
+
+  const handleTwoFactor = () => {
+    const next = !twoFactor
+    setTwoFactor(next)
+    localStorage.setItem('nexus_2fa', next ? 'on' : 'off')
+    flash(next ? 'Two-factor authentication enabled' : 'Two-factor authentication disabled')
+  }
+
   const handleDeactivateAccount = async () => {
     setIsDeactivating(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      setShowSuccessMessage('Account deactivated successfully!')
-      setShowDeactivateModal(false)
-      
-      setTimeout(() => {
-        localStorage.removeItem('nexus_auth')
-        window.location.href = '/login?message=deactivated'
-      }, 2000)
-    } catch (error) {
-      console.error('Deactivate error:', error)
-      setShowSuccessMessage('Error deactivating account')
-    }
+    await new Promise((r) => setTimeout(r, 600))
+    localStorage.removeItem('nexus_user')
+    localStorage.removeItem('nexus_auth')
+    setShowDeactivateModal(false)
     setIsDeactivating(false)
-    setTimeout(() => setShowSuccessMessage(''), 5000)
+    window.location.href = '/login?message=deactivated'
   }
 
-  // Handle delete account
   const handleDeleteAccount = async () => {
     setIsDeleting(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2500))
-      setShowSuccessMessage('Account deleted permanently!')
-      setShowDeleteModal(false)
-      
-      setTimeout(() => {
-        localStorage.clear()
-        sessionStorage.clear()
-        window.location.href = '/'
-      }, 2000)
-    } catch (error) {
-      console.error('Delete error:', error)
-      setShowSuccessMessage('Error deleting account')
-    }
+    await new Promise((r) => setTimeout(r, 600))
+    localStorage.clear()
+    sessionStorage.clear()
+    setShowDeleteModal(false)
     setIsDeleting(false)
-    setTimeout(() => setShowSuccessMessage(''), 5000)
+    window.location.href = '/'
   }
+
+  const initial = (userName.trim()[0] || 'A').toUpperCase()
 
   return (
     <div className="page-shell min-h-screen">
@@ -97,11 +156,10 @@ export default function SettingsPage() {
       <div className="border-b border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-5 sm:py-6">
           <div className="flex items-center gap-4">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
               aria-label="Back to chat"
-              title="Back to chat"
             >
               <ChevronLeft className="h-5 w-5" />
             </Link>
@@ -113,24 +171,18 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Success Message */}
-      {showSuccessMessage && (
+      {notice && (
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 pt-6">
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 animate-fade-in">
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
             <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-            <p className="text-green-400">{showSuccessMessage}</p>
+            <p className="text-green-400">{notice}</p>
           </div>
         </div>
       )}
 
-      {/* Main Content */}
       <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Left Column - Main Settings */}
           <div className="lg:col-span-2 space-y-6">
-            
-            {/* Profile Section */}
             <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-cyan-500/15">
@@ -140,76 +192,87 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-5">
-                {/* Avatar */}
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-cyan-500/25">
-                    {mockUser.name.charAt(0)}
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      initial
+                    )}
                   </div>
                   <div>
-                    <button className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 text-sm rounded-lg transition-colors border border-white/[0.08]">
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/gif,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        handleAvatar(e.target.files?.[0])
+                        e.target.value = ''
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 text-sm rounded-lg border border-white/[0.08]"
+                    >
                       Change Avatar
                     </button>
                     <p className="text-xs text-gray-500 mt-1.5">JPG, PNG or GIF. Max 2MB.</p>
                   </div>
                 </div>
 
-                {/* Name Input */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-300">Name</label>
                   <input
                     type="text"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
-                    className="input-dark"
+                    placeholder="e.g. Atul Choudhary"
+                    className="input-dark placeholder:text-slate-500"
                   />
                 </div>
 
-                {/* Email Input */}
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                     Email
-                    <span className="flex items-center gap-1 text-xs text-cyan-400">
+                    <span className={`flex items-center gap-1 text-xs ${emailVerified ? 'text-emerald-400' : 'text-cyan-400'}`}>
                       <Clock className="w-3.5 h-3.5" />
-                      Not Verified
+                      {emailVerified ? 'Verified' : 'Not Verified'}
                     </span>
                   </label>
                   <input
                     type="email"
                     value={userEmail}
                     onChange={(e) => setUserEmail(e.target.value)}
-                    className="input-dark"
+                    placeholder="e.g. atul@email.com"
+                    className="input-dark placeholder:text-slate-500"
                   />
-
-                  {/* Verification CTA */}
-                  <div className="mt-2 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                    <p className="text-sm text-cyan-400 mb-2">
-                      Verify your email to unlock all features
-                    </p>
-                    <button className="px-4 py-2 bg-transparent border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 rounded-lg text-sm font-medium transition-colors">
-                      Send Verification Email
-                    </button>
-                  </div>
+                  {!emailVerified && (
+                    <div className="mt-2 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                      <p className="text-sm text-cyan-400 mb-2">Verify your email to unlock all features</p>
+                      <button
+                        type="button"
+                        onClick={handleVerifyEmail}
+                        className="px-4 py-2 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 rounded-lg text-sm font-medium"
+                      >
+                        Send Verification Email
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Save Button */}
                 <button
+                  type="button"
                   onClick={handleSaveProfile}
                   disabled={isSaving}
-                  className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 transition-all duration-200 disabled:opacity-70 flex items-center gap-2"
+                  className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-semibold rounded-xl disabled:opacity-70"
                 >
-                  {isSaving ? (
-                    <>
-                      <LoaderIcon />
-                      Saving...
-                    </>
-                  ) : (
-                    'Save Changes'
-                  )}
+                  {isSaving ? 'Saving…' : 'Save Changes'}
                 </button>
               </div>
             </section>
 
-            {/* Preferences Section */}
             <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-violet-500/15">
@@ -219,24 +282,26 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-6">
-                {/* Theme Toggle */}
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between gap-4 py-2">
                   <div>
                     <p className="font-medium text-white">Theme</p>
-                    <p className="text-sm text-gray-500 mt-0.5">Choose your preferred appearance</p>
+                    <p className="text-sm text-gray-500 mt-0.5">{darkTheme ? 'Dark mode' : 'Light mode'}</p>
                   </div>
-                  <ToggleSwitch defaultChecked={true} />
+                  <ToggleSwitch checked={darkTheme} onChange={handleTheme} label="Theme" />
                 </div>
 
                 <hr className="border-white/[0.08]" />
 
-                {/* Language */}
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between gap-4 py-2">
                   <div>
                     <p className="font-medium text-white">Language</p>
                     <p className="text-sm text-gray-500 mt-0.5">Select your preferred language</p>
                   </div>
-                  <select className="bg-[#0a0a0f] border border-white/[0.1] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-cyan-500/50 cursor-pointer">
+                  <select
+                    value={language}
+                    onChange={(e) => handleLanguage(e.target.value)}
+                    className="bg-[#0a0a0f] border border-white/[0.1] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-cyan-500/50"
+                  >
                     <option>English</option>
                     <option>Hindi</option>
                     <option>Spanish</option>
@@ -245,21 +310,19 @@ export default function SettingsPage() {
 
                 <hr className="border-white/[0.08]" />
 
-                {/* Notifications */}
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between gap-4 py-2">
                   <div>
                     <p className="font-medium text-white flex items-center gap-2">
                       <Bell className="w-4 h-4" />
                       Notifications
                     </p>
-                    <p className="text-sm text-gray-500 mt-0.5">Receive email notifications</p>
+                    <p className="text-sm text-gray-500 mt-0.5">{notifications ? 'Email alerts on' : 'Email alerts off'}</p>
                   </div>
-                  <ToggleSwitch defaultChecked={true} />
+                  <ToggleSwitch checked={notifications} onChange={handleNotifications} label="Notifications" />
                 </div>
               </div>
             </section>
 
-            {/* Security Section */}
             <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-green-500/15">
@@ -269,30 +332,50 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-4">
-                {/* Change Password */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">Change Password</label>
-                  <input type="password" placeholder="••••••••" className="input-dark" />
+                  <label className="block text-sm font-medium text-gray-300">Current Password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                    className="input-dark placeholder:text-slate-500"
+                  />
                 </div>
-
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-300">New Password</label>
-                  <input type="password" placeholder="••••••••" className="input-dark" />
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="input-dark placeholder:text-slate-500"
+                  />
                 </div>
-
-                <button className="px-6 py-2.5 bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 border border-white/[0.1] rounded-xl text-sm font-medium transition-colors">
+                <button
+                  type="button"
+                  onClick={handleUpdatePassword}
+                  className="px-6 py-2.5 bg-white/[0.06] hover:bg-white/[0.1] text-gray-300 border border-white/[0.1] rounded-xl text-sm font-medium"
+                >
                   Update Password
                 </button>
 
-                {/* Two-Factor Auth */}
                 <div className="pt-4 border-t border-white/[0.08]">
-                  <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center justify-between gap-4 py-2">
                     <div>
                       <p className="font-medium text-white">Two-Factor Authentication</p>
-                      <p className="text-sm text-gray-500 mt-0.5">Add an extra layer of security</p>
+                      <p className="text-sm text-gray-500 mt-0.5">{twoFactor ? 'Enabled' : 'Add an extra layer of security'}</p>
                     </div>
-                    <button className="px-4 py-2 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/30 rounded-lg text-sm font-medium transition-colors">
-                      Enable
+                    <button
+                      type="button"
+                      onClick={handleTwoFactor}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium border ${
+                        twoFactor
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                          : 'bg-violet-500/10 text-violet-400 border-violet-500/30 hover:bg-violet-500/20'
+                      }`}
+                    >
+                      {twoFactor ? 'Disable' : 'Enable'}
                     </button>
                   </div>
                 </div>
@@ -300,128 +383,77 @@ export default function SettingsPage() {
             </section>
           </div>
 
-          {/* Right Column - Sidebar Cards */}
           <div className="space-y-6">
-            
-            {/* Current Plan Card */}
             <section className="bg-gradient-to-br from-cyan-500/[0.1] to-violet-500/[0.05] border border-cyan-500/20 rounded-2xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="5" width="20" height="14" rx="2" />
-                  <line x1="2" y1="10" x2="22" y2="10" />
-                </svg>
-                <h3 className="font-semibold text-white">Current Plan</h3>
-              </div>
-              
+              <h3 className="font-semibold text-white mb-4">Current Plan</h3>
               <div className="text-center py-4">
-                <p className="text-3xl font-bold text-white capitalize">Pro</p>
-                <p className="text-sm text-gray-400 mt-1">$9/month</p>
+                <p className="text-3xl font-bold text-white">Free</p>
+                <p className="text-sm text-gray-400 mt-1">Upgrade anytime</p>
               </div>
-
-              <Link href="/pricing" className="block w-full px-4 py-2.5 bg-white/[0.06] hover:bg-white/[0.1] text-center text-gray-300 border border-white/[0.1] rounded-xl text-sm font-medium transition-colors">
+              <Link
+                href="/pricing"
+                className="block w-full px-4 py-2.5 bg-white/[0.06] hover:bg-white/[0.1] text-center text-gray-300 border border-white/[0.1] rounded-xl text-sm font-medium"
+              >
                 Upgrade Plan →
               </Link>
             </section>
 
-            {/* Account Info Card */}
-            <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
+            <section className="bg-[#0f172a]/60 border border-white/[0.06] rounded-2xl p-6">
               <h3 className="font-semibold text-white mb-4">Account Info</h3>
-              
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Member Since</span>
-                  <span className="text-white">Jan 2024</span>
+                  <span className="text-white">2026</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Status</span>
-                  <span className="text-green-400 flex items-center gap-1.5">
-                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    Active
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">API Calls</span>
-                  <span className="text-white">1,247</span>
+                  <span className="text-green-400">Active</span>
                 </div>
               </div>
             </section>
 
-            {/* Danger Zone Card */}
-            <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-red-500/20 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-1.333-2.694-1.333-3.464 0H3.34c-1.54 0-2.502 1.667-1.732 2.5L3.34 16c.77 1.333 2.694 1.333 3.464 0H16.66c1.54 0 2.502-1.667 1.732-2.5z" />
-                </svg>
-                <h3 className="font-semibold text-red-400">Danger Zone</h3>
-              </div>
-              <p className="text-xs text-gray-500 mb-4">
-                Irreversible actions. Please be careful.
-              </p>
-              
+            <section className="bg-[#0f172a]/60 border border-red-500/20 rounded-2xl p-6">
+              <h3 className="font-semibold text-red-400 mb-4">Danger Zone</h3>
               <div className="space-y-3">
-                {/* Deactivate Button */}
                 <button
+                  type="button"
                   onClick={() => setShowDeactivateModal(true)}
-                  disabled={isDeactivating || isDeleting}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 border border-yellow-500/20 hover:border-yellow-500/40 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-yellow-400 hover:bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-sm font-medium"
                 >
                   <UserX className="w-4 h-4" />
-                  <span className="flex-1 text-left">Deactivate Account</span>
-                  <span className="text-xs opacity-60">Temporarily disable</span>
+                  Deactivate Account
                 </button>
-
-                {/* Delete Button */}
                 <button
+                  type="button"
                   onClick={() => setShowDeleteModal(true)}
-                  disabled={isDeactivating || isDeleting}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-xl text-sm font-medium"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span className="flex-1 text-left">Delete Account</span>
-                  <span className="text-xs opacity-60">Permanently remove</span>
+                  Delete Account
                 </button>
-              </div>
-              
-              {/* Warning Note */}
-              <div className="mt-4 p-3 rounded-lg bg-red-500/5 border border-red-500/10">
-                <p className="text-xs text-red-300/70 flex items-start gap-2">
-                  <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-1.333-2.694-1.333-3.464 0H3.34c-1.54 0-2.502 1.667-1.732 2.5L3.34 16c.77 1.333 2.694 1.333 3.464 0H16.66c1.54 0 2.502-1.667 1.732-2.5z" />
-                  </svg>
-                  <span>
-                    <strong>Warning:</strong> Deleting your account will permanently remove all data.
-                  </span>
-                </p>
               </div>
             </section>
           </div>
         </div>
       </main>
 
-      {/* Confirmation Modals */}
-      
-      {/* Deactivate Modal */}
       {showDeactivateModal && (
         <ConfirmationModal
-          isOpen={showDeactivateModal}
           onClose={() => setShowDeactivateModal(false)}
           onConfirm={handleDeactivateAccount}
           title="Deactivate Account?"
-          message="Your account will be temporarily disabled. You can reactivate it later by logging in."
+          message="Your account will be temporarily disabled. You can sign in again later."
           confirmText="Yes, Deactivate"
           isLoading={isDeactivating}
           variant="warning"
         />
       )}
-
-      {/* Delete Modal */}
       {showDeleteModal && (
         <ConfirmationModal
-          isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
           onConfirm={handleDeleteAccount}
           title="Delete Account Permanently?"
-          message="This action CANNOT be undone! All your data will be permanently deleted."
+          message="This cannot be undone. All local data on this device will be removed."
           confirmText="Yes, Delete Forever"
           isLoading={isDeleting}
           variant="danger"
@@ -431,55 +463,46 @@ export default function SettingsPage() {
   )
 }
 
-// ============================================
-// TOGGLE SWITCH COMPONENT
-// ============================================
-function ToggleSwitch({ defaultChecked = false }: { defaultChecked?: boolean }) {
-  const [isChecked, setIsChecked] = useState(defaultChecked)
-
+function ToggleSwitch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean
+  onChange: (value: boolean) => void
+  label: string
+}) {
   return (
     <button
-      onClick={() => setIsChecked(!isChecked)}
-      className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
-        isChecked ? 'bg-gradient-to-r from-cyan-500 to-violet-600' : 'bg-white/20'
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-7 w-[3.25rem] shrink-0 cursor-pointer items-center rounded-full border transition-colors ${
+        checked
+          ? 'border-cyan-400/50 bg-gradient-to-r from-cyan-500 to-violet-600'
+          : 'border-white/20 bg-white/10'
       }`}
-      aria-label="Toggle switch"
     >
       <span
-        className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-          isChecked ? 'translate-x-7' : 'translate-x-1'
+        className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+          checked ? 'translate-x-7' : 'translate-x-1'
         }`}
       />
     </button>
   )
 }
 
-// ============================================
-// LOADER ICON COMPONENT
-// ============================================
-function LoaderIcon() {
-  return (
-    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.924 3 8.11l2.111-1.819z" />
-    </svg>
-  )
-}
-
-// ============================================
-// CONFIRMATION MODAL COMPONENT
-// ============================================
 function ConfirmationModal({
-  isOpen,
   onClose,
   onConfirm,
   title,
   message,
   confirmText,
   isLoading,
-  variant = 'danger'
+  variant = 'danger',
 }: {
-  isOpen: boolean
   onClose: () => void
   onConfirm: () => void
   title: string
@@ -488,69 +511,34 @@ function ConfirmationModal({
   isLoading: boolean
   variant?: 'danger' | 'warning'
 }) {
-  if (!isOpen) return null
-
   const isDanger = variant === 'danger'
-
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative bg-[#1a1a2e] border border-white/[0.1] rounded-2xl p-6 max-w-md w-full shadow-2xl animate-fade-in">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-        >
+      <button type="button" className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} aria-label="Close" />
+      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#1a1a2e] p-6">
+        <button type="button" onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white">
           <X className="w-5 h-5" />
         </button>
-        
-        {/* Icon */}
-        <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${
-          isDanger ? 'bg-red-500/20' : 'bg-yellow-500/20'
-        }`}>
-          {isDanger ? (
-            <Trash2 className="w-8 h-8 text-red-400" />
-          ) : (
-            <UserX className="w-8 h-8 text-yellow-400" />
-          )}
-        </div>
-        
-        {/* Content */}
         <h3 className="text-xl font-bold text-white text-center mb-2">{title}</h3>
-        <p className="text-gray-400 text-center text-sm leading-relaxed mb-6">{message}</p>
-        
-        {/* Buttons */}
+        <p className="text-gray-400 text-center text-sm mb-6">{message}</p>
         <div className="flex gap-3">
           <button
+            type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 px-4 py-2.5 bg-white/[0.06] text-gray-300 hover:bg-white/[0.1] border border-white/[0.1] rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 bg-white/[0.06] text-gray-300 border border-white/10 rounded-xl text-sm"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-70 ${
-              isDanger 
-                ? 'bg-red-600 hover:bg-red-700' 
-                : 'bg-yellow-600 hover:bg-yellow-700'
+            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white ${
+              isDanger ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'
             }`}
           >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <LoaderIcon />
-                Processing...
-              </span>
-            ) : (
-              confirmText
-            )}
+            {isLoading ? 'Processing…' : confirmText}
           </button>
         </div>
       </div>
