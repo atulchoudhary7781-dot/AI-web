@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
-  Bot, Check, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
+  Bot, Check, ChevronDown, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
   Sparkles, StopCircle, ThumbsDown, ThumbsUp, User, X
 } from 'lucide-react'
 import { isImageFile, isTextLikeFile } from '@/lib/fileTypes'
@@ -90,6 +90,7 @@ export default function FullScreenChat({
   const [attached, setAttached] = useState<AttachedFile | null>(null)
   const [listening, setListening] = useState(false)
   const [modelId, setModelId] = useState(DEFAULT_MODEL_ID)
+  const [showModels, setShowModels] = useState(false)
   const [statusNote, setStatusNote] = useState('')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -425,7 +426,7 @@ export default function FullScreenChat({
             </div>
           )}
 
-          <div className="flex items-end gap-1.5 rounded-2xl border border-white/10 bg-[#0f1224] p-1.5 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)] sm:gap-2 sm:p-2">
+          <div className="relative flex items-end gap-1.5 rounded-2xl border border-white/10 bg-[#0f1224] p-1.5 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)] sm:gap-2 sm:p-2">
             <button
               type="button"
               onClick={handleAttachClick}
@@ -449,6 +450,55 @@ export default function FullScreenChat({
               rows={1}
               className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
             />
+            <div className="relative mb-0.5">
+              <button
+                type="button"
+                onClick={() => setShowModels((open) => !open)}
+                className="inline-flex h-11 max-w-[132px] items-center gap-1 rounded-xl px-2 text-cyan-300 hover:bg-white/5 sm:max-w-[160px] sm:px-2.5"
+                aria-label="Choose model"
+                title={WORKING_MODELS.find((m) => m.id === modelId)?.name || 'Choose model'}
+              >
+                <Sparkles className="h-5 w-5 shrink-0" />
+                <span className="hidden truncate text-[11px] font-medium sm:inline">
+                  {WORKING_MODELS.find((m) => m.id === modelId)?.name || 'Model'}
+                </span>
+                <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
+              </button>
+              {showModels && (
+                <>
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-40 cursor-default"
+                    aria-label="Close models"
+                    onClick={() => setShowModels(false)}
+                  />
+                  <div className="absolute bottom-12 right-0 z-50 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#0b1020] py-1 shadow-2xl">
+                    {WORKING_MODELS.map((model) => {
+                      const active = modelId === model.id
+                      return (
+                        <button
+                          key={model.id}
+                          type="button"
+                          onClick={() => {
+                            setModelId(model.id)
+                            setShowModels(false)
+                          }}
+                          className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-xs ${
+                            active ? 'bg-cyan-400/10 text-cyan-200' : 'text-slate-300 hover:bg-white/5'
+                          }`}
+                        >
+                          <span>
+                            <span className="block font-medium">{model.name}</span>
+                            <span className="block text-[10px] text-slate-500">{model.provider}</span>
+                          </span>
+                          {active && <Check className="h-4 w-4 text-cyan-400" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
             <button
               type="button"
               onClick={toggleVoice}
@@ -473,36 +523,7 @@ export default function FullScreenChat({
               {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </button>
           </div>
-          <div className="mt-3">
-            <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Live models
-            </p>
-            <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center [&::-webkit-scrollbar]:hidden">
-              {WORKING_MODELS.map((model) => {
-                const active = modelId === model.id
-                return (
-                  <button
-                    key={model.id}
-                    type="button"
-                    onClick={() => setModelId(model.id)}
-                    className={`shrink-0 rounded-full px-3 py-1.5 text-left text-[11px] transition sm:text-xs ${
-                      active
-                        ? 'border border-cyan-400/70 bg-cyan-400/15 font-semibold text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.22)]'
-                        : 'border border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/25 hover:text-white'
-                    }`}
-                    aria-pressed={active}
-                    aria-label={`Use ${model.name}`}
-                  >
-                    <span className="block leading-tight">{model.name}</span>
-                    <span className={`block text-[9px] sm:text-[10px] ${active ? 'text-cyan-300/80' : 'text-slate-600'}`}>
-                      {model.provider}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-          <p className="mt-2.5 text-center text-[11px] text-slate-400 sm:text-xs">
+          <p className="mt-2 text-center text-[11px] text-slate-400 sm:text-xs">
             Nexus is AI and can make mistakes.
           </p>
         </div>
