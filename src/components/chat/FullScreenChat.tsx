@@ -80,12 +80,7 @@ export default function FullScreenChat({
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
+        body: JSON.stringify({ message: trimmed }),
       })
 
       let reply =
@@ -94,13 +89,14 @@ export default function FullScreenChat({
       if (res.ok) {
         const data = await res.json().catch(() => null)
         reply =
+          data?.response ||
           data?.content ||
           data?.message ||
           data?.reply ||
           data?.text ||
           reply
       } else {
-        reply = `Got it: "${trimmed}"\n\nI'm running in local preview mode right now, but I can still help you draft, plan, and reason through the next step. What would you like to do with this?`
+        reply = `Got it: "${trimmed}"\n\nI couldn't reach the AI service just now. Please try again in a moment.`
       }
 
       setMessages((prev) => [

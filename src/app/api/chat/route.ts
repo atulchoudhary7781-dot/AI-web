@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateMessage, sanitizeString, checkForDangerousContent } from '@/lib/security'
 
 // OpenRouter API Configuration - Using Environment Variables (SECURE!)
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || ''
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
+
+function getOpenRouterKey() {
+  return process.env.OPENROUTER_API_KEY || ''
+}
 
 // AI Response cache for common questions
 const responseCache = new Map<string, string>()
@@ -58,6 +61,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    const OPENROUTER_API_KEY = getOpenRouterKey()
 
     // Check if API key is configured
     console.log('🔑 Checking API key...', { 
@@ -192,10 +197,10 @@ Always respond in a way that showcases advanced intelligence while being accessi
           'X-Title': 'NEXUS AI'
         },
         body: JSON.stringify({
-          model: process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.1-8b-instruct',
+          model: process.env.OPENROUTER_MODEL || 'openrouter/free',
           messages: messages,
           temperature: 0.7,
-          max_tokens: 2000,
+          max_tokens: 800,
           top_p: 0.9,
           frequency_penalty: 0.3,
           presence_penalty: 0.6
