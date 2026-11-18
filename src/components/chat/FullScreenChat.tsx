@@ -283,7 +283,11 @@ export default function FullScreenChat({
       fileName: attached && !attached.preview ? attached.file.name : undefined,
     }
 
-    const payload: Record<string, string> = { message: content, model: modelId }
+    const history = messages.slice(-12).map((item) => ({
+      role: item.role,
+      content: item.content.slice(0, 4000),
+    }))
+    const payload: Record<string, unknown> = { message: content, model: modelId, history }
     const email = (userEmail || (isLoggedIn ? getSessionUser()?.email : '') || '').trim()
     if (email) payload.userEmail = email
     if (attached?.base64) {
@@ -667,11 +671,9 @@ function TypingIndicator() {
       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
         <Bot className="h-4 w-4 text-white" />
       </div>
-      <div className="flex gap-1.5 pt-2">
-        <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
-        <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
-        <span className="h-2 w-2 rounded-full bg-violet-400 animate-bounce-dot" />
-      </div>
+      <p className="pt-1.5 text-sm font-medium tracking-wide text-violet-300 animate-pulse">
+        Thinking
+      </p>
     </div>
   )
 }

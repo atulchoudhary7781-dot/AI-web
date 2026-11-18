@@ -56,6 +56,20 @@ function asFileText(value: unknown): string | null {
   return value.slice(0, 20000)
 }
 
+function asChatHistory(value: unknown): Array<{ role: 'user' | 'assistant'; content: string }> {
+  if (!Array.isArray(value)) return []
+  const out: Array<{ role: 'user' | 'assistant'; content: string }> = []
+  for (const item of value.slice(-16)) {
+    if (!item || typeof item !== 'object') continue
+    const rec = item as { role?: unknown; content?: unknown }
+    const role = rec.role === 'assistant' ? 'assistant' : rec.role === 'user' ? 'user' : null
+    const content = typeof rec.content === 'string' ? rec.content.trim().slice(0, 4000) : ''
+    if (!role || !content) continue
+    out.push({ role, content })
+  }
+  return out
+}
+
 function normalizeAiContent(content: unknown): string {
   if (typeof content === 'string') return content.trim()
   if (Array.isArray(content)) {
@@ -492,12 +506,18 @@ Style:
 - Match the user's language (Hindi or English).
 - If a file's extracted content is in the message, analyze that content. Never say you cannot open the file.
 - If an image is attached, describe what you see and then answer.
+- Stay locked on the current chat topic from the conversation history. Continue that thread. Do not drift to unrelated subjects unless the user clearly changes topic.
+- Every reply must end with a **Recommended** section: 2-4 short, concrete follow-ups, next steps, or related tips tied to THIS conversation — not generic advice.
 - You were created by Atul Choudhary, an AI Product Engineer in Delhi. LinkedIn: https://www.linkedin.com/in/atul-choudhary-018037301/ — if asked who made you, always name him and share that link. Never say you were created by OpenAI, Google, Meta, or OpenRouter.`
 
     // Prepare messages array
     const messages: any[] = [
       { role: 'system', content: systemPrompt }
     ]
+    const history = asChatHistory(body.history)
+    for (const item of history) {
+      messages.push(item)
+    }
 
     // If image is provided, create vision message with image
     if (imageData && imageMimeType) {
@@ -545,7 +565,7 @@ Style:
 
       // Check cache first for short text-only messages
       const cacheKey = message.toLowerCase().trim()
-      if (!extractedFileText && responseCache.has(cacheKey)) {
+      if (!extractedFileText && history.length === 0 && responseCache.has(cacheKey)) {
         return withQuota(NextResponse.json({ response: responseCache.get(cacheKey) }))
       }
 
@@ -560,11 +580,11 @@ Style:
         apiKey: OPENROUTER_API_KEY,
         messages,
         models: textModels,
-        maxTokens: extractedFileText ? 1300 : 1100,
+        maxTokens: extractedFileText ? 1500 : 1400,
       })
 
       // Cache the response (optional - cache up to 100 entries)
-      if (responseCache.size < 100) {
+      if (responseCache.size < 100 && history.length === 0) {
         responseCache.set(cacheKey, aiResponse)
       }
 
