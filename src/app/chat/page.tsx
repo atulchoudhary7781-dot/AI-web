@@ -1005,7 +1005,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                           <img 
                             src="/creator-avatar.jpg" 
                             alt="Atul Choudhary - Creator of Nexus AI"
-                            className="w-full h-full object-cover"
+                            className="h-full w-full max-w-none object-cover object-[center_20%]"
                           />
                         </div>
                         {/* Verified Badge */}

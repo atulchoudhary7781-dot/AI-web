@@ -197,30 +197,30 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-[calc(50%+9.5rem)] z-10 px-6 text-center sm:top-[calc(50%+10.5rem)]">
+      <div className="pointer-events-none absolute inset-x-0 top-[calc(50%+7.5rem)] z-10 px-4 text-center sm:top-[calc(50%+10.5rem)] sm:px-6">
         <h1
-          className={`font-display text-5xl font-black tracking-[0.18em] text-white transition-all duration-700 sm:text-7xl ${
+          className={`font-display text-[1.85rem] font-black tracking-[0.12em] text-white transition-all duration-700 sm:text-5xl sm:tracking-[0.16em] md:text-7xl md:tracking-[0.18em] ${
             phase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
           }`}
         >
           NEXUS <span className="bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-transparent">AI</span>
         </h1>
         <p
-          className={`mt-4 max-w-lg mx-auto text-xs font-medium uppercase tracking-[0.42em] text-cyan-200/80 transition-all duration-700 sm:text-sm ${
+          className={`mx-auto mt-3 max-w-lg text-[10px] font-medium uppercase tracking-[0.22em] text-cyan-200/80 transition-all duration-700 sm:mt-4 sm:text-sm sm:tracking-[0.42em] ${
             phase >= 3 ? 'opacity-100' : 'opacity-0'
           }`}
         >
           The future of intelligence
         </p>
         <p
-          className={`mt-3 text-sm text-slate-400 transition-all duration-700 ${
+          className={`mt-2 text-xs text-slate-400 transition-all duration-700 sm:mt-3 sm:text-sm ${
             phase >= 4 ? 'opacity-100' : 'opacity-0'
           }`}
         >
           Built by Atul Choudhary
         </p>
         <div
-          className={`mx-auto mt-8 h-px w-40 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-700 ${
+          className={`mx-auto mt-6 h-px w-28 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-700 sm:mt-8 sm:w-40 ${
             phase >= 5 ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
           }`}
         />
@@ -229,7 +229,7 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
       <button
         type="button"
         onClick={finish}
-        className="absolute bottom-6 right-6 z-20 min-h-11 rounded-full border border-white/20 bg-black/40 px-4 text-xs font-semibold tracking-wide text-white backdrop-blur-md hover:border-cyan-300/50 hover:text-cyan-200"
+        className="absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-20 min-h-11 rounded-full border border-white/20 bg-black/40 px-4 text-xs font-semibold tracking-wide text-white backdrop-blur-md hover:border-cyan-300/50 hover:text-cyan-200"
       >
         Skip intro
       </button>
