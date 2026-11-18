@@ -17,6 +17,8 @@
 <p align="center">
   <a href="https://ai-web-rho-fawn.vercel.app">Open app</a>
   ·
+  <a href="#intro-video">Intro video</a>
+  ·
   <a href="#features">Features</a>
   ·
   <a href="#quick-start">Quick start</a>
@@ -24,11 +26,24 @@
   <a href="#creator">Creator</a>
 </p>
 
-<br />
+## Intro video
 
 <p align="center">
-  <img src="public/nexus-promo-poster.jpg" alt="NEXUS AI — Intelligence, composed." width="920" />
+  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4">
+    <img src="docs/nexus-intro.gif" alt="NEXUS AI cinematic intro" width="920" />
+  </a>
 </p>
+
+<p align="center">
+  <b>60 fps · human voice · full intro</b><br/>
+  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4">Watch on GitHub</a>
+  ·
+  <a href="https://github.com/atulchoudhary7781-dot/AI-web/releases/tag/intro">Release</a>
+  ·
+  <a href="https://ai-web-rho-fawn.vercel.app/NEXUS-AI-Promo.mp4">Play HD</a>
+</p>
+
+The promo lives in the repo at [`public/NEXUS-AI-Promo.mp4`](public/NEXUS-AI-Promo.mp4).
 
 ## Overview
 
@@ -93,6 +108,7 @@ src/app          routes and API
 src/components   chat, intro, layout, UI
 src/lib          models, quota, files, helpers
 public           logo, poster, promo video
+docs             GitHub extras (intro preview)
 ```
 
 ## Notes
