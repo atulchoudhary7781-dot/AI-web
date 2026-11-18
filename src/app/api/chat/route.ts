@@ -938,8 +938,5 @@ ${['json'].includes(fileExtension) ? `
 
 // Handle other methods
 export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST to send messages.' },
-    { status: 405 }
-  )
+  return NextResponse.json({ status: 'ok', chat: 'up' })
 }
