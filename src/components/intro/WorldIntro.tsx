@@ -84,8 +84,10 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
       ctx.fillStyle = '#020010'
       ctx.fillRect(0, 0, w, h)
 
-      const gx = w * 0.5 + Math.sin(t * 0.35) * w * 0.08
-      const gy = h * 0.42 + Math.cos(t * 0.28) * h * 0.06
+      const cx = w / 2
+      const cy = h / 2
+      const gx = cx + Math.sin(t * 0.35) * w * 0.06
+      const gy = cy + Math.cos(t * 0.28) * h * 0.05
       const nebula = ctx.createRadialGradient(gx, gy, 20, gx, gy, Math.max(w, h) * 0.55)
       nebula.addColorStop(0, 'rgba(0, 229, 255, 0.28)')
       nebula.addColorStop(0.35, 'rgba(124, 58, 237, 0.16)')
@@ -94,15 +96,20 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
       ctx.fillStyle = nebula
       ctx.fillRect(0, 0, w, h)
 
-      const ring = 90 + Math.sin(t * 1.6) * 18
+      const ring = 108 + Math.sin(t * 1.6) * 16
       ctx.beginPath()
-      ctx.arc(w / 2, h * 0.42, ring + 40, 0, Math.PI * 2)
-      ctx.strokeStyle = `rgba(0, 229, 255, ${0.18 + Math.sin(t * 3) * 0.08})`
+      ctx.arc(cx, cy, ring + 52, 0, Math.PI * 2)
+      ctx.strokeStyle = `rgba(0, 229, 255, ${0.22 + Math.sin(t * 3) * 0.08})`
       ctx.lineWidth = 2
       ctx.stroke()
       ctx.beginPath()
-      ctx.arc(w / 2, h * 0.42, ring, t, t + Math.PI * 1.4)
-      ctx.strokeStyle = 'rgba(168, 85, 247, 0.65)'
+      ctx.arc(cx, cy, ring + 24, -t * 1.2, -t * 1.2 + Math.PI * 1.35)
+      ctx.strokeStyle = 'rgba(196, 125, 255, 0.55)'
+      ctx.lineWidth = 2
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.arc(cx, cy, ring, t, t + Math.PI * 1.45)
+      ctx.strokeStyle = 'rgba(168, 85, 247, 0.85)'
       ctx.lineWidth = 3
       ctx.stroke()
 
@@ -114,8 +121,8 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
           star.z = 1
         }
         const k = 0.55 / star.z
-        const x = w / 2 + star.x * k * w
-        const y = h / 2 + star.y * k * h
+        const x = cx + star.x * k * w
+        const y = cy + star.y * k * h
         if (x < -40 || x > w + 40 || y < -40 || y > h + 40) continue
         const alpha = Math.min(1, (1 - star.z) * 1.15)
         const size = star.s * k * 0.9
@@ -132,11 +139,11 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
       ctx.lineWidth = 1
       for (let i = 0; i < nodes; i++) {
         const a = t * 0.6 + (i / nodes) * Math.PI * 2
-        const x1 = w / 2 + Math.cos(a) * (110 + Math.sin(t + i) * 20)
-        const y1 = h * 0.42 + Math.sin(a) * (70 + Math.cos(t + i) * 16)
+        const x1 = cx + Math.cos(a) * (118 + Math.sin(t + i) * 18)
+        const y1 = cy + Math.sin(a) * (118 + Math.cos(t + i) * 18)
         const b = a + Math.PI * 0.45
-        const x2 = w / 2 + Math.cos(b) * 160
-        const y2 = h * 0.42 + Math.sin(b) * 100
+        const x2 = cx + Math.cos(b) * 168
+        const y2 = cy + Math.sin(b) * 168
         ctx.beginPath()
         ctx.moveTo(x1, y1)
         ctx.lineTo(x2, y2)
@@ -178,9 +185,9 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(2,0,16,0.35)_70%,#020010_100%)]" />
 
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-28 sm:w-28">
         <div
-          className={`mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-[0_0_80px_rgba(0,229,255,0.55)] transition-all duration-700 sm:h-24 sm:w-24 ${
+          className={`flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-[0_0_80px_rgba(0,229,255,0.55)] transition-all duration-700 sm:h-24 sm:w-24 ${
             phase >= 1 ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
           }`}
         >
@@ -188,7 +195,9 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
             <path d="M12 3l2.2 6.4L21 12l-6.8 2.6L12 21l-2.2-6.4L3 12l6.8-2.6L12 3z" />
           </svg>
         </div>
+      </div>
 
+      <div className="pointer-events-none absolute inset-x-0 top-[calc(50%+9.5rem)] z-10 px-6 text-center sm:top-[calc(50%+10.5rem)]">
         <h1
           className={`font-display text-5xl font-black tracking-[0.18em] text-white transition-all duration-700 sm:text-7xl ${
             phase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
@@ -197,7 +206,7 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
           NEXUS <span className="bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-transparent">AI</span>
         </h1>
         <p
-          className={`mt-4 max-w-lg text-xs font-medium uppercase tracking-[0.42em] text-cyan-200/80 transition-all duration-700 sm:text-sm ${
+          className={`mt-4 max-w-lg mx-auto text-xs font-medium uppercase tracking-[0.42em] text-cyan-200/80 transition-all duration-700 sm:text-sm ${
             phase >= 3 ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -211,7 +220,7 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
           Built by Atul Choudhary
         </p>
         <div
-          className={`mt-8 h-px w-40 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-700 ${
+          className={`mx-auto mt-8 h-px w-40 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-700 ${
             phase >= 5 ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
           }`}
         />
