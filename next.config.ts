@@ -83,40 +83,27 @@ const nextConfig: NextConfig = {
           { key: 'Expires', value: '0' },
         ],
       },
-      // API routes - no cache
+      // API routes - no cache (same-origin only; do not pin CORS to one domain)
       {
         source: '/api/(.*)',
         headers: [
           { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: process.env.NEXT_PUBLIC_APP_URL || '*',
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
-          },
+        ],
+      },
+      {
+        source: '/NEXUS-AI-Promo.mp4',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ]
   },
 
-  // Redirect HTTP to HTTPS
+  // Vercel already terminates TLS. Do not redirect the whole site to
+  // NEXT_PUBLIC_APP_URL — that can send worldwide users to localhost
+  // or the wrong domain.
   async redirects() {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://nexus-ai.vercel.app'
-    
-    return [
-      ...(process.env.NODE_ENV === 'production' ? [{
-        source: '/:path*',
-        has: [{ type: 'header' as const, key: 'x-forwarded-proto', value: 'http' }],
-        permanent: true,
-        destination: `${baseUrl}/:path*`,
-      }] : []),
-    ]
+    return []
   },
 
   // ==================== WEBPACK CONFIGURATION ====================

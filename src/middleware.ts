@@ -12,7 +12,7 @@ export const runtime = 'nodejs'
 // Rate limiting configuration
 const RATE_LIMITS = {
   // General API rate limits (requests per minute)
-  '/api/chat': { requests: 20, windowMs: 60 * 1000 },      // 20 req/min for chat
+  '/api/chat': { requests: 60, windowMs: 60 * 1000 },      // 60 req/min — shared NATs (cafes, campuses) must still work
   '/api/auth': { requests: 5, windowMs: 60 * 1000 },       // 5 req/min for auth
   '/api/tools': { requests: 15, windowMs: 60 * 1000 },     // 15 req/min for tools
   '/api/admin': { requests: 30, windowMs: 60 * 1000 },     // 30 req/min for admin

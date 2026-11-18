@@ -64,6 +64,15 @@ export function quotaCookie(email: string, date: string, count: number) {
   return `nexus_q=${value}; Path=/; Max-Age=172800; SameSite=Lax; HttpOnly${secure ? '; Secure' : ''}`
 }
 
+function dbEnabled() {
+  const url = process.env.DATABASE_URL || ''
+  if (!url) return false
+  const lower = url.toLowerCase()
+  if (lower.includes('localhost') || lower.includes('127.0.0.1')) return false
+  if (lower.includes('user:pass@')) return false
+  return true
+}
+
 function timedOut<T>(promise: Promise<T>, ms: number) {
   return Promise.race([
     promise,
@@ -72,6 +81,7 @@ function timedOut<T>(promise: Promise<T>, ms: number) {
 }
 
 async function dbCount(email: string, today: string): Promise<number | null> {
+  if (!dbEnabled()) return null
   try {
     const user = await timedOut(
       db.user.findUnique({
@@ -89,6 +99,7 @@ async function dbCount(email: string, today: string): Promise<number | null> {
 }
 
 async function dbWrite(email: string, used: number) {
+  if (!dbEnabled()) return
   void timedOut(
     db.user.upsert({
       where: { email },

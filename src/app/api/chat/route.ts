@@ -325,7 +325,7 @@ async function completeChat(params: {
           max_tokens: params.maxTokens ?? 1600,
           provider: { allow_fallbacks: true, sort: 'throughput' },
         }),
-        signal: AbortSignal.timeout(28000),
+        signal: AbortSignal.timeout(10000),
       })
       const raw = await response.text()
       let data: unknown = null
