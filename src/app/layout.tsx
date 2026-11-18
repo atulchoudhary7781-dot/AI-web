@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { I18nProvider } from "@/lib/i18n";
+import AppFrame from "@/components/intro/AppFrame";
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
@@ -51,8 +52,10 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <I18nProvider>
-            {children}
-            <Toaster />
+            <AppFrame>
+              {children}
+              <Toaster />
+            </AppFrame>
           </I18nProvider>
         </ThemeProvider>
       </body>
