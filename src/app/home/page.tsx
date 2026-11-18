@@ -71,13 +71,14 @@ export default function HomePage() {
           <div className="relative grid gap-8 p-6 sm:grid-cols-[auto_1fr] sm:items-center sm:p-10">
             <div className="mx-auto sm:mx-0">
               <div className="relative h-36 w-36 sm:h-40 sm:w-40">
-                <div className="absolute inset-0 animate-spin rounded-full bg-[conic-gradient(from_90deg,transparent_0%,#00e5ff_35%,#a855f7_70%,transparent_100%)] [animation-duration:8s]" />
-                <div className="absolute inset-[3px] rounded-full bg-[#08081c]" />
-                <img
-                  src="/creator-photo.jpg"
-                  alt="Atul Choudhary, creator of NEXUS AI"
-                  className="absolute inset-[7px] h-[calc(100%-14px)] w-[calc(100%-14px)] rounded-full object-cover object-[center_18%] ring-2 ring-white/10"
-                />
+                <div className="absolute -inset-[3px] animate-spin rounded-full bg-[conic-gradient(from_90deg,#00e5ff_0%,transparent_28%,#a855f7_62%,transparent_82%,#00e5ff_100%)] [animation-duration:8s]" />
+                <div className="absolute inset-0 overflow-hidden rounded-full bg-[#08081c] p-[3px] shadow-[0_0_28px_rgba(0,229,255,0.35)]">
+                  <img
+                    src="/creator-avatar.jpg"
+                    alt="Atul Choudhary, creator of NEXUS AI"
+                    className="h-full w-full rounded-full object-cover object-[center_20%]"
+                  />
+                </div>
               </div>
             </div>
 

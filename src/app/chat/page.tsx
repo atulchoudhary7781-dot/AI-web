@@ -1003,7 +1003,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
                         />
                         <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-black/50 shadow-2xl">
                           <img 
-                            src="/creator-photo.jpg" 
+                            src="/creator-avatar.jpg" 
                             alt="Atul Choudhary - Creator of Nexus AI"
                             className="w-full h-full object-cover"
                           />
