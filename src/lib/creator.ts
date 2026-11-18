@@ -22,7 +22,9 @@ export function isCreatorQuestion(message: string): boolean {
 }
 
 export function creatorAnswer(message: string): string {
-  const hindi = /[\u0900-\u097F]/.test(message)
+  const hindi =
+    /[\u0900-\u097F]/.test(message) ||
+    /\b(kisne|tumhe|tumhara|aapko|banaya|banayi|banaye)\b/i.test(message)
 
   if (hindi) {
     return `Mujhe **${CREATOR_NAME}** ne banaya hai — Delhi ke AI Product Engineer.

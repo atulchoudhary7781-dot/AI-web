@@ -134,10 +134,7 @@ function isGroqDailyLimitError(message: string, remainingRequests?: number | nul
 
 function publicModelError(lastError: string): string {
   const lower = lastError.toLowerCase()
-  if (lower.includes('daily_limit') || lower.includes('groq-daily-limit')) {
-    return dailyLimitMessage()
-  }
-  if (lower.includes('free-models-per-day') || lower.includes('rate limit') || lower.includes('429')) {
+  if (lower.includes('free-models-per-day') || lower.includes('rate limit') || lower.includes('429') || lower.includes('groq-daily-limit')) {
     return 'The AI is busy right now. Please send again in a few seconds.'
   }
   if (lower.includes('402') || lower.includes('credits') || lower.includes('can only afford')) {

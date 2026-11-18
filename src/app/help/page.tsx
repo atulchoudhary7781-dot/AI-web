@@ -6,13 +6,13 @@ import { BookOpen, ChevronDown, HelpCircle, Mail, MessageCircle, Search, Send } 
 import SiteHeader from '@/components/layout/SiteHeader'
 
 const FAQS = [
-  { cat: 'Getting Started', q: 'How do I create an account?', a: 'Open Sign Up, enter your name, email and password, or continue with Google / GitHub. You can also chat as a guest with a daily message limit.' },
-  { cat: 'Getting Started', q: 'Is NEXUS AI free to use?', a: 'Yes. The Free plan includes 50 messages per day and 7-day chat history. Pro and Enterprise plans unlock unlimited messages and advanced models.' },
-  { cat: 'Getting Started', q: 'What AI models are available?', a: 'The chat box lists only models that are live on NEXUS right now — NEXUS Auto, Gemma 4, Nemotron Lightning, and ERNIE 5.5 Flash. Dead or unpaid models are not shown.' },
+  { cat: 'Getting Started', q: 'How do I create an account?', a: 'Open Sign Up, enter your name, email and password. You can also chat as a guest without an account.' },
+  { cat: 'Getting Started', q: 'Is NEXUS AI free to use?', a: 'Yes. Guests get 6 chats. After login, each account gets 30 chats per day. Your limit is only yours — it does not block other users.' },
+  { cat: 'Getting Started', q: 'What AI models are available?', a: 'The chat box lists only live models: NEXUS Auto, Ling 3.2 Flash, Gemma 4 31B, Gemma 4 26B, Nemotron Lightning, Flint, and LFM 1.7B.' },
   { cat: 'Account & Billing', q: 'How do I upgrade to PRO?', a: 'Visit the Pricing page and choose Pro. Subscription checkout will go live shortly — the plan is marked Coming Soon until then.' },
   { cat: 'Account & Billing', q: 'Can I cancel my subscription anytime?', a: 'Yes. Cancel anytime from Settings. Access continues until the end of the billing period.' },
   { cat: 'Account & Billing', q: 'Do you offer refunds?', a: 'Monthly plans can be refunded within 7 days if you have not exceeded fair-use limits. Yearly plans are prorated for unused months.' },
-  { cat: 'Features & Usage', q: 'How many chats can I have?', a: 'Guests get 6 messages. Free accounts get 50 per day. Pro is unlimited.' },
+  { cat: 'Features & Usage', q: 'How many chats can I have?', a: 'Guests get 6 chats. After you log in or create an account, you get 30 chats per day. Limits reset in 1 day and are counted separately for each user.' },
   { cat: 'Features & Usage', q: 'Is my chat history saved?', a: 'Yes, after you sign in. Guest chats stay only in this browser session.' },
   { cat: 'Features & Usage', q: 'Can I use NEXUS AI on mobile?', a: 'Yes. The layout is responsive — use the menu button to open the sidebar on phones.' },
 ]
@@ -57,7 +57,7 @@ export default function HelpPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search for answers…"
-              className="w-full rounded-xl border border-cyan-400/50 bg-black/40 py-3 pl-12 pr-4 text-base text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]"
+              className="w-full rounded-xl border border-cyan-400/50 bg-black/40 py-3 pl-14 pr-4 text-base text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]"
             />
           </div>
         </div>

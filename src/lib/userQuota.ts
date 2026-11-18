@@ -64,12 +64,22 @@ export function quotaCookie(email: string, date: string, count: number) {
   return `nexus_q=${value}; Path=/; Max-Age=172800; SameSite=Lax; HttpOnly${secure ? '; Secure' : ''}`
 }
 
+function timedOut<T>(promise: Promise<T>, ms: number) {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('quota-db-timeout')), ms)),
+  ])
+}
+
 async function dbCount(email: string, today: string): Promise<number | null> {
   try {
-    const user = await db.user.findUnique({
-      where: { email },
-      select: { chatsToday: true, lastChatResetDate: true },
-    })
+    const user = await timedOut(
+      db.user.findUnique({
+        where: { email },
+        select: { chatsToday: true, lastChatResetDate: true },
+      }),
+      700,
+    )
     if (!user) return null
     const lastKey = user.lastChatResetDate ? utcDateKey(user.lastChatResetDate) : ''
     return lastKey === today ? (user.chatsToday || 0) : 0
@@ -79,8 +89,8 @@ async function dbCount(email: string, today: string): Promise<number | null> {
 }
 
 async function dbWrite(email: string, used: number) {
-  try {
-    await db.user.upsert({
+  void timedOut(
+    db.user.upsert({
       where: { email },
       create: {
         email,
@@ -92,10 +102,11 @@ async function dbWrite(email: string, used: number) {
         chatsToday: used,
         lastChatResetDate: new Date(),
       },
-    })
-  } catch {
+    }),
+    700,
+  ).catch(() => {
     /* DB optional — cookie still isolates users worldwide */
-  }
+  })
 }
 
 export async function consumeLoggedInChat(email: string, cookieHeader: string | null) {
