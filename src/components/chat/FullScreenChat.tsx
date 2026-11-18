@@ -318,16 +318,16 @@ export default function FullScreenChat({
         body: JSON.stringify(payload),
       })
 
-      let reply = "I'm NEXUS AI — how else can I help?"
+      let reply = 'The AI is busy right now. Please send again in a few seconds.'
       const data = await res.json().catch(() => null)
       if (data?.dailyLimit && isLoggedIn) {
         setDailyLimit(true)
       }
-      if (res.ok) {
-        reply = data?.response || data?.content || data?.message || reply
-      } else {
-        reply = data?.error || 'I could not reach the AI service just now. Please try again.'
-      }
+      reply =
+        (typeof data?.response === 'string' && data.response.trim()) ||
+        (typeof data?.content === 'string' && data.content.trim()) ||
+        (typeof data?.message === 'string' && data.message.trim()) ||
+        reply
 
       setMessages((prev) => [
         ...prev,
@@ -339,7 +339,7 @@ export default function FullScreenChat({
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Network error. Please try sending again.',
+          content: 'The AI is busy right now. Please send again in a few seconds.',
           timestamp: new Date(),
         },
       ])

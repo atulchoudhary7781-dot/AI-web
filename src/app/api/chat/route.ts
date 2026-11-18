@@ -249,7 +249,7 @@ async function completeGroq(
           'User-Agent': 'Mozilla/5.0 (compatible; NEXUS-AI/1.0)',
         },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(28000),
+        signal: AbortSignal.timeout(12000),
       })
       const raw = await response.text()
       let data: unknown = null
@@ -284,7 +284,7 @@ async function completeOverflow(messages: Array<{ role: string; content: unknown
       messages: payload,
       temperature: 0.4,
     }),
-    signal: AbortSignal.timeout(28000),
+    signal: AbortSignal.timeout(12000),
   })
   const raw = await response.text()
   let data: unknown = null
@@ -307,6 +307,7 @@ async function completeChat(params: {
   const skipFree = Date.now() < freeQuotaBlockedUntil
 
   for (const model of params.models) {
+    if (!params.apiKey) break
     if (skipFree && isOpenRouterFreeModel(model)) continue
     try {
       console.log('🤖 OpenRouter model:', model)
@@ -387,7 +388,14 @@ export async function POST(request: NextRequest) {
   }
   
   try {
-    const body = await request.json()
+    let body: any = {}
+    try {
+      body = await request.json()
+    } catch {
+      return withQuota(NextResponse.json({
+        response: 'Please send a message and try again.',
+      }))
+    }
     console.log('📝 Request body received:', {
       hasMessage: !!body.message,
       hasImage: !!body.imageData,
@@ -401,10 +409,9 @@ export async function POST(request: NextRequest) {
     const messageValidation = validateMessage(body.message)
     if (!messageValidation.valid) {
       console.log('❌ Message validation failed:', messageValidation.errors)
-      return NextResponse.json(
-        { error: messageValidation.errors?.[0] || 'Invalid message' },
-        { status: 400 }
-      )
+      return withQuota(NextResponse.json({
+        response: messageValidation.errors?.[0] || 'Please type a message and send again.',
+      }))
     }
     message = messageValidation.value
     console.log('✅ Message validated:', message.substring(0, 50))
@@ -415,13 +422,17 @@ export async function POST(request: NextRequest) {
 
     const userEmail = normalizeEmail(body.userEmail) || normalizeEmail(request.headers.get('x-user-email'))
     if (userEmail) {
-      const quota = await consumeLoggedInChat(userEmail, request.headers.get('cookie'))
-      quotaCookieValue = quota.cookie
-      if (!quota.allowed) {
-        return withQuota(NextResponse.json({
-          response: dailyLimitMessage(),
-          dailyLimit: true,
-        }))
+      try {
+        const quota = await consumeLoggedInChat(userEmail, request.headers.get('cookie'))
+        quotaCookieValue = quota.cookie
+        if (!quota.allowed) {
+          return withQuota(NextResponse.json({
+            response: dailyLimitMessage(),
+            dailyLimit: true,
+          }))
+        }
+      } catch {
+        /* quota must never take down chat */
       }
     }
     
@@ -432,24 +443,21 @@ export async function POST(request: NextRequest) {
     fileType = sanitizeString(body.fileType, { maxLength: 50, allowSpecialChars: true })
 
     if (body.imageData && !imageData) {
-      return NextResponse.json(
-        { error: 'Invalid or too-large image. Use a PNG/JPG under 4MB.' },
-        { status: 400 }
-      )
+      return withQuota(NextResponse.json({
+        response: 'That image is invalid or too large. Use a PNG/JPG under 4MB.',
+      }))
     }
 
     if (imageData && !imageMimeType) {
-      return NextResponse.json(
-        { error: 'Unsupported image format. Use PNG, JPG, GIF or WebP.' },
-        { status: 400 }
-      )
+      return withQuota(NextResponse.json({
+        response: 'Unsupported image format. Use PNG, JPG, GIF or WebP.',
+      }))
     }
     
     if (fileName && checkForDangerousContent(fileName)) {
-      return NextResponse.json(
-        { error: 'Invalid filename' },
-        { status: 400 }
-      )
+      return withQuota(NextResponse.json({
+        response: 'That filename is not allowed. Rename the file and try again.',
+      }))
     }
 
     const incomingFileText = asFileText(body.fileText)
@@ -458,18 +466,17 @@ export async function POST(request: NextRequest) {
     let extractNote = ''
 
     if (!extractedFileText && incomingFileData && fileName) {
-      const extracted = await extractFileContent({
-        fileName,
-        fileType,
-        base64: incomingFileData,
-      })
-      extractedFileText = extracted.text
-      extractNote = extracted.note || ''
-      console.log('📎 Extracted file:', {
-        fileName,
-        chars: extractedFileText.length,
-        note: extractNote || undefined,
-      })
+      try {
+        const extracted = await extractFileContent({
+          fileName,
+          fileType,
+          base64: incomingFileData,
+        })
+        extractedFileText = extracted.text
+        extractNote = extracted.note || ''
+      } catch {
+        extractNote = 'The file was received, but its text could not be extracted. Describe what you need from it.'
+      }
     }
 
     if (extractedFileText || extractNote) {
@@ -488,11 +495,10 @@ export async function POST(request: NextRequest) {
       keyLength: OPENROUTER_API_KEY?.length 
     })
     
-    if (!OPENROUTER_API_KEY) {
-      console.warn('⚠️ OpenRouter API key not configured.')
-      return NextResponse.json({
-        response: 'The chat API is missing OPENROUTER_API_KEY on the server. Add it in Vercel environment variables and redeploy.',
-      })
+    if (!OPENROUTER_API_KEY && !getGroqKey()) {
+      return withQuota(NextResponse.json({
+        response: 'The AI is busy right now. Please send again in a few seconds.',
+      }))
     }
 
     const systemPrompt = `You are NEXUS AI. Write like a top Arena benchmark model: direct, structured, and complete.
@@ -593,27 +599,12 @@ Style:
 
   } catch (error) {
     console.error('❌ Chat API Error:', error)
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : undefined
-    })
-    
-    // Return detailed error for debugging (in production, you may want to hide this)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-
-    if (imageData) {
-      return withQuota(NextResponse.json({
-        response: publicModelError(errorMessage) + ' You can describe the image in text and send again.',
-      }))
-    }
-    if (extractedFileText) {
-      return withQuota(NextResponse.json({
-        response: `I read **${fileName || 'your file'}**, but the AI model did not return an answer just now.\n\n**Extracted preview:**\n\n${extractedFileText.slice(0, 1800)}`,
-      }))
-    }
-    return withQuota(NextResponse.json({ response: publicModelError(errorMessage) }))
+    return withQuota(NextResponse.json({
+      response: publicModelError(errorMessage),
+    }))
   }
+
 }
 
 // Image Analysis Fallback Response

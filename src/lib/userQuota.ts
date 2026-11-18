@@ -1,5 +1,4 @@
 import { createHmac, timingSafeEqual } from 'crypto'
-import { db } from './db'
 
 /** Logged-in users get their own daily chats. Guests stay on the 6-chat client cap. */
 export const LOGGED_IN_CHATS_PER_DAY = 30
@@ -80,9 +79,20 @@ function timedOut<T>(promise: Promise<T>, ms: number) {
   ])
 }
 
-async function dbCount(email: string, today: string): Promise<number | null> {
+async function loadDb() {
   if (!dbEnabled()) return null
   try {
+    const mod = await import('./db')
+    return mod.db || null
+  } catch {
+    return null
+  }
+}
+
+async function dbCount(email: string, today: string): Promise<number | null> {
+  try {
+    const db = await loadDb()
+    if (!db) return null
     const user = await timedOut(
       db.user.findUnique({
         where: { email },
@@ -99,7 +109,8 @@ async function dbCount(email: string, today: string): Promise<number | null> {
 }
 
 async function dbWrite(email: string, used: number) {
-  if (!dbEnabled()) return
+  const db = await loadDb()
+  if (!db) return
   void timedOut(
     db.user.upsert({
       where: { email },
@@ -123,29 +134,38 @@ async function dbWrite(email: string, used: number) {
 export async function consumeLoggedInChat(email: string, cookieHeader: string | null) {
   const max = LOGGED_IN_CHATS_PER_DAY
   const today = utcDateKey()
-  const cookie = parseQuotaCookie(cookieHeader, email)
-  const fromCookie = cookie?.date === today ? cookie.count : 0
-  const fromMem = mem.get(email)?.date === today ? mem.get(email)!.count : 0
-  const fromDb = await dbCount(email, today)
-  const current = Math.max(fromCookie, fromMem, fromDb ?? 0)
+  try {
+    const cookie = parseQuotaCookie(cookieHeader, email)
+    const fromCookie = cookie?.date === today ? cookie.count : 0
+    const fromMem = mem.get(email)?.date === today ? mem.get(email)!.count : 0
+    const fromDb = await dbCount(email, today)
+    const current = Math.max(fromCookie, fromMem, fromDb ?? 0)
 
-  if (current >= max) {
-    mem.set(email, { date: today, count: current })
-    return {
-      allowed: false,
-      used: current,
-      max,
-      cookie: quotaCookie(email, today, current),
+    if (current >= max) {
+      mem.set(email, { date: today, count: current })
+      return {
+        allowed: false,
+        used: current,
+        max,
+        cookie: quotaCookie(email, today, current),
+      }
     }
-  }
 
-  const used = current + 1
-  mem.set(email, { date: today, count: used })
-  await dbWrite(email, used)
-  return {
-    allowed: true,
-    used,
-    max,
-    cookie: quotaCookie(email, today, used),
+    const used = current + 1
+    mem.set(email, { date: today, count: used })
+    await dbWrite(email, used)
+    return {
+      allowed: true,
+      used,
+      max,
+      cookie: quotaCookie(email, today, used),
+    }
+  } catch {
+    return {
+      allowed: true,
+      used: 0,
+      max,
+      cookie: quotaCookie(email, today, 0),
+    }
   }
 }

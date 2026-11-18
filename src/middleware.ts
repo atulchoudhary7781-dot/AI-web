@@ -252,6 +252,14 @@ function logSecurityEvent(event: string, details: Record<string, any>): void {
 // ==================== MAIN MIDDLEWARE ====================
 
 export function middleware(request: NextRequest) {
+  try {
+    return runMiddleware(request)
+  } catch {
+    return NextResponse.next()
+  }
+}
+
+function runMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const ip = getClientIP(request)
   const method = request.method
@@ -312,8 +320,8 @@ export function middleware(request: NextRequest) {
       logSecurityEvent('RATE_LIMIT_EXCEEDED', { ip, pathname, method })
       
       return new NextResponse(
-        JSON.stringify({ 
-          error: 'Too many requests. Please try again later.',
+        JSON.stringify({
+          response: 'The AI is busy right now. Please send again in a few seconds.',
           retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
         }),
         { 
