@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
   Bot, Check, ChevronDown, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
@@ -589,19 +589,26 @@ function MessageActions({
   align?: 'start' | 'end'
 }) {
   return (
-    <div className={`mt-3 flex gap-1 ${align === 'end' ? 'justify-end' : 'justify-start'}`}>
-      <button onClick={onCopy} className="rounded-md p-1.5 hover:bg-white/10" aria-label="Copy">
-        {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-slate-400" />}
+    <div className={`mt-3 flex items-center gap-1 ${align === 'end' ? 'justify-end' : 'justify-start'}`}>
+      <button
+        type="button"
+        onClick={onCopy}
+        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-100 transition hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-cyan-100"
+        aria-label={copied ? 'Copied' : 'Copy answer'}
+      >
+        {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+        {copied ? 'Copied' : 'Copy'}
       </button>
-      <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Like">
-        <ThumbsUp className="h-4 w-4 text-slate-400" />
-      </button>
-      <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Dislike">
-        <ThumbsDown className="h-4 w-4 text-slate-400" />
-      </button>
-      <button className="rounded-md p-1.5 hover:bg-white/10" aria-label="Regenerate">
-        <RotateCcw className="h-4 w-4 text-slate-400" />
-      </button>
+      {align === 'start' && (
+        <>
+          <button type="button" className="rounded-md p-2.5 hover:bg-white/10" aria-label="Like">
+            <ThumbsUp className="h-4 w-4 text-slate-400" />
+          </button>
+          <button type="button" className="rounded-md p-2.5 hover:bg-white/10" aria-label="Dislike">
+            <ThumbsDown className="h-4 w-4 text-slate-400" />
+          </button>
+        </>
+      )}
     </div>
   )
 }
@@ -609,7 +616,50 @@ function MessageActions({
 function MarkdownAnswer({ content }: { content: string }) {
   return (
     <div className="answer-prose">
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown
+        components={{
+          pre({ children }) {
+            return <CopyableCode>{children}</CopyableCode>
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  )
+}
+
+function CopyableCode({ children }: { children: ReactNode }) {
+  const [copied, setCopied] = useState(false)
+
+  const textOf = (node: ReactNode): string => {
+    if (typeof node === 'string' || typeof node === 'number') return String(node)
+    if (!node || typeof node !== 'object') return ''
+    if (Array.isArray(node)) return node.map(textOf).join('')
+    const el = node as { props?: { children?: ReactNode } }
+    return textOf(el.props?.children)
+  }
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(textOf(children).replace(/\n$/, ''))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch { /* ignore */ }
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onCopy}
+        className="absolute right-2 top-2 z-10 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-[#0b1020]/90 px-2.5 text-[11px] font-semibold text-slate-200 hover:border-cyan-400/40 hover:text-cyan-100"
+        aria-label={copied ? 'Copied' : 'Copy code'}
+      >
+        {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <pre>{children}</pre>
     </div>
   )
 }
