@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   turbopack: {},
 
   // Keep heavy file parsers out of the serverless bundle graph
-  serverExternalPackages: ['unpdf', 'xlsx', 'jszip'],
+  serverExternalPackages: ['unpdf', 'exceljs', 'jszip'],
   
   // ==================== BUNDLE OPTIMIZATION ====================
   

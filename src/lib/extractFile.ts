@@ -173,7 +173,8 @@ async function extractPdf(buf: Buffer): Promise<string> {
 }
 
 async function extractSpreadsheet(buf: Buffer): Promise<string> {
-  const ExcelJS = (await import('exceljs')).default
+  const mod: any = await import('exceljs')
+  const ExcelJS = mod.default ?? mod
   const workbook = new ExcelJS.Workbook()
   await workbook.xlsx.load(buf)
   const sheets: string[] = []
