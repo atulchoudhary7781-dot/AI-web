@@ -85,10 +85,10 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.185.1",
     "unpdf": "^1.7.0",
-    "uuid": "^11.1.1",
+    "uuid": "^14.0.0",
     "vaul": "^1.1.2",
     "z-ai-web-dev-sdk": "^0.0.18",
-    "zod": "4.6.6",
+    "zod": "4.6.7",
     "zustand": "^5.0.6"
   },
   "devDependencies": {
@@ -107,7 +107,7 @@
     "next-auth": "4.24.15",
     "sharp": "0.35.5",
     "next-intl": "4.15.3",
-    "zod": "4.6.6",
+    "zod": "4.6.7",
     "js-yaml": "4.3.2",
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
