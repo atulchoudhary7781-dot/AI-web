@@ -173,12 +173,18 @@ async function extractPdf(buf: Buffer): Promise<string> {
 }
 
 async function extractSpreadsheet(buf: Buffer): Promise<string> {
-  const mod = await import('xlsx') as typeof import('xlsx') & { default?: typeof import('xlsx') }
-  const XLSX = mod.default || mod
-  const workbook = XLSX.read(buf, { type: 'buffer' })
-  const sheets = workbook.SheetNames.slice(0, 8).map((name) => {
-    const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[name] || {})
-    return `## Sheet: ${name}\n${csv}`
+  const ExcelJS = (await import('exceljs')).default
+  const workbook = new ExcelJS.Workbook()
+  await workbook.xlsx.load(buf)
+  const sheets: string[] = []
+  workbook.eachSheet((sheet) => {
+    if (sheets.length >= 8) return
+    const rows: string[] = []
+    sheet.eachRow((row) => {
+      const values = Array.isArray(row.values) ? row.values.slice(1) : []
+      rows.push(values.map((value) => (value == null ? '' : String(value))).join(','))
+    })
+    sheets.push(`## Sheet: ${sheet.name}\n${rows.join('\n')}`)
   })
   return sheets.join('\n\n')
 }
@@ -217,7 +223,21 @@ export async function extractFileContent(params: {
       if (ext === 'csv' || ext === 'tsv') {
         return { text: clip(buf.toString('utf8'), `Spreadsheet: ${fileName}`) }
       }
-      return { text: clip(await extractSpreadsheet(buf), `Spreadsheet: ${fileName}`) }
+      if (ext === 'ods') {
+        return { text: clip(await extractZipText(buf, ext), `Spreadsheet: ${fileName}`) }
+      }
+      try {
+        return { text: clip(await extractSpreadsheet(buf), `Spreadsheet: ${fileName}`) }
+      } catch (error) {
+        console.error('exceljs failed:', error instanceof Error ? error.message : error)
+        if (ext === 'xls' || ext === 'xlsb') {
+          return {
+            text: '',
+            note: `${fileName} could not be parsed as Excel. Save it as .xlsx and attach again.`,
+          }
+        }
+        throw error
+      }
     }
     if (['docx', 'pptx', 'odt', 'odp', 'ods', 'zip'].includes(ext)) {
       return { text: clip(await extractZipText(buf, ext), `Document: ${fileName}`) }
