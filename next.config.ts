@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   
   // Enable React strict mode for better development experience
   reactStrictMode: true,
+  allowedDevOrigins: [
+    '3000-i4qy0rifieccwzb75jbvl.e2b.app',
+    '*.e2b.app',
+    'localhost:3000',
+  ],
   
   // Turbopack configuration (Next.js 16 default - faster builds)
   turbopack: {},

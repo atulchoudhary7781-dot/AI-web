@@ -10,7 +10,7 @@ export default function HomePage() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-14 lg:py-16">
         <section className="text-center">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-glow-cyan sm:mb-6 sm:h-16 sm:w-16">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-600 shadow-glow-cyan sm:mb-6 sm:h-16 sm:w-16">
             <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />
           </div>
           <h1 className="font-display text-[2rem] font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
@@ -21,7 +21,7 @@ export default function HomePage() {
           </p>
 
           <div className="mx-auto mt-8 w-full max-w-4xl sm:mt-10">
-            <div className="relative overflow-hidden rounded-xl border border-cyan-400/25 bg-black shadow-[0_0_80px_rgba(0,229,255,0.18)] sm:rounded-2xl lg:rounded-3xl">
+            <div className="relative overflow-hidden rounded-xl border border-amber-300/25 bg-black shadow-[0_0_80px_rgba(255,179,71,0.18)] sm:rounded-2xl lg:rounded-3xl">
               <video
                 className="aspect-video w-full bg-black object-cover"
                 src="/NEXUS-AI-Promo.mp4"
@@ -43,7 +43,7 @@ export default function HomePage() {
           <div className="mx-auto mt-7 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:items-center">
             <Link
               href="/chat"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-6 text-sm font-semibold text-slate-950 shadow-glow-cyan"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-orange-500 px-6 text-sm font-semibold text-slate-950 shadow-glow-cyan"
             >
               <MessageSquare className="h-4 w-4" />
               Open Chat
@@ -63,7 +63,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="relative mx-auto mt-12 w-full max-w-3xl overflow-hidden rounded-2xl border border-cyan-400/25 bg-[#08081c] shadow-[0_0_80px_rgba(0,229,255,0.12)] sm:mt-16 sm:rounded-3xl">
+        <section className="relative mx-auto mt-12 w-full max-w-3xl overflow-hidden rounded-2xl border border-amber-300/20 bg-black/50 shadow-[0_0_80px_rgba(255,179,71,0.12)] backdrop-blur-md sm:mt-16 sm:rounded-3xl">
           <div className="pointer-events-none absolute -left-24 -top-24 h-52 w-52 rounded-full bg-cyan-500/20 blur-3xl sm:h-64 sm:w-64" />
           <div className="pointer-events-none absolute -bottom-28 -right-16 h-56 w-56 rounded-full bg-violet-600/25 blur-3xl sm:h-72 sm:w-72" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/80 to-transparent" />

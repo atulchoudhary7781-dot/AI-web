@@ -20,10 +20,10 @@ export default function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="site-header sticky top-0 z-50 border-b border-white/10 bg-[#07071a]/85 backdrop-blur-xl">
+    <header className="site-header sticky top-0 z-50 border-b border-amber-200/10 bg-black/45 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
         <Link href="/home" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-glow-cyan">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 to-orange-600 shadow-glow-cyan">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
           <span className="font-display text-base font-bold tracking-wide text-white">
@@ -60,7 +60,7 @@ export default function SiteHeader() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-glow-cyan"
+            className="rounded-lg bg-gradient-to-r from-amber-300 to-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-glow-cyan"
           >
             Get Started
           </Link>
@@ -94,7 +94,7 @@ export default function SiteHeader() {
             <Link
               href="/signup"
               onClick={() => setOpen(false)}
-              className="mt-1 rounded-lg bg-gradient-to-r from-cyan-400 to-violet-500 px-3 py-2.5 text-center text-sm font-semibold text-slate-950"
+              className="mt-1 rounded-lg bg-gradient-to-r from-amber-300 to-orange-500 px-3 py-2.5 text-center text-sm font-semibold text-slate-950"
             >
               Get Started
             </Link>

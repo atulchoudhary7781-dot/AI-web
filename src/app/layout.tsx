@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { I18nProvider } from "@/lib/i18n";
 import AppFrame from "@/components/intro/AppFrame";
+import BlackHoleBackdrop from "@/components/theme/BlackHoleBackdrop";
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
@@ -25,7 +26,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#050510",
+  themeColor: "#000000",
 };
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <I18nProvider>
+            <BlackHoleBackdrop />
             <AppFrame>
               {children}
               <Toaster />

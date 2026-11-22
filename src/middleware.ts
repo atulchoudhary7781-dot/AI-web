@@ -197,19 +197,21 @@ function detectSuspiciousContent(request: NextRequest): boolean {
 function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set(
-    'Content-Security-Policy',
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://openrouter.ai",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://openrouter.ai https://api.openrouter.ai",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join('; ')
-  )
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://openrouter.ai",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: blob: https:",
+        "connect-src 'self' https://openrouter.ai https://api.openrouter.ai",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join('; ')
+    )
+  }
   
   // Permissions Policy
   response.headers.set(
