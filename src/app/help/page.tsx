@@ -42,7 +42,7 @@ export default function HelpPage() {
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-3 py-8 sm:px-4 sm:py-14">
         <div className="mb-8 text-center sm:mb-10">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-violet-600 shadow-glow-cyan">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-orange-600 shadow-glow-cyan">
             <HelpCircle className="h-7 w-7 text-white" />
           </div>
           <h1 className="font-display text-2xl font-bold text-white sm:text-4xl">
@@ -57,7 +57,7 @@ export default function HelpPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search for answers…"
-              className="w-full rounded-xl border border-cyan-400/50 bg-black/40 py-3 pl-14 pr-4 text-base text-white outline-none placeholder:text-slate-400 focus:border-cyan-400 focus:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]"
+              className="w-full rounded-xl border border-amber-300/50 bg-black/40 py-3 pl-14 pr-4 text-base text-white outline-none placeholder:text-slate-400 focus:border-amber-300 focus:shadow-[0_0_0_3px_rgba(0,229,255,0.12)]"
             />
           </div>
         </div>
@@ -67,25 +67,25 @@ export default function HelpPage() {
             <span>⭐</span> Contact Options
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
-            <article className="rounded-2xl border border-cyan-400/20 bg-[#0f172a]/70 p-5">
-              <div className="mb-3 flex items-center gap-2 text-cyan-300">
+            <article className="rounded-2xl border border-amber-300/20 bg-[#0f172a]/70 p-5">
+              <div className="mb-3 flex items-center gap-2 text-amber-200">
                 <MessageCircle className="h-5 w-5" />
                 <h3 className="font-semibold">Live Chat</h3>
               </div>
               <p className="text-sm text-slate-400">Chat with our support team in real-time.</p>
               <p className="mt-2 text-xs text-emerald-400">● Available · ~5 min response</p>
-              <Link href="/chat" className="mt-3 inline-flex text-sm font-medium text-cyan-400 hover:underline">
+              <Link href="/chat" className="mt-3 inline-flex text-sm font-medium text-amber-300 hover:underline">
                 Start Chat ↗
               </Link>
             </article>
-            <article className="rounded-2xl border border-cyan-400/20 bg-[#0f172a]/70 p-5">
-              <div className="mb-3 flex items-center gap-2 text-cyan-300">
+            <article className="rounded-2xl border border-amber-300/20 bg-[#0f172a]/70 p-5">
+              <div className="mb-3 flex items-center gap-2 text-amber-200">
                 <Mail className="h-5 w-5" />
                 <h3 className="font-semibold">Email Support</h3>
               </div>
               <p className="text-sm text-slate-400">Send us an email anytime.</p>
               <p className="mt-2 text-xs text-emerald-400">● Available · ~24 hour response</p>
-              <a href="mailto:support@nexusai.app" className="mt-3 inline-flex text-sm font-medium text-cyan-400 hover:underline">
+              <a href="mailto:support@nexusai.app" className="mt-3 inline-flex text-sm font-medium text-amber-300 hover:underline">
                 support@nexusai.app ↗
               </a>
             </article>
@@ -113,7 +113,7 @@ export default function HelpPage() {
                   onClick={() => setCat(c)}
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
                     cat === c
-                      ? 'bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-400/30'
+                      ? 'bg-cyan-400/15 text-amber-200 ring-1 ring-cyan-400/30'
                       : 'bg-white/5 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -170,7 +170,7 @@ export default function HelpPage() {
               />
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-5 py-2.5 text-sm font-semibold text-slate-950 sm:col-span-2"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-orange-500 px-5 py-2.5 text-sm font-semibold text-slate-950 sm:col-span-2"
               >
                 <Send className="h-4 w-4" />
                 Send request

@@ -147,12 +147,12 @@ export default function SettingsPage() {
   return (
     <div className="page-shell min-h-screen">
       <SiteHeader />
-      <div className="border-b border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-xl">
+      <div className="border-b border-white/10">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-5 sm:py-6">
           <div className="flex items-center gap-4">
             <Link
               href="/chat"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
+              className="liquid-glass flex h-10 w-10 items-center justify-center rounded-xl text-amber-100"
               aria-label="Back to chat"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -177,10 +177,10 @@ export default function SettingsPage() {
       <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
+            <section className="liquid-panel rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-cyan-500/15">
-                  <User className="w-5 h-5 text-cyan-400" />
+                <div className="p-2.5 rounded-xl bg-amber-500/15">
+                  <User className="w-5 h-5 text-amber-300" />
                 </div>
                 <h2 className="text-lg font-semibold text-white">Profile</h2>
               </div>
@@ -193,7 +193,7 @@ export default function SettingsPage() {
                   <div className="mt-4 flex justify-center gap-3">
                     <Link
                       href="/login"
-                      className="rounded-lg bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-slate-950"
+                      className="rounded-lg  px-4 py-2 text-sm font-semibold text-slate-950"
                     >
                       Login
                     </Link>
@@ -208,7 +208,7 @@ export default function SettingsPage() {
               ) : (
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
@@ -251,7 +251,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                     Email
-                    <span className={`flex items-center gap-1 text-xs ${emailVerified ? 'text-emerald-400' : 'text-cyan-400'}`}>
+                    <span className={`flex items-center gap-1 text-xs ${emailVerified ? 'text-emerald-400' : 'text-amber-300'}`}>
                       <Clock className="w-3.5 h-3.5" />
                       {emailVerified ? 'Verified' : 'Not Verified'}
                     </span>
@@ -264,12 +264,12 @@ export default function SettingsPage() {
                     className="input-dark placeholder:text-slate-500"
                   />
                   {!emailVerified && (
-                    <div className="mt-2 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                      <p className="text-sm text-cyan-400 mb-2">Verify your email to unlock all features</p>
+                    <div className="mt-2 p-3 rounded-lg bg-amber-500/10 border border-amber-400/20">
+                      <p className="text-sm text-amber-300 mb-2">Verify your email to unlock all features</p>
                       <button
                         type="button"
                         onClick={handleVerifyEmail}
-                        className="px-4 py-2 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 rounded-lg text-sm font-medium"
+                        className="px-4 py-2 border border-amber-400/30 text-amber-300 hover:bg-amber-500/10 rounded-lg text-sm font-medium"
                       >
                         Send Verification Email
                       </button>
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={handleSaveProfile}
                   disabled={isSaving}
-                  className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-semibold rounded-xl disabled:opacity-70"
+                  className="px-8 py-3  text-white font-semibold rounded-xl disabled:opacity-70"
                 >
                   {isSaving ? 'Saving…' : 'Save Changes'}
                 </button>
@@ -289,7 +289,7 @@ export default function SettingsPage() {
               )}
             </section>
 
-            <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
+            <section className="liquid-panel rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-violet-500/15">
                   <Palette className="w-5 h-5 text-violet-400" />
@@ -306,7 +306,7 @@ export default function SettingsPage() {
                   <select
                     value={language}
                     onChange={(e) => handleLanguage(e.target.value)}
-                    className="bg-[#0a0a0f] border border-white/[0.1] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-cyan-500/50"
+                    className="bg-[#0a0a0f] border border-white/[0.1] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-amber-400/50"
                   >
                     <option>English</option>
                     <option>Hindi</option>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
               </div>
             </section>
 
-            <section className="bg-[#0f172a]/60 backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
+            <section className="liquid-panel rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-green-500/15">
                   <Shield className="w-5 h-5 text-green-400" />
@@ -390,7 +390,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
-            <section className="bg-gradient-to-br from-cyan-500/[0.1] to-violet-500/[0.05] border border-cyan-500/20 rounded-2xl p-6">
+            <section className="bg-gradient-to-br from-cyan-500/[0.1] to-violet-500/[0.05] border border-amber-400/20 rounded-2xl p-6">
               <h3 className="font-semibold text-white mb-4">Current Plan</h3>
               <div className="text-center py-4">
                 <p className="text-3xl font-bold text-white">Free</p>
@@ -404,7 +404,7 @@ export default function SettingsPage() {
               </Link>
             </section>
 
-            <section className="bg-[#0f172a]/60 border border-white/[0.06] rounded-2xl p-6">
+            <section className="liquid-panel rounded-2xl p-6">
               <h3 className="font-semibold text-white mb-4">Account Info</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
@@ -489,7 +489,7 @@ function ToggleSwitch({
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-7 w-[3.25rem] shrink-0 cursor-pointer items-center rounded-full border transition-colors ${
         checked
-          ? 'border-cyan-400/50 bg-gradient-to-r from-cyan-500 to-violet-600'
+          ? 'border-cyan-400/50 bg-gradient-to-r from-amber-400 to-orange-500'
           : 'border-white/20 bg-white/10'
       }`}
     >

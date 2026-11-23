@@ -77,8 +77,8 @@ export default function SignupPage() {
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Gradient Orbs */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-violet-500/10 rounded-full blur-[150px]" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-500/10 rounded-full blur-[150px]" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-amber-500/10 rounded-full blur-[150px]" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-orange-500/10 rounded-full blur-[150px]" />
         
         {/* Grid Pattern */}
         <div 
@@ -92,11 +92,11 @@ export default function SignupPage() {
 
       {/* Main Card */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-[#0f172a]/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-white/[0.08] shadow-2xl shadow-black/50">
+        <div className="liquid-panel rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10">
           
           {/* Logo */}
           <Link href="/home" className="flex justify-center mb-8 group">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-pink-600 flex items-center justify-center shadow-xl shadow-violet-500/25 group-hover:shadow-violet-500/40 group-hover:scale-105 transition-all duration-300">
+            <div className="liquid-glass-primary w-16 h-16 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-300">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
           </Link>
@@ -239,9 +239,9 @@ export default function SignupPage() {
               </button>
               <span className="text-xs text-gray-400 leading-relaxed">
                 I agree to the{' '}
-                <Link href="/terms" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">Terms of Service</Link>
+                <Link href="/terms" className="text-amber-300 hover:text-amber-200 font-medium transition-colors">Terms of Service</Link>
                 {' '}and{' '}
-                <Link href="/privacy" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">Privacy Policy</Link>
+                <Link href="/privacy" className="text-amber-300 hover:text-amber-200 font-medium transition-colors">Privacy Policy</Link>
               </span>
             </div>
 
@@ -249,7 +249,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading || !agreedToTerms}
-              className="w-full py-3.5 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-600 hover:from-violet-400 hover:via-purple-400 hover:to-pink-500 text-white font-bold text-base rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
+              className="liquid-glass-primary w-full py-3.5 text-white font-bold text-base rounded-xl disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -270,7 +270,7 @@ export default function SignupPage() {
             Already have an account?{' '}
             <Link
               href="/login"
-              className="font-bold text-transparent bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text hover:from-violet-300 hover:to-pink-300 transition-all"
+              className="font-bold text-amber-300 hover:text-amber-200 transition-all"
             >
               Sign In
             </Link>

@@ -103,7 +103,7 @@ export default function Sidebar({
       
       {/* Sidebar Panel */}
       <aside 
-        className={`fixed top-0 left-0 h-full w-[min(20rem,88vw)] bg-gradient-to-b from-[#0f172a] to-[#1a1a2e] backdrop-blur-xl border-r border-white/[0.08] z-50 transform transition-transform duration-300 ease-out flex flex-col ${
+        className={`liquid-panel fixed top-0 left-0 h-full w-[min(20rem,88vw)] z-50 transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
@@ -114,11 +114,11 @@ export default function Sidebar({
             {/* Logo & Close */}
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                <div className="liquid-glass-primary w-10 h-10 rounded-xl flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                  <span className="text-lg font-bold gradient-text-nexus">
                     NEXUS AI
                   </span>
                   <p className="text-[10px] text-gray-500 uppercase tracking-wider">Live free models</p>

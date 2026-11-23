@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./liquid-glass.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -223,8 +224,8 @@ button, a, [role="button"] {
   50% { transform: translateY(-10px); }
 }
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 18px rgba(0, 229, 255, 0.28); }
-  50% { box-shadow: 0 0 36px rgba(0, 229, 255, 0.55); }
+  0%, 100% { box-shadow: 0 0 18px rgba(255, 179, 71, 0.28); }
+  50% { box-shadow: 0 0 36px rgba(255, 120, 40, 0.55); }
 }
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
@@ -257,33 +258,7 @@ button, a, [role="button"] {
 .animate-bounce-dot:nth-child(2) { animation-delay: 0.18s; }
 .animate-bounce-dot:nth-child(3) { animation-delay: 0.36s; }
 
-.glass,
-.glass-strong,
-.glass-light,
-.glass-subtle {
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-}
-.glass {
-  background: rgba(14, 14, 30, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.glass-strong {
-  background: rgba(12, 12, 28, 0.88);
-  border: 1px solid rgba(0, 229, 255, 0.16);
-}
-.glass-light {
-  background: rgba(18, 18, 38, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.glass-subtle {
-  background: rgba(16, 16, 32, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
 .navbar-glass {
-  background: rgba(4, 2, 1, 0.62);
-  backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255, 196, 128, 0.12);
 }
 
@@ -387,9 +362,9 @@ button, a, [role="button"] {
   padding-left: 1.25em;
 }
 .answer-prose li { margin: 0.28em 0; }
-.answer-prose li::marker { color: #22d3ee; }
+.answer-prose li::marker { color: #ffb347; }
 .answer-prose strong { color: #fff; font-weight: 650; }
-.answer-prose a { color: #22d3ee; text-decoration: underline; text-underline-offset: 3px; }
+.answer-prose a { color: #ffb347; text-decoration: underline; text-underline-offset: 3px; }
 .answer-prose hr {
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -401,7 +376,7 @@ button, a, [role="button"] {
   border-radius: 0.35rem;
   padding: 0.1em 0.38em;
   font-size: 0.86em;
-  color: #a5f3fc;
+  color: #ffd9a0;
 }
 .answer-prose pre {
   background: #0b0b18;
@@ -419,7 +394,7 @@ button, a, [role="button"] {
   font-size: 0.86rem;
 }
 .answer-prose blockquote {
-  border-left: 3px solid #22d3ee;
+  border-left: 3px solid #ffb347;
   padding: 0.15rem 0 0.15rem 0.9rem;
   color: #94a3b8;
   margin: 0.8em 0;
@@ -460,38 +435,27 @@ button, a, [role="button"] {
   padding-right: 3rem;
 }
 .input-dark:focus {
-  border-color: rgba(0, 229, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.12);
+  border-color: rgba(255, 179, 71, 0.55);
+  box-shadow: 0 0 0 3px rgba(255, 179, 71, 0.12);
 }
 .input-dark::placeholder { color: #64748b; }
 
-.btn-primary {
-  background: linear-gradient(135deg, #00e5ff, #a855f7);
-  color: #041016;
+.btn-primary,
+.btn-secondary {
   font-weight: 700;
   padding: 0.7rem 1.3rem;
-  border-radius: 0.75rem;
-  border: 0;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 229, 255, 0.22);
-}
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
-  padding: 0.7rem 1.3rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.9rem;
   cursor: pointer;
 }
 
 .text-glow-cyan {
-  text-shadow: 0 0 12px rgba(0, 229, 255, 0.45), 0 0 28px rgba(0, 229, 255, 0.2);
+  text-shadow: 0 0 12px rgba(255, 179, 71, 0.45), 0 0 28px rgba(255, 120, 40, 0.2);
 }
 
 .scrollbar-thin { scrollbar-width: thin; }
 
 :focus-visible {
-  outline: 2px solid #00e5ff;
+  outline: 2px solid #ffb347;
   outline-offset: 2px;
 }
 

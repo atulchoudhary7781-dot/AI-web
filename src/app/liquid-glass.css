@@ -1,0 +1,318 @@
+/* iPhone Liquid Glass — iOS 26 material on every control */
+
+:root {
+  --lg-blur: 22px;
+  --lg-sat: 185%;
+  --lg-fill: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.08) 46%,
+    rgba(255, 246, 232, 0.05) 100%
+  );
+  --lg-fill-primary: linear-gradient(
+    180deg,
+    rgba(255, 224, 176, 0.5) 0%,
+    rgba(255, 168, 72, 0.28) 52%,
+    rgba(255, 120, 40, 0.2) 100%
+  );
+  --lg-fill-danger: linear-gradient(
+    180deg,
+    rgba(255, 150, 150, 0.42) 0%,
+    rgba(180, 40, 40, 0.22) 100%
+  );
+  --lg-stroke: rgba(255, 255, 255, 0.38);
+  --lg-spec:
+    inset 0 1.4px 0 rgba(255, 255, 255, 0.82),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.42);
+}
+
+@keyframes lg-sheen {
+  from { transform: translateX(-80%) rotate(12deg); }
+  to { transform: translateX(80%) rotate(12deg); }
+}
+
+.liquid-glass,
+.liquid-panel,
+.liquid-glass-primary,
+.glass,
+.glass-strong,
+.glass-light,
+.glass-subtle {
+  position: relative;
+  isolation: isolate;
+  background-color: rgba(10, 8, 6, 0.28);
+  background-image: var(--lg-fill);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  border: 1px solid var(--lg-stroke);
+  box-shadow: var(--lg-spec);
+}
+
+.liquid-glass-primary {
+  background-image: var(--lg-fill-primary);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.liquid-glass::before,
+.liquid-panel::before,
+.liquid-glass-primary::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    transparent 34%,
+    transparent 62%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  opacity: 0.75;
+}
+
+.navbar-glass,
+.site-header,
+.nexus-topbar,
+.nexus-composer {
+  background-color: rgba(4, 2, 1, 0.42) !important;
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.03)
+  ) !important;
+  backdrop-filter: blur(26px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(190%) !important;
+  border-color: rgba(255, 220, 180, 0.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+button:not(.no-liquid):not(.fixed):not([data-liquid="off"]),
+[data-slot="button"]:not(.no-liquid),
+[role="button"]:not(.no-liquid),
+[role="tab"]:not([data-liquid="off"]),
+[role="menuitem"],
+[role="option"],
+[data-slot="dropdown-menu-item"],
+[data-slot="select-item"],
+[data-slot="select-trigger"],
+[data-slot="badge"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+.btn-primary,
+.btn-secondary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-image: var(--lg-fill) !important;
+  backdrop-filter: blur(16px) saturate(175%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(175%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  box-shadow: var(--lg-spec) !important;
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform 160ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+
+button[type="submit"],
+.btn-primary,
+.liquid-glass-primary,
+a.liquid-glass-primary {
+  background-image: var(--lg-fill-primary) !important;
+}
+
+button[class*="destructive"],
+[data-slot="button"][class*="destructive"],
+button[class*="red-500"],
+button[class*="text-red-"] {
+  background-image: var(--lg-fill-danger) !important;
+}
+
+a.liquid-glass,
+a.liquid-glass-primary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-image: var(--lg-fill) !important;
+  backdrop-filter: blur(16px) saturate(175%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(175%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  box-shadow: var(--lg-spec) !important;
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform 160ms ease, filter 200ms ease, box-shadow 200ms ease;
+}
+
+a.liquid-glass-primary {
+  background-image: var(--lg-fill-primary) !important;
+}
+
+button:not(.no-liquid):not(.fixed)::after,
+[data-slot="button"]:not(.no-liquid)::after,
+[role="button"]:not(.no-liquid)::after,
+a.liquid-glass::after,
+a.liquid-glass-primary::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -50% -70%;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.42) 50%,
+    transparent 58%
+  );
+  transform: translateX(-40%) rotate(10deg);
+  opacity: 0.4;
+}
+
+@media (hover: hover) {
+  button:not(.no-liquid):not(.fixed):hover,
+  [data-slot="button"]:not(.no-liquid):hover,
+  [role="button"]:not(.no-liquid):hover,
+  [role="menuitem"]:hover,
+  [role="option"]:hover,
+  a.liquid-glass:hover,
+  a.liquid-glass-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+
+  button:not(.no-liquid):not(.fixed):hover::after,
+  [data-slot="button"]:not(.no-liquid):hover::after,
+  a.liquid-glass:hover::after,
+  a.liquid-glass-primary:hover::after {
+    animation: lg-sheen 0.65s ease;
+  }
+}
+
+button:not(.no-liquid):not(.fixed):active,
+[data-slot="button"]:not(.no-liquid):active,
+a.liquid-glass:active,
+a.liquid-glass-primary:active {
+  transform: scale(0.97);
+  filter: brightness(0.96);
+}
+
+button:disabled,
+[data-slot="button"]:disabled,
+[role="button"][aria-disabled="true"] {
+  filter: grayscale(0.15) brightness(0.78);
+  cursor: not-allowed;
+}
+
+button.fixed.inset-0,
+button.absolute.inset-0,
+.no-liquid,
+[data-liquid="off"] {
+  background: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  color: inherit !important;
+  overflow: visible;
+}
+
+button.fixed.inset-0::before,
+button.fixed.inset-0::after,
+button.absolute.inset-0::before,
+button.absolute.inset-0::after,
+.no-liquid::before,
+.no-liquid::after,
+[data-liquid="off"]::before,
+[data-liquid="off"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="color"]):not(.no-liquid),
+textarea:not(.no-liquid),
+select:not(.no-liquid),
+.input-dark {
+  background-color: rgba(8, 6, 4, 0.35) !important;
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.04)
+  ) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 24px rgba(0, 0, 0, 0.28) !important;
+  color: #fff !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.input-dark::placeholder {
+  color: rgba(226, 211, 196, 0.55) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.input-dark:focus {
+  border-color: rgba(255, 196, 128, 0.7) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 0 3px rgba(255, 179, 71, 0.2) !important;
+  outline: none;
+}
+
+.liquid-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--lg-fill);
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  color: #fff;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .liquid-glass,
+  .liquid-panel,
+  .liquid-glass-primary,
+  .glass,
+  .glass-strong,
+  .glass-light,
+  .glass-subtle,
+  .navbar-glass,
+  .site-header,
+  .nexus-topbar,
+  .nexus-composer,
+  button:not(.no-liquid):not(.fixed),
+  [data-slot="button"],
+  a.liquid-glass,
+  a.liquid-glass-primary,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+  textarea,
+  select,
+  .input-dark {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: #16110c !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(.no-liquid)::after,
+  [data-slot="button"]::after,
+  a.liquid-glass::after,
+  a.liquid-glass-primary::after {
+    animation: none !important;
+  }
+}

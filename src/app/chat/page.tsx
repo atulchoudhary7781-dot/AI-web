@@ -1295,28 +1295,26 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       />
 
       <div className="nexus-main">
-        <header className="nexus-topbar z-30 flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#07071a]/90 px-2 backdrop-blur-xl sm:gap-3 sm:px-5">
+        <header className="nexus-topbar z-30 flex shrink-0 items-center justify-between gap-2 border-b px-2 sm:gap-3 sm:px-5">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition ${
-                sidebarOpen
-                  ? 'rotate-90 border-red-500/40 bg-red-500/15'
-                  : 'border-white/10 bg-white/5 hover:border-cyan-400/40'
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition ${
+                sidebarOpen ? 'rotate-90' : ''
               }`}
               title={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             >
               {sidebarOpen ? (
                 <X className="h-[18px] w-[18px] text-red-400" />
               ) : (
-                <Menu className="h-[18px] w-[18px] text-cyan-400" />
+                <Menu className="h-[18px] w-[18px] text-amber-200" />
               )}
             </button>
             {currentView !== 'chat' && (
               <button
                 type="button"
                 onClick={() => setCurrentView('chat')}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-300 hover:border-cyan-400/40"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-amber-100"
                 title="Back to chat"
                 aria-label="Back to chat"
               >
@@ -1329,7 +1327,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
               className="flex min-w-0 items-center gap-2 rounded-lg px-1 py-1 hover:opacity-90"
               title="Open chat"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-600">
+              <div className="liquid-glass-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <span className="hidden truncate text-sm font-semibold tracking-tight text-white min-[380px]:inline sm:text-base">
@@ -1340,7 +1338,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
           <a
             href="/pricing"
-            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg bg-gradient-to-r from-violet-500 to-pink-500 px-2.5 text-[11px] font-extrabold text-white shadow-[0_2px_12px_rgba(168,85,247,0.5)] sm:gap-1.5 sm:px-3"
+            className="liquid-glass-primary inline-flex h-9 shrink-0 items-center gap-1 rounded-full px-2.5 text-[11px] font-extrabold text-white sm:gap-1.5 sm:px-3"
           >
             <Crown className="h-3.5 w-3.5 text-yellow-300" />
             PRO
@@ -1362,7 +1360,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
               <Button
                 size="sm"
                 onClick={handleLoginClick}
-                className="h-9 bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 hover:from-cyan-300 hover:to-violet-400"
+                className="h-9"
               >
                 <LogIn className="h-4 w-4 sm:mr-1.5" />
                 <span className="hidden sm:inline">Login</span>

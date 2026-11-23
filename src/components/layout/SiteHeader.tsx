@@ -20,10 +20,10 @@ export default function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="site-header sticky top-0 z-50 border-b border-amber-200/10 bg-black/45 backdrop-blur-xl">
+    <header className="site-header sticky top-0 z-50 border-b">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
         <Link href="/home" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 to-orange-600 shadow-glow-cyan">
+          <div className="liquid-glass-primary flex h-9 w-9 items-center justify-center rounded-xl">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
           <span className="font-display text-base font-bold tracking-wide text-white">
@@ -31,7 +31,7 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1.5 md:flex">
           {LINKS.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`)
             return (
@@ -39,10 +39,8 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  active
-                    ? 'bg-white/10 text-cyan-300'
-                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                  'liquid-glass rounded-full px-3.5 py-2 text-sm font-medium',
+                  active ? 'text-amber-100' : 'text-slate-200'
                 )}
               >
                 {link.label}
@@ -54,20 +52,20 @@ export default function SiteHeader() {
         <div className="hidden items-center gap-2 md:flex">
           <Link
             href="/login"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:text-white"
+            className="liquid-glass rounded-full px-3.5 py-2 text-sm font-medium text-white"
           >
             Login
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-gradient-to-r from-amber-300 to-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-glow-cyan"
+            className="liquid-glass-primary rounded-full px-4 py-2 text-sm font-semibold text-white"
           >
             Get Started
           </Link>
         </div>
 
         <button
-          className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-300 hover:bg-white/10 md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-white md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -76,25 +74,25 @@ export default function SiteHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-[#07071a] px-4 py-3 md:hidden">
-          <div className="flex flex-col gap-1">
+        <div className="liquid-panel border-t border-white/10 px-4 py-3 md:hidden">
+          <div className="flex flex-col gap-1.5">
             {LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm text-slate-200 hover:bg-white/5"
+                className="liquid-glass rounded-xl px-3 py-2.5 text-sm text-white"
               >
                 {link.label}
               </Link>
             ))}
-            <Link href="/login" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm text-slate-200">
+            <Link href="/login" onClick={() => setOpen(false)} className="liquid-glass rounded-xl px-3 py-2.5 text-sm text-white">
               Login
             </Link>
             <Link
               href="/signup"
               onClick={() => setOpen(false)}
-              className="mt-1 rounded-lg bg-gradient-to-r from-amber-300 to-orange-500 px-3 py-2.5 text-center text-sm font-semibold text-slate-950"
+              className="liquid-glass-primary mt-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold text-white"
             >
               Get Started
             </Link>

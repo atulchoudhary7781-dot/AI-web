@@ -374,8 +374,8 @@ export default function FullScreenChat({
         {!hasMessages ? (
           <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-10">
             <div className="relative mb-5 sm:mb-6">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-400 to-violet-500 opacity-40 blur-2xl" />
-              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-glow-cyan sm:h-16 sm:w-16">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-300 to-orange-500 opacity-40 blur-2xl" />
+              <div className="liquid-glass-primary relative flex h-14 w-14 items-center justify-center rounded-2xl sm:h-16 sm:w-16">
                 <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />
               </div>
             </div>
@@ -391,7 +391,7 @@ export default function FullScreenChat({
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
                   disabled={!canChat || limitLocked}
-                  className="min-h-11 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-left transition hover:border-cyan-400/30 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40 sm:p-4"
+                  className="liquid-glass min-h-11 rounded-2xl p-3.5 text-left disabled:cursor-not-allowed disabled:opacity-40 sm:p-4"
                 >
                   <p className="text-sm font-semibold text-white">{item.title}</p>
                   <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.prompt}</p>
@@ -415,7 +415,7 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer border-t border-white/10 bg-[#07071a]/80 px-3 py-3 backdrop-blur-xl sm:px-4 sm:py-4">
+      <div className="nexus-composer border-t px-3 py-3 sm:px-4 sm:py-4">
         <div className="mx-auto max-w-3xl">
           <input
             ref={fileInputRef}
@@ -426,7 +426,7 @@ export default function FullScreenChat({
 
           {!isLoggedIn && (
             <p className="mb-2 text-center text-xs text-slate-500">
-              <button onClick={onLoginClick} className="text-cyan-400 hover:underline">
+              <button onClick={onLoginClick} className="no-liquid text-amber-300 hover:underline">
                 Sign in
               </button>{' '}
               to save chat history
@@ -441,7 +441,7 @@ export default function FullScreenChat({
           )}
 
           {statusNote && (
-            <p className={`mb-2 text-center text-xs ${listening ? 'text-cyan-400' : 'text-amber-400'}`}>
+            <p className={`mb-2 text-center text-xs ${listening ? 'text-amber-200' : 'text-amber-400'}`}>
               {statusNote}
             </p>
           )}
@@ -451,7 +451,7 @@ export default function FullScreenChat({
               {attached.preview ? (
                 <img src={attached.preview} alt="" className="h-10 w-10 rounded-lg object-cover" />
               ) : (
-                <FileText className="h-5 w-5 text-cyan-400" />
+                <FileText className="h-5 w-5 text-amber-300" />
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm text-white">{attached.file.name}</p>
@@ -467,7 +467,7 @@ export default function FullScreenChat({
             </div>
           )}
 
-          <div className="relative flex items-end gap-1.5 rounded-2xl border border-white/10 bg-[#0f1224] p-1.5 shadow-glass focus-within:border-cyan-400/40 focus-within:shadow-[0_0_0_3px_rgba(0,229,255,0.12)] sm:gap-2 sm:p-2">
+          <div className="liquid-panel relative flex items-end gap-1.5 rounded-2xl p-1.5 focus-within:shadow-[0_0_0_3px_rgba(255,179,71,0.16)] sm:gap-2 sm:p-2">
             <button
               type="button"
               onClick={handleAttachClick}
@@ -495,13 +495,13 @@ export default function FullScreenChat({
               }
               disabled={!canChat || limitLocked}
               rows={1}
-              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
+              className="no-liquid max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
             />
             <div className="relative mb-0.5">
               <button
                 type="button"
                 onClick={() => setShowModels((open) => !open)}
-                className="inline-flex h-11 max-w-[132px] items-center gap-1 rounded-xl px-2 text-cyan-300 hover:bg-white/5 sm:max-w-[160px] sm:px-2.5"
+                className="inline-flex h-11 max-w-[132px] items-center gap-1 rounded-xl px-2 text-amber-100 sm:max-w-[160px] sm:px-2.5"
                 aria-label="Choose model"
                 title={WORKING_MODELS.find((m) => m.id === modelId)?.name || 'Choose model'}
               >
@@ -515,11 +515,11 @@ export default function FullScreenChat({
                 <>
                   <button
                     type="button"
-                    className="fixed inset-0 z-40 cursor-default"
+                    className="no-liquid fixed inset-0 z-40 cursor-default"
                     aria-label="Close models"
                     onClick={() => setShowModels(false)}
                   />
-                  <div className="absolute bottom-12 right-0 z-50 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#0b1020] py-1 shadow-2xl">
+                  <div className="liquid-panel absolute bottom-12 right-0 z-50 w-56 overflow-hidden rounded-xl py-1">
                     {WORKING_MODELS.map((model) => {
                       const active = modelId === model.id
                       return (
@@ -531,14 +531,14 @@ export default function FullScreenChat({
                             setShowModels(false)
                           }}
                           className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-xs ${
-                            active ? 'bg-cyan-400/10 text-cyan-200' : 'text-slate-300 hover:bg-white/5'
+                            active ? 'text-amber-100' : 'text-slate-100'
                           }`}
                         >
                           <span>
                             <span className="block font-medium">{model.name}</span>
                             <span className="block text-[10px] text-slate-500">{model.provider}</span>
                           </span>
-                          {active && <Check className="h-4 w-4 text-cyan-400" />}
+                          {active && <Check className="h-4 w-4 text-amber-200" />}
                         </button>
                       )
                     })}
@@ -564,7 +564,7 @@ export default function FullScreenChat({
               type="button"
               onClick={() => handleSend()}
               disabled={!canSend}
-              className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 text-slate-950 shadow-glow-cyan transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+              className="liquid-glass-primary mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Send message"
             >
               {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
@@ -593,7 +593,7 @@ function MessageActions({
       <button
         type="button"
         onClick={onCopy}
-        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-100 transition hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-cyan-100"
+        className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold text-white"
         aria-label={copied ? 'Copied' : 'Copy answer'}
       >
         {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
