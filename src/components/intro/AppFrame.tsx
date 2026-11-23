@@ -10,7 +10,7 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let seen = false
     try {
-      seen = sessionStorage.getItem('nexus_world_intro') === '1'
+      seen = sessionStorage.getItem('nexus_world_intro_v2') === '1'
     } catch {
       seen = false
     }

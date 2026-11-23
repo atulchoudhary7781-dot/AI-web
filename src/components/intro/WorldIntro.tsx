@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+const INTRO_KEY = 'nexus_world_intro_v2'
+
 export default function WorldIntro({ onDone }: { onDone: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [leaving, setLeaving] = useState(false)
@@ -13,9 +15,9 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
     doneRef.current = true
     setLeaving(true)
     try {
-      sessionStorage.setItem('nexus_world_intro', '1')
+      sessionStorage.setItem(INTRO_KEY, '1')
     } catch { /* ignore */ }
-    window.setTimeout(onDone, 720)
+    window.setTimeout(onDone, 900)
   }
 
   useEffect(() => {
@@ -24,14 +26,13 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
       finish()
       return
     }
-
     const timers = [
-      window.setTimeout(() => setPhase(1), 120),
-      window.setTimeout(() => setPhase(2), 700),
-      window.setTimeout(() => setPhase(3), 1400),
-      window.setTimeout(() => setPhase(4), 2200),
-      window.setTimeout(() => setPhase(5), 3200),
-      window.setTimeout(() => finish(), 5400),
+      window.setTimeout(() => setPhase(1), 280),
+      window.setTimeout(() => setPhase(2), 1100),
+      window.setTimeout(() => setPhase(3), 2300),
+      window.setTimeout(() => setPhase(4), 3400),
+      window.setTimeout(() => setPhase(5), 4500),
+      window.setTimeout(() => finish(), 7200),
     ]
     return () => timers.forEach(clearTimeout)
   }, [])
@@ -39,31 +40,21 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d', { alpha: false })
+    const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return
 
     const mobile = window.innerWidth < 768
-    const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.75)
+    const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.6)
     let w = 0
     let h = 0
     let raf = 0
     let running = true
 
-    type Star = {
-      x: number
-      y: number
-      z: number
-      s: number
-      hue: number
-    }
-    const count = mobile ? 70 : 160
-    const stars: Star[] = Array.from({ length: count }, () => ({
-      x: Math.random() * 2 - 1,
-      y: Math.random() * 2 - 1,
-      z: Math.random(),
-      s: Math.random() * 1.8 + 0.4,
-      hue: Math.random() > 0.7 ? 280 : 190,
-    }))
+    type Star = { x: number; y: number; z: number; r: number; a: number }
+    type Spark = { a: number; d: number; s: number; w: number }
+
+    let stars: Star[] = []
+    let sparks: Spark[] = []
 
     const resize = () => {
       w = window.innerWidth
@@ -77,78 +68,123 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
     resize()
     window.addEventListener('resize', resize)
 
+    stars = Array.from({ length: mobile ? 90 : 220 }, () => ({
+      x: Math.random() * 2 - 1,
+      y: Math.random() * 2 - 1,
+      z: Math.random(),
+      r: Math.random() * 1.4 + 0.2,
+      a: Math.random() * 0.8 + 0.2,
+    }))
+    sparks = Array.from({ length: mobile ? 160 : 380 }, () => ({
+      a: Math.random() * Math.PI * 2,
+      d: 0.18 + Math.random() * 0.82,
+      s: (Math.random() * 0.5 + 0.12) * (Math.random() > 0.5 ? 1 : -1),
+      w: Math.random() * 1.7 + 0.35,
+    }))
+
     const start = performance.now()
     const draw = (now: number) => {
       if (!running) return
       const t = (now - start) / 1000
-      ctx.fillStyle = '#020010'
+      const zoom = 0.22 + Math.min(1, t / 3.4) ** 0.85 * 1.35
+      const warp = Math.min(1, t / 2.6)
+
+      ctx.clearRect(0, 0, w, h)
+      ctx.fillStyle = `rgba(0,0,0,${0.18 + warp * 0.12})`
       ctx.fillRect(0, 0, w, h)
 
-      const cx = w / 2
-      const cy = h / 2
-      const gx = cx + Math.sin(t * 0.35) * w * 0.06
-      const gy = cy + Math.cos(t * 0.28) * h * 0.05
-      const nebula = ctx.createRadialGradient(gx, gy, 20, gx, gy, Math.max(w, h) * 0.55)
-      nebula.addColorStop(0, 'rgba(0, 229, 255, 0.28)')
-      nebula.addColorStop(0.35, 'rgba(124, 58, 237, 0.16)')
-      nebula.addColorStop(0.7, 'rgba(236, 72, 153, 0.06)')
-      nebula.addColorStop(1, 'rgba(2, 0, 16, 0)')
-      ctx.fillStyle = nebula
-      ctx.fillRect(0, 0, w, h)
-
-      const ring = 108 + Math.sin(t * 1.6) * 16
-      ctx.beginPath()
-      ctx.arc(cx, cy, ring + 52, 0, Math.PI * 2)
-      ctx.strokeStyle = `rgba(0, 229, 255, ${0.22 + Math.sin(t * 3) * 0.08})`
-      ctx.lineWidth = 2
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.arc(cx, cy, ring + 24, -t * 1.2, -t * 1.2 + Math.PI * 1.35)
-      ctx.strokeStyle = 'rgba(196, 125, 255, 0.55)'
-      ctx.lineWidth = 2
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.arc(cx, cy, ring, t, t + Math.PI * 1.45)
-      ctx.strokeStyle = 'rgba(168, 85, 247, 0.85)'
-      ctx.lineWidth = 3
-      ctx.stroke()
+      const cx = w * 0.52
+      const cy = h * 0.46
+      const rx = Math.min(w, h) * 0.16 * zoom
+      const ry = rx * 0.34
 
       for (const star of stars) {
-        star.z -= 0.0045 + star.s * 0.0012
-        if (star.z <= 0.02) {
+        star.z -= 0.0032 + warp * 0.011 * star.r
+        if (star.z <= 0.04) {
           star.x = Math.random() * 2 - 1
           star.y = Math.random() * 2 - 1
           star.z = 1
         }
-        const k = 0.55 / star.z
-        const x = cx + star.x * k * w
-        const y = cy + star.y * k * h
-        if (x < -40 || x > w + 40 || y < -40 || y > h + 40) continue
-        const alpha = Math.min(1, (1 - star.z) * 1.15)
-        const size = star.s * k * 0.9
-        ctx.fillStyle = star.hue > 220
-          ? `rgba(196, 125, 255, ${alpha})`
-          : `rgba(0, 229, 255, ${alpha})`
+        const k = 0.62 / star.z
+        const x = cx + star.x * k * w * 0.55
+        const y = cy + star.y * k * h * 0.55
+        if (x < -20 || x > w + 20 || y < -20 || y > h + 20) continue
+        const alpha = Math.min(1, (1 - star.z) * star.a)
+        ctx.fillStyle = `rgba(255, 236, 210, ${alpha})`
         ctx.beginPath()
-        ctx.arc(x, y, size, 0, Math.PI * 2)
+        ctx.arc(x, y, star.r * k * 0.55, 0, Math.PI * 2)
         ctx.fill()
+        if (warp > 0.35 && star.z < 0.7) {
+          ctx.strokeStyle = `rgba(255, 180, 90, ${alpha * 0.35})`
+          ctx.lineWidth = 0.6
+          ctx.beginPath()
+          ctx.moveTo(x, y)
+          ctx.lineTo(cx + star.x * (k * 0.82) * w * 0.55, cy + star.y * (k * 0.82) * h * 0.55)
+          ctx.stroke()
+        }
       }
 
-      const nodes = 12
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.12)'
-      ctx.lineWidth = 1
-      for (let i = 0; i < nodes; i++) {
-        const a = t * 0.6 + (i / nodes) * Math.PI * 2
-        const x1 = cx + Math.cos(a) * (118 + Math.sin(t + i) * 18)
-        const y1 = cy + Math.sin(a) * (118 + Math.cos(t + i) * 18)
-        const b = a + Math.PI * 0.45
-        const x2 = cx + Math.cos(b) * 168
-        const y2 = cy + Math.sin(b) * 168
+      ctx.save()
+      ctx.translate(cx, cy)
+      ctx.rotate(-0.22)
+
+      const haze = ctx.createRadialGradient(0, 0, rx * 0.15, 0, 0, rx * 3.1)
+      haze.addColorStop(0, 'rgba(255, 210, 140, 0.16)')
+      haze.addColorStop(0.4, 'rgba(255, 120, 40, 0.08)')
+      haze.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = haze
+      ctx.beginPath()
+      ctx.ellipse(0, 0, rx * 2.8, ry * 2.4, 0, 0, Math.PI * 2)
+      ctx.fill()
+
+      for (const spark of sparks) {
+        spark.a += spark.s * (0.012 + warp * 0.01)
+        const x = Math.cos(spark.a) * rx * spark.d * 2.5
+        const y = Math.sin(spark.a) * ry * spark.d * 2.2
+        const doppler = (Math.cos(spark.a) + 1) / 2
+        const falloff = 1 - Math.abs(y) / (ry * 2.8 + 1)
+        ctx.globalAlpha = Math.max(0.05, falloff * 0.7)
+        ctx.fillStyle = doppler > 0.55
+          ? `rgb(255, ${Math.floor(150 + doppler * 70)}, ${Math.floor(70 + doppler * 40)})`
+          : `rgb(${Math.floor(130 + doppler * 80)}, ${Math.floor(170 + doppler * 40)}, 255)`
         ctx.beginPath()
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
-        ctx.stroke()
+        ctx.arc(x, y, spark.w * (0.8 + zoom * 0.15), 0, Math.PI * 2)
+        ctx.fill()
       }
+      ctx.globalAlpha = 1
+
+      ctx.strokeStyle = 'rgba(255, 214, 150, 0.7)'
+      ctx.lineWidth = 2.4 * Math.min(2, zoom)
+      ctx.beginPath()
+      ctx.ellipse(0, 0, rx * 1.08, ry * 0.95, 0, 0, Math.PI * 2)
+      ctx.stroke()
+
+      ctx.strokeStyle = 'rgba(255, 170, 80, 0.35)'
+      ctx.lineWidth = 8
+      ctx.beginPath()
+      ctx.ellipse(0, 0, rx * 1.22, ry * 1.05, 0, 0, Math.PI * 2)
+      ctx.stroke()
+
+      ctx.fillStyle = '#000'
+      ctx.beginPath()
+      ctx.ellipse(0, 0, rx * 0.72, rx * 0.72, 0, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.strokeStyle = 'rgba(255, 196, 110, 0.85)'
+      ctx.lineWidth = 1.6
+      ctx.beginPath()
+      ctx.ellipse(0, 0, rx * 0.76, rx * 0.76, 0, 0, Math.PI * 2)
+      ctx.stroke()
+
+      ctx.restore()
+
+      const pulse = 0.16 + Math.sin(t * 0.8) * 0.05
+      const glow = ctx.createRadialGradient(cx, cy, rx * 0.1, cx, cy, rx * 3)
+      glow.addColorStop(0, `rgba(255, 176, 80, ${pulse})`)
+      glow.addColorStop(0.4, 'rgba(255, 110, 30, 0.08)')
+      glow.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = glow
+      ctx.fillRect(0, 0, w, h)
 
       raf = requestAnimationFrame(draw)
     }
@@ -171,66 +207,34 @@ export default function WorldIntro({ onDone }: { onDone: () => void }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] overflow-hidden bg-[#020010] transition-opacity duration-700 ${
-        leaving ? 'pointer-events-none opacity-0' : 'opacity-100'
-      }`}
+      className={`nexus-intro ${leaving ? 'nexus-intro-leave' : ''}`}
       role="dialog"
-      aria-label="NEXUS AI intro"
+      aria-label="NEXUS AI world intro"
     >
-      <img
-        src="/nexus-promo-poster.jpg"
-        alt=""
-        className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-25 blur-md"
+      <div
+        className="nexus-intro-photo"
+        style={{ transform: phase >= 1 ? 'scale(1.28)' : 'scale(1.06)' }}
       />
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(2,0,16,0.35)_70%,#020010_100%)]" />
+      <div className="nexus-intro-vignette" />
 
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-28 sm:w-28">
-        <div
-          className={`flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 shadow-[0_0_80px_rgba(0,229,255,0.55)] transition-all duration-700 sm:h-24 sm:w-24 ${
-            phase >= 1 ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
-          }`}
-        >
-          <svg viewBox="0 0 24 24" className="h-10 w-10 text-white sm:h-12 sm:w-12" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M12 3l2.2 6.4L21 12l-6.8 2.6L12 21l-2.2-6.4L3 12l6.8-2.6L12 3z" />
-          </svg>
-        </div>
-      </div>
-
-      <div className="pointer-events-none absolute inset-x-0 top-[calc(50%+7.5rem)] z-10 px-4 text-center sm:top-[calc(50%+10.5rem)] sm:px-6">
-        <h1
-          className={`font-display text-[1.85rem] font-black tracking-[0.12em] text-white transition-all duration-700 sm:text-5xl sm:tracking-[0.16em] md:text-7xl md:tracking-[0.18em] ${
-            phase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-          }`}
-        >
-          NEXUS <span className="bg-gradient-to-r from-cyan-300 via-white to-violet-300 bg-clip-text text-transparent">AI</span>
-        </h1>
-        <p
-          className={`mx-auto mt-3 max-w-lg text-[10px] font-medium uppercase tracking-[0.22em] text-cyan-200/80 transition-all duration-700 sm:mt-4 sm:text-sm sm:tracking-[0.42em] ${
-            phase >= 3 ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          The future of intelligence
+      <div className="nexus-intro-copy">
+        <p className={`nexus-intro-kicker ${phase >= 1 ? 'is-on' : ''}`}>
+          Crossing the horizon
         </p>
-        <p
-          className={`mt-2 text-xs text-slate-400 transition-all duration-700 sm:mt-3 sm:text-sm ${
-            phase >= 4 ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
+        <h1 className={`nexus-intro-title ${phase >= 2 ? 'is-on' : ''}`}>
+          NEXUS <span>AI</span>
+        </h1>
+        <p className={`nexus-intro-line ${phase >= 3 ? 'is-on' : ''}`}>
+          Intelligence beyond the event horizon
+        </p>
+        <p className={`nexus-intro-by ${phase >= 4 ? 'is-on' : ''}`}>
           Built by Atul Choudhary
         </p>
-        <div
-          className={`mx-auto mt-6 h-px w-28 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-all duration-700 sm:mt-8 sm:w-40 ${
-            phase >= 5 ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-          }`}
-        />
+        <div className={`nexus-intro-rule ${phase >= 5 ? 'is-on' : ''}`} />
       </div>
 
-      <button
-        type="button"
-        onClick={finish}
-        className="absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-20 min-h-11 rounded-full border border-white/20 bg-black/40 px-4 text-xs font-semibold tracking-wide text-white backdrop-blur-md hover:border-cyan-300/50 hover:text-cyan-200"
-      >
+      <button type="button" onClick={finish} className="nexus-intro-skip">
         Skip intro
       </button>
     </div>

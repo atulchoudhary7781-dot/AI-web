@@ -735,4 +735,116 @@ button, a, [role="button"] {
   }
 }
 
+.nexus-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #000;
+  transition: opacity 0.9s ease;
+}
+.nexus-intro-leave {
+  opacity: 0;
+  pointer-events: none;
+}
+.nexus-intro-photo {
+  position: absolute;
+  inset: -12%;
+  background: url('/black-hole-bg.jpg') center 42% / cover no-repeat;
+  filter: saturate(1.18) contrast(1.12) brightness(0.62);
+  transition: transform 6.4s cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+.nexus-intro-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 52% 46%, transparent 0%, rgba(0, 0, 0, 0.18) 42%, rgba(0, 0, 0, 0.72) 100%);
+}
+.nexus-intro-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 1.25rem max(5.5rem, calc(env(safe-area-inset-bottom) + 4.5rem));
+  text-align: center;
+  pointer-events: none;
+}
+.nexus-intro-kicker,
+.nexus-intro-title,
+.nexus-intro-line,
+.nexus-intro-by,
+.nexus-intro-rule {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.nexus-intro-kicker.is-on,
+.nexus-intro-title.is-on,
+.nexus-intro-line.is-on,
+.nexus-intro-by.is-on,
+.nexus-intro-rule.is-on {
+  opacity: 1;
+  transform: none;
+}
+.nexus-intro-kicker {
+  margin-bottom: 0.7rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #f3d5a3;
+}
+.nexus-intro-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 8vw, 5.6rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #fff;
+  line-height: 1;
+}
+.nexus-intro-title span {
+  background: linear-gradient(90deg, #ffb347, #ff7a3c 55%, #f4e1c1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.nexus-intro-line {
+  margin-top: 0.85rem;
+  max-width: 28rem;
+  font-size: clamp(0.82rem, 2.2vw, 1.05rem);
+  color: #d7c4ae;
+  letter-spacing: 0.04em;
+}
+.nexus-intro-by {
+  margin-top: 0.55rem;
+  font-size: 0.78rem;
+  color: #b9a89a;
+}
+.nexus-intro-rule {
+  margin-top: 1.15rem;
+  height: 1px;
+  width: 7rem;
+  background: linear-gradient(90deg, transparent, #ffb347, transparent);
+}
+.nexus-intro-rule.is-on { width: 11rem; }
+.nexus-intro-skip {
+  position: absolute;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  z-index: 4;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(8, 6, 4, 0.42);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(16px);
+}
+.nexus-intro-skip:hover { color: #f3d5a3; }
+
 
