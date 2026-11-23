@@ -75,8 +75,7 @@
 
 .navbar-glass,
 .site-header,
-.nexus-topbar,
-.nexus-composer {
+.nexus-topbar {
   background-color: rgba(4, 2, 1, 0.42) !important;
   background-image: linear-gradient(
     180deg,
@@ -87,6 +86,15 @@
   -webkit-backdrop-filter: blur(26px) saturate(190%) !important;
   border-color: rgba(255, 220, 180, 0.16) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.nexus-composer {
+  background: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 button:not(.no-liquid):not(.fixed):not([data-liquid="off"]),
@@ -130,9 +138,11 @@ button[class*="destructive"],
   background-image: var(--lg-fill-danger) !important;
 }
 
-.nexus-shell .composer-tool,
-.nexus-composer .composer-tool,
-button.composer-tool {
+button.no-liquid:not(.fixed):not([data-liquid="off"]),
+button.composer-tool:not(.fixed):not([data-liquid="off"]),
+.nexus-shell button.composer-tool:not(.fixed),
+.nexus-composer button.composer-tool:not(.fixed),
+.nexus-composer button.no-liquid:not(.fixed) {
   background: transparent !important;
   background-image: none !important;
   backdrop-filter: none !important;
@@ -143,15 +153,38 @@ button.composer-tool {
   overflow: visible !important;
   color: inherit !important;
   isolation: auto;
+  transform: none !important;
+  filter: none !important;
 }
+
+button.no-liquid::before,
+button.no-liquid::after,
+button.composer-tool::before,
+button.composer-tool::after,
 .nexus-shell .composer-tool::before,
 .nexus-shell .composer-tool::after,
 .nexus-composer .composer-tool::before,
-.nexus-composer .composer-tool::after,
-button.composer-tool::before,
-button.composer-tool::after {
+.nexus-composer .composer-tool::after {
   content: none !important;
   display: none !important;
+}
+
+button.chat-text-link:not(.fixed):not([data-liquid="off"]) {
+  display: inline !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: auto !important;
+  border-radius: 0 !important;
+  background: none !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  color: #f3d5a3 !important;
+  font: inherit !important;
+  vertical-align: baseline;
 }
 
 a.liquid-glass,

@@ -374,17 +374,17 @@ export default function FullScreenChat({
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {!hasMessages ? (
-          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-8 sm:py-12">
-            <div className="liquid-glass-primary mb-5 flex h-16 w-16 items-center justify-center rounded-2xl sm:mb-6 sm:h-[4.5rem] sm:w-[4.5rem]">
-              <Sparkles className="h-8 w-8 text-white sm:h-9 sm:w-9" />
+          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-5 sm:py-8">
+            <div className="liquid-glass-primary mb-4 flex h-14 w-14 items-center justify-center rounded-2xl sm:mb-5 sm:h-16 sm:w-16">
+              <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />
             </div>
             <h1 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
               NEXUS <span className="gradient-text-nexus">AI</span>
             </h1>
-            <p className="mt-3 max-w-lg text-center text-sm text-slate-400 sm:text-base">
+            <p className="mt-2 max-w-lg text-center text-sm text-slate-300 sm:text-base">
               Ask anything — writing, code, research, files, or ideas.
             </p>
-            <div className="mt-8 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className="mt-5 grid w-full grid-cols-1 gap-2.5 sm:mt-6 sm:grid-cols-2">
               {SUGGESTIONS.map((item) => (
                 <button
                   key={item.title}
@@ -393,7 +393,7 @@ export default function FullScreenChat({
                   className="liquid-glass rounded-2xl p-4 text-left disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <p className="text-sm font-semibold text-white">{item.title}</p>
-                  <p className="mt-1 line-clamp-2 text-xs text-slate-400">{item.prompt}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-200">{item.prompt}</p>
                 </button>
               ))}
             </div>
@@ -424,11 +424,15 @@ export default function FullScreenChat({
           />
 
           {!isLoggedIn && (
-            <p className="mb-2 text-center text-xs text-slate-500">
-              <button onClick={onLoginClick} className="composer-tool text-amber-300 hover:underline">
+            <p className="mb-2 text-center text-xs text-slate-400">
+              <button
+                type="button"
+                onClick={onLoginClick}
+                className="chat-text-link no-liquid hover:underline"
+              >
                 Sign in
-              </button>{' '}
-              to save chat history
+              </button>
+              {' '}to save chat history
             </p>
           )}
 
