@@ -24,8 +24,8 @@ export default function HomePage() {
             <div className="liquid-panel relative overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl">
               <video
                 className="aspect-video w-full bg-black object-cover"
-                src="/NEXUS-AI-Promo.mp4"
-                poster="/nexus-promo-poster.jpg"
+                src="/NEXUS-AI-Promo.mp4?v=horizon"
+                poster="/nexus-promo-poster.jpg?v=horizon"
                 controls
                 playsInline
                 muted
@@ -36,7 +36,7 @@ export default function HomePage() {
               />
             </div>
             <p className="mt-3 text-center text-[11px] text-slate-500 sm:text-xs">
-              NEXUS AI intro · 60 fps · unmute to hear the voice
+              Crossing the horizon · 60 fps · unmute for voice
             </p>
           </div>
 
