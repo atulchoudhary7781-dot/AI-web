@@ -29,21 +29,28 @@
 ## Intro video
 
 <p align="center">
-  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4">
-    <img src="docs/nexus-intro.gif" alt="NEXUS AI cinematic intro" width="920" />
+  <video width="920" controls muted playsinline preload="metadata" poster="public/nexus-promo-poster.jpg">
+    <source src="public/NEXUS-AI-Promo.mp4" type="video/mp4" />
+    <source src="https://github.com/atulchoudhary7781-dot/AI-web/releases/download/intro/NEXUS-AI-Promo.mp4" type="video/mp4" />
+  </video>
+</p>
+
+<p align="center">
+  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4" title="Play the 1080p promo on GitHub">
+    <img src="docs/nexus-intro.webp" alt="NEXUS AI cinematic promo — Crossing the horizon" width="920" />
   </a>
 </p>
 
 <p align="center">
-  <b>60 fps · human voice · full intro</b><br/>
-  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4">Watch on GitHub</a>
+  <b>1080p · cinematic · voice</b><br/>
+  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4">Play on GitHub</a>
   ·
   <a href="https://github.com/atulchoudhary7781-dot/AI-web/releases/tag/intro">Release</a>
   ·
-  <a href="https://ai-web-rho-fawn.vercel.app/NEXUS-AI-Promo.mp4">Play HD</a>
+  <a href="https://ai-web-rho-fawn.vercel.app/home">Watch on the site</a>
 </p>
 
-The promo lives in the repo at [`public/NEXUS-AI-Promo.mp4`](public/NEXUS-AI-Promo.mp4).
+The full promo is in the repo: [`public/NEXUS-AI-Promo.mp4`](public/NEXUS-AI-Promo.mp4).
 
 ## Overview
 
