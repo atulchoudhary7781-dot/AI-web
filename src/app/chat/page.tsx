@@ -1299,7 +1299,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`composer-tool flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition ${
+              className={`liquid-glass flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition ${
                 sidebarOpen ? 'rotate-90' : ''
               }`}
               title={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
@@ -1314,7 +1314,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
               <button
                 type="button"
                 onClick={() => setCurrentView('chat')}
-                className="composer-tool flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-amber-100"
+                className="liquid-glass flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-amber-100"
                 title="Back to chat"
                 aria-label="Back to chat"
               >
@@ -1324,7 +1324,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             <button
               type="button"
               onClick={() => setCurrentView('chat')}
-              className="composer-tool flex min-w-0 items-center gap-2 rounded-lg px-1 py-1 hover:opacity-90"
+              className="flex min-w-0 items-center gap-2 rounded-lg px-1 py-1 hover:opacity-90"
               title="Open chat"
             >
               <div className="liquid-glass-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">

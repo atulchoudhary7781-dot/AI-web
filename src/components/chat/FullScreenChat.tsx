@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
-  Bot, Check, ChevronDown, Copy, FileText, Mic, Paperclip, RotateCcw, Send,
+  Bot, Check, ChevronDown, Copy, FileText, Mic, Paperclip, Send,
   Sparkles, StopCircle, ThumbsDown, ThumbsUp, User, X
 } from 'lucide-react'
 import { isImageFile, isTextLikeFile } from '@/lib/fileTypes'
@@ -428,7 +428,7 @@ export default function FullScreenChat({
               <button
                 type="button"
                 onClick={onLoginClick}
-                className="chat-text-link no-liquid hover:underline"
+                className="chat-text-link"
               >
                 Sign in
               </button>

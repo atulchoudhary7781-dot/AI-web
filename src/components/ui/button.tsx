@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost:
           "text-foreground/90 hover:text-white",
         link:
-          "text-amber-200 underline-offset-4 hover:underline bg-transparent border-0 shadow-none liquid-glass",
+          "text-amber-200 underline-offset-4 hover:underline bg-transparent border-0 shadow-none",
         neon:
           "liquid-glass-primary text-white font-bold hover:-translate-y-1",
         neonOutline:
