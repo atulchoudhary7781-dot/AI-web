@@ -386,13 +386,13 @@ export default function FullScreenChat({
       <div className="chat-hero">
         {!hasMessages ? (
           <div className="chat-col">
-            <div className="liquid-glass mb-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mb-5 sm:h-14 sm:w-14">
-              <Sparkles className="h-6 w-6 text-amber-100 sm:h-7 sm:w-7" />
+            <div className="chat-icon liquid-glass mb-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl sm:mb-5 sm:h-14 sm:w-14">
+              <Sparkles className="h-5 w-5 text-amber-100 sm:h-7 sm:w-7" />
             </div>
-            <h1 className="text-center font-display text-[clamp(1.85rem,4.2vh,2.75rem)] font-bold tracking-tight text-white">
+            <h1 className="text-center font-display text-[clamp(1.6rem,4vh,2.75rem)] font-bold tracking-tight text-white">
               NEXUS <span className="gradient-text-nexus">AI</span>
             </h1>
-            <p className="mt-2 max-w-xl text-center text-[13px] text-slate-300 sm:text-sm">
+            <p className="chat-sub mt-2 max-w-xl text-center text-[13px] text-slate-300 sm:text-sm">
               Ask anything - writing, code, research, files, or ideas.
             </p>
             <div className="chat-hero-grid">
@@ -427,8 +427,8 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer w-full shrink-0 bg-transparent px-4 pt-1">
-        <div className="mx-auto w-full max-w-[720px]">
+      <div className="nexus-composer">
+        <div className="chat-composer-inner">
           <input
             ref={fileInputRef}
             type="file"
@@ -437,7 +437,7 @@ export default function FullScreenChat({
           />
 
           {!isLoggedIn && (
-            <p className="mb-2 text-center text-xs text-slate-400">
+            <p className="chat-sub mb-1.5 text-center text-[11px] text-slate-400 sm:text-xs">
               <button type="button" onClick={onLoginClick} className="chat-text-link">
                 Sign in
               </button>
@@ -478,12 +478,12 @@ export default function FullScreenChat({
           )}
 
           <div className="relative" ref={modelMenuRef}>
-            <div className="liquid-panel flex h-12 items-center gap-1 rounded-full px-2 sm:h-[52px] sm:px-3">
+            <div className="chat-pill">
               <button
                 type="button"
                 onClick={handleAttachClick}
                 disabled={!canChat || limitLocked || isTyping}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-300 hover:text-white disabled:opacity-40"
+                className="chat-pill-btn disabled:opacity-40"
                 aria-label="Attach any file"
                 title="Attach any file"
               >
@@ -494,7 +494,6 @@ export default function FullScreenChat({
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value)
-                  resizeInput()
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder={
@@ -506,17 +505,17 @@ export default function FullScreenChat({
                 }
                 disabled={!canChat || limitLocked}
                 rows={1}
-                className="h-10 min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[15px] leading-6 text-white shadow-none outline-none ring-0 placeholder:text-slate-400 focus:border-0 focus:outline-none focus:ring-0"
+                className="chat-pill-input placeholder:text-slate-400"
               />
               <button
                 type="button"
                 onClick={() => setShowModels((open) => !open)}
-                className="inline-flex h-10 max-w-[140px] shrink-0 items-center gap-1 rounded-full px-2 text-amber-100"
+                className="chat-pill-model"
                 aria-label="Choose model"
                 title={activeModel?.name || 'Choose model'}
               >
                 <Sparkles className="h-4 w-4 shrink-0" />
-                <span className="hidden truncate text-[12px] font-medium sm:inline">
+                <span className="chat-model-name truncate text-[12px] font-medium">
                   {activeModel?.name || 'Model'}
                 </span>
                 <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
@@ -525,8 +524,8 @@ export default function FullScreenChat({
                 type="button"
                 onClick={toggleVoice}
                 disabled={!canChat || limitLocked || isTyping}
-                className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
-                  listening ? 'text-red-400' : 'text-slate-300 hover:text-white'
+                className={`chat-pill-btn disabled:opacity-40 ${
+                  listening ? 'text-red-400' : ''
                 }`}
                 aria-label={listening ? 'Stop listening' : 'Speak to type'}
                 title={listening ? 'Stop listening' : 'Speak to type'}
@@ -537,14 +536,14 @@ export default function FullScreenChat({
                 type="button"
                 onClick={() => handleSend()}
                 disabled={!canSend}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-300 text-black disabled:cursor-not-allowed disabled:opacity-40"
+                className="chat-pill-send disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Send message"
               >
                 {isTyping ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4" />}
               </button>
             </div>
             {showModels && (
-              <div className="absolute bottom-[calc(100%+8px)] right-12 z-50 w-44 max-h-52 overflow-y-auto rounded-xl border border-white/20 bg-[#14110e]/95 py-1 shadow-xl">
+              <div className="chat-model-menu">
                 {WORKING_MODELS.map((model) => {
                   const active = modelId === model.id
                   return (
@@ -567,7 +566,7 @@ export default function FullScreenChat({
               </div>
             )}
           </div>
-          <p className="mt-2 text-center text-[11px] text-slate-400 sm:text-xs">
+          <p className="chat-disclaimer">
             Nexus is AI and can make mistakes.
           </p>
         </div>
