@@ -107,6 +107,7 @@ export default function FullScreenChat({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const modelMenuRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
   const baseInputRef = useRef('')
 
@@ -123,9 +124,21 @@ export default function FullScreenChat({
   const resizeInput = () => {
     const el = inputRef.current
     if (!el) return
-    el.style.height = 'auto'
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+    el.style.height = '40px'
+    const next = Math.min(el.scrollHeight, 72)
+    el.style.height = `${Math.max(40, next)}px`
   }
+
+  useEffect(() => {
+    if (!showModels) return
+    const onPointer = (event: MouseEvent) => {
+      if (!modelMenuRef.current?.contains(event.target as Node)) {
+        setShowModels(false)
+      }
+    }
+    document.addEventListener('mousedown', onPointer)
+    return () => document.removeEventListener('mousedown', onPointer)
+  }, [showModels])
 
   const showNote = (text: string) => {
     setStatusNote(text)
@@ -374,7 +387,7 @@ export default function FullScreenChat({
     <div className="flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden">
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
         {!hasMessages ? (
-          <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center px-4 py-3 sm:px-6">
+          <div className="mx-auto flex h-full w-full max-w-3xl flex-col items-center justify-center px-4 py-3">
             <div className="liquid-glass-primary mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mb-4 sm:h-14 sm:w-14">
               <Sparkles className="h-6 w-6 text-white sm:h-7 sm:w-7" />
             </div>
@@ -399,7 +412,7 @@ export default function FullScreenChat({
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-5 sm:px-6 sm:py-8">
+          <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -414,8 +427,8 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer w-full max-w-full shrink-0 bg-transparent px-4 pt-1 sm:px-6">
-        <div className="mx-auto w-full max-w-5xl">
+      <div className="nexus-composer w-full shrink-0 bg-transparent px-4 pt-1">
+        <div className="mx-auto w-full max-w-3xl">
           <input
             ref={fileInputRef}
             type="file"
@@ -425,11 +438,7 @@ export default function FullScreenChat({
 
           {!isLoggedIn && (
             <p className="mb-2 text-center text-xs text-slate-400">
-              <button
-                type="button"
-                onClick={onLoginClick}
-                className="chat-text-link"
-              >
+              <button type="button" onClick={onLoginClick} className="chat-text-link">
                 Sign in
               </button>
               {' '}to save chat history
@@ -460,7 +469,7 @@ export default function FullScreenChat({
               </div>
               <button
                 onClick={() => setAttached(null)}
-                className="composer-tool rounded-lg p-2 text-slate-400 hover:text-white"
+                className="rounded-lg p-2 text-slate-400 hover:text-white"
                 aria-label="Remove file"
               >
                 <X className="h-4 w-4" />
@@ -468,92 +477,55 @@ export default function FullScreenChat({
             </div>
           )}
 
-          <div className="liquid-panel w-full max-w-full rounded-3xl p-1.5 sm:p-2">
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => {
-                setInputValue(e.target.value)
-                resizeInput()
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                !canChat
-                  ? 'Sign in to continue chatting'
-                  : limitLocked
-                    ? "Today's limit is full — come back tomorrow"
-                    : 'Ask NEXUS AI anything…'
-              }
-              disabled={!canChat || limitLocked}
-              rows={1}
-              className="no-liquid max-h-28 min-h-[40px] w-full min-w-0 resize-none bg-transparent px-3 py-2 text-base text-white outline-none placeholder:text-slate-500 sm:max-h-40 sm:text-sm"
-            />
-            <div className="flex min-w-0 items-center gap-0.5 px-0.5 pb-0.5">
+          <div className="relative" ref={modelMenuRef}>
+            <div className="liquid-panel flex items-end gap-1 rounded-full px-1.5 py-1.5 sm:px-2">
               <button
                 type="button"
                 onClick={handleAttachClick}
                 disabled={!canChat || limitLocked || isTyping}
-                className="composer-tool inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-300 hover:text-white disabled:opacity-40"
+                className="mb-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-300 hover:text-white disabled:opacity-40"
                 aria-label="Attach any file"
-                title="Attach any file — PDF, Word, Excel, code, images, and more"
+                title="Attach any file"
               >
                 <Paperclip className="h-5 w-5" />
               </button>
-              <div className="min-w-0 flex-1" />
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowModels((open) => !open)}
-                  className="composer-tool inline-flex h-10 max-w-[140px] items-center gap-1 rounded-full px-2 text-amber-100 sm:max-w-[170px]"
-                  aria-label="Choose model"
-                  title={activeModel?.name || 'Choose model'}
-                >
-                  <Sparkles className="h-4 w-4 shrink-0" />
-                  <span className="hidden truncate text-[11px] font-medium sm:inline">
-                    {activeModel?.name || 'Model'}
-                  </span>
-                  <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
-                </button>
-                {showModels && (
-                  <>
-                    <button
-                      type="button"
-                      className="composer-tool no-liquid fixed inset-0 z-40 cursor-default"
-                      aria-label="Close models"
-                      onClick={() => setShowModels(false)}
-                    />
-                    <div className="liquid-panel absolute bottom-12 right-0 z-50 w-56 overflow-hidden rounded-2xl py-1">
-                      {WORKING_MODELS.map((model) => {
-                        const active = modelId === model.id
-                        return (
-                          <button
-                            key={model.id}
-                            type="button"
-                            onClick={() => {
-                              setModelId(model.id)
-                              setShowModels(false)
-                            }}
-                            className={`composer-tool flex w-full items-center justify-between px-3 py-2.5 text-left text-xs ${
-                              active ? 'text-amber-100' : 'text-slate-200'
-                            }`}
-                          >
-                            <span>
-                              <span className="block font-medium">{model.name}</span>
-                              <span className="block text-[10px] text-slate-500">{model.provider}</span>
-                            </span>
-                            {active && <Check className="h-4 w-4 text-amber-200" />}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
+              <textarea
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value)
+                  resizeInput()
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  !canChat
+                    ? 'Sign in to continue chatting'
+                    : limitLocked
+                      ? "Today's limit is full — come back tomorrow"
+                      : 'Ask NEXUS AI anything…'
+                }
+                disabled={!canChat || limitLocked}
+                rows={1}
+                className="max-h-[72px] min-h-[40px] min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2.5 text-base text-white shadow-none outline-none ring-0 placeholder:text-slate-500 focus:border-0 focus:outline-none focus:ring-0 sm:text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowModels((open) => !open)}
+                className="mb-0.5 inline-flex h-10 max-w-[128px] shrink-0 items-center gap-1 rounded-full px-2 text-amber-100"
+                aria-label="Choose model"
+                title={activeModel?.name || 'Choose model'}
+              >
+                <Sparkles className="h-4 w-4 shrink-0" />
+                <span className="hidden truncate text-[11px] font-medium sm:inline">
+                  {activeModel?.name || 'Model'}
+                </span>
+                <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
+              </button>
               <button
                 type="button"
                 onClick={toggleVoice}
                 disabled={!canChat || limitLocked || isTyping}
-                className={`composer-tool inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+                className={`mb-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
                   listening ? 'text-red-400' : 'text-slate-300 hover:text-white'
                 }`}
                 aria-label={listening ? 'Stop listening' : 'Speak to type'}
@@ -565,12 +537,35 @@ export default function FullScreenChat({
                 type="button"
                 onClick={() => handleSend()}
                 disabled={!canSend}
-                className="liquid-glass-primary inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+                className="liquid-glass-primary mb-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Send message"
               >
                 {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
               </button>
             </div>
+            {showModels && (
+              <div className="absolute bottom-[calc(100%+8px)] right-12 z-50 w-44 max-h-52 overflow-y-auto rounded-xl border border-white/20 bg-[#14110e]/95 py-1 shadow-xl">
+                {WORKING_MODELS.map((model) => {
+                  const active = modelId === model.id
+                  return (
+                    <button
+                      key={model.id}
+                      type="button"
+                      onClick={() => {
+                        setModelId(model.id)
+                        setShowModels(false)
+                      }}
+                      className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs ${
+                        active ? 'text-amber-100' : 'text-slate-200 hover:bg-white/5'
+                      }`}
+                    >
+                      <span className="truncate font-medium">{model.name}</span>
+                      {active && <Check className="h-3.5 w-3.5 shrink-0 text-amber-200" />}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
           <p className="mt-2 text-center text-[11px] text-slate-400 sm:text-xs">
             Nexus is AI and can make mistakes.
@@ -679,7 +674,7 @@ function MessageBubble({
 
   if (!isUser) {
     return (
-      <article className="mx-auto w-full max-w-5xl animate-slide-up">
+      <article className="mx-auto w-full max-w-3xl animate-slide-up">
         <div className="flex items-start gap-3">
           <div className="liquid-glass-primary mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
             <Bot className="h-4 w-4 text-white" />
@@ -719,7 +714,7 @@ function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="mx-auto flex w-full max-w-5xl items-start gap-3 animate-fade-in">
+    <div className="mx-auto flex w-full max-w-3xl items-start gap-3 animate-fade-in">
       <div className="liquid-glass-primary flex h-8 w-8 items-center justify-center rounded-full">
         <Bot className="h-4 w-4 text-white" />
       </div>

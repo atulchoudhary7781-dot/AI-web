@@ -475,6 +475,16 @@ button, a, [role="button"] {
   outline-offset: 2px;
 }
 
+.nexus-composer textarea,
+.nexus-composer textarea:focus,
+.nexus-composer textarea:focus-visible {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  resize: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
