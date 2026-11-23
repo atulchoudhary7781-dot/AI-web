@@ -368,39 +368,38 @@ export default function FullScreenChat({
   const limitLocked = dailyLimit && isLoggedIn
   const canSend = canChat && !limitLocked && !isTyping && (!!inputValue.trim() || !!attached)
 
+  const activeModel = WORKING_MODELS.find((m) => m.id === modelId)
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {!hasMessages ? (
-          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-10">
-            <div className="relative mb-5 sm:mb-6">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-300 to-orange-500 opacity-40 blur-2xl" />
-              <div className="liquid-glass-primary relative flex h-14 w-14 items-center justify-center rounded-2xl sm:h-16 sm:w-16">
-                <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />
-              </div>
+          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-8 sm:py-12">
+            <div className="liquid-glass-primary mb-5 flex h-16 w-16 items-center justify-center rounded-2xl sm:mb-6 sm:h-[4.5rem] sm:w-[4.5rem]">
+              <Sparkles className="h-8 w-8 text-white sm:h-9 sm:w-9" />
             </div>
-            <h1 className="px-2 text-center font-display text-2xl font-bold tracking-tight text-white sm:text-4xl">
-              Welcome to <span className="gradient-text-nexus">NEXUS AI</span>
+            <h1 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              NEXUS <span className="gradient-text-nexus">AI</span>
             </h1>
-            <p className="mt-3 max-w-xl px-2 text-center text-sm text-slate-400 sm:text-base">
-              Your advanced AI assistant. Ask anything — writing, code, research, or ideas.
+            <p className="mt-3 max-w-lg text-center text-sm text-slate-400 sm:text-base">
+              Ask anything — writing, code, research, files, or ideas.
             </p>
-            <div className="mt-6 grid w-full grid-cols-1 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-3">
+            <div className="mt-8 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2">
               {SUGGESTIONS.map((item) => (
                 <button
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
                   disabled={!canChat || limitLocked}
-                  className="liquid-glass min-h-11 rounded-2xl p-3.5 text-left disabled:cursor-not-allowed disabled:opacity-40 sm:p-4"
+                  className="liquid-glass rounded-2xl p-4 text-left disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <p className="text-sm font-semibold text-white">{item.title}</p>
-                  <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.prompt}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-slate-400">{item.prompt}</p>
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-3xl space-y-7 px-3 py-5 sm:space-y-8 sm:px-4 sm:py-8">
+          <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6 sm:py-8">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -415,7 +414,7 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer border-t px-3 py-3 sm:px-4 sm:py-4">
+      <div className="nexus-composer px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
         <div className="mx-auto max-w-3xl">
           <input
             ref={fileInputRef}
@@ -426,7 +425,7 @@ export default function FullScreenChat({
 
           {!isLoggedIn && (
             <p className="mb-2 text-center text-xs text-slate-500">
-              <button onClick={onLoginClick} className="no-liquid text-amber-300 hover:underline">
+              <button onClick={onLoginClick} className="composer-tool text-amber-300 hover:underline">
                 Sign in
               </button>{' '}
               to save chat history
@@ -434,20 +433,18 @@ export default function FullScreenChat({
           )}
 
           {limitLocked && (
-            <div className="mb-2 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2.5 text-center">
-              <p className="text-sm font-medium text-amber-200">Today's NEXUS AI limit is full.</p>
+            <div className="liquid-panel mb-2 rounded-2xl px-3 py-2.5 text-center">
+              <p className="text-sm font-medium text-amber-100">Today&apos;s NEXUS AI limit is full.</p>
               <p className="mt-0.5 text-xs text-amber-200/80">It will take 1 day to reset. Please come back tomorrow to chat.</p>
             </div>
           )}
 
           {statusNote && (
-            <p className={`mb-2 text-center text-xs ${listening ? 'text-amber-200' : 'text-amber-400'}`}>
-              {statusNote}
-            </p>
+            <p className="mb-2 text-center text-xs text-amber-200">{statusNote}</p>
           )}
 
           {attached && (
-            <div className="mb-2 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+            <div className="liquid-panel mb-2 flex items-center gap-2 rounded-2xl px-3 py-2">
               {attached.preview ? (
                 <img src={attached.preview} alt="" className="h-10 w-10 rounded-lg object-cover" />
               ) : (
@@ -455,11 +452,11 @@ export default function FullScreenChat({
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm text-white">{attached.file.name}</p>
-                <p className="text-[11px] text-slate-500">{Math.max(1, Math.round(attached.file.size / 1024))} KB</p>
+                <p className="text-[11px] text-slate-400">{Math.max(1, Math.round(attached.file.size / 1024))} KB</p>
               </div>
               <button
                 onClick={() => setAttached(null)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white"
+                className="composer-tool rounded-lg p-2 text-slate-400 hover:text-white"
                 aria-label="Remove file"
               >
                 <X className="h-4 w-4" />
@@ -467,17 +464,7 @@ export default function FullScreenChat({
             </div>
           )}
 
-          <div className="liquid-panel relative flex items-end gap-1.5 rounded-2xl p-1.5 focus-within:shadow-[0_0_0_3px_rgba(255,179,71,0.16)] sm:gap-2 sm:p-2">
-            <button
-              type="button"
-              onClick={handleAttachClick}
-              disabled={!canChat || limitLocked || isTyping}
-              className="mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white disabled:opacity-40"
-              aria-label="Attach any file"
-              title="Attach any file — PDF, Word, Excel, code, images, and more"
-            >
-              <Paperclip className="h-5 w-5" />
-            </button>
+          <div className="liquid-panel rounded-3xl p-2 sm:p-2.5">
             <textarea
               ref={inputRef}
               value={inputValue}
@@ -495,80 +482,91 @@ export default function FullScreenChat({
               }
               disabled={!canChat || limitLocked}
               rows={1}
-              className="no-liquid max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-1 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
+              className="no-liquid max-h-40 min-h-[44px] w-full resize-none bg-transparent px-3 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
             />
-            <div className="relative mb-0.5">
+            <div className="flex items-center gap-1 px-0.5 pb-0.5">
               <button
                 type="button"
-                onClick={() => setShowModels((open) => !open)}
-                className="inline-flex h-11 max-w-[132px] items-center gap-1 rounded-xl px-2 text-amber-100 sm:max-w-[160px] sm:px-2.5"
-                aria-label="Choose model"
-                title={WORKING_MODELS.find((m) => m.id === modelId)?.name || 'Choose model'}
+                onClick={handleAttachClick}
+                disabled={!canChat || limitLocked || isTyping}
+                className="composer-tool inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-300 hover:text-white disabled:opacity-40"
+                aria-label="Attach any file"
+                title="Attach any file — PDF, Word, Excel, code, images, and more"
               >
-                <Sparkles className="h-5 w-5 shrink-0" />
-                <span className="hidden truncate text-[11px] font-medium sm:inline">
-                  {WORKING_MODELS.find((m) => m.id === modelId)?.name || 'Model'}
-                </span>
-                <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
+                <Paperclip className="h-5 w-5" />
               </button>
-              {showModels && (
-                <>
-                  <button
-                    type="button"
-                    className="no-liquid fixed inset-0 z-40 cursor-default"
-                    aria-label="Close models"
-                    onClick={() => setShowModels(false)}
-                  />
-                  <div className="liquid-panel absolute bottom-12 right-0 z-50 w-56 overflow-hidden rounded-xl py-1">
-                    {WORKING_MODELS.map((model) => {
-                      const active = modelId === model.id
-                      return (
-                        <button
-                          key={model.id}
-                          type="button"
-                          onClick={() => {
-                            setModelId(model.id)
-                            setShowModels(false)
-                          }}
-                          className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-xs ${
-                            active ? 'text-amber-100' : 'text-slate-100'
-                          }`}
-                        >
-                          <span>
-                            <span className="block font-medium">{model.name}</span>
-                            <span className="block text-[10px] text-slate-500">{model.provider}</span>
-                          </span>
-                          {active && <Check className="h-4 w-4 text-amber-200" />}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </>
-              )}
+              <div className="min-w-0 flex-1" />
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowModels((open) => !open)}
+                  className="composer-tool inline-flex h-10 max-w-[140px] items-center gap-1 rounded-full px-2 text-amber-100 sm:max-w-[170px]"
+                  aria-label="Choose model"
+                  title={activeModel?.name || 'Choose model'}
+                >
+                  <Sparkles className="h-4 w-4 shrink-0" />
+                  <span className="hidden truncate text-[11px] font-medium sm:inline">
+                    {activeModel?.name || 'Model'}
+                  </span>
+                  <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
+                </button>
+                {showModels && (
+                  <>
+                    <button
+                      type="button"
+                      className="composer-tool no-liquid fixed inset-0 z-40 cursor-default"
+                      aria-label="Close models"
+                      onClick={() => setShowModels(false)}
+                    />
+                    <div className="liquid-panel absolute bottom-12 right-0 z-50 w-56 overflow-hidden rounded-2xl py-1">
+                      {WORKING_MODELS.map((model) => {
+                        const active = modelId === model.id
+                        return (
+                          <button
+                            key={model.id}
+                            type="button"
+                            onClick={() => {
+                              setModelId(model.id)
+                              setShowModels(false)
+                            }}
+                            className={`composer-tool flex w-full items-center justify-between px-3 py-2.5 text-left text-xs ${
+                              active ? 'text-amber-100' : 'text-slate-200'
+                            }`}
+                          >
+                            <span>
+                              <span className="block font-medium">{model.name}</span>
+                              <span className="block text-[10px] text-slate-500">{model.provider}</span>
+                            </span>
+                            {active && <Check className="h-4 w-4 text-amber-200" />}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={toggleVoice}
+                disabled={!canChat || limitLocked || isTyping}
+                className={`composer-tool inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+                  listening ? 'text-red-400' : 'text-slate-300 hover:text-white'
+                }`}
+                aria-label={listening ? 'Stop listening' : 'Speak to type'}
+                title={listening ? 'Stop listening' : 'Speak to type'}
+              >
+                {listening ? <StopCircle className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSend()}
+                disabled={!canSend}
+                className="liquid-glass-primary inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Send message"
+              >
+                {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={toggleVoice}
-              disabled={!canChat || limitLocked || isTyping}
-              className={`mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-40 ${
-                listening
-                  ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
-              }`}
-              aria-label={listening ? 'Stop listening' : 'Speak to type'}
-              title={listening ? 'Stop listening' : 'Speak to type'}
-            >
-              {listening ? <StopCircle className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSend()}
-              disabled={!canSend}
-              className="liquid-glass-primary mb-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Send message"
-            >
-              {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
-            </button>
           </div>
           <p className="mt-2 text-center text-[11px] text-slate-400 sm:text-xs">
             Nexus is AI and can make mistakes.
@@ -593,7 +591,7 @@ function MessageActions({
       <button
         type="button"
         onClick={onCopy}
-        className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold text-white"
+        className="liquid-glass inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold text-white"
         aria-label={copied ? 'Copied' : 'Copy answer'}
       >
         {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
@@ -601,11 +599,11 @@ function MessageActions({
       </button>
       {align === 'start' && (
         <>
-          <button type="button" className="rounded-md p-2.5 hover:bg-white/10" aria-label="Like">
-            <ThumbsUp className="h-4 w-4 text-slate-400" />
+          <button type="button" className="composer-tool rounded-full p-2.5 text-slate-400 hover:text-white" aria-label="Like">
+            <ThumbsUp className="h-4 w-4" />
           </button>
-          <button type="button" className="rounded-md p-2.5 hover:bg-white/10" aria-label="Dislike">
-            <ThumbsDown className="h-4 w-4 text-slate-400" />
+          <button type="button" className="composer-tool rounded-full p-2.5 text-slate-400 hover:text-white" aria-label="Dislike">
+            <ThumbsDown className="h-4 w-4" />
           </button>
         </>
       )}
@@ -653,7 +651,7 @@ function CopyableCode({ children }: { children: ReactNode }) {
       <button
         type="button"
         onClick={onCopy}
-        className="absolute right-2 top-2 z-10 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/15 bg-[#0b1020]/90 px-2.5 text-[11px] font-semibold text-slate-200 hover:border-cyan-400/40 hover:text-cyan-100"
+        className="liquid-glass absolute right-2 top-2 z-10 inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-semibold text-white"
         aria-label={copied ? 'Copied' : 'Copy code'}
       >
         {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -679,7 +677,7 @@ function MessageBubble({
     return (
       <article className="mx-auto w-full max-w-3xl animate-slide-up">
         <div className="flex items-start gap-3">
-          <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
+          <div className="liquid-glass-primary mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
             <Bot className="h-4 w-4 text-white" />
           </div>
           <div className="min-w-0 flex-1">
@@ -699,7 +697,7 @@ function MessageBubble({
             <img src={message.image} alt="attachment" className="mb-2 max-h-56 w-auto rounded-xl object-contain" />
           )}
           {message.fileName && (
-            <p className="mb-1 flex items-center gap-1.5 text-xs text-cyan-300">
+            <p className="mb-1 flex items-center gap-1.5 text-xs text-amber-200">
               <FileText className="h-3.5 w-3.5" />
               {message.fileName}
             </p>
@@ -707,7 +705,7 @@ function MessageBubble({
           <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100">{message.content}</div>
           <MessageActions copied={copied} onCopy={onCopy} align="end" />
         </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500">
+        <div className="liquid-glass flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
           <User className="h-4 w-4 text-white" />
         </div>
       </div>
@@ -718,10 +716,10 @@ function MessageBubble({
 function TypingIndicator() {
   return (
     <div className="mx-auto flex w-full max-w-3xl items-start gap-3 animate-fade-in">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600">
+      <div className="liquid-glass-primary flex h-8 w-8 items-center justify-center rounded-full">
         <Bot className="h-4 w-4 text-white" />
       </div>
-      <p className="pt-1.5 text-sm font-medium tracking-wide text-violet-300 animate-pulse">
+      <p className="pt-1.5 text-sm font-medium tracking-wide text-amber-200">
         Thinking
       </p>
     </div>

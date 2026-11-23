@@ -126,10 +126,32 @@ a.liquid-glass-primary {
 }
 
 button[class*="destructive"],
-[data-slot="button"][class*="destructive"],
-button[class*="red-500"],
-button[class*="text-red-"] {
+[data-slot="button"][class*="destructive"] {
   background-image: var(--lg-fill-danger) !important;
+}
+
+.nexus-shell .composer-tool,
+.nexus-composer .composer-tool,
+button.composer-tool {
+  background: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  overflow: visible !important;
+  color: inherit !important;
+  isolation: auto;
+}
+.nexus-shell .composer-tool::before,
+.nexus-shell .composer-tool::after,
+.nexus-composer .composer-tool::before,
+.nexus-composer .composer-tool::after,
+button.composer-tool::before,
+button.composer-tool::after {
+  content: none !important;
+  display: none !important;
 }
 
 a.liquid-glass,

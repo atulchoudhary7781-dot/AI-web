@@ -140,7 +140,7 @@ export default function Sidebar({
                 onNewChat() 
                 onClose() 
               }}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-200 active:scale-[0.98]"
+              className="liquid-glass-primary w-full flex items-center justify-center gap-2 py-3 px-4 text-white font-semibold rounded-2xl"
             >
               <Plus className="w-5 h-5" />
               New Chat
@@ -154,7 +154,7 @@ export default function Sidebar({
                 onClose() 
                 window.location.href = '/pricing' 
               }}
-              className="flex items-center gap-3 mt-3 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-pink-500/20 border border-violet-500/30 text-white hover:border-violet-500/50 transition-all duration-200 group"
+              className="liquid-glass flex items-center gap-3 mt-3 px-4 py-3 rounded-2xl text-white group"
             >
               <Crown className="w-5 h-5 text-yellow-400 group-hover:scale-110 transition-transform" />
               <span className="flex-1 font-semibold text-sm">Upgrade Pro</span>
@@ -226,7 +226,7 @@ export default function Sidebar({
                   <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
                     Recent Chats
                   </p>
-                  <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full font-medium">
+                  <span className="liquid-chip px-2 py-0.5 text-[10px] font-medium">
                     {sessions.length}
                   </span>
                 </div>
@@ -258,7 +258,7 @@ export default function Sidebar({
                   onClick={() => { router.push('/profile'); onClose(); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                  <div className="liquid-glass-primary w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div className="flex-1 min-w-0 text-left">
@@ -282,7 +282,7 @@ export default function Sidebar({
                 <div className="px-3 py-2.5 bg-white/[0.03] rounded-xl border border-white/[0.05]">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-gray-400">Free Messages</span>
-                    <span className={`text-xs font-semibold ${chatCount >= maxChats ? 'text-red-400' : 'text-cyan-400'}`}>
+                    <span className={`text-xs font-semibold ${chatCount >= maxChats ? 'text-red-400' : 'text-amber-300'}`}>
                       {chatCount}/{maxChats}
                     </span>
                   </div>
@@ -290,7 +290,7 @@ export default function Sidebar({
                   <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
                     <div 
                       className={`h-full rounded-full transition-all duration-300 ${
-                        chatCount >= maxChats ? 'bg-red-500' : 'bg-gradient-to-r from-cyan-500 to-violet-500'
+                        chatCount >= maxChats ? 'bg-red-500' : 'bg-gradient-to-r from-amber-300 to-orange-500'
                       }`}
                       style={{ width: `${Math.min((chatCount / maxChats) * 100, 100)}%` }}
                     />
@@ -300,9 +300,9 @@ export default function Sidebar({
                 {/* Login Button */}
                 <button
                   onClick={() => { router.push('/login'); onClose(); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-xl hover:bg-cyan-500/20 transition-colors"
+                  className="liquid-glass w-full flex items-center gap-3 px-3 py-2.5 rounded-xl"
                 >
-                  <LogIn className="w-5 h-5 text-cyan-400" />
+                  <LogIn className="w-5 h-5 text-amber-200" />
                   <div className="text-left">
                     <p className="text-sm font-medium text-white">Sign In</p>
                     <p className="text-xs text-gray-500">Access all features</p>
@@ -312,9 +312,9 @@ export default function Sidebar({
                 {/* Signup Button */}
                 <button
                   onClick={() => { router.push('/signup'); onClose(); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-violet-500/10 border border-violet-500/30 rounded-xl hover:bg-violet-500/20 transition-colors"
+                  className="liquid-glass-primary w-full flex items-center gap-3 px-3 py-2.5 rounded-xl"
                 >
-                  <LogIn className="w-5 h-5 text-violet-400" />
+                  <LogIn className="w-5 h-5 text-white" />
                   <div className="text-left">
                     <p className="text-sm font-medium text-white">Create Account</p>
                     <p className="text-xs text-gray-500">Save your history</p>
@@ -348,18 +348,18 @@ function SidebarButton({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
         active
-          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30'
-          : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
+          ? 'liquid-glass text-amber-100'
+          : 'text-gray-400 hover:text-white'
       }`}
     >
-      <div className={`${active ? 'text-cyan-400' : 'text-gray-500'} transition-colors`}>
+      <div className={`${active ? 'text-amber-200' : 'text-gray-500'} transition-colors`}>
         {icon}
       </div>
       <span className="text-sm font-medium">{label}</span>
       
       {/* Active Indicator */}
       {active && (
-        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
       )}
     </button>
   )
@@ -384,8 +384,8 @@ function ChatSessionItem({
       onClick={onSelect}
       className={`group flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
         isActive
-          ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-cyan-400 border border-cyan-500/30'
-          : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
+          ? 'liquid-glass text-amber-100'
+          : 'text-gray-400 hover:text-white'
       }`}
     >
       <History className="w-4 h-4 opacity-60 flex-shrink-0" />
