@@ -371,26 +371,26 @@ export default function FullScreenChat({
   const activeModel = WORKING_MODELS.find((m) => m.id === modelId)
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto">
+    <div className="flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden">
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
         {!hasMessages ? (
-          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-4 py-5 sm:py-8">
-            <div className="liquid-glass-primary mb-4 flex h-14 w-14 items-center justify-center rounded-2xl sm:mb-5 sm:h-16 sm:w-16">
-              <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />
+          <div className="mx-auto flex h-full w-full max-w-3xl flex-col items-center justify-center px-3 py-3 sm:px-4 sm:py-5">
+            <div className="liquid-glass-primary mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mb-4 sm:h-14 sm:w-14">
+              <Sparkles className="h-6 w-6 text-white sm:h-7 sm:w-7" />
             </div>
-            <h1 className="text-center font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <h1 className="text-center font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
               NEXUS <span className="gradient-text-nexus">AI</span>
             </h1>
-            <p className="mt-2 max-w-lg text-center text-sm text-slate-300 sm:text-base">
+            <p className="mt-1.5 max-w-lg px-2 text-center text-xs text-slate-300 sm:text-sm">
               Ask anything — writing, code, research, files, or ideas.
             </p>
-            <div className="mt-5 grid w-full grid-cols-1 gap-2.5 sm:mt-6 sm:grid-cols-2">
+            <div className="mt-4 grid w-full grid-cols-1 gap-2 sm:mt-5 sm:grid-cols-2 sm:gap-2.5">
               {SUGGESTIONS.map((item) => (
                 <button
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
                   disabled={!canChat || limitLocked}
-                  className="liquid-glass rounded-2xl p-4 text-left disabled:cursor-not-allowed disabled:opacity-40"
+                  className="liquid-glass rounded-2xl p-3 text-left disabled:cursor-not-allowed disabled:opacity-40 sm:p-4"
                 >
                   <p className="text-sm font-semibold text-white">{item.title}</p>
                   <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-200">{item.prompt}</p>
@@ -399,7 +399,7 @@ export default function FullScreenChat({
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6 sm:py-8">
+          <div className="mx-auto w-full max-w-3xl space-y-8 px-3 py-5 sm:px-4 sm:py-8">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -414,8 +414,8 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer px-3 pb-3 pt-2 sm:px-4 sm:pb-4">
-        <div className="mx-auto max-w-3xl">
+      <div className="nexus-composer w-full max-w-full shrink-0 px-3 pt-1 sm:px-4">
+        <div className="mx-auto w-full max-w-3xl">
           <input
             ref={fileInputRef}
             type="file"
@@ -468,7 +468,7 @@ export default function FullScreenChat({
             </div>
           )}
 
-          <div className="liquid-panel rounded-3xl p-2 sm:p-2.5">
+          <div className="liquid-panel w-full max-w-full rounded-3xl p-1.5 sm:p-2">
             <textarea
               ref={inputRef}
               value={inputValue}
@@ -486,9 +486,9 @@ export default function FullScreenChat({
               }
               disabled={!canChat || limitLocked}
               rows={1}
-              className="no-liquid max-h-40 min-h-[44px] w-full resize-none bg-transparent px-3 py-2.5 text-base text-white outline-none placeholder:text-slate-500 sm:text-sm"
+              className="no-liquid max-h-28 min-h-[40px] w-full min-w-0 resize-none bg-transparent px-3 py-2 text-base text-white outline-none placeholder:text-slate-500 sm:max-h-40 sm:text-sm"
             />
-            <div className="flex items-center gap-1 px-0.5 pb-0.5">
+            <div className="flex min-w-0 items-center gap-0.5 px-0.5 pb-0.5">
               <button
                 type="button"
                 onClick={handleAttachClick}
