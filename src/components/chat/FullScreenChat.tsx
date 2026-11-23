@@ -382,51 +382,53 @@ export default function FullScreenChat({
   const activeModel = WORKING_MODELS.find((m) => m.id === modelId)
 
   return (
-    <div className="flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden">
-      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+    <div className="chat-stage">
+      <div className="chat-hero">
         {!hasMessages ? (
-          <div className="mx-auto flex h-full w-full max-w-[760px] flex-col items-center justify-center px-4">
-            <div className="liquid-glass mb-5 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl sm:h-16 sm:w-16">
-              <Sparkles className="h-7 w-7 text-amber-100 sm:h-8 sm:w-8" />
+          <div className="chat-col">
+            <div className="liquid-glass mb-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mb-5 sm:h-14 sm:w-14">
+              <Sparkles className="h-6 w-6 text-amber-100 sm:h-7 sm:w-7" />
             </div>
-            <h1 className="text-center font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            <h1 className="text-center font-display text-[clamp(1.85rem,4.2vh,2.75rem)] font-bold tracking-tight text-white">
               NEXUS <span className="gradient-text-nexus">AI</span>
             </h1>
-            <p className="mt-3 max-w-xl text-center text-sm text-slate-300">
+            <p className="mt-2 max-w-xl text-center text-[13px] text-slate-300 sm:text-sm">
               Ask anything - writing, code, research, files, or ideas.
             </p>
-            <div className="mt-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+            <div className="chat-hero-grid">
               {SUGGESTIONS.map((item) => (
                 <button
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
                   disabled={!canChat || limitLocked}
-                  className="liquid-glass min-h-[96px] rounded-2xl p-5 text-left disabled:cursor-not-allowed disabled:opacity-40"
+                  className="liquid-glass chat-hero-card disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <p className="text-[15px] font-semibold text-white">{item.title}</p>
-                  <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-slate-300">{item.prompt}</p>
+                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                  <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-slate-300 sm:text-[13px]">{item.prompt}</p>
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-[760px] space-y-8 px-4 py-6">
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                copied={copiedId === message.id}
-                onCopy={() => handleCopy(message.content, message.id)}
-              />
-            ))}
-            {isTyping && <TypingIndicator />}
-            <div ref={messagesEndRef} />
+          <div className="h-full w-full overflow-y-auto">
+            <div className="mx-auto w-full max-w-[720px] space-y-8 px-0 py-6">
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  copied={copiedId === message.id}
+                  onCopy={() => handleCopy(message.content, message.id)}
+                />
+              ))}
+              {isTyping && <TypingIndicator />}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
         )}
       </div>
 
-      <div className="nexus-composer w-full shrink-0 bg-transparent px-4 pb-2 pt-2">
-        <div className="mx-auto w-full max-w-[760px]">
+      <div className="nexus-composer w-full shrink-0 bg-transparent px-4 pt-1">
+        <div className="mx-auto w-full max-w-[720px]">
           <input
             ref={fileInputRef}
             type="file"
@@ -672,7 +674,7 @@ function MessageBubble({
 
   if (!isUser) {
     return (
-      <article className="mx-auto w-full max-w-3xl animate-slide-up">
+      <article className="mx-auto w-full max-w-[720px] animate-slide-up">
         <div className="flex items-start gap-3">
           <div className="liquid-glass-primary mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
             <Bot className="h-4 w-4 text-white" />
@@ -712,7 +714,7 @@ function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="mx-auto flex w-full max-w-3xl items-start gap-3 animate-fade-in">
+    <div className="mx-auto flex w-full max-w-[720px] items-start gap-3 animate-fade-in">
       <div className="liquid-glass-primary flex h-8 w-8 items-center justify-center rounded-full">
         <Bot className="h-4 w-4 text-white" />
       </div>

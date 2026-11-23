@@ -206,6 +206,53 @@ button, a, [role="button"] {
   height: 100%;
 }
 
+.chat-stage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.chat-hero {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 1rem;
+}
+.chat-col {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chat-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  width: 100%;
+  margin-top: 1.75rem;
+}
+.chat-hero-card {
+  min-height: 0;
+  text-align: left;
+  border-radius: 1rem;
+  padding: 1.1rem 1.15rem;
+}
+@media (max-height: 780px) {
+  .chat-hero-grid { margin-top: 1rem; gap: 0.65rem; }
+  .chat-hero-card { padding: 0.8rem 0.95rem; }
+}
+@media (max-width: 520px) {
+  .chat-hero-grid { gap: 0.55rem; }
+  .chat-hero-card { padding: 0.7rem 0.8rem; }
+}
+
 .page-shell {
   min-height: 100dvh;
   overflow-x: hidden;
