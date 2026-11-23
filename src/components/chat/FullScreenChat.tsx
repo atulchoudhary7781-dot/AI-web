@@ -374,7 +374,7 @@ export default function FullScreenChat({
     <div className="flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden">
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
         {!hasMessages ? (
-          <div className="mx-auto flex h-full w-full max-w-3xl flex-col items-center justify-center px-3 py-3 sm:px-4 sm:py-5">
+          <div className="mx-auto flex h-full w-full max-w-5xl flex-col items-center justify-center px-4 py-3 sm:px-6">
             <div className="liquid-glass-primary mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mb-4 sm:h-14 sm:w-14">
               <Sparkles className="h-6 w-6 text-white sm:h-7 sm:w-7" />
             </div>
@@ -399,7 +399,7 @@ export default function FullScreenChat({
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-3xl space-y-8 px-3 py-5 sm:px-4 sm:py-8">
+          <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-5 sm:px-6 sm:py-8">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -414,8 +414,8 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer w-full max-w-full shrink-0 px-3 pt-1 sm:px-4">
-        <div className="mx-auto w-full max-w-3xl">
+      <div className="nexus-composer w-full max-w-full shrink-0 bg-transparent px-4 pt-1 sm:px-6">
+        <div className="mx-auto w-full max-w-5xl">
           <input
             ref={fileInputRef}
             type="file"
@@ -679,7 +679,7 @@ function MessageBubble({
 
   if (!isUser) {
     return (
-      <article className="mx-auto w-full max-w-3xl animate-slide-up">
+      <article className="mx-auto w-full max-w-5xl animate-slide-up">
         <div className="flex items-start gap-3">
           <div className="liquid-glass-primary mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
             <Bot className="h-4 w-4 text-white" />
@@ -719,7 +719,7 @@ function MessageBubble({
 
 function TypingIndicator() {
   return (
-    <div className="mx-auto flex w-full max-w-3xl items-start gap-3 animate-fade-in">
+    <div className="mx-auto flex w-full max-w-5xl items-start gap-3 animate-fade-in">
       <div className="liquid-glass-primary flex h-8 w-8 items-center justify-center rounded-full">
         <Bot className="h-4 w-4 text-white" />
       </div>

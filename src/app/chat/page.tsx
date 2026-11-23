@@ -1295,7 +1295,7 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       />
 
       <div className="nexus-main">
-        <header className="nexus-topbar z-30 flex shrink-0 items-center justify-between gap-2 border-b px-2 sm:gap-3 sm:px-5">
+        <header className="nexus-topbar z-30 flex shrink-0 items-center justify-between gap-2 bg-transparent px-3 sm:gap-3 sm:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
