@@ -410,8 +410,8 @@ export default function FullScreenChat({
             </div>
           </div>
         ) : (
-          <div className="h-full w-full overflow-y-auto">
-            <div className="mx-auto w-full max-w-[720px] space-y-8 px-0 py-6">
+          <div className="chat-thread">
+            <div className="mx-auto w-full max-w-[720px] space-y-8 py-6">
               {messages.map((message) => (
                 <MessageBubble
                   key={message.id}
@@ -537,7 +537,7 @@ export default function FullScreenChat({
                 type="button"
                 onClick={() => handleSend()}
                 disabled={!canSend}
-                className="liquid-glass inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-300 text-black disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Send message"
               >
                 {isTyping ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4" />}
