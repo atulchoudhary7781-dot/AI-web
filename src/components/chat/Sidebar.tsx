@@ -103,7 +103,7 @@ export default function Sidebar({
       
       {/* Sidebar Panel */}
       <aside 
-        className={`liquid-panel fixed top-0 left-0 h-full w-[min(20rem,88vw)] z-50 transform transition-transform duration-300 ease-out flex flex-col ${
+        className={`nexus-sidebar liquid-panel h-full w-[min(20rem,88vw)] transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
