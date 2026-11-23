@@ -88,9 +88,12 @@
   margin: 0;
   border: 0;
   background: none;
-  color: #f3d5a3;
+  color: #d4c4b0;
   font: inherit;
   cursor: pointer;
+}
+.chat-text-link:hover {
+  color: #f3d5a3;
   text-decoration: underline;
   text-underline-offset: 2px;
 }

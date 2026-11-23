@@ -125,8 +125,6 @@ export default function FullScreenChat({
     const el = inputRef.current
     if (!el) return
     el.style.height = '40px'
-    const next = Math.min(el.scrollHeight, 72)
-    el.style.height = `${Math.max(40, next)}px`
   }
 
   useEffect(() => {
@@ -387,32 +385,32 @@ export default function FullScreenChat({
     <div className="flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden">
       <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
         {!hasMessages ? (
-          <div className="mx-auto flex h-full w-full max-w-3xl flex-col items-center justify-center px-4 py-3">
-            <div className="liquid-glass-primary mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mb-4 sm:h-14 sm:w-14">
-              <Sparkles className="h-6 w-6 text-white sm:h-7 sm:w-7" />
+          <div className="mx-auto flex h-full w-full max-w-[760px] flex-col items-center justify-center px-4">
+            <div className="liquid-glass mb-5 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl sm:h-16 sm:w-16">
+              <Sparkles className="h-7 w-7 text-amber-100 sm:h-8 sm:w-8" />
             </div>
-            <h1 className="text-center font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            <h1 className="text-center font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
               NEXUS <span className="gradient-text-nexus">AI</span>
             </h1>
-            <p className="mt-1.5 max-w-lg px-2 text-center text-xs text-slate-300 sm:text-sm">
-              Ask anything — writing, code, research, files, or ideas.
+            <p className="mt-3 max-w-xl text-center text-sm text-slate-300">
+              Ask anything - writing, code, research, files, or ideas.
             </p>
-            <div className="mt-4 grid w-full grid-cols-1 gap-2 sm:mt-5 sm:grid-cols-2 sm:gap-2.5">
+            <div className="mt-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               {SUGGESTIONS.map((item) => (
                 <button
                   key={item.title}
                   onClick={() => handleSend(item.prompt)}
                   disabled={!canChat || limitLocked}
-                  className="liquid-glass rounded-2xl p-3 text-left disabled:cursor-not-allowed disabled:opacity-40 sm:p-4"
+                  className="liquid-glass min-h-[96px] rounded-2xl p-5 text-left disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <p className="text-sm font-semibold text-white">{item.title}</p>
-                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-200">{item.prompt}</p>
+                  <p className="text-[15px] font-semibold text-white">{item.title}</p>
+                  <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-slate-300">{item.prompt}</p>
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6">
+          <div className="mx-auto w-full max-w-[760px] space-y-8 px-4 py-6">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -427,8 +425,8 @@ export default function FullScreenChat({
         )}
       </div>
 
-      <div className="nexus-composer w-full shrink-0 bg-transparent px-4 pt-1">
-        <div className="mx-auto w-full max-w-3xl">
+      <div className="nexus-composer w-full shrink-0 bg-transparent px-4 pb-2 pt-2">
+        <div className="mx-auto w-full max-w-[760px]">
           <input
             ref={fileInputRef}
             type="file"
@@ -478,12 +476,12 @@ export default function FullScreenChat({
           )}
 
           <div className="relative" ref={modelMenuRef}>
-            <div className="liquid-panel flex items-end gap-1 rounded-full px-1.5 py-1.5 sm:px-2">
+            <div className="liquid-panel flex h-12 items-center gap-1 rounded-full px-2 sm:h-[52px] sm:px-3">
               <button
                 type="button"
                 onClick={handleAttachClick}
                 disabled={!canChat || limitLocked || isTyping}
-                className="mb-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-300 hover:text-white disabled:opacity-40"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-300 hover:text-white disabled:opacity-40"
                 aria-label="Attach any file"
                 title="Attach any file"
               >
@@ -506,17 +504,17 @@ export default function FullScreenChat({
                 }
                 disabled={!canChat || limitLocked}
                 rows={1}
-                className="max-h-[72px] min-h-[40px] min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2.5 text-base text-white shadow-none outline-none ring-0 placeholder:text-slate-500 focus:border-0 focus:outline-none focus:ring-0 sm:text-sm"
+                className="h-10 min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[15px] leading-6 text-white shadow-none outline-none ring-0 placeholder:text-slate-400 focus:border-0 focus:outline-none focus:ring-0"
               />
               <button
                 type="button"
                 onClick={() => setShowModels((open) => !open)}
-                className="mb-0.5 inline-flex h-10 max-w-[128px] shrink-0 items-center gap-1 rounded-full px-2 text-amber-100"
+                className="inline-flex h-10 max-w-[140px] shrink-0 items-center gap-1 rounded-full px-2 text-amber-100"
                 aria-label="Choose model"
                 title={activeModel?.name || 'Choose model'}
               >
                 <Sparkles className="h-4 w-4 shrink-0" />
-                <span className="hidden truncate text-[11px] font-medium sm:inline">
+                <span className="hidden truncate text-[12px] font-medium sm:inline">
                   {activeModel?.name || 'Model'}
                 </span>
                 <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition ${showModels ? 'rotate-180' : ''}`} />
@@ -525,7 +523,7 @@ export default function FullScreenChat({
                 type="button"
                 onClick={toggleVoice}
                 disabled={!canChat || limitLocked || isTyping}
-                className={`mb-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+                className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
                   listening ? 'text-red-400' : 'text-slate-300 hover:text-white'
                 }`}
                 aria-label={listening ? 'Stop listening' : 'Speak to type'}
@@ -537,10 +535,10 @@ export default function FullScreenChat({
                 type="button"
                 onClick={() => handleSend()}
                 disabled={!canSend}
-                className="liquid-glass-primary mb-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+                className="liquid-glass inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Send message"
               >
-                {isTyping ? <StopCircle className="h-5 w-5" /> : <Send className="h-5 w-5" />}
+                {isTyping ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4" />}
               </button>
             </div>
             {showModels && (

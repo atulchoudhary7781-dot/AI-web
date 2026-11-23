@@ -1295,11 +1295,11 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
       />
 
       <div className="nexus-main">
-        <header className="nexus-topbar z-30 flex shrink-0 items-center justify-between gap-2 bg-transparent px-3 sm:gap-3 sm:px-6">
-          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+        <header className="nexus-topbar relative z-30 flex shrink-0 items-center justify-between px-4 py-4 sm:px-8">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`liquid-glass flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition ${
+              className={`liquid-glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
                 sidebarOpen ? 'rotate-90' : ''
               }`}
               title={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
@@ -1307,14 +1307,14 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
               {sidebarOpen ? (
                 <X className="h-[18px] w-[18px] text-red-400" />
               ) : (
-                <Menu className="h-[18px] w-[18px] text-amber-200" />
+                <Menu className="h-[18px] w-[18px] text-amber-100" />
               )}
             </button>
             {currentView !== 'chat' && (
               <button
                 type="button"
                 onClick={() => setCurrentView('chat')}
-                className="liquid-glass flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-amber-100"
+                className="liquid-glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-amber-100"
                 title="Back to chat"
                 aria-label="Back to chat"
               >
@@ -1324,13 +1324,13 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
             <button
               type="button"
               onClick={() => setCurrentView('chat')}
-              className="flex min-w-0 items-center gap-2 rounded-lg px-1 py-1 hover:opacity-90"
+              className="flex items-center gap-2"
               title="Open chat"
             >
-              <div className="liquid-glass-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-                <Sparkles className="h-4 w-4 text-white" />
+              <div className="liquid-glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                <Sparkles className="h-4 w-4 text-amber-100" />
               </div>
-              <span className="hidden truncate text-sm font-semibold tracking-tight text-white min-[380px]:inline sm:text-base">
+              <span className="hidden text-[15px] font-semibold tracking-wide text-white min-[380px]:inline">
                 NEXUS AI
               </span>
             </button>
@@ -1338,33 +1338,41 @@ I'm here to push the boundaries of what's possible. **What shall we explore?** ð
 
           <a
             href="/pricing"
-            className="liquid-glass-primary inline-flex h-9 shrink-0 items-center gap-1 rounded-full px-2.5 text-[11px] font-extrabold text-white sm:gap-1.5 sm:px-3"
+            className="liquid-glass absolute left-1/2 top-1/2 hidden h-10 -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full px-4 text-xs font-bold text-white sm:inline-flex"
           >
             <Crown className="h-3.5 w-3.5 text-yellow-300" />
             PRO
           </a>
 
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-2">
             {isLoggedIn ? (
               <>
-                <Button variant="ghost" size="sm" onClick={handleNewChat} className="h-9 text-slate-300">
-                  <Plus className="h-4 w-4 sm:mr-1.5" />
+                <button
+                  type="button"
+                  onClick={handleNewChat}
+                  className="liquid-glass inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm text-white"
+                >
+                  <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">New Chat</span>
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleLogout} className="h-9 text-red-400 hover:text-red-300">
-                  <LogOut className="h-4 w-4 sm:mr-1.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="liquid-glass inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-sm text-red-300"
+                >
+                  <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">Logout</span>
-                </Button>
+                </button>
               </>
             ) : (
-              <Button
-                size="sm"
+              <button
+                type="button"
                 onClick={handleLoginClick}
-                className="h-9"
+                className="liquid-glass inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium text-white"
               >
-                <LogIn className="h-4 w-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">Login</span>
-              </Button>
+                <LogIn className="h-4 w-4" />
+                Login
+              </button>
             )}
           </div>
         </header>

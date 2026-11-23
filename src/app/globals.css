@@ -166,7 +166,6 @@ button, a, [role="button"] {
 
 .nexus-topbar {
   padding-top: env(safe-area-inset-top, 0px);
-  min-height: calc(3.5rem + env(safe-area-inset-top, 0px));
 }
 
 .nexus-composer {
