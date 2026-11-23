@@ -24,8 +24,8 @@ export default function HomePage() {
             <div className="liquid-panel relative overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-3xl">
               <video
                 className="aspect-video w-full bg-black object-cover"
-                src="/NEXUS-AI-Promo.mp4?v=gemini4"
-                poster="/nexus-promo-poster.jpg?v=gemini4"
+                src="/NEXUS-AI-Promo.mp4?v=visuals"
+                poster="/nexus-promo-poster.jpg?v=visuals"
                 controls
                 playsInline
                 muted
@@ -36,7 +36,7 @@ export default function HomePage() {
               />
             </div>
             <p className="mt-3 text-center text-[11px] text-slate-500 sm:text-xs">
-              1080p · 4-shot edit · unmute for voice
+              1080p · cinematic visuals · unmute for voice
             </p>
           </div>
 
