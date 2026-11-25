@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <div className="page-shell">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-14 lg:py-16">
+      <main className="mx-auto w-full max-w-5xl px-3 py-5 sm:px-6 sm:py-14 lg:py-16">
         <section className="text-center">
           <div className="liquid-glass-primary mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl sm:mb-6 sm:h-16 sm:w-16">
             <Sparkles className="h-7 w-7 text-white sm:h-8 sm:w-8" />

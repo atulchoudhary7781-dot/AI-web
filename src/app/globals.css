@@ -159,13 +159,17 @@ button, a, [role="button"] {
   touch-action: manipulation;
 }
 
-/* App chrome — chat overlays the black hole on every device */
+/* App chrome — chat overlays the black hole on every device.
+   Use visualViewport height so the iOS keyboard cannot bury the composer. */
 .nexus-shell {
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--app-offset, 0px);
   z-index: 2;
   width: 100%;
-  height: 100%;
+  height: var(--app-height, 100dvh);
+  max-height: var(--app-height, 100dvh);
   overflow: hidden;
   background: transparent;
   overscroll-behavior: none;
@@ -261,6 +265,9 @@ button, a, [role="button"] {
   justify-content: center;
   padding: 0 clamp(0.75rem, 3vw, 1.5rem);
 }
+.chat-hero:has(.chat-thread) {
+  justify-content: flex-start;
+}
 .chat-col {
   width: min(720px, 100%);
   margin: auto;
@@ -294,6 +301,8 @@ button, a, [role="button"] {
   min-height: 0;
   width: 100%;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .chat-composer-inner {
   width: min(720px, 100%);
@@ -422,6 +431,60 @@ button, a, [role="button"] {
   .chat-sub { display: none; }
   .chat-hero-card p:last-child { display: none; }
   .chat-disclaimer { display: none; }
+}
+
+/* Phone: header top, answers middle, prompt bottom — no wrap, no buried composer */
+@media (max-width: 480px) {
+  .nexus-topbar {
+    padding: calc(env(safe-area-inset-top, 0px) + 0.3rem) 0.55rem 0.3rem;
+    column-gap: 0.25rem;
+  }
+  .nexus-composer {
+    padding: 0.2rem 0.55rem max(0.35rem, env(safe-area-inset-bottom, 0px));
+  }
+  .chat-hero {
+    padding: 0 0.55rem;
+  }
+  .chat-hero-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+  }
+  .chat-hero-card {
+    padding: 0.55rem 0.6rem;
+    border-radius: 0.85rem;
+  }
+  .chat-pill {
+    height: 46px;
+    max-height: 46px;
+    padding: 0 0.22rem 0 0.18rem;
+    gap: 0.08rem;
+  }
+  .chat-pill-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .chat-pill-send {
+    width: 30px;
+    height: 30px;
+  }
+  .chat-pill-model {
+    max-width: 2rem;
+    height: 32px;
+    padding: 0 0.12rem;
+  }
+  .chat-pill-model svg:last-of-type {
+    display: none;
+  }
+  .chat-thread-inner {
+    padding-top: 0.75rem;
+    padding-bottom: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .chat-hero-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .page-shell {

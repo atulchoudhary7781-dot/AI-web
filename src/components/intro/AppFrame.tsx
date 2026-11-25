@@ -18,6 +18,26 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
     setBoot(false)
   }, [])
 
+  useEffect(() => {
+    const root = document.documentElement
+    const apply = () => {
+      const vv = window.visualViewport
+      const height = Math.round(vv?.height ?? window.innerHeight)
+      const offset = Math.round(vv?.offsetTop ?? 0)
+      root.style.setProperty('--app-height', `${height}px`)
+      root.style.setProperty('--app-offset', `${offset}px`)
+    }
+    apply()
+    window.visualViewport?.addEventListener('resize', apply)
+    window.visualViewport?.addEventListener('scroll', apply)
+    window.addEventListener('orientationchange', apply)
+    return () => {
+      window.visualViewport?.removeEventListener('resize', apply)
+      window.visualViewport?.removeEventListener('scroll', apply)
+      window.removeEventListener('orientationchange', apply)
+    }
+  }, [])
+
   return (
     <>
       {boot && <div className="fixed inset-0 z-[9999] bg-[#020010]" aria-hidden />}
