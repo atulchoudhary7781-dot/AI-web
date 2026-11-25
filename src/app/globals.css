@@ -197,13 +197,24 @@ button, a, [role="button"] {
 .nexus-topbar-left,
 .nexus-topbar-right {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.4rem;
   min-width: 0;
 }
-.nexus-topbar-left { justify-self: start; }
-.nexus-topbar-center { justify-self: center; }
-.nexus-topbar-right { justify-self: end; }
+.nexus-topbar-left {
+  grid-column: 1;
+  justify-self: start;
+}
+.nexus-topbar-center {
+  grid-column: 2;
+  justify-self: center;
+}
+.nexus-topbar-right {
+  grid-column: 3;
+  justify-self: end;
+  justify-content: flex-end;
+}
 
 .nexus-composer {
   flex: 0 0 auto;

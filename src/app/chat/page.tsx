@@ -176,13 +176,13 @@ export default function ChatPage() {
             <button
               type="button"
               onClick={() => router.push('/chat')}
-              className="flex min-w-0 items-center gap-2"
+              className="flex shrink-0 items-center gap-2"
               title="Open chat"
             >
               <div className="liquid-glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
                 <Sparkles className="h-4 w-4 text-amber-100" />
               </div>
-              <span className="hidden truncate text-[15px] font-semibold tracking-wide text-white min-[380px]:inline">
+              <span className="hidden whitespace-nowrap text-[15px] font-semibold tracking-wide text-white min-[360px]:inline">
                 NEXUS AI
               </span>
             </button>
@@ -220,7 +220,7 @@ export default function ChatPage() {
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="liquid-glass inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium text-white"
+                className="liquid-glass inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-white sm:gap-2 sm:px-4"
               >
                 <LogIn className="h-4 w-4" />
                 Login
