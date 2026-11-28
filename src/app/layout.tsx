@@ -27,7 +27,13 @@ export const metadata: Metadata = {
     "Pioneering the future of artificial intelligence. Chat, create, and reason with NEXUS AI.",
   keywords: ["NEXUS AI", "AI", "Chatbot", "Machine Learning", "Next.js"],
   authors: [{ name: "NEXUS AI Team" }],
-  icons: { icon: "/nexus-logo.png" },
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/nexus-logo.png?v=spark", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "NEXUS AI - Future of AI",
     description: "Next-generation artificial intelligence platform",
