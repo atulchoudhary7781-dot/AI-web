@@ -13,21 +13,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark')
-  const [mounted, setMounted] = useState(false)
+  const [theme, setThemeState] = useState<Theme>('light')
 
-  // Initialize theme from localStorage IMMEDIATELY on client
   useEffect(() => {
-    // Prevent hydration mismatch - check localStorage immediately
-    const stored = localStorage.getItem('nexus-theme') as Theme | null
-    const newTheme = stored || 'dark'
-    
-    setThemeState(newTheme)
-    document.documentElement.classList.toggle('dark', newTheme === 'dark')
-    document.documentElement.style.colorScheme = newTheme
-    
-    // Mark as mounted
-    setMounted(true)
+    setThemeState('light')
+    localStorage.setItem('nexus-theme', 'light')
+    document.documentElement.classList.remove('dark')
+    document.documentElement.style.colorScheme = 'light'
   }, [])
 
   const setTheme = (newTheme: Theme) => {
@@ -51,16 +43,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext)
-  
-  // Return default values during SSR or if not in provider
+
   if (context === undefined) {
     return {
-      theme: 'dark' as Theme,
+      theme: 'light' as Theme,
       toggleTheme: () => {},
       setTheme: () => {},
     }
   }
-  
+
   return context
 }
 

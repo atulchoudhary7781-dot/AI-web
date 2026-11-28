@@ -1,24 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Orbitron, Space_Grotesk } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { I18nProvider } from "@/lib/i18n";
 import AppFrame from "@/components/intro/AppFrame";
-import BlackHoleBackdrop from "@/components/theme/BlackHoleBackdrop";
 
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "700", "800", "900"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const viewport: Viewport = {
@@ -26,7 +17,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#000000",
+  themeColor: "#ffffff",
   interactiveWidget: "resizes-content",
 };
 
@@ -48,13 +39,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased min-h-screen bg-deep-black text-foreground`}
+        className={`${inter.variable} antialiased min-h-screen bg-white text-foreground`}
       >
         <ThemeProvider>
           <I18nProvider>
-            <BlackHoleBackdrop />
             <AppFrame>
               {children}
               <Toaster />

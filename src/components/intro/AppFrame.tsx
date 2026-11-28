@@ -10,7 +10,7 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let seen = false
     try {
-      seen = sessionStorage.getItem('nexus_world_intro_v2') === '1'
+      seen = sessionStorage.getItem('nexus_world_intro_v3') === '1'
     } catch {
       seen = false
     }
@@ -40,7 +40,7 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {boot && <div className="fixed inset-0 z-[9999] bg-[#020010]" aria-hidden />}
+      {boot && <div className="fixed inset-0 z-[9999] bg-white" aria-hidden />}
       {intro && <WorldIntro onDone={() => setIntro(false)} />}
       {children}
     </>
