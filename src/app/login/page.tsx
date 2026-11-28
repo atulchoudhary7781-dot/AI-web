@@ -166,7 +166,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="liquid-glass-primary w-full py-3.5 text-white font-bold text-base rounded-xl disabled:opacity-70 flex items-center justify-center gap-2"
+              className="liquid-glass-primary w-full py-3.5 text-black font-bold text-base rounded-xl disabled:opacity-70 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

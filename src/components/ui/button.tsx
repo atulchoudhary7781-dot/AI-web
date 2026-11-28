@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "liquid-glass-primary text-white font-semibold hover:-translate-y-0.5 active:translate-y-0",
+          "liquid-glass-primary text-black font-semibold hover:-translate-y-0.5 active:translate-y-0",
         destructive:
           "text-white shadow-lg hover:-translate-y-0.5",
         outline:
@@ -22,13 +22,13 @@ const buttonVariants = cva(
         link:
           "text-amber-200 underline-offset-4 hover:underline bg-transparent border-0 shadow-none",
         neon:
-          "liquid-glass-primary text-white font-bold hover:-translate-y-1",
+          "liquid-glass-primary text-black font-bold hover:-translate-y-1",
         neonOutline:
           "text-amber-100 hover:-translate-y-0.5",
         glass:
           "text-white hover:-translate-y-0.5",
         cyberpunk:
-          "liquid-glass-primary text-white font-bold tracking-wider uppercase hover:-translate-y-1",
+          "liquid-glass-primary text-black font-bold tracking-wider uppercase hover:-translate-y-1",
         locked:
           "text-gray-200 font-semibold cursor-not-allowed opacity-80",
       },

@@ -372,7 +372,7 @@ export default function PricingPage() {
               </Button>
             </Link>
             
-            <Link href="#chat">
+            <Link href="/chat">
               <Button variant="ghost" size="lg">
                 Try Demo First
               </Button>

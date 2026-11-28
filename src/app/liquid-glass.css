@@ -32,7 +32,8 @@
   box-shadow: none;
 }
 
-.liquid-glass-primary {
+.liquid-glass-primary,
+.liquid-glass-primary.text-white {
   position: relative;
   isolation: isolate;
   background-color: #ffffff;

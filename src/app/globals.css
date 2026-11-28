@@ -976,8 +976,23 @@ button, a, [role="button"] {
   color: #c4c4c4 !important;
 }
 .liquid-glass-primary,
+.liquid-glass-primary.text-white,
 .liquid-glass-primary .text-white,
+.page-shell .liquid-glass-primary,
+.page-shell .liquid-glass-primary.text-white,
+.page-shell .liquid-glass-primary .text-white,
+.site-header .liquid-glass-primary,
+.site-header .liquid-glass-primary.text-white,
+.site-header .liquid-glass-primary .text-white,
+.nexus-shell .liquid-glass-primary,
+.nexus-shell .liquid-glass-primary.text-white,
+.nexus-sidebar .liquid-glass-primary,
+.nexus-sidebar .liquid-glass-primary.text-white,
+.nexus-sidebar .liquid-glass-primary .text-white,
 .liquid-glass-primary svg,
+.page-shell .liquid-glass-primary svg,
+.site-header .liquid-glass-primary svg,
+.nexus-sidebar .liquid-glass-primary svg,
 .chat-pill-send,
 .chat-pill-send svg {
   color: #000000 !important;

@@ -58,7 +58,7 @@ export default function SiteHeader() {
           </Link>
           <Link
             href="/signup"
-            className="liquid-glass-primary rounded-full px-4 py-2 text-sm font-semibold text-white"
+            className="liquid-glass-primary rounded-full px-4 py-2 text-sm font-semibold text-black"
           >
             Get Started
           </Link>
@@ -92,7 +92,7 @@ export default function SiteHeader() {
             <Link
               href="/signup"
               onClick={() => setOpen(false)}
-              className="liquid-glass-primary mt-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold text-white"
+              className="liquid-glass-primary mt-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold text-black"
             >
               Get Started
             </Link>

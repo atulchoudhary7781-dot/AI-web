@@ -21,23 +21,36 @@ export default function HomePage() {
           </p>
 
           <div className="mx-auto mt-10 w-full max-w-3xl">
-            <div className="overflow-hidden rounded-lg border border-[color:var(--border)] bg-black">
-              <video
-                className="aspect-video w-full bg-black object-cover"
-                src="/NEXUS-AI-Promo.mp4?v=premium"
-                poster="/nexus-promo-poster.jpg?v=premium"
-                controls
-                playsInline
-                muted
-                autoPlay
-                loop
-                preload="metadata"
-                aria-label="NEXUS AI cinematic intro"
-              />
+            <div className="grid gap-3 text-left sm:grid-cols-2">
+              <article className="rounded-lg border border-[color:var(--border)] bg-[#111111] p-5">
+                <h2 className="text-[15px] font-semibold text-white">Write with clarity</h2>
+                <p className="mt-2 text-[14px] leading-6 text-[#c4c4c4]">
+                  Draft emails, essays, captions, and reports. Ask for a shorter, warmer, or more
+                  formal version until the words feel right.
+                </p>
+              </article>
+              <article className="rounded-lg border border-[color:var(--border)] bg-[#111111] p-5">
+                <h2 className="text-[15px] font-semibold text-white">Code with context</h2>
+                <p className="mt-2 text-[14px] leading-6 text-[#c4c4c4]">
+                  Paste an error or a snippet. NEXUS explains what broke, sketches a fix, and walks
+                  through the change in plain English.
+                </p>
+              </article>
+              <article className="rounded-lg border border-[color:var(--border)] bg-[#111111] p-5">
+                <h2 className="text-[15px] font-semibold text-white">Research faster</h2>
+                <p className="mt-2 text-[14px] leading-6 text-[#c4c4c4]">
+                  Summarize long notes, compare options, and turn scattered thoughts into a clear
+                  brief you can actually use.
+                </p>
+              </article>
+              <article className="rounded-lg border border-[color:var(--border)] bg-[#111111] p-5">
+                <h2 className="text-[15px] font-semibold text-white">Work with files</h2>
+                <p className="mt-2 text-[14px] leading-6 text-[#c4c4c4]">
+                  Upload a document or spreadsheet and ask questions. NEXUS reads the content and
+                  answers without the fluff.
+                </p>
+              </article>
             </div>
-            <p className="mt-3 text-center text-[12px] text-[color:var(--muted-foreground)]">
-              1080p · unmute for voice
-            </p>
           </div>
 
           <div className="mx-auto mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:max-w-none sm:flex-row sm:items-center">
