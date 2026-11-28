@@ -186,20 +186,20 @@ export default function SettingsPage() {
               </div>
 
               {!isLoggedIn ? (
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-center">
-                  <p className="text-sm text-slate-300">
+                <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] p-5 text-center">
+                  <p className="text-sm font-medium text-white">
                     Login or create an account to set up your profile.
                   </p>
                   <div className="mt-4 flex justify-center gap-3">
                     <Link
                       href="/login"
-                      className="rounded-lg  px-4 py-2 text-sm font-semibold text-slate-950"
+                      className="rounded-lg border border-[#2a2a2a] px-4 py-2 text-sm font-semibold text-white"
                     >
                       Login
                     </Link>
                     <Link
                       href="/signup"
-                      className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium text-white hover:bg-white/5"
+                      className="liquid-glass-primary rounded-lg px-4 py-2 text-sm font-semibold text-black"
                     >
                       Create Account
                     </Link>
