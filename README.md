@@ -1,23 +1,15 @@
 <p align="center">
-  <img src="public/nexus-logo.png" width="120" alt="NEXUS AI logo" />
-</p>
-
-<h1 align="center">NEXUS AI</h1>
-
-<p align="center">
-  <strong>A cinematic AI chat platform for writing, code, research, and files.</strong>
+  <img src="docs/nexus-hero.png" width="920" alt="NEXUS AI — Ask anything" />
 </p>
 
 <p align="center">
-  <a href="https://ai-web-rho-fawn.vercel.app"><img src="https://img.shields.io/badge/Live-Demo-00e5ff?style=for-the-badge" alt="Live demo" /></a>
-  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=nextdotjs" alt="Next.js" /></a>
+  <a href="https://ai-web-rho-fawn.vercel.app"><img src="https://img.shields.io/badge/Live-Open_app-ffffff?style=for-the-badge&labelColor=000000" alt="Live app" /></a>
+  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
 </p>
 
 <p align="center">
   <a href="https://ai-web-rho-fawn.vercel.app">Open app</a>
-  ·
-  <a href="#intro-video">Intro video</a>
   ·
   <a href="#features">Features</a>
   ·
@@ -25,32 +17,6 @@
   ·
   <a href="#creator">Creator</a>
 </p>
-
-## Intro video
-
-<p align="center">
-  <video width="920" controls muted playsinline preload="metadata" poster="public/nexus-promo-poster.jpg">
-    <source src="public/NEXUS-AI-Promo.mp4" type="video/mp4" />
-    <source src="https://github.com/atulchoudhary7781-dot/AI-web/releases/download/intro/NEXUS-AI-Promo.mp4" type="video/mp4" />
-  </video>
-</p>
-
-<p align="center">
-  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4" title="Play the 1080p promo on GitHub">
-    <img src="docs/nexus-intro.webp" alt="NEXUS AI cinematic promo — Crossing the horizon" width="920" />
-  </a>
-</p>
-
-<p align="center">
-  <b>1080p · cinematic · voice</b><br/>
-  <a href="https://github.com/atulchoudhary7781-dot/AI-web/blob/main/public/NEXUS-AI-Promo.mp4">Play on GitHub</a>
-  ·
-  <a href="https://github.com/atulchoudhary7781-dot/AI-web/releases/tag/intro">Release</a>
-  ·
-  <a href="https://ai-web-rho-fawn.vercel.app/home">Watch on the site</a>
-</p>
-
-The full promo is in the repo: [`public/NEXUS-AI-Promo.mp4`](public/NEXUS-AI-Promo.mp4).
 
 ## Overview
 
@@ -62,17 +28,18 @@ NEXUS AI is a production chat product. It is built to feel fast, stay on topic, 
 
 | | |
 | :--- | :--- |
-| **Chat** | Working models only, topic-aware replies, related recommendations, one-tap copy |
-| **Files** | Attach and analyze documents, images, and common file types |
-| **Voice** | Speak-to-chat on supported devices |
-| **Access** | Guest chats and a higher daily limit after login |
-| **Experience** | Cinematic intro, dark UI, and a layout that stays clean on phone, tablet, and desktop |
+| **Write** | Draft emails, essays, captions, and reports. Rewrite until the tone is right. |
+| **Code** | Paste an error or a snippet. Get a clear fix in plain English. |
+| **Research** | Summarize notes, compare options, and turn thoughts into a brief. |
+| **Files** | Upload a document or spreadsheet and ask questions about it. |
+| **Access** | Guest chats, then a higher daily limit after login. |
+| **Every device** | Phone, tablet, and desktop — header left, prompt at the bottom on mobile. |
 
 ## Pages
 
 | Route | What it is |
 | :--- | :--- |
-| `/home` | Landing, promo, and founder |
+| `/home` | Landing and founder |
 | `/chat` | Full-screen AI chat |
 | `/pricing` | Plans |
 | `/login` · `/signup` | Account |
@@ -114,8 +81,8 @@ Open [http://localhost:3000](http://localhost:3000). The app lands on **Home**.
 src/app          routes and API
 src/components   chat, intro, layout, UI
 src/lib          models, quota, files, helpers
-public           logo, poster, promo video
-docs             GitHub extras (intro preview)
+public           logo and images
+docs             GitHub README art
 ```
 
 ## Notes
