@@ -28,13 +28,20 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
       root.style.setProperty('--app-offset', `${offset}px`)
     }
     apply()
+    const onOrient = () => {
+      apply()
+      window.setTimeout(apply, 300)
+      window.setTimeout(apply, 700)
+    }
     window.visualViewport?.addEventListener('resize', apply)
     window.visualViewport?.addEventListener('scroll', apply)
-    window.addEventListener('orientationchange', apply)
+    window.addEventListener('orientationchange', onOrient)
+    window.addEventListener('resize', apply)
     return () => {
       window.visualViewport?.removeEventListener('resize', apply)
       window.visualViewport?.removeEventListener('scroll', apply)
-      window.removeEventListener('orientationchange', apply)
+      window.removeEventListener('orientationchange', onOrient)
+      window.removeEventListener('resize', apply)
     }
   }, [])
 

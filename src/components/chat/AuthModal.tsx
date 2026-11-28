@@ -189,7 +189,7 @@ export default function AuthModal({
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm sm:bg-black/80 sm:backdrop-blur-md flex items-end sm:items-center justify-center animate-in fade-in duration-150">
       {/* Mobile: Full width bottom sheet | Desktop: Centered modal */}
-      <div className="relative w-full sm:w-auto sm:min-w-[440px] sm:max-w-lg bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800/60 sm:border-cyan-500/30 rounded-b-none sm:rounded-2xl shadow-2xl shadow-black/50 sm:shadow-cyan-500/20 animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-200 max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-lg sm:w-[min(32rem,calc(100vw-2rem))] bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800/60 sm:border-cyan-500/30 rounded-b-none sm:rounded-2xl shadow-2xl shadow-black/50 sm:shadow-cyan-500/20 animate-in slide-in-from-bottom-5 sm:zoom-in-95 sm:duration-200 max-h-[100dvh] sm:max-h-[90dvh] overflow-hidden flex flex-col">
         {/* Close Button - Fixed position */}
         <button
           onClick={onClose}

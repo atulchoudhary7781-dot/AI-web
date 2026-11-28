@@ -190,7 +190,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium text-white">
                     Login or create an account to set up your profile.
                   </p>
-                  <div className="mt-4 flex justify-center gap-3">
+                  <div className="mt-4 flex flex-wrap justify-center gap-3">
                     <Link
                       href="/login"
                       className="rounded-lg border border-[#2a2a2a] px-4 py-2 text-sm font-semibold text-white"

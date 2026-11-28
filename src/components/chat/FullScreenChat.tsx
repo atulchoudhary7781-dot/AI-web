@@ -411,7 +411,7 @@ export default function FullScreenChat({
           </div>
         ) : (
           <div className="chat-thread">
-            <div className="chat-thread-inner mx-auto w-full max-w-[720px] space-y-6 py-4 sm:space-y-8 sm:py-6">
+            <div className="chat-thread-inner mx-auto w-full max-w-[720px] space-y-6 px-3 py-4 sm:space-y-8 sm:px-4 sm:py-6">
               {messages.map((message) => (
                 <MessageBubble
                   key={message.id}

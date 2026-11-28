@@ -127,6 +127,8 @@ html {
   background: #000000;
   overflow-x: hidden;
   color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -187,15 +189,23 @@ button, a, [role="button"] {
 
 .nexus-topbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 0.4rem;
   flex: 0 0 auto;
   min-width: 0;
-  padding: calc(env(safe-area-inset-top, 0px) + 0.45rem) 0.75rem 0.45rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 0.45rem)
+    max(0.75rem, env(safe-area-inset-right, 0px))
+    0.45rem
+    max(0.75rem, env(safe-area-inset-left, 0px));
 }
 @media (min-width: 640px) {
-  .nexus-topbar { padding: calc(env(safe-area-inset-top, 0px) + 0.65rem) 2rem 0.65rem; }
+  .nexus-topbar {
+    padding: calc(env(safe-area-inset-top, 0px) + 0.65rem)
+      max(2rem, env(safe-area-inset-right, 0px))
+      0.65rem
+      max(2rem, env(safe-area-inset-left, 0px));
+  }
 }
 .nexus-topbar-left,
 .nexus-topbar-right {
@@ -224,11 +234,30 @@ button, a, [role="button"] {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  padding: 0.25rem clamp(0.75rem, 3vw, 1.5rem) max(0.4rem, env(safe-area-inset-bottom, 0px));
+  padding: 0.25rem
+    max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-right, 0px))
+    max(0.4rem, env(safe-area-inset-bottom, 0px))
+    max(clamp(0.75rem, 3vw, 1.5rem), env(safe-area-inset-left, 0px));
 }
 
 .site-header {
   padding-top: env(safe-area-inset-top, 0px);
+}
+.site-header-bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  min-width: 0;
+  height: 3.5rem;
+  column-gap: 0.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+@media (min-width: 640px) {
+  .site-header-bar { height: 4rem; }
 }
 
 .nexus-main {
@@ -317,6 +346,10 @@ button, a, [role="button"] {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+.chat-thread-inner {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 .chat-composer-inner {
   width: min(720px, 100%);
@@ -453,17 +486,23 @@ button, a, [role="button"] {
 /* Phone: header top, answers middle, prompt bottom — no wrap, no buried composer */
 @media (max-width: 480px) {
   .nexus-topbar {
-    padding: calc(env(safe-area-inset-top, 0px) + 0.3rem) 0.55rem 0.3rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.3rem)
+      max(0.55rem, env(safe-area-inset-right, 0px))
+      0.3rem
+      max(0.55rem, env(safe-area-inset-left, 0px));
     column-gap: 0.25rem;
   }
   .nexus-composer {
-    padding: 0.2rem 0.55rem max(0.35rem, env(safe-area-inset-bottom, 0px));
+    padding: 0.2rem
+      max(0.55rem, env(safe-area-inset-right, 0px))
+      max(0.35rem, env(safe-area-inset-bottom, 0px))
+      max(0.55rem, env(safe-area-inset-left, 0px));
   }
   .chat-hero {
     padding: 0 0.55rem;
   }
   .chat-hero-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 0.45rem;
   }
   .chat-hero-card {
@@ -502,12 +541,17 @@ button, a, [role="button"] {
   .chat-hero-grid {
     grid-template-columns: 1fr;
   }
+  .chat-pill-model {
+    display: none;
+  }
 }
 
 .page-shell {
   min-height: 100dvh;
   overflow-x: hidden;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   background: transparent;
   color: var(--foreground);
   position: relative;

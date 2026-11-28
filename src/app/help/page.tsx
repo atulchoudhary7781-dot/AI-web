@@ -66,7 +66,7 @@ export default function HelpPage() {
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
             <span>⭐</span> Contact Options
           </h2>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <article className="rounded-2xl border border-amber-300/20 bg-[#0f172a]/70 p-5">
               <div className="mb-3 flex items-center gap-2 text-amber-200">
                 <MessageCircle className="h-5 w-5" />

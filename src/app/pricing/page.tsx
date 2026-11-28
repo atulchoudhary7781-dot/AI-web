@@ -355,7 +355,7 @@ export default function PricingPage() {
 
       {/* CTA Section */}
       <div className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center glass-strong rounded-3xl p-12">
+        <div className="max-w-4xl mx-auto text-center glass-strong rounded-3xl p-6 sm:p-10 md:p-12">
           <Zap className="w-12 h-12 text-neon-cyan mx-auto mb-6" />
           <h2 className="text-3xl font-bold font-display text-foreground mb-4">
             Ready to get started?
@@ -392,7 +392,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     <div className="border border-white/10 rounded-xl overflow-hidden transition-all duration-200 hover:border-white/20">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 text-left"
+        className="w-full flex items-center justify-between p-4 text-left sm:p-6"
       >
         <span className="font-medium text-foreground pr-4">{question}</span>
         <ChevronIcon isOpen={isOpen} />

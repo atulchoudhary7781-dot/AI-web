@@ -21,17 +21,17 @@ export default function SiteHeader() {
 
   return (
     <header className="site-header sticky top-0 z-50 border-b">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
-        <Link href="/home" className="flex items-center gap-2.5">
-          <div className="liquid-glass-primary flex h-9 w-9 items-center justify-center rounded-xl">
+      <div className="site-header-bar">
+        <Link href="/home" className="flex shrink-0 items-center gap-2">
+          <div className="liquid-glass-primary flex h-8 w-8 items-center justify-center rounded-xl sm:h-9 sm:w-9">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
-          <span className="font-display text-base font-bold tracking-wide text-white">
+          <span className="whitespace-nowrap font-display text-sm font-bold tracking-wide text-white sm:text-base">
             NEXUS <span className="gradient-text-nexus">AI</span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1.5 md:flex">
+        <nav className="hidden items-center justify-center gap-1.5 justify-self-center lg:flex">
           {LINKS.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`)
             return (
@@ -49,32 +49,31 @@ export default function SiteHeader() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
           <Link
             href="/login"
-            className="liquid-glass rounded-full px-3.5 py-2 text-sm font-medium text-white"
+            className="liquid-glass rounded-full px-3 py-2 text-sm font-medium text-white sm:px-3.5"
           >
             Login
           </Link>
           <Link
             href="/signup"
-            className="liquid-glass-primary rounded-full px-4 py-2 text-sm font-semibold text-black"
+            className="liquid-glass-primary hidden rounded-full px-4 py-2 text-sm font-semibold text-black sm:inline-flex"
           >
             Get Started
           </Link>
+          <button
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-white lg:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
-
-        <button
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-white md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
       </div>
 
       {open && (
-        <div className="liquid-panel border-t border-white/10 px-4 py-3 md:hidden">
+        <div className="liquid-panel border-t border-white/10 px-4 py-3 lg:hidden">
           <div className="flex flex-col gap-1.5">
             {LINKS.map((link) => (
               <Link
@@ -86,13 +85,10 @@ export default function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/login" onClick={() => setOpen(false)} className="liquid-glass rounded-xl px-3 py-2.5 text-sm text-white">
-              Login
-            </Link>
             <Link
               href="/signup"
               onClick={() => setOpen(false)}
-              className="liquid-glass-primary mt-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold text-black"
+              className="liquid-glass-primary mt-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold text-black sm:hidden"
             >
               Get Started
             </Link>
