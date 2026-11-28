@@ -21,7 +21,7 @@ export default function HomePage() {
           </p>
 
           <div className="mx-auto mt-10 w-full max-w-3xl">
-            <div className="overflow-hidden rounded-lg border border-[color:var(--border)] bg-white">
+            <div className="overflow-hidden rounded-lg border border-[color:var(--border)] bg-black">
               <video
                 className="aspect-video w-full bg-black object-cover"
                 src="/NEXUS-AI-Promo.mp4?v=premium"

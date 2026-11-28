@@ -1,16 +1,16 @@
-/* Grok Minimal Light surfaces — opt-in only. Never style raw button/input globally. */
+/* Simple black surfaces — opt-in only. Never style raw button/input globally. */
 
 :root {
-  --lg-ink: #2c2c2b;
-  --lg-paper: #ffffff;
-  --lg-muted: #8f8d89;
-  --lg-line: #e5e7eb;
-  --lg-soft: #e6e5e3;
-  --lg-accent: #1d9bf0;
-  --lg-error: #d92d20;
+  --lg-ink: #ffffff;
+  --lg-paper: #000000;
+  --lg-muted: #c4c4c4;
+  --lg-line: #2a2a2a;
+  --lg-soft: #141414;
+  --lg-accent: #ffffff;
+  --lg-error: #ff6b6b;
   --lg-fill: none;
   --lg-fill-primary: none;
-  --lg-stroke: #e5e7eb;
+  --lg-stroke: #2a2a2a;
   --lg-spec: none;
 }
 
@@ -23,24 +23,24 @@
 .glass-subtle {
   position: relative;
   isolation: isolate;
-  background-color: var(--lg-paper);
+  background-color: #111111;
   background-image: none;
-  color: var(--lg-ink);
+  color: #ffffff;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border: 1px solid var(--lg-line);
+  border: 1px solid #2a2a2a;
   box-shadow: none;
 }
 
 .liquid-glass-primary {
   position: relative;
   isolation: isolate;
-  background-color: var(--lg-ink);
+  background-color: #ffffff;
   background-image: none;
-  color: #ffffff;
+  color: #000000;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border: 1px solid var(--lg-ink);
+  border: 1px solid #ffffff;
   box-shadow: none;
 }
 
@@ -58,11 +58,11 @@
 
 .navbar-glass,
 .site-header {
-  background-color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-color: var(--lg-line);
-  color: var(--lg-ink);
+  background-color: #000000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: #2a2a2a;
+  color: #ffffff;
 }
 
 .nexus-topbar,
@@ -78,24 +78,19 @@
   margin: 0;
   border: 0;
   background: none;
-  color: var(--lg-ink);
-  font-family: "Times New Roman", Times, serif;
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 20px;
+  color: #ffffff;
+  font: inherit;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 .chat-text-link:hover {
-  color: var(--lg-accent);
+  color: #c4c4c4;
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .navbar-glass,
   .site-header {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background-color: #ffffff;
+    background-color: #000000;
   }
 }

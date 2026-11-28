@@ -40,7 +40,7 @@ export default function AppFrame({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {boot && <div className="fixed inset-0 z-[9999] bg-white" aria-hidden />}
+      {boot && <div className="fixed inset-0 z-[9999] bg-black" aria-hidden />}
       {intro && <WorldIntro onDone={() => setIntro(false)} />}
       {children}
     </>

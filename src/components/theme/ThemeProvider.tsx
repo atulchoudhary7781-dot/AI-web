@@ -16,10 +16,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light')
 
   useEffect(() => {
-    setThemeState('light')
-    localStorage.setItem('nexus-theme', 'light')
-    document.documentElement.classList.remove('dark')
-    document.documentElement.style.colorScheme = 'light'
+    setThemeState('dark')
+    localStorage.setItem('nexus-theme', 'dark')
+    document.documentElement.classList.add('dark')
+    document.documentElement.style.colorScheme = 'dark'
   }, [])
 
   const setTheme = (newTheme: Theme) => {

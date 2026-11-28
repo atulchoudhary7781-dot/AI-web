@@ -17,7 +17,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#ffffff",
+  themeColor: "#000000",
   interactiveWidget: "resizes-content",
 };
 
@@ -41,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} antialiased min-h-screen bg-white text-foreground`}
+        className={`${inter.variable} antialiased min-h-screen bg-black text-white`}
       >
         <ThemeProvider>
           <I18nProvider>
