@@ -356,6 +356,11 @@ button, a, [role="button"] {
   margin: 0 auto;
   min-width: 0;
 }
+.nexus-composer {
+  position: relative;
+  z-index: 8;
+  pointer-events: auto;
+}
 .chat-pill {
   display: flex;
   flex-wrap: nowrap;
@@ -373,6 +378,8 @@ button, a, [role="button"] {
   -webkit-backdrop-filter: none;
   border: 1px solid #2a2a2a;
   box-shadow: none;
+  pointer-events: auto;
+  cursor: text;
 }
 @media (min-width: 640px) {
   .chat-pill {
@@ -382,7 +389,7 @@ button, a, [role="button"] {
     gap: 0.25rem;
   }
 }
-.chat-pill > * { flex-shrink: 0; }
+.chat-pill > *:not(.chat-pill-input) { flex-shrink: 0; }
 .chat-pill :focus,
 .chat-pill :focus-visible {
   outline: none !important;
@@ -403,23 +410,35 @@ button, a, [role="button"] {
 }
 .chat-pill-input,
 .nexus-composer textarea,
+.nexus-composer input[type="text"],
 .nexus-composer textarea:focus,
-.nexus-composer textarea:focus-visible {
+.nexus-composer input[type="text"]:focus,
+.nexus-composer textarea:focus-visible,
+.nexus-composer input[type="text"]:focus-visible {
   flex: 1 1 auto !important;
-  min-width: 0 !important;
-  width: auto !important;
-  height: 24px !important;
-  max-height: 24px !important;
-  overflow: hidden !important;
+  flex-shrink: 1 !important;
+  min-width: 3.5rem !important;
+  width: 0 !important;
+  align-self: stretch;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   resize: none !important;
   outline: none !important;
   border: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
   color: #ffffff;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 16px !important;
+  line-height: 1.25;
   padding: 0 0.4rem;
+  pointer-events: auto !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: manipulation;
+  cursor: text;
+  -webkit-tap-highlight-color: transparent;
 }
 .chat-pill-input::placeholder {
   color: #c4c4c4;

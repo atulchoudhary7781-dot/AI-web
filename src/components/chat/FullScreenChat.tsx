@@ -105,7 +105,7 @@ export default function FullScreenChat({
   }, [userEmail, isLoggedIn])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const modelMenuRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
@@ -318,7 +318,6 @@ export default function FullScreenChat({
     setInputValue('')
     setAttached(null)
     setStatusNote('')
-    if (inputRef.current) inputRef.current.style.height = 'auto'
     setIsTyping(true)
 
     try {
@@ -478,7 +477,15 @@ export default function FullScreenChat({
           )}
 
           <div className="relative" ref={modelMenuRef}>
-            <div className="chat-pill">
+            <div
+              className="chat-pill"
+              onPointerDown={(e) => {
+                const el = inputRef.current
+                if (!el || el.disabled) return
+                if ((e.target as HTMLElement).closest('button')) return
+                el.focus()
+              }}
+            >
               <button
                 type="button"
                 onClick={handleAttachClick}
@@ -489,8 +496,16 @@ export default function FullScreenChat({
               >
                 <Paperclip className="h-5 w-5" />
               </button>
-              <textarea
+              <input
                 ref={inputRef}
+                type="text"
+                inputMode="text"
+                enterKeyHint="send"
+                autoComplete="off"
+                autoCorrect="on"
+                autoCapitalize="sentences"
+                spellCheck
+                name="nexus-message"
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value)
@@ -504,7 +519,6 @@ export default function FullScreenChat({
                       : 'Ask NEXUS AI anything…'
                 }
                 disabled={!canChat || limitLocked}
-                rows={1}
                 className="chat-pill-input placeholder:text-slate-400"
               />
               <button
